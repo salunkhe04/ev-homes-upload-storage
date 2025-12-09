@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback Pending Warning</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .warning-box {
+        background-color: #fff3cd;
+        border-left: 8px solid #ffcc00;
+        padding: 30px;
+        width: 100%;
+        max-width: 800px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        text-align: left;
+      }
+      .warning-box h2 {
+        color: #856404;
+        margin-bottom: 15px;
+        font-size: 24px;
+        text-align: center;
+      }
+      .warning-box p {
+        color: #856404;
+        font-size: 16px;
+        margin: 10px 0;
+        word-wrap: break-word;
+      }
+      .warning-box a {
+        display: block;
+        text-align: center;
+        background-color: #ffcc00;
+        color: #856404;
+        text-decoration: none;
+        padding: 12px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 6px;
+        margin-top: 20px;
+      }
+      .warning-box a:hover {
+        background-color: #e6b800;
+      }
+      @media screen and (max-width: 600px) {
+        body {
+          padding: 10px;
+        }
+        .warning-box {
+          padding: 20px;
+        }
+        .warning-box h2 {
+          font-size: 20px;
+        }
+        .warning-box p {
+          font-size: 14px;
+        }
+        .warning-box a {
+          font-size: 16px;
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="warning-box">
+      <h2>⚠ Feedback Pending</h2>
+      <p><strong>Client Name:</strong> ${clientName}</p>
+      <p><strong>Phone Number:</strong> ${phoneNumber}</p>
+      <p><strong>Assign By:</strong> ${assignBy}</p>
+      <p><strong>Assign Date:</strong> ${assignDate}</p>
+      <p><strong>Lead Status:</strong> ${leadStatus}</p>
+      <p>
+        Please submit feedback for the assigned lead to avoid delays. Timely
+        feedback helps improve response times and ensures better communication
+        with the client.
+      </p>
+      <!-- <a href="#" target="_blank">Submit Feedback</a> -->
+    </div>
+  </body>
+</html>

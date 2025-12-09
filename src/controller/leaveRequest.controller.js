@@ -1,0 +1,561 @@
+import leaveRequestModel from "../model/attendance/leave/leaveRequest.model.js";
+import employeeModel from "../model/employee.model.js";
+import { errorRes, successRes, successRes2 } from "../model/response.js";
+import moment from "moment-timezone";
+import attendanceModel from "../model/attendance/attendance.model.js";
+import { leaveRequestPopulateOptions } from "../utils/constant.js";
+import oneSignalModel from "../model/oneSignal.model.js";
+import { createLeaveHistoryFunc } from "./leaveHistory.controller.js";
+
+import {
+  sendNotificationWithImage,
+  sendNotificationWithInfo,
+} from "./oneSignal.controller.js";
+import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
+import approvalStepModel from "../model/approvalStep.model.js";
+
+export const getLeave = async (req, res, next) => {
+  const { applicant, reportingTo, leaveStatus } = req.query;
+  try {
+    const query = {};
+    if (applicant) {
+      query.applicant = applicant;
+    }
+    if (reportingTo) {
+      query.reportingTo = reportingTo;
+    }
+    if (leaveStatus) {
+      query.leaveStatus = leaveStatus;
+    }
+
+    const resp = await leaveRequestModel
+      .find(query)
+      .populate("applicant", "firstName lastName email")
+      .populate("reportingTo", "firstName lastName email");
+
+    if (resp.length === 0) {
+      return res.send(errorRes(404, "No Leave records found"));
+    }
+    return res.send(successRes(200, "Leave records retrieved", { data: resp }));
+  } catch (error) {
+    console.error("Error retrieving leave requests:", error);
+    return res.status(500).send(errorRes(500, "Internal Server Error"));
+  }
+};
+
+export const getApplyLeave = async (req, res, next) => {
+  const id = req.params.id;
+  try {
+    if (!id) return res.send(errorRes(401, "id is required"));
+
+    const resp = await leaveRequestModel
+      .find({ "approvalSteps.adminId": id })
+      .populate(leaveRequestPopulateOptions)
+      .sort({
+        appliedOn: -1,
+      });
+
+    const approvedList = resp.filter((ele) => ele.leaveStatus === "approved");
+    const rejectedList = resp.filter((ele) => ele.leaveStatus === "rejected");
+    const pendingList = resp.filter((ele) => ele.leaveStatus === "pending");
+
+    return res.send(
+      successRes(200, "Leave records retrieved", {
+        data: resp,
+        approvedList,
+        rejectedList,
+        pendingList,
+      })
+    );
+  } catch (error) {
+    console.error("Error retrieving leave requests:", error);
+    return res.send(errorRes(500, "Internal Server Error"));
+  }
+};
+
+export const getMyLeave = async (req, res, next) => {
+  // const { applicant, reportingTo, leaveStatus } = req.query;
+  const id = req.params.id;
+  try {
+    if (!id) return res.send(errorRes(401, "id is required"));
+
+    const resp = await leaveRequestModel
+      .find({ applicant: id })
+      .populate(leaveRequestPopulateOptions)
+      .sort({
+        appliedOn: -1,
+      });
+
+    const approvedList = resp.filter((ele) => ele.leaveStatus === "approved");
+    const rejectedList = resp.filter((ele) => ele.leaveStatus === "rejected");
+    const pendingList = resp.filter((ele) => ele.leaveStatus === "pending");
+
+    return res.send(
+      successRes(200, "Leave records retrieved", {
+        data: resp,
+        approvedList,
+        rejectedList,
+        pendingList,
+      })
+    );
+  } catch (error) {
+    console.error("Error retrieving leave requests:", error);
+    return res.send(errorRes(500, "Internal Server Error"));
+  }
+};
+
+export const addLeave = async (req, res, next) => {
+  const {
+    leaveType,
+    appliedOn = new Date(),
+    startDate,
+    endDate,
+    numberOfDays,
+    leaveReason,
+    reportingTo,
+    applicant,
+  } = req.body;
+  const user = req.user;
+  try {
+    if (!startDate) return res.send(errorRes(401, "Start Date is required"));
+    if (!endDate) return res.send(errorRes(401, "End Date is required"));
+    if (!leaveReason) return res.send(errorRes(401, "Reason is required"));
+
+    const applybyEmployee = await employeeModel.findById(applicant);
+
+    if (!applybyEmployee)
+      return res.send(errorRes(404, "Apply By employee not found"));
+
+    const reportingToEmployee = await employeeModel.findById(reportingTo);
+
+    if (!reportingToEmployee)
+      return res.send(errorRes(404, "Reporting To employee not found"));
+    // console.log(applybyEmployee);
+    const myLeaves = await shiftInfoModel.findOne({ userId: applicant });
+
+    const totalPendingLeaves = await leaveRequestModel.countDocuments({
+      applicant: applicant,
+      leaveType: leaveType,
+      leaveStatus: "pending",
+    });
+    let leaves = myLeaves.compensatoryoff;
+    if (leaveType === "on-paid-leave") {
+      leaves = myLeaves.paidLeave;
+    } else if (leaveType === "on-casual-leave") {
+      leaves = myLeaves.casualLeave;
+    } else if (leaveType === "on-compensation-off-leave") {
+      leaves = myLeaves.compensatoryoff;
+    }
+
+    if (totalPendingLeaves >= leaves) {
+      return res.send(
+        errorRes(401, "you cant apply more request than available leaves")
+      );
+    }
+
+    // console.log(myLeaves);
+
+    if (leaveType === "on-paid-leave" && numberOfDays > myLeaves.paidLeave) {
+      return res.send(errorRes(401, "Your Dont Have Enough Paid Leaves"));
+    } else if (
+      leaveType === "on-casual-leave" &&
+      numberOfDays > myLeaves.casualLeave
+    ) {
+      return res.send(errorRes(401, "Your Dont Have Enough Casual Leaves"));
+    } else if (
+      leaveType === "on-compensation-off-leave" &&
+      numberOfDays > myLeaves.compensatoryoff
+    ) {
+      return res.send(errorRes(401, "Your Dont Have Enough Compensation Off"));
+    }
+    const configs = await approvalStepModel.findOne({
+      requestType: "leave",
+    });
+
+    let approvalSteps = [];
+    configs.steps.map((ele, index) => {
+      if (ele.role == "reportingTo") {
+        approvalSteps.push({
+          level: index,
+          adminId: applybyEmployee.reportingTo,
+          status: "pending",
+        });
+      } else {
+        approvalSteps.push({
+          level: index,
+          adminId: ele.adminId,
+          status: "pending",
+        });
+      }
+    });
+
+    const newLeaveRequest = await leaveRequestModel.create({
+      ...req.body,
+      appliedOn: new Date(),
+      approvalSteps,
+      currentLevel: 0,
+    });
+
+    const dta = await oneSignalModel.find({
+      $or: [
+        { docId: applicant },
+        // { docId: "ev201-aktarul-biswas" }
+      ],
+      // role: teamLeaderResp?.role,
+    });
+    let ids = dta.map((ele) => ele.playerId);
+    // console.log(foundTLPlayerId);
+
+    await sendNotificationWithImage({
+      playerIds: [...ids],
+      title: "Leave Request",
+      message: `Leave request by ${applybyEmployee?.firstName ?? ""} ${
+        applybyEmployee?.lastName ?? ""
+      }`,
+      imageUrl: "https://uknowva.com/images/aashna/leave-management.png",
+      data: {
+        type: "leave-request-approval",
+        id: newLeaveRequest?._id,
+        // role: "channel-partner",
+      },
+    });
+
+    const updateLeaveRequest = await leaveRequestModel
+      .findById(newLeaveRequest?._id)
+      .populate(leaveRequestPopulateOptions);
+
+    return res.send(
+      successRes(200, "Leave Request added", {
+        data: updateLeaveRequest,
+      })
+    );
+  } catch (error) {
+    console.error("Error in addLeave:", error);
+    return res.status(500).send(errorRes(500, "Internal Server Error"));
+  }
+};
+
+export const updateLeaveStatus = async (req, res) => {
+  const { id } = req.params;
+  const { leaveStatus, approveReason } = req.body;
+  try {
+    if (!leaveStatus) {
+      return res.send({
+        success: false,
+        message: "Leave Status is required",
+      });
+    }
+    const leave = await leaveRequestModel
+      .findById(id)
+      .populate(leaveRequestPopulateOptions);
+    if (!leave) {
+      return res.send({
+        success: false,
+        message: "Leave request not found",
+      });
+    }
+    leave.leaveStatus = leaveStatus;
+    leave.approveReason = approveReason || "No reason provided";
+
+    await leave.save();
+    if (leaveStatus?.toLowerCase() === "approved") {
+      const dates = [];
+      let currentDate = moment(leave.startDate);
+
+      while (currentDate <= moment(leave.endDate)) {
+        dates.push({
+          day: currentDate.date(),
+          month: currentDate.month() + 1, // Moment months are 0-based, so we add 1
+          year: currentDate.year(),
+          status: leave.leaveType?._id,
+          wlStatus: leave.leaveType,
+          userId: leave.applicant?._id,
+        });
+        currentDate.add(1, "days");
+      }
+      // console.log(dates);
+      try {
+        await attendanceModel.insertMany(dates, { ordered: false });
+      } catch (error) {
+        if (error.writeErrors) {
+          // console.log("Some entries were skipped due to duplicates.");
+        } else {
+          // console.error("Failed to insert leaves:", error);
+        }
+        // console.log("failed to insert leaves");
+      }
+      const dta = await oneSignalModel.find({
+        $or: [{ docId: leave.applicant?._id }],
+        // role: teamLeaderResp?.role,
+      });
+      let ids = dta.map((ele) => ele.playerId);
+      // console.log(foundTLPlayerId);
+
+      await sendNotificationWithImage({
+        playerIds: [...ids],
+        title: "Leave Approved",
+        message: `Leave approved by ${leave.reportingTo?.firstName ?? ""} ${
+          leave.reportingTo?.lastName ?? ""
+        }`,
+        imageUrl: "https://uknowva.com/images/aashna/leave-management.png",
+        data: {
+          type: "leave-request",
+          id: id,
+          // role: "channel-partner",
+        },
+      });
+      // console.log("pass sent notification");
+    } else if (leaveStatus?.toLowerCase() === "rejected") {
+      const dta = await oneSignalModel.find({
+        $or: [{ docId: leave.applicant?._id }],
+        // role: teamLeaderResp?.role,
+      });
+      let ids = dta.map((ele) => ele.playerId);
+      // console.log(foundTLPlayerId);
+
+      await sendNotificationWithImage({
+        playerIds: [...ids],
+        title: "Leave Rejected",
+        message: `Leave rejected by ${leave.reportingTo?.firstName ?? ""} ${
+          leave.reportingTo?.lastName ?? ""
+        }`,
+        imageUrl: "https://uknowva.com/images/aashna/leave-management.png",
+        data: {
+          type: "leaveRequest",
+          id: id,
+          // role: "channel-partner",
+        },
+      });
+    }
+
+    return res.send(
+      successRes(200, "Leave Status updated successfully", { data: leave })
+    );
+  } catch (error) {
+    console.error("Error updating Leave Status :", error);
+    return res.status(500).send({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const onRejectOrApproveLeave = async (req, res, next) => {
+  try {
+    const { id, status } = req.params;
+    const { adminId, reason, remark } = req.body;
+    if (!id) return res.send(errorRes(401, "id required"));
+
+    const leaveResp = await leaveRequestModel
+      .findById(id)
+      .populate(leaveRequestPopulateOptions);
+
+    if (!leaveResp)
+      return res.send(errorRes(404, "regularization request not found"));
+
+    // Find the current step that is pending for this admin
+    const step = leaveResp.approvalSteps.find(
+      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending"
+    );
+    // console.log(step);
+
+    if (!step)
+      return res.send(errorRes(403, "No pending approval for this admin"));
+
+    // Approve or reject this step
+    step.status = status;
+    step.approvalDate = new Date();
+    step.reason = reason;
+    step.remark = remark;
+    // console.log("after update first step");
+    // console.log(step);
+
+    if (status === "approved") {
+      // console.log("status is approved");
+
+      let nextStep = leaveResp.approvalSteps.find(
+        (s) => s.level === step.level + 1
+      );
+      // console.log(nextStep);
+      // Auto-approve if next step has the same admin
+      while (nextStep && nextStep?.adminId?._id.toString() === adminId) {
+        // console.log("same admin");
+        // console.log(nextStep);
+        nextStep.status = "approved";
+        nextStep.approvalDate = new Date();
+        nextStep.reason = "Auto-approved (same admin)";
+        nextStep.remark = remark;
+        leaveResp.currentLevel = nextStep.level;
+        // console.log(nextStep);
+        nextStep = leaveResp.approvalSteps.find(
+          (s) => s.level === leaveResp.currentLevel + 1
+        );
+        // console.log("update next step");
+        // console.log(nextStep);
+      }
+      const allStepsApproved = leaveResp.approvalSteps.every(
+        (step) => step.status?.toLowerCase() === "approved"
+      );
+      // console.log(`all step approved ? ${allStepsApproved}`);
+      let lastLeaveCount;
+
+      if (allStepsApproved) {
+        //TODO: when all steps approve leave
+        const dates = [];
+        let currentDate = moment(leaveResp.startDate);
+
+        while (currentDate <= moment(leaveResp.endDate)) {
+          dates.push({
+            day: currentDate.date(),
+            month: currentDate.month() + 1, // Moment months are 0-based, so we add 1
+            year: currentDate.year(),
+            status: leaveResp.leaveType?._id,
+            wlStatus: leaveResp?.leaveType,
+            userId: leaveResp.applicant?._id,
+          });
+          currentDate.add(1, "days");
+        }
+        // console.log(dates);
+        try {
+          await Promise.all(
+            dates.map(async (att) => {
+              // console.log({
+              //   day: att.day,
+              //   month: att.month, // Moment months are 0-based, so we add 1
+              //   year: att.year,
+              //   userId: att.userId,
+              // });
+              // console.log({
+              //   status: leaveResp.leaveType?._id,
+              //   wlStatus: leaveResp.leaveType?._id,
+              // });
+
+              await attendanceModel.updateOne(
+                {
+                  day: att.day,
+                  month: att.month, // Moment months are 0-based, so we add 1
+                  year: att.year,
+                  userId: att.userId,
+                },
+                {
+                  $set: {
+                    status: leaveResp.leaveType?._id,
+                    wlStatus: leaveResp.leaveType?._id,
+                  },
+                },
+                {
+                  upsert: true,
+                }
+              );
+            })
+          );
+          // await attendanceModel.insertMany(dates, { ordered: false });
+        } catch (error) {
+          if (error?.writeErrors) {
+            console.log("Some entries were skipped due to duplicates.");
+          } else {
+            console.error("Failed to insert leaves:", error);
+          }
+          console.log(error);
+        }
+        try {
+          const info = await shiftInfoModel.findOne({
+            userId: leaveResp.applicant?._id,
+          });
+          let whatToUpdate = {};
+          if (leaveResp.leaveType?._id === "on-compensation-off-leave") {
+            lastLeaveCount = info.compensatoryoff;
+            whatToUpdate = {
+              compensatoryoff: info.compensatoryoff - leaveResp.numberOfDays,
+            };
+          } else if (leaveResp.leaveType?._id === "on-paid-leave") {
+            lastLeaveCount = info.paidLeave;
+
+            whatToUpdate = {
+              paidLeave: info.paidLeave - leaveResp.numberOfDays,
+            };
+          } else if (leaveResp.leaveType?._id === "on-casual-leave") {
+            lastLeaveCount = info.casualLeave;
+
+            whatToUpdate = {
+              casualLeave: info.casualLeave - leaveResp.numberOfDays,
+            };
+          }
+          // console.log(whatToUpdate);
+          await shiftInfoModel.findByIdAndUpdate(info._id, {
+            $set: {
+              ...whatToUpdate,
+            },
+          });
+        } catch (error) {
+          //
+        }
+
+        const dta = await oneSignalModel.find({
+          $or: [{ docId: leaveResp.applicant?._id }],
+          // role: teamLeaderResp?.role,
+        });
+        let ids = dta.map((ele) => ele.playerId);
+        // console.log(foundTLPlayerId);
+
+        await sendNotificationWithImage({
+          playerIds: [...ids],
+          title: "Leave Approved",
+          message: `Leave approved by ${
+            leaveResp.reportingTo?.firstName ?? ""
+          } ${leaveResp.reportingTo?.lastName ?? ""}`,
+          imageUrl: "https://uknowva.com/images/aashna/leave-management.png",
+          data: {
+            type: "leave-request",
+            id: id,
+            // role: "channel-partner",
+          },
+        });
+      }
+
+      if (nextStep && nextStep.adminId.toString() != adminId) {
+        leaveResp.currentLevel = nextStep.level;
+      }
+      if (!nextStep) {
+        leaveResp.leaveStatus = "approved";
+        leaveResp.approveReason = reason;
+
+        const resp = await createLeaveHistoryFunc({
+          date: new Date(),
+          description: leaveResp.leaveReason,
+          count: leaveResp.numberOfDays,
+          userId: leaveResp.applicant,
+          type: "used",
+          leaveType: leaveResp.leaveType,
+          leave: leaveResp._id,
+          howManyBefore: lastLeaveCount,
+        });
+      }
+    } else {
+      leaveResp.leaveStatus = "rejected"; // If rejected, stop process
+    }
+
+    await leaveResp.save();
+    return successRes2(res, 200, `Request ${status}`, { data: leaveResp });
+  } catch (error) {
+    return res.send(errorRes(500, `${error.message}`));
+  }
+};
+
+export const deleteLeaveRequest = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    if (!id) return res.send(errorRes(403, "Leave Request ID is required"));
+    const deleteLeaveRequest = await leaveRequestModel.findByIdAndDelete(id);
+    if (!deleteLeaveRequest)
+      return res.send(errorRes(404, `Leave Request not found with ID: ${id}`));
+    return res.send(
+      successRes(200, `Leave Request deleted successfully`, {
+        deleteLeaveRequest,
+      })
+    );
+  } catch (error) {
+    return res.send(errorRes(500, `Server error: ${error?.message}`));
+  }
+};

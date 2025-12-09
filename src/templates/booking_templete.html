@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Reset</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        /*background-color: #ff9800;  Orange theme */
+        padding: 20px;
+        text-align: center;
+        color: #ffffff;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        padding: 20px;
+      }
+      .subject {
+        padding: 0px 0px 0px 40px;
+        font-weight: 500;
+      }
+      .subject .span-s {
+        font-weight: 600;
+      }
+      .content p {
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+      .otp {
+        font-size: 24px;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 4px;
+        background-color: #f1f1f1;
+        display: inline-block;
+        margin: 20px 0;
+      }
+      .button {
+        background-color: #ff9800; /* Orange theme */
+        color: #ffffff;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 16px;
+        display: inline-block;
+      }
+      .footer {
+        padding: 20px;
+        background-color: #f1f1f1;
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+      }
+      .footer a {
+        color: #ff9800; /* Orange theme */
+        text-decoration: none;
+      }
+      .image-congrats {
+        /* width: 350px; */
+        max-height: 350px;
+      }
+      .content .details-para {
+        font-size: 16px;
+      }
+      .info-para {
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .info-span {
+        font-size: 14px;
+        font-weight: 400;
+      }
+      .para-sir {
+        font-size: 16px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <!-- <h1>Password Reset Request</h1> -->
+        <img
+          class="image-congrats"
+          src="https://cdn.evhomes.tech/77592a74-bebd-4a84-9fe0-8a61a4fbe73c-congrats_image-removebg-preview.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmaWxlbmFtZSI6Ijc3NTkyYTc0LWJlYmQtNGE4NC05ZmUwLThhNjFhNGZiZTczYy1jb25ncmF0c19pbWFnZS1yZW1vdmViZy1wcmV2aWV3LnBuZyIsImlhdCI6MTc0MDE0NjUxOX0.P2cIzfdY38OSshECNMazV74ZH03bTDEFZqeEjSIL0IE"
+          alt=""
+          srcset=""
+        />
+      </div>
+      <div class="content">
+        <p class="para-sir">Dear sir,</p>
+        <p class="subject">
+          <span> There has been a new booking on </span>
+          <span class="span-s"> ${project} </span>by
+          <span class="span-s"> ${teamLeader} </span>team.
+        </p>
+        <!-- <div class="otp">${otp}</div> -->
+        <p class="details-para">Details of booking are mentioned below.</p>
+        <!-- <a href="${resetLink}" class="button">Reset Password</a> -->
+        <p class="info-para">
+          Client Name: <span class="info-span">${clientName}</span>
+        </p>
+        <p class="info-para">
+          Client Number: <span class="info-span">${phoneNumber}</span>
+        </p>
+        <p class="info-para">
+          Channel Partner: <span class="info-span">${channelPartner}</span>
+        </p>
+        <p class="info-para">
+          Assignment Date: <span class="info-span">${AssignmentDate}</span>
+        </p>
+        <p class="info-para">
+          Visit Date: <span class="info-span">${visitDate}</span>
+        </p>
+
+        <p class="info-para">
+          Revisit Date: <span class="info-span">${revisitDate}</span>
+        </p>
+        <p class="info-para">
+          Booking Date: <span class="info-span">${bookingDate}</span>
+        </p>
+        <p class="info-para">
+          KYC Recieved: <span class="info-span">${kycRecieved}</span>
+        </p>
+      </div>
+      <div class="footer">
+        <p>&copy; 2024 EV Homes Construction PVT LTD. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

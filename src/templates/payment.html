@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Payment Reminder</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 40px;
+        color: #222;
+        background-color: #f9f9f9;
+      }
+
+      h2 {
+        color: #333;
+        margin-top: 40px;
+        border-bottom: 2px solid #ddd;
+        padding-bottom: 5px;
+      }
+
+      p {
+        font-size: 16px;
+        margin: 12px 0;
+      }
+
+      .reminder {
+        margin-left: 20px;
+        font-size: 16px;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 70%;
+        margin: 12px 0 30px 20px;
+        background: white;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        table-layout: fixed; /* Keeps columns equal width */
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: center;
+        vertical-align: middle;
+        word-break: break-word;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      tr:nth-child(even) {
+        background-color: #fafafa;
+      }
+
+      .payment-type {
+        font-weight: bold;
+        color: #333;
+      }
+
+      .date {
+        font-weight: bold;
+        color: #222;
+      }
+
+      /* Optional: set consistent column widths */
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 25%;
+      }
+
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 25%;
+      }
+
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 25%;
+      }
+
+      th:nth-child(4),
+      td:nth-child(4) {
+        width: 25%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- ======= DATE 1 ======= -->
+    <h2>Date: 24/10/2025</h2>
+
+    <div class="reminder">
+      This is a general reminder, <span class="payment-type">Payment 1</span> is due today!
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone No</th>
+          <th>Unit No</th>
+          <th>Closing Manager</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mayur Sir</td>
+          <td>9090909090</td>
+          <td>122</td>
+          <td>32</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="reminder">
+      This is a general reminder, <span class="payment-type">Payment 2</span> is due today!
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone No</th>
+          <th>Unit No</th>
+          <th>Closing Manager</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Shreya Mam with an exceptionally long full name example to test wrapping</td>
+          <td>9090909090</td>
+          <td>100</td>
+          <td>23</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="reminder">
+      This is a general reminder, <span class="payment-type">Payment 3</span> is due today!
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone No</th>
+          <th>Unit No</th>
+          <th>Closing Manager</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Anurag Sir</td>
+          <td>9090909090</td>
+          <td>190</td>
+          <td>11</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ======= DATE 2 ======= -->
+    <h2>Date: 25/10/2025</h2>
+
+    <div class="reminder">
+      This is a general reminder, <span class="payment-type">Payment 1</span> is due tomorrow!
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone No</th>
+          <th>Unit No</th>
+          <th>Closing Manager</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Aktarul Sir</td>
+          <td>9090909090</td>
+          <td>323</td>
+          <td>22</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="reminder">
+      This is a general reminder, <span class="payment-type">Payment 2</span> is due tomorrow!
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone No</th>
+          <th>Unit No</th>
+          <th>Closing Manager</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Joe Root</td>
+          <td>7264829876</td>
+          <td>122</td>
+          <td>90</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="reminder">
+      This is a general reminder, <span class="payment-type">Payment 3</span> is due tomorrow!
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone No</th>
+          <th>Unit No</th>
+          <th>Closing Manager</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alister Cook</td>
+          <td>2134875423</td>
+          <td>87</td>
+          <td>07</td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
