@@ -13,7 +13,7 @@ import routerV2 from "./v2Router/routerV2.js";
 
 app.use(hostnameCheck);
 app.use(logRequest);
-// app.use(versionCheckMiddleware);
+app.use(versionCheckMiddleware);
 app.use("/", router);
 app.use("/v2", routerV2);
 
