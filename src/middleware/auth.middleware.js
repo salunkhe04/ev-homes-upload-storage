@@ -286,19 +286,18 @@ export function versionCheckMiddleware(req, res, next) {
   const clientVersion = req.headers["x-app-version"];
   const clientIsWeb = req.headers["x-platform"];
   const { force } = req.query;
-  // if (clientIsWeb === "web" || force == 1) {
-  //   return next();
-  // }
-  // if (!clientVersion || !semver.gte(clientVersion, MIN_VERSION)) {
-  //   res.setHeader("x-force-logout", `force-logout`);
+  if (clientIsWeb === "web" || force == 1) {
+    return next();
+  }
+  if (!clientVersion || !semver.gte(clientVersion, MIN_VERSION)) {
+    res.setHeader("x-force-logout", `force-logout`);
 
-  return res
-    .status(426)
-    .json({ code: 426, message: "Server under maintanance." });
-  // .json({ code: 426, message: "Please update your app to continue." });
-  // }
+    return res
+      .status(426)
+      .json({ code: 426, message: "Please update your app to continue." });
+  }
 
-  // next();
+  next();
 }
 
 export const logRequest = async (req, res, next) => {
