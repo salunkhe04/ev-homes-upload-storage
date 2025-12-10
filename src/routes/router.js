@@ -136,6 +136,8 @@ import instagram, { getCookie, igApi } from "insta-fetcher";
 import eoiConfRouter from "./eoiConfirmationRouter/eoiConfirmationRouter.js";
 import instaRouter from "./instaReels/instaReelRouter.js";
 import eoiExhibitionRouter from "./eoiExhibition/eoiExhibitionRouter.js";
+import exihibitionVideoRouter from "./exihibitionVideo/exhibitionVideoRouter.js";
+import exhibitionVideoCountRouter from "./exhibitionVideoCount/exhibtionVideoCount.js";
 
 const router = Router();
 router.get("/ping", async (req, res) => {
@@ -1002,6 +1004,7 @@ router.use(eoiConfRouter);
 
 router.use(instaRouter);
 router.use(eoiExhibitionRouter);
-
+router.use(exihibitionVideoRouter);
+router.use(exhibitionVideoCountRouter);
 
 export default router;
