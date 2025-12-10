@@ -55,6 +55,10 @@ export const EoiExhibitionSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    document: {
+      type: String,
+      default: null,
+    },
     entryBy: {
       type: String,
       ref: "employees",
