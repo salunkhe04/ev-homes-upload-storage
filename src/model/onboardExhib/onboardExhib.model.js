@@ -46,6 +46,7 @@ const callHistorySchema = new mongoose.Schema({
 
 export const onboardSchemaIndex = new mongoose.Schema(
   {
+    id: { type: Number, default: null },
     name: { type: String, required: true },
     phoneNumber: { type: Number, default: null },
     altPhoneNumber: { type: Number, default: null },
