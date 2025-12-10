@@ -14,8 +14,7 @@ const eoiExhibitionRouter = Router();
 eoiExhibitionRouter.get("/eoi-exhibition", async (req, res) => {
   //
   try {
-    //
-    // console.log("p");
+
     const oldDoc = await eoiExhibitionModel
       .find()
       .populate(eoiExhibitionPopulations)
