@@ -14,8 +14,14 @@ app.use(cookieParser());
 app.use(express.json({ limit: "2gb" }));
 app.use(express.urlencoded({ limit: "2gb", extended: true }));
 
-server.listen(config.PORT, "127.0.0.1", () =>
-  console.log("listening on port " + config.PORT)
-);
+if (config.ENVIRONMENT == "1") {
+  server.listen(config.PORT, () =>
+    console.log("listening on port " + config.PORT)
+  );
+} else {
+  server.listen(config.PORT, "127.0.0.1", () =>
+    console.log("listening on port " + config.PORT)
+  );
+}
 
 // app.listen(8082, "127.0.0.1");

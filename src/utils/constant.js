@@ -2794,3 +2794,19 @@ export const eoiConfirmationPopulations = [
     ],
   },
 ];
+
+
+export const eoiExhibitionPopulations = [
+  {
+    path: "entryBy",
+    select: "firstName lastName",
+  },
+  {
+    path: "closingManager",
+    select: "firstName lastName",
+  },
+  {
+    path: "project",
+    select: "name shortCode address businessAccount govAccount",
+  },
+];

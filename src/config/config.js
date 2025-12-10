@@ -9,6 +9,7 @@ const config = {
   BREVO_API_KEY: process.env.BREVO_API_KEY,
   REDIS_KEY: process.env.REDIS_KEY,
   EASYLEADS_API_KEY: process.env.EASYLEADS_API_KEY,
+  ENVIRONMENT: process.env.ENVIRONMENT,
 };
 
 export default config;
