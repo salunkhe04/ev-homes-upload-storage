@@ -1,7 +1,7 @@
 import { Router } from "express";
 import onboarExhibModel from "../../model/onboardExhib/onboardExhib.model.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
-import displaySlotModel from "../../model/onboardExhib/DisplaySlots.model.js";
+import displaySlotModel from "../../model/onboardExhib/displaySlots.model.js";
 import mongoose from "mongoose";
 //
 const onbExhibRouter = Router();
