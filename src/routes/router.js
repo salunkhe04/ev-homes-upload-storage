@@ -135,6 +135,7 @@ import shortsRouter from "./shorts/shortsRouter.js";
 import instagram, { getCookie, igApi } from "insta-fetcher";
 import eoiConfRouter from "./eoiConfirmationRouter/eoiConfirmationRouter.js";
 import instaRouter from "./instaReels/instaReelRouter.js";
+import eoiExhibitionRouter from "./eoiExhibition/eoiExhibitionRouter.js";
 
 const router = Router();
 router.get("/ping", async (req, res) => {
@@ -998,6 +999,9 @@ router.use(zonesRouter);
 router.use(commercialProjectRouter);
 router.use(shortsRouter);
 router.use(eoiConfRouter);
+
 router.use(instaRouter);
+router.use(eoiExhibitionRouter);
+
 
 export default router;
