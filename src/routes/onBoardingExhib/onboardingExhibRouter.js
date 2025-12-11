@@ -190,7 +190,17 @@ onbExhibRouter.post("/onboard-add-feedback", async (req, res) => {
     return errorRes2(res, 500, `${error}`);
   }
 });
-
+function cleanObject(obj) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key, value]) => {
+      if (value === null || value === undefined) return false;
+      if (typeof value === "string" && value.trim() === "") return false;
+      if (Array.isArray(value) && value.length === 0) return false;
+      if (typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) return false;
+      return true;
+    })
+  );
+}
 //POST: update client details
 onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
   const id = req.params.id;
@@ -210,6 +220,7 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
   } = req.body;
 
   console.log(req.body);
+  const cleanedBody = cleanObject(req.body);
   try {
     // if (!feedback) {
     //   return res.send(errorRes(403, "Remark is required"));
@@ -217,16 +228,7 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
     const newLead = await onboarExhibModel.findByIdAndUpdate(
       id,
       {
-        name,
-        projects,
-        requirements,
-        feedback,
-        linkdinUrl,
-        linkdinPhoto,
-        trueCallerPhoto,
-        closingManager,
-        email,
-        feedback2,
+        ...cleanedBody,
       },
       { new: true }
     );
