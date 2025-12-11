@@ -2795,7 +2795,6 @@ export const eoiConfirmationPopulations = [
   },
 ];
 
-
 export const eoiExhibitionPopulations = [
   {
     path: "entryBy",
@@ -2808,5 +2807,17 @@ export const eoiExhibitionPopulations = [
   {
     path: "project",
     select: "name shortCode address businessAccount govAccount",
+  },
+];
+
+export const onBoardExhibPopulations = [
+  {
+    path: "projects",
+    select: "name shortCode address businessAccount govAccount",
+  },
+
+  {
+    path: "closingManager",
+    select: "firstName lastName",
   },
 ];

@@ -3,13 +3,16 @@ import onboarExhibModel from "../../model/onboardExhib/onboardExhib.model.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
 import displaySlotModel from "../../model/onboardExhib/displaySlots.model.js";
 import mongoose from "mongoose";
+import { onBoardExhibPopulations } from "../../utils/constant.js";
 //
 const onbExhibRouter = Router();
 //
 onbExhibRouter.get("/onboards", async (req, res) => {
   try {
     //
-    const projs = await onboarExhibModel.find();
+    const projs = await onboarExhibModel
+      .find()
+      .populate(onBoardExhibPopulations);
 
     //   res.send(flats);
     return successRes2(res, 200, "boardings", {
@@ -35,7 +38,6 @@ onbExhibRouter.get("/onboarding-slot/:id", async (req, res) => {
     return errorRes2(res, 500, `${error}`);
   }
 });
-
 
 // GET: Last 6 onboardings (newest first)
 onbExhibRouter.get("/onboard-last-6", async (req, res) => {
@@ -63,8 +65,10 @@ onbExhibRouter.post("/onboard-add", async (req, res) => {
     if (!phoneNumber) return errorRes2(res, 401, "phoneNumber required");
 
     // (optional) preserve your existing id logic
-    const total = await onboarExhibModel.countDocuments({}/*, { session }*/);
-    const [newProj] = await onboarExhibModel.create([{ ...req.body, id: total + 1 }]/*, { session }*/);
+    const total = await onboarExhibModel.countDocuments({} /*, { session }*/);
+    const [newProj] = await onboarExhibModel.create(
+      [{ ...req.body, id: total + 1 }] /*, { session }*/
+    );
 
     // Atomically increment counter (upsert display doc if missing)
     // Ensure slots array exists on insert
@@ -72,9 +76,9 @@ onbExhibRouter.post("/onboard-add", async (req, res) => {
       { _id: "main" },
       {
         $inc: { counter: 1 },
-        $setOnInsert: { slots: [null, null, null, null, null, null] }
+        $setOnInsert: { slots: [null, null, null, null, null, null] },
       },
-      { new: true, upsert: true/*, session*/ }
+      { new: true, upsert: true /*, session*/ }
     );
 
     // compute slot index (counter is 1-based)
@@ -84,7 +88,7 @@ onbExhibRouter.post("/onboard-add", async (req, res) => {
     // Set the slot to the new onboarding id
     await displaySlotModel.updateOne(
       { _id: "main" },
-      { $set: { [`slots.${slotIndex}`]: newProj._id } },
+      { $set: { [`slots.${slotIndex}`]: newProj._id } }
       // { session }
     );
 
@@ -93,75 +97,146 @@ onbExhibRouter.post("/onboard-add", async (req, res) => {
 
     return successRes2(res, 200, "boarding added and slot updated", {
       data: newProj,
-      slotIndex
+      slotIndex,
     });
   } catch (error) {
     return errorRes2(res, 500, `${error}`);
   }
 });
 
-
 // GET: send 6 slots (populated)
 onbExhibRouter.get("/onboard-slots", async (req, res) => {
   try {
-    const slotsDoc = await displaySlotModel.findById("main")
+    const slotsDoc = await displaySlotModel
+      .findById("main")
       .populate({ path: "slots", model: "onboardExhib" })
       .lean();
 
     // if no slots doc yet, create default
     if (!slotsDoc) {
-      const empty = { _id: "main", counter: 0, slots: [null, null, null, null, null, null] };
+      const empty = {
+        _id: "main",
+        counter: 0,
+        slots: [null, null, null, null, null, null],
+      };
       await displaySlotModel.create(empty);
-      return successRes2(res, 200, "slots created (empty)", { slots: empty.slots });
+      return successRes2(res, 200, "slots created (empty)", {
+        slots: empty.slots,
+      });
     }
 
     // ensure we always return array length 6
     const slots = Array(6)
       .fill(null)
-      .map((_, i) => (slotsDoc.slots && slotsDoc.slots[i]) ? slotsDoc.slots[i] : null);
+      .map((_, i) =>
+        slotsDoc.slots && slotsDoc.slots[i] ? slotsDoc.slots[i] : null
+      );
 
-    return successRes2(res, 200, "display slots", { data: slots, counter: slotsDoc.counter });
+    return successRes2(res, 200, "display slots", {
+      data: slots,
+      counter: slotsDoc.counter,
+    });
   } catch (err) {
     return errorRes2(res, 500, `${err}`);
   }
 });
 
-
-
 // POST: Add new onboarding
 onbExhibRouter.post("/onboard-add-feedback", async (req, res) => {
   // const id = req.params.id;
-  const {id, userId, tag, callStatus, leadStage, interestedStatus, interestedVisit, feedback, reminderType } = req.body;
+  const {
+    id,
+    userId,
+    tag,
+    callStatus,
+    leadStage,
+    interestedStatus,
+    interestedVisit,
+    feedback,
+    reminderType,
+    caller,
+  } = req.body;
+
   if (!id) return errorRes2(res, 401, "id required");
 
   try {
-
     // (optional) preserve your existing id logic
-    const updated = await onboarExhibModel.findByIdAndUpdate(id, {
-      $addToSet: {
-        // 
-        callHistory: {
-          // 
-          caller: userId,
-          callDate: new Date(),
-          tag: tag,
-          stage: leadStage ?? "",
-          interestedStatus,
-          interestedVisit,
-          reminderType: reminderType,
-          feedback: feedback ?? "",
-
-        }
-      }
-    }, { new: true });
-
+    const updated = await onboarExhibModel.findByIdAndUpdate(
+      id,
+      {
+        $addToSet: {
+          //
+          callHistory: {
+            //
+            caller: user,
+            callDate: new Date(),
+            tag: tag,
+            stage: leadStage ?? "",
+            interestedStatus,
+            interestedVisit,
+            reminderType: reminderType,
+            feedback: feedback ?? "",
+          },
+        },
+      },
+      { new: true }
+    );
 
     return successRes2(res, 200, "boarding updated", {
       data: updated,
-      slotIndex
+      slotIndex,
     });
   } catch (error) {
     return errorRes2(res, 500, `${error}`);
   }
 });
+
+//POST: update client details
+onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const {
+    name,
+    projects,
+    requirements,
+    feedback,
+    linkdinUrl,
+    linkdinPhoto,
+    trueCallerPhoto,
+    
+closingManager,
+    email,
+    feedback2,
+  } = req.body;
+
+  console.log(req.body);
+  try {
+    // if (!feedback) {
+    //   return res.send(errorRes(403, "Remark is required"));
+    // }
+    const newLead = await onboarExhibModel.findByIdAndUpdate(
+      id,
+      {
+        name,
+        projects,
+        requirements,
+        feedback,
+        linkdinUrl,
+        linkdinPhoto,
+        trueCallerPhoto,
+        closingManager,
+        email,
+        feedback2,
+      },
+      { new: true }
+    );
+
+    return successRes2(res, 200, "updated successfully", {
+      data: newLead,
+    });
+  } catch (e) {
+    return errorRes2(res, 500, `${error}`);
+  }
+});
+
 export default onbExhibRouter;
