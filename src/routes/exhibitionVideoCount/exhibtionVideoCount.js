@@ -47,14 +47,10 @@ exhibitionVideoCountRouter.post(
       }
 
       return successRes2(res, 200, "ok", {
-        previousCount: doc.previousCount,
-        currentCount: doc.count,
-      });
-
-      return res.status(200).json({
-        message: "Count updated successfully",
-        previousCount: doc.previousCount,
-        currentCount: doc.count,
+        data: {
+          previousCount: doc.previousCount,
+          currentCount: doc.count,
+        },
       });
     } catch (error) {
       console.error("Update count error:", error);

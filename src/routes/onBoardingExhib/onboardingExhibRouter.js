@@ -168,7 +168,7 @@ onbExhibRouter.post("/onboard-add-feedback", async (req, res) => {
           //
           callHistory: {
             //
-            caller: user,
+            caller: caller,
             callDate: new Date(),
             tag: tag,
             stage: leadStage ?? "",
@@ -203,8 +203,8 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
     linkdinUrl,
     linkdinPhoto,
     trueCallerPhoto,
-    
-closingManager,
+
+    closingManager,
     email,
     feedback2,
   } = req.body;
