@@ -14,7 +14,6 @@ const eoiExhibitionRouter = Router();
 eoiExhibitionRouter.get("/eoi-exhibition", async (req, res) => {
   //
   try {
-
     const oldDoc = await eoiExhibitionModel
       .find()
       .populate(eoiExhibitionPopulations)
@@ -97,6 +96,25 @@ eoiExhibitionRouter.post("/add-eoi-exhibition", async (req, res) => {
     return successRes2(res, 200, "Entry added successfully", { data: respP });
   } catch (error) {
     console.error("EOI Error:", error);
+    return errorRes2(res, 500, "Internal Server Error");
+  }
+});
+
+eoiExhibitionRouter.get("/eoi-exhibition-by-phone", async (req, res) => {
+  //
+  const { phoneNumber } = req.query;
+  if (!phoneNumber) return errorRes2(res, 500, "phone required");
+
+  try {
+    const oldDoc = await eoiExhibitionModel
+      .findOne({
+        $or: [{ phoneNumber: phoneNumber }, { phoneNumberApp2: phoneNumber }],
+      })
+      .populate(eoiExhibitionPopulations);
+    //
+    return successRes2(res, 200, "ok", { data: oldDoc });
+  } catch (error) {
+    //
     return errorRes2(res, 500, "Internal Server Error");
   }
 });
