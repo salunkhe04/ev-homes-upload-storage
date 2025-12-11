@@ -271,7 +271,16 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
     const newLead = await onboarExhibModel.findByIdAndUpdate(
       id,
       {
-        ...req.body,
+        name,
+        projects,
+        requirements,
+        feedback,
+        linkdinUrl,
+        linkdinPhoto,
+        trueCallerPhoto,
+        closingManager,
+        email,
+        feedback2,
       },
       { new: true }
     );
