@@ -263,7 +263,7 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
   } = req.body;
 
   console.log(req.body);
-  const cleanedBody = cleanObject(req.body);
+ // const cleanedBody = cleanObject(req.body);
   try {
     // if (!feedback) {
     //   return res.send(errorRes(403, "Remark is required"));
@@ -271,7 +271,7 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
     const newLead = await onboarExhibModel.findByIdAndUpdate(
       id,
       {
-        ...cleanedBody,
+        ...req.body,
       },
       { new: true }
     );
