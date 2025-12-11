@@ -190,17 +190,60 @@ onbExhibRouter.post("/onboard-add-feedback", async (req, res) => {
     return errorRes2(res, 500, `${error}`);
   }
 });
-function cleanObject(obj) {
-  return Object.fromEntries(
-    Object.entries(obj).filter(([key, value]) => {
-      if (value === null || value === undefined) return false;
-      if (typeof value === "string" && value.trim() === "") return false;
-      if (Array.isArray(value) && value.length === 0) return false;
-      if (typeof value === "object" && !Array.isArray(value) && Object.keys(value).length === 0) return false;
-      return true;
-    })
-  );
+
+// recursive cleaner - removes null, undefined, empty strings, empty arrays, and empty objects (if they become empty)
+function cleanObject(value) {
+  // remove null / undefined
+  if (value === null || value === undefined) return undefined;
+
+  // trim empty strings
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed === "" ? undefined : trimmed;
+  }
+
+  // keep primitives (numbers incl. 0, booleans)
+  if (typeof value !== "object") return value;
+
+  // keep Date, RegExp, Buffer etc. as-is (they are objects but should not be traversed)
+  const tag = Object.prototype.toString.call(value);
+  if (
+    tag === "[object Date]" ||
+    tag === "[object RegExp]" ||
+    tag === "[object Map]" ||
+    tag === "[object Set]" ||
+    tag === "[object WeakMap]" ||
+    tag === "[object WeakSet]" ||
+    (typeof Buffer !== "undefined" && Buffer.isBuffer && Buffer.isBuffer(value))
+  ) {
+    return value;
+  }
+
+  // arrays: clean elements recursively, drop undefined elements
+  if (Array.isArray(value)) {
+    const cleanedArr = value
+      .map((el) => cleanObject(el))
+      .filter((el) => el !== undefined);
+    return cleanedArr.length === 0 ? undefined : cleanedArr;
+  }
+
+  // plain object: clean each prop recursively
+  const cleanedObj = Object.entries(value).reduce((acc, [k, v]) => {
+    const cv = cleanObject(v);
+    if (cv !== undefined) acc[k] = cv;
+    return acc;
+  }, {});
+
+  // if object ended up empty, remove it
+  return Object.keys(cleanedObj).length === 0 ? undefined : cleanedObj;
 }
+
+// wrapper for top-level that ensures an object is always returned
+function cleanRequestBody(body) {
+  const cleaned = cleanObject(body);
+  // return {} if everything was removed (so DB update isn't passed undefined)
+  return cleaned === undefined ? {} : cleaned;
+    }
 //POST: update client details
 onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
   const id = req.params.id;
