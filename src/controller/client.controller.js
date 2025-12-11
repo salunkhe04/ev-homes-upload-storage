@@ -26,6 +26,8 @@ import {
 import axios from "axios";
 import postSaleLeadModel from "../model/postSaleLead.model.js";
 import Demand from "../model/demand.model.js";
+import { sendMultipleEmail } from "../utils/brevo.js";
+import { forgotPasswordTemplete } from "../templates/html_template.js";
 
 //GET BY ALL
 export const getClients = async (req, res) => {
@@ -496,18 +498,28 @@ export const forgotPasswordClient = async (req, res, next) => {
   try {
     if (!body) return res.send(errorRes(403, "data is required"));
     if (!email) return res.send(errorRes(403, "email is required"));
-
-    const oldOtp = await otpModel.findOne({ email: email }).lean();
-
-    if (oldOtp) {
-      return res.send(successRes(200, `otp re-sent to ${email}`, oldOtp));
-    }
-
     const clientDb = await clientModel
       .findOne({
         email: email,
       })
       .lean();
+
+    const oldOtp = await otpModel.findOne({ email: email }).lean();
+
+    if (oldOtp) {
+      await sendMultipleEmail(
+        [email],
+        "Reset Password",
+        forgotPasswordTemplete(
+          `${clientDb?.firstName ?? ""} ${clientDb?.lastName ?? ""}`,
+          oldOtp.otp,
+          "https://evhomes.tech/"
+        ),
+        []
+      );
+
+      return res.send(successRes(200, `otp re-sent to ${email}`, oldOtp));
+    }
 
     if (!clientDb) {
       return res.send(errorRes(400, `No Client found with ${email}`));
@@ -523,6 +535,17 @@ export const forgotPasswordClient = async (req, res, next) => {
     });
 
     const savedOtp = await newOtpModel.save();
+
+    await sendMultipleEmail(
+      [email],
+      "Reset Password",
+      forgotPasswordTemplete(
+        `${clientDb?.firstName ?? ""} ${clientDb?.lastName ?? ""}`,
+        savedOtp.otp,
+        "https://evhomes.tech/"
+      ),
+      []
+    );
 
     return res.send(successRes(200, `otp sent to ${email}`, savedOtp._doc));
   } catch (error) {
