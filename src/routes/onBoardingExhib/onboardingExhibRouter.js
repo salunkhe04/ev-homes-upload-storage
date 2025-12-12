@@ -12,6 +12,7 @@ onbExhibRouter.get("/onboards", async (req, res) => {
     //
     const projs = await onboarExhibModel
       .find()
+      .sort({createdAt: -1})
       .populate(onBoardExhibPopulations);
 
     //   res.send(flats);
@@ -27,7 +28,7 @@ onbExhibRouter.get("/onboarding-slot/:id", async (req, res) => {
   const id = req.params.id;
   try {
     //
-    const projs = await onboarExhibModel.findById(id);
+    const projs = await onboarExhibModel.findById(id).populate(onBoardExhibPopulations);
 
     //   res.send(flats);
     return successRes2(res, 200, "boardings", {
@@ -262,9 +263,9 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
     feedback2,
   } = req.body;
 
-  console.log(req.body);
+  // console.log(req.body);
   const cleanedBody = cleanObject(req.body);
-  console.log(cleanedBody);
+  // console.log(cleanedBody);
   try {
     // if (!feedback) {
     //   return res.send(errorRes(403, "Remark is required"));
@@ -286,9 +287,65 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
       },
       { new: true }
     );
+    const proj = await onboarExhibModel
+      .findById(id)
+      .populate(onBoardExhibPopulations);
 
     return successRes2(res, 200, "updated successfully", {
-      // data: newLead,
+      data: proj,
+    });
+  } catch (e) {
+    return errorRes2(res, 500, `${error}`);
+  }
+});
+
+onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const {
+    name,
+    projects,
+    requirements,
+    feedback,
+    linkdinUrl,
+    linkdinPhoto,
+    trueCallerPhoto,
+
+    closingManager,
+    email,
+    feedback2,
+  } = req.body;
+
+  // console.log(req.body);
+  const cleanedBody = cleanObject(req.body);
+  // console.log(cleanedBody);
+  try {
+    // if (!feedback) {
+    //   return res.send(errorRes(403, "Remark is required"));
+    // }
+    const newLead = await onboarExhibModel.findByIdAndUpdate(
+      id,
+      {
+        ...cleanedBody,
+        // name,
+        // projects,
+        // requirements,
+        // feedback,
+        // linkdinUrl,
+        // linkdinPhoto,
+        // trueCallerPhoto,
+        // closingManager,
+        // email,
+        // feedback2,
+      },
+      { new: true }
+    );
+    const proj = await onboarExhibModel
+      .findById(id)
+      .populate(onBoardExhibPopulations);
+
+    return successRes2(res, 200, "updated successfully", {
+      data: proj,
     });
   } catch (e) {
     return errorRes2(res, 500, `${error}`);
