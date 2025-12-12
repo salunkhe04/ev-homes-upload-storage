@@ -263,7 +263,8 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
   } = req.body;
 
   console.log(req.body);
- // const cleanedBody = cleanObject(req.body);
+  const cleanedBody = cleanObject(req.body);
+  console.log(cleanedBody);
   try {
     // if (!feedback) {
     //   return res.send(errorRes(403, "Remark is required"));
@@ -271,22 +272,23 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
     const newLead = await onboarExhibModel.findByIdAndUpdate(
       id,
       {
-        name,
-        projects,
-        requirements,
-        feedback,
-        linkdinUrl,
-        linkdinPhoto,
-        trueCallerPhoto,
-        closingManager,
-        email,
-        feedback2,
+        ...cleanedBody,
+        // name,
+        // projects,
+        // requirements,
+        // feedback,
+        // linkdinUrl,
+        // linkdinPhoto,
+        // trueCallerPhoto,
+        // closingManager,
+        // email,
+        // feedback2,
       },
       { new: true }
     );
 
     return successRes2(res, 200, "updated successfully", {
-      data: newLead,
+      // data: newLead,
     });
   } catch (e) {
     return errorRes2(res, 500, `${error}`);
