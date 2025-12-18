@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  api:
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
+    
+    build: .
+    image: ev_home-backend:1.0
+    container_name: ev_home-backend
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:8082:8082"
+
+    env_file:
+      - .env
+    
+    volumes:
+      - /var/www/storage:/app/storage
+
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1024M
+
+    security_opt:
+      - no-new-privileges:true
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
