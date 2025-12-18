@@ -2,8 +2,8 @@ import Redis from "ioredis";
 import config from "../config/config.js";
 export let isRedisConnected = false;
 export const redis = new Redis({
-  host: "host.docker.internal",
-  // host: "srv615709.hstgr.cloud",
+  // host: "host.docker.internal",
+  host: "srv615709.hstgr.cloud",
   port: 6379,
   password: config.REDIS_KEY,
   connectTimeout: 10000,
