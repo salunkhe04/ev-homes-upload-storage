@@ -4,13 +4,14 @@ services:
   api:
     build: .
     image: ev_home-backend:1.0
+    container_name: ev_home-backend
     restart: unless-stopped
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-    expose:
-      - "8082"
+    ports:
+      - "127.0.0.1:8082:8082"
 
     env_file:
       - .env
