@@ -9,7 +9,6 @@ import moment from "moment";
 import {
   employeePopulateOptions,
   leadPopulateOptions,
-  leadPopulateOptions2,
   taskPopulateOptions,
 } from "../utils/constant.js";
 import {
@@ -20,21 +19,17 @@ import { startOfWeek, addDays, format, startOfYear, endOfYear } from "date-fns";
 import { fileURLToPath } from "url";
 
 import fs from "fs";
-import csv from "csv-parser";
 import path from "path";
 // import moment from "moment-timezone";
 import PDFDocument from "pdfkit";
 import taskModel from "../model/task.model.js";
-import { Console } from "console";
 import { sendMultipleEmail } from "../utils/brevo.js";
 import {
   feedbackPendingTemplate,
   leadAssignPendingTemplate,
 } from "../templates/html_template.js";
 import leadModelV2 from "../model/lead/leadV2Model.js";
-import { getQuarterRange } from "./quarterInforFun.js";
 import postSaleLeadModel from "../model/postSaleLead.model.js";
-import { channel } from "process";
 import { notificationQueue } from "../app/workers/notificationWorker.js";
 import periodModel from "../model/period/period.model.js";
 import rankingTurnModel from "../model/period/ranking.model.js";
