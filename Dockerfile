@@ -5,20 +5,23 @@ RUN addgroup -S app && adduser -S app -G app
 
 WORKDIR /app
 
-# Build bcrypt correctly
+# Copy package files first
+COPY package*.json ./
+
+# Install build tools, install dependencies, rebuild bcrypt, then remove build tools
 RUN apk add --no-cache \
       make gcc g++ python3 python3-dev musl-dev linux-headers \
     && npm install \
     && npm rebuild bcrypt --build-from-source \
     && apk del make gcc g++ python3-dev musl-dev linux-headers
 
-COPY package*.json ./
-
-RUN npm install
-
+# Copy the rest of the app
 COPY . .
 
-# Switch to non-root
+# Make storage folder writable
+RUN mkdir -p /app/storage && chown -R app:app /app/storage
+
+# Switch to non-root user
 USER app
 
 EXPOSE 8084
