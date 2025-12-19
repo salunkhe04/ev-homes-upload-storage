@@ -12,11 +12,11 @@ export const redis = undefined;
 //   maxRetriesPerRequest: null,
 // });
 
-redis.on("connect", () => {
-  isRedisConnected = true;
-  console.log("Connected to Redis!");
-});
-redis.on("error", (err) => console.error("Redis Error:", err));
+// redis.on("connect", () => {
+//   isRedisConnected = true;
+//   console.log("Connected to Redis!");
+// });
+// redis.on("error", (err) => console.error("Redis Error:", err));
 
 export const RedisService = {
   /**
