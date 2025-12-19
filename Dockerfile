@@ -6,10 +6,11 @@ RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
 
 # Build bcrypt correctly
-RUN apk add --no-cache make gcc g++ python3 && \
-    npm install && \
-    npm rebuild bcrypt --build-from-source && \
-    apk del make gcc g++ python3
+RUN apk add --no-cache \
+      make gcc g++ python3 python3-dev musl-dev linux-headers \
+    && npm install \
+    && npm rebuild bcrypt --build-from-source \
+    && apk del make gcc g++ python3-dev musl-dev linux-headers
 
 COPY package*.json ./
 
