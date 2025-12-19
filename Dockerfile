@@ -5,6 +5,12 @@ RUN addgroup -S app && adduser -S app -G app
 
 WORKDIR /app
 
+# Build bcrypt correctly
+RUN apk add --no-cache make gcc g++ python3 && \
+    npm install && \
+    npm rebuild bcrypt --build-from-source && \
+    apk del make gcc g++ python3
+
 COPY package*.json ./
 
 RUN npm install
@@ -14,6 +20,6 @@ COPY . .
 # Switch to non-root
 USER app
 
-EXPOSE 8082
+EXPOSE 8084
 
 CMD ["npm", "start"]
