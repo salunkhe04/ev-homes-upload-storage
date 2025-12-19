@@ -4,10 +4,13 @@ services:
   api:
     build: .
     image: ev_home-backend:1.0
-    container_name: ev_home-backend
     restart: unless-stopped
 
-    network_mode: host # ⭐ THIS IS THE FIX
+    # Remove host network for scaling
+    # network_mode: host
+
+    ports:
+      - "8082:8082" # Only needed for testing or direct access; Nginx can proxy
 
     env_file:
       - .env
@@ -16,13 +19,11 @@ services:
       - /var/www/storage:/app/storage
 
     deploy:
+      replicas: 3 # 🔹 scale 3 containers
       resources:
         limits:
           cpus: "1.0"
           memory: 1024M
-
-    security_opt:
-      - no-new-privileges:true
 
     logging:
       driver: json-file
@@ -31,7 +32,11 @@ services:
         max-file: "3"
 
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8085/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8082/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+
+networks:
+  default:
+    driver: bridge
