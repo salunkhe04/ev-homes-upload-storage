@@ -1,15 +1,16 @@
 import Redis from "ioredis";
 import config from "../config/config.js";
 export let isRedisConnected = false;
-export const redis = new Redis({
-  host: "host.docker.internal",
-  // host: "srv615709.hstgr.cloud",
-  port: 6379,
-  password: config.REDIS_KEY,
-  connectTimeout: 10000,
-  retryStrategy: (times) => Math.min(times * 50, 2000),
-  maxRetriesPerRequest: null,
-});
+export const redis = undefined;
+// new Redis({
+//   host: "host.docker.internal",
+//   // host: "srv615709.hstgr.cloud",
+//   port: 6379,
+//   password: config.REDIS_KEY,
+//   connectTimeout: 10000,
+//   retryStrategy: (times) => Math.min(times * 50, 2000),
+//   maxRetriesPerRequest: null,
+// });
 
 redis.on("connect", () => {
   isRedisConnected = true;
