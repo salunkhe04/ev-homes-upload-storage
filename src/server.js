@@ -11,6 +11,10 @@ import { initCronJobs } from "./app/cron.js";
 import { hostnameCheck } from "./utils/helper.js";
 import routerV2 from "./v2Router/routerV2.js";
 
+router.get("/health", (req, res) => {
+  return res.status(200).send("OK");
+});
+
 app.use(hostnameCheck);
 app.use(logRequest);
 // app.use(versionCheckMiddleware);
