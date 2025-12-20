@@ -774,6 +774,10 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
   }
 });
 
+router.get("/health", (req, res) => {
+  return res.status(200).send("OK");
+});
+
 // router.get("/brevo-contact-get-bylist", async (req, res, next) => {
 //   //
 //   const { listId } = req.query;
