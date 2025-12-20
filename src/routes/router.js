@@ -141,6 +141,7 @@ import exhibitionVideoCountRouter from "./exhibitionVideoCount/exhibtionVideoCou
 import onbExhibRouter from "./onBoardingExhib/onboardingExhibRouter.js";
 
 const router = Router();
+
 router.get("/ping", async (req, res) => {
   res.json({ code: 200, message: "ok" });
 });
@@ -772,10 +773,6 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
   } catch (error) {
     return errorRes2(res, 500, `${error}`);
   }
-});
-
-router.get("/health", (req, res) => {
-  return res.status(200).send("OK");
 });
 
 // router.get("/brevo-contact-get-bylist", async (req, res, next) => {
