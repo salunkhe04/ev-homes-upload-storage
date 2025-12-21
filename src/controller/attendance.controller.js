@@ -3972,7 +3972,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
 
     // ---------- Attendance Month ----------
     const atts = await attendanceModel
-      .find({ month: currentMonth, year: currentYear })
+      .find({ month: currentMonth + 1, year: currentYear })
       .lean()
       .sort({ day: 1 });
 
@@ -4116,11 +4116,11 @@ export const generateCompensatoryOffLatest = async (req, res) => {
           );
 
           if (shouldGenerateCO && missingWeekoffs > 0) {
-            const updated = await shiftInfoModel.findByIdAndUpdate(
-              shiftInfo._id,
-              { $inc: { compensatoryoff: missingWeekoffs } },
-              { new: true }
-            );
+            // const updated = await shiftInfoModel.findByIdAndUpdate(
+            //   shiftInfo._id,
+            //   { $inc: { compensatoryoff: missingWeekoffs } },
+            //   { new: true }
+            // );
 
             // await createLeaveHistoryFunc({
             //   userId: shiftInfo?.userId?._id,
@@ -4141,11 +4141,11 @@ export const generateCompensatoryOffLatest = async (req, res) => {
 
           // Add missing weekoffs as compensatory off
           if (!shouldGenerateCO && missingWeekoffs > 0) {
-            const updated = await shiftInfoModel.findByIdAndUpdate(
-              shiftInfo._id,
-              { $inc: { compensatoryoff: missingWeekoffs } },
-              { new: true }
-            );
+            // const updated = await shiftInfoModel.findByIdAndUpdate(
+            //   shiftInfo._id,
+            //   { $inc: { compensatoryoff: missingWeekoffs } },
+            //   { new: true }
+            // );
 
             console.log(
               `Auto-generated ${missingWeekoffs} CO(s) for missing weekoffs in ${currentDate.format(
@@ -4733,5 +4733,187 @@ export const exportAttendance3Bak = async (req, res) => {
   } catch (error) {
     console.error("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
+  }
+};
+
+export const generateCompensatoryOffV2 = async (req, res) => {
+  const { date } = req.query;
+  const list = [];
+
+  try {
+    // ---------- Date & timezone ----------
+    const timeZone = "Asia/Kolkata";
+    const currentDate = date
+      ? moment(date).tz(timeZone).isValid()
+        ? moment(date).tz(timeZone)
+        : moment().tz(timeZone)
+      : moment().tz(timeZone);
+
+    const currentMonth = currentDate.month(); // 1-based
+    const currentYear = currentDate.year();
+    const daysInMonth = currentDate.daysInMonth();
+    // ---------- Shiftinfo  ----------
+
+    const shiftInfoList = await shiftInfoModel
+      .find({})
+      .populate(employeeShiftInfoPopulateOptions)
+      .lean();
+
+    // ---------- Attendance Month ----------
+    const atts = await attendanceModel
+      .find({ month: currentMonth + 1, year: currentYear })
+      .lean()
+      .sort({ day: 1 });
+    const filteredShifts = shiftInfoList.filter(
+      (ele) => ele?.userId?.status === "active" && ele?.shift
+    );
+    filteredShifts.forEach((shiftInfo, idx) => {
+      let payableDays = 0;
+      let weekoffDays = 0;
+      let presentOnweekoffDays = 0;
+      let absentDays = 0;
+      let onLeaveDays = 0;
+      let holiDays = 0;
+      let halfDays = 0;
+      let compOffs = 0;
+      let paidLeaves = 0;
+      let casualLeaves = 0;
+      let totalComps = 0;
+
+      const attList =
+        atts.filter((att) => att?.userId === shiftInfo?.userId?._id) || [];
+      attList.map((ele, i) => {
+        // if (i == 14) {
+        //   console.log(ele);
+        // }
+        const date = moment(ele.date);
+        const checkIn = moment(ele.checkInTime).tz("Asia/Kolkata");
+        const checkOut = moment(ele.checkOutTime).tz("Asia/Kolkata");
+
+        if (ele.status === "weekoff") {
+          //
+          weekoffDays++;
+        } else if (ele.status === "on-paid-leave") {
+          if (ele.leaveDuration === 0.5) {
+            // compOffs += 0.5;
+            onLeaveDays += 0.5;
+          } else {
+            // compOffs += 1;
+            onLeaveDays += 1;
+          }
+        } else if (ele.status === "on-casual-leave") {
+          if (ele.leaveDuration === 0.5) {
+            // compOffs += 0.5;
+            onLeaveDays += 0.5;
+          } else {
+            // compOffs += 1;
+            onLeaveDays += 1;
+          }
+        } else if (ele.status === "on-compensation-off-leave") {
+          if (ele.leaveDuration === 0.5) {
+            // compOffs += 0.5;
+            onLeaveDays += 0.5;
+          } else {
+            // compOffs += 1;
+            onLeaveDays += 1;
+          }
+        } else if (ele.status === "half-day") {
+          halfDays += 0.5;
+        } else if (ele.status === "holiday" || ele.wlStatus === "holiday") {
+          holiDays++;
+        } else if (ele.status === "absent") {
+          if (date.day() === 0) {
+            //
+            weekoffDays++;
+          } else {
+            absentDays++;
+          }
+        } else if (ele.status === "active") {
+          if (checkIn.isValid() && !checkOut.isValid()) {
+            // payableDays += 0.5;
+            halfDays += 0.5;
+          }
+        } else if (ele.status === "present" && ele.wlStatus === "weekoff") {
+          presentOnweekoffDays++;
+        }
+      });
+
+      // Remaining summary columns
+      const attOverview = getAttendanceOverviewFuncLocal({
+        date: currentDate.toDate(),
+        shiftInfo,
+        attendanceList: attList,
+      });
+      payableDays =
+        attOverview.activeHours - attOverview.requiredHours > 0
+          ? daysInMonth
+          : attOverview.activeHours / shiftInfo.shift.workingHours;
+      // console.log(`${shiftInfo.userId.firstName}`, " ", payableDays);
+      if (weekoffDays > 0) {
+        payableDays += weekoffDays;
+      }
+      if (presentOnweekoffDays > 0) {
+        payableDays += presentOnweekoffDays;
+      }
+      if (onLeaveDays > 0) {
+        payableDays += onLeaveDays;
+      }
+      if (holiDays > 0) {
+        payableDays += holiDays;
+      }
+      if (halfDays > 0) {
+        payableDays += halfDays;
+      }
+
+      if (weekoffDays < 4 && absentDays > 0) {
+        //TODO: fixes absent if not weekoff
+      }
+      if (weekoffDays < 4) {
+        //
+        totalComps += 4 - weekoffDays;
+      }
+      payableDays = roundToHalf(payableDays);
+      let abs = daysInMonth - payableDays;
+      absentDays = roundToHalf(abs < 0 ? 0 : abs);
+      const ots = distributeHours(
+        attOverview.activeHours - attOverview.requiredHours
+      );
+      if (shiftInfo?.userId?.department?._id === "dept-it") {
+        ots.map((ele) => {
+          totalComps += ele.day;
+        });
+      }
+
+      list.push({
+        userId: shiftInfo.userId?._id,
+        workHours: attOverview.activeHours,
+        requiredHours: attOverview.requiredHours,
+        payableDays,
+        weekoffDays,
+        absentDays,
+        onLeaveDays,
+        holiDays,
+        halfDays,
+        paidLeaves,
+        casualLeaves,
+        totalComps,
+        ots: ots,
+        totalLeaves:
+          shiftInfo.casualLeave +
+          shiftInfo.compensatoryoff +
+          shiftInfo.paidLeave +
+          totalComps, // Balance leaves
+        payableDays: payableDays > daysInMonth ? daysInMonth : payableDays,
+        daysInMonth,
+      });
+
+      //
+    });
+    return successRes2(res, 200, "g", {
+      data: list,
+    });
+  } catch (e) {
+    //
+    return errorRes2(res, 500, `${e}`);
   }
 };

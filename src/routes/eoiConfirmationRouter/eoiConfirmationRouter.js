@@ -36,6 +36,7 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
   //
   const {
     type, //eoi or confirmation
+    paymentType, //eoi or confirmation
     document,
     carpetArea,
     areaInSqmtr,
@@ -223,7 +224,7 @@ eoiConfRouter.get("/eoi-by-phone/:phone", async (req, res) => {
         successRes(404, `No lead found for phone number: ${phone}`, {
           data: null,
         })
-      );  
+      );
     }
 
     const eoiData = await eoiConfModel
