@@ -48,10 +48,15 @@ export const eoiConfSchema = new mongoose.Schema(
         ref: "employees",
         default: null,
       },
+      paymentType: {
+        type: String,
+        default: null,
+      },
       document: {
         type: String,
         default: null,
       },
+
       handOver: {
         type: Boolean,
         default: false,
@@ -74,6 +79,11 @@ export const eoiConfSchema = new mongoose.Schema(
         default: null,
         // required: true,
       },
+      paymentType: {
+        type: String,
+        default: null,
+      },
+
       document: {
         type: String,
         default: null,

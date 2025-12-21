@@ -13,6 +13,7 @@ import {
   exportAttendance3,
   generateCompensatoryOff,
   generateCompensatoryOffLatest,
+  generateCompensatoryOffV2,
   getAllMyAttendance,
   getAttendanceOverview,
   getAttendanceOverviewFunc,
@@ -148,7 +149,7 @@ attendanceRouter.get(
 attendanceRouter.get(
   "/generate-comp-of-monthly-latest",
   // authenticateToken,
-  generateCompensatoryOffLatest
+  generateCompensatoryOffV2
 );
 
 attendanceRouter.get(
