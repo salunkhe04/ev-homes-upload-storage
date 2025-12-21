@@ -87,6 +87,7 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
             generatedBy,
             document,
             date: new Date(),
+            paymentType,
           },
         };
       } else if (type === "confirmation") {
@@ -97,6 +98,7 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
             generatedBy,
             document,
             date: new Date(),
+            paymentType,
           },
         };
       }
@@ -124,6 +126,7 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
           generatedBy,
           document,
           date: new Date(),
+          paymentType,
         },
       };
     } else if (type === "confirmation") {
@@ -134,6 +137,7 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
           generatedBy,
           document,
           date: new Date(),
+          paymentType,
         },
       };
     }
