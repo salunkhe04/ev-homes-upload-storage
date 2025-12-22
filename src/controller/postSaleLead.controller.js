@@ -2247,7 +2247,23 @@ export const getPaymentReport = async (req, res) => {
   try {
     const { project, slab } = req.query;
 
-    const resp = await postSaleLeadModel.aggregate([
+    const pipeline = [
+      ...(project ? [{ $match: { project } }] : []),
+
+      {
+        $lookup: {
+          from: "ourProjects",
+          localField: "project",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
+      {
+        $unwind: {
+          path: "$project",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       {
         $lookup: {
           from: "payments",
@@ -2273,14 +2289,15 @@ export const getPaymentReport = async (req, res) => {
                       ],
                     },
 
-                    // ...(project ? [{ $eq: ["$projects", project] }] : []),
+                    // ...(project
+                    //   ? [{ $eq: ["$projects", project] }]
+                    //   : []),
 
                     // ...(slab ? [{ $eq: ["$slab", slab] }] : []),
                   ],
                 },
               },
             },
-
             {
               $group: {
                 _id: null,
@@ -2320,7 +2337,10 @@ export const getPaymentReport = async (req, res) => {
           firstName: 1,
           lastName: 1,
           phoneNumber: 1,
-          project: 1,
+          project: {
+            _id: "$project._id",
+            name: "$project.name",
+          },
           unitNo: 1,
           flatCost: 1,
           cgstAmount: 1,
@@ -2333,7 +2353,9 @@ export const getPaymentReport = async (req, res) => {
           totalStampDutyPaid: 1,
         },
       },
-    ]);
+    ];
+
+    const resp = await postSaleLeadModel.aggregate(pipeline);
 
     return successRes2(res, 200, "Payment report fetched successfully", {
       data: resp,
