@@ -1614,7 +1614,6 @@ export const updatePostSaleLeadById = async (req, res, next) => {
   }
 };
 
-
 export const deletePostSaleLeadBydId = async (req, res, next) => {
   const body = req.body;
   const id = req.params.id;
@@ -2241,6 +2240,107 @@ export const updatePaymentDetailsAmtStatus = async (req, res) => {
     });
   } catch (error) {
     return errorRes2(res, 500, "Internal server error");
+  }
+};
+
+export const getPaymentReport = async (req, res) => {
+  try {
+    const { project, slab } = req.query;
+
+    const resp = await postSaleLeadModel.aggregate([
+      {
+        $lookup: {
+          from: "payments",
+          let: {
+            bookingId: "$_id",
+            unitNo: "$unitNo",
+            leadProject: "$project",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $or: [
+                        { $eq: ["$booking", "$$bookingId"] },
+                        {
+                          $and: [
+                            { $eq: ["$flatNo", "$$unitNo"] },
+                            { $eq: ["$projects", "$$leadProject"] },
+                          ],
+                        },
+                      ],
+                    },
+
+                    // ...(project ? [{ $eq: ["$projects", project] }] : []),
+
+                    // ...(slab ? [{ $eq: ["$slab", slab] }] : []),
+                  ],
+                },
+              },
+            },
+
+            {
+              $group: {
+                _id: null,
+                totalCgstPaid: { $sum: "$cgst" },
+                totalTdsPaid: { $sum: "$tds" },
+                totalStampDutyPaid: { $sum: "$stampDuty" },
+              },
+            },
+          ],
+          as: "paymentSummary",
+        },
+      },
+
+      {
+        $addFields: {
+          totalCgstPaid: {
+            $ifNull: [
+              { $arrayElemAt: ["$paymentSummary.totalCgstPaid", 0] },
+              0,
+            ],
+          },
+          totalTdsPaid: {
+            $ifNull: [{ $arrayElemAt: ["$paymentSummary.totalTdsPaid", 0] }, 0],
+          },
+          totalStampDutyPaid: {
+            $ifNull: [
+              { $arrayElemAt: ["$paymentSummary.totalStampDutyPaid", 0] },
+              0,
+            ],
+          },
+        },
+      },
+
+      {
+        $project: {
+          _id: 1,
+          firstName: 1,
+          lastName: 1,
+          phoneNumber: 1,
+          project: 1,
+          unitNo: 1,
+          flatCost: 1,
+          cgstAmount: 1,
+          tdsAmount: 1,
+          stampDutyAmount: 1,
+          netAmount: 1,
+          slab: 1,
+          totalCgstPaid: 1,
+          totalTdsPaid: 1,
+          totalStampDutyPaid: 1,
+        },
+      },
+    ]);
+
+    return successRes2(res, 200, "Payment report fetched successfully", {
+      data: resp,
+    });
+  } catch (error) {
+    console.error(error);
+    return errorRes2(res, 500, "Internal Server Error");
   }
 };
 

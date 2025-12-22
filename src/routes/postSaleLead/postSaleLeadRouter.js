@@ -14,6 +14,7 @@ import {
   notificationForPaymentDue,
   sendPaymentDueEmail,
   updatePaymentDetailsAmtStatus,
+  getPaymentReport,
   // flatUpdateResult
   // cancelBooking
 
@@ -435,6 +436,10 @@ postSaleRouter.post(
   "/update-payment-status/:id",
   updatePaymentDetailsAmtStatus
 );
+
+
+
+postSaleRouter.get("/postsale-booking-payment-report",getPaymentReport);
 
 postSaleRouter.get("/postsale-lead-by-unit", async (req, res) => {
   try {
