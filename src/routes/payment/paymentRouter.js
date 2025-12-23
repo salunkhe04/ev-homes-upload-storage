@@ -9,6 +9,7 @@ import {
   getPaymentList,
   getPaymentsbyFlatBuildingNoAndProject,
   getPaymentsbyFlatNoAndProject,
+  getPaymentsByProj,
   updateCheckDates,
   updatePaymentAtDemand,
   updatePaymentTypesForSorting,
@@ -62,6 +63,12 @@ paymentRouter.delete(
   "/delete-payment/:id",
   // authenticateToken,
   deletePaymentById
+);
+
+paymentRouter.get(
+  "/payment-by-project",
+  // authenticateToken,
+  getPaymentsByProj
 );
 
 function extractNumber(str) {

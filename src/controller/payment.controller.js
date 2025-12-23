@@ -542,3 +542,24 @@ export const getPaymentsbyFlatBuildingNoAndProject = async (req, res) => {
     return res.send(errorRes(500, error));
   }
 };
+
+export const getPaymentsByProj = async (req, res) => {
+  try {
+    const project = req.query.project;
+
+    const respPayment = await paymentModel
+      .find({
+        $or: [{ projects: project }, { project: project }],
+      })
+      .populate(paymentPopulateOptions);
+
+    // console.log(respPayment.length);
+    return res.send(
+      successRes(200, "Get Payment", {
+        data: respPayment,
+      })
+    );
+  } catch (error) {
+    return res.send(errorRes(500, error));
+  }
+};
