@@ -2269,7 +2269,7 @@ export const getPaymentReport = async (req, res) => {
           from: "payments",
           let: {
             bookingId: "$_id",
-            unitNo: "$unitNo",
+            flatNo: "$unitNo",
             leadProject: "$project",
           },
           pipeline: [
@@ -2282,8 +2282,8 @@ export const getPaymentReport = async (req, res) => {
                         { $eq: ["$booking", "$$bookingId"] },
                         {
                           $and: [
-                            { $eq: ["$flatNo", "$$unitNo"] },
-                            { $eq: ["$projects", "$$leadProject"] },
+                            { $eq: ["$flatNo", "$$flatNo"] },
+                            { $eq: ["$projects", "$$leadProject._id"] },
                           ],
                         },
                       ],
@@ -2301,9 +2301,11 @@ export const getPaymentReport = async (req, res) => {
             {
               $group: {
                 _id: null,
+
                 totalCgstPaid: { $sum: "$cgst" },
                 totalTdsPaid: { $sum: "$tds" },
                 totalStampDutyPaid: { $sum: "$stampDuty" },
+                totalAgreementPaid: { $sum: "$bookingAmt" },
               },
             },
           ],
@@ -2328,12 +2330,30 @@ export const getPaymentReport = async (req, res) => {
               0,
             ],
           },
+          totalAgreementPaid: {
+            $ifNull: [
+              { $arrayElemAt: ["$paymentSummary.totalAgreementPaid", 0] },
+              0,
+            ],
+          },
+
+          totalAgreementPaid: {
+            $ifNull: [
+              { $arrayElemAt: ["$paymentSummary.totalAgreementPaid", 0] },
+              0,
+            ],
+          },
+
+          stampDutyPercent: {
+            $ifNull: ["$preRegistrationCheckList.stampDuty.percent", 0],
+          },
         },
       },
 
       {
         $project: {
           _id: 1,
+          prepreRegistrationCheckList: 1,
           firstName: 1,
           lastName: 1,
           phoneNumber: 1,
@@ -2347,10 +2367,13 @@ export const getPaymentReport = async (req, res) => {
           tdsAmount: 1,
           stampDutyAmount: 1,
           netAmount: 1,
+
           slab: 1,
           totalCgstPaid: 1,
           totalTdsPaid: 1,
           totalStampDutyPaid: 1,
+          totalAgreementPaid: 1,
+          stampDutyPercent: 1,
         },
       },
     ];
