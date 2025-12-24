@@ -2248,7 +2248,9 @@ export const getPaymentReport = async (req, res) => {
     const { project, slab } = req.query;
 
     const pipeline = [
-      ...(project ? [{ $match: { project } }] : []),
+      ...(project
+        ? [{ $match: { project, "bookingStatus.type": { $ne: "Cancelled" } } }]
+        : [{ $match: { "bookingStatus.type": { $ne: "Cancelled" } } }]),
 
       {
         $lookup: {
