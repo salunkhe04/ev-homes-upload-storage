@@ -84,7 +84,11 @@ export const paymentSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    buildingNo: { type: Number, default: null },
     flatNo: { type: String, default: null },
+    number: { type: Number, default: null },
+    floor: { type: Number, default: null },
+    wing: { type: String, default: null },
     amtReceived: {
       type: Number,
       default: 0,
@@ -105,7 +109,6 @@ export const paymentSchema = new mongoose.Schema(
     chequeReturned: { type: Date, default: null },
     chequeRedeposit: { type: Date, default: null },
     cgst: { type: Number, default: 0 },
-    buildingNo: { type: Number, default: null },
   },
   { timestamps: true }
 );
