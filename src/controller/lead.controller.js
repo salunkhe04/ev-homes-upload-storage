@@ -1486,6 +1486,15 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           },
         ],
       };
+    } else if (status === "exhibition-2025") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            leadFrom: { $eq: "exhibition-2025" },
+          },
+        ],
+      };
     }
     // assing /pending/etc
     if (status2 === "not-followup" || status2 === "not-assigned") {
@@ -3900,6 +3909,15 @@ export const getAssignedToSalesManger = async (req, res, next) => {
       //   ...statusToFind,
       //   taskRef: { $in: transferLeadTask.map((ele) => ele._id) },
       // };
+    } else if (status === "exhibition-2025") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            leadFrom: { $eq: "exhibition-2025" },
+          },
+        ],
+      };
     }
 
     // else if(status==="team-performance-task-completed"){
@@ -4728,6 +4746,15 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
         $and: [
           {
             leadType: { $eq: "internal-lead" },
+          },
+        ],
+      };
+    } else if (status === "exhibition-2025") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            leadFrom: { $eq: "exhibition-2025" },
           },
         ],
       };

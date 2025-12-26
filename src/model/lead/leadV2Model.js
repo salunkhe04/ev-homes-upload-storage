@@ -447,6 +447,11 @@ export const leadSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    leadFrom: {
+      type: String,
+      default: null,
+      enum: ["exhibition-2025"],
+    },
   },
   { timestamps: true }
 );
