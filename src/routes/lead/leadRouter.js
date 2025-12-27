@@ -117,7 +117,7 @@ leadRouter.post(
 leadRouter.post("/leads-hide/:id", authenticateToken, hideLead);
 leadRouter.get(
   "/leads-assign-count",
-  authenticateToken,
+  // authenticateToken,
   getLeadsAssignFeedbackByTlCounts
 );
 
@@ -1958,43 +1958,44 @@ leadRouter.post("/old-bulk-visited-leads", async (req, res) => {
         //       ]
         //     : [];
         dataTuPush.push({
-          firstName: name,
-          phoneNumber,
-          isBulkLead: false,
-          disabled: false,
-          // firstName: Name,
-          // phoneNumber: newNumber,
-          startDate: newDate,
-          // email: Email,
-          address: ".",
-          teamLeader: teamLeader,
-          // source: "internal-lead",
-          leadType: "internal-lead",
-          stage: "visit",
-          approvalRemark: "heart city leads",
-          project: ["project-ev-heart-city-mosare-2025"],
-          cycle: {
-            currentOrder: 1,
-            currentDays: 29,
-            stage: "visit",
-            teamLeader: teamLeader,
-            startDate: new Date("2025-07-16T07:47:08.850+00:00"),
-            validTill: new Date("2025-08-14T07:47:08.850+00:00"),
-          },
+          ...row,
+          // firstName: name,
+          // phoneNumber,
+          // isBulkLead: false,
+          // disabled: false,
+          // // firstName: Name,
+          // // phoneNumber: newNumber,
+          // startDate: newDate,
+          // // email: Email,
+          // address: ".",
+          // teamLeader: teamLeader,
+          // // source: "internal-lead",
+          // leadType: "internal-lead",
+          // stage: "visit",
+          // approvalRemark: "heart city leads",
+          // project: ["project-ev-heart-city-mosare-2025"],
+          // cycle: {
+          //   currentOrder: 1,
+          //   currentDays: 29,
+          //   stage: "visit",
+          //   teamLeader: teamLeader,
+          //   startDate: new Date("2025-07-16T07:47:08.850+00:00"),
+          //   validTill: new Date("2025-08-14T07:47:08.850+00:00"),
+          // },
           // callHistory: callHis,
           // requirement: newRequ,
         });
         i++;
       }
-      try {
-        await leadModelV2.insertMany(dataTuPush, { ordered: false });
-      } catch (error) {
-        if (error.name === "MongoBulkWriteError") {
-          console.warn("Duplicate entries skipped.");
-        } else {
-          console.error("Insert failed:", error);
-        }
-      }
+      // try {
+      //   await leadModelV2.insertMany(dataTuPush, { ordered: false });
+      // } catch (error) {
+      //   if (error.name === "MongoBulkWriteError") {
+      //     console.warn("Duplicate entries skipped.");
+      //   } else {
+      //     console.error("Insert failed:", error);
+      //   }
+      // }
       return res.send(dataTuPush);
     })
     .on("error", (err) => {
