@@ -1,10 +1,10 @@
 version: "3.9"
 
 services:
-  ev-home-backend:
+  ev-homes-backend:
     build: .
     # image: ev_home-backend:1.0
-    container_name: ev_home_backend
+    container_name: ev_homes_backend
     restart: unless-stopped
 
     network_mode: host # ⭐ THIS IS THE FIX
