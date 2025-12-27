@@ -15,14 +15,11 @@ services:
     environment:
       NODE_OPTIONS: "--max-old-space-size=1536"
 
+    mem_limit: 2024m
+    cpus: "1.0"
+
     volumes:
       - /var/www/storage:/app/storage
-
-    deploy:
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: 2024M
 
     security_opt:
       - no-new-privileges:true
