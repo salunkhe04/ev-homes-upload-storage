@@ -5,6 +5,13 @@ import path from "path";
 import { errorRes, successRes } from "../model/response.js";
 import { uploadsDir } from "../routes/storage/storageRouter.js";
 import fs from "fs";
+function mapUploadPath(p) {
+  const from = '/app/uploads';
+  const to = "/var/www/storage";
+  return p?.startsWith(from) ? to + p.slice(from.length) : p;
+
+  // return path.replace(/^\/app\/uploads/, config.STORAGE_ABSOLUTE_PATH);
+}
 
 export const uploadFile = async (req, res) => {
   if (!req.file) {
@@ -30,9 +37,16 @@ export const uploadFile = async (req, res) => {
       downloadUrl = downloadUrl.replace("api.", "cdn.");
     }
 
+
+    let destination;
+    if (req?.file?.path?.destination) {
+      // 
+      destination = mapUploadPath(req.file.path.destination);
+    }
     const respDb = new storageModel({
       ...req.file,
       downloadUrl,
+      destination: destination,
       token: token,
     });
 
@@ -83,10 +97,16 @@ export const uploadMultiple = async (req, res) => {
     if (downloadUrl.includes("api.")) {
       downloadUrl = downloadUrl.replace("api.", "cdn.");
     }
+    let destination;
+    if (req?.file?.path?.destination) {
+      // 
+      destination = mapUploadPath(req.file.path.destination);
+    }
 
     const respDb = new storageModel({
       ...file,
       downloadUrl,
+      destination:destination,
       token: token,
     });
 
