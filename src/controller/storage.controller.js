@@ -38,10 +38,10 @@ export const uploadFile = async (req, res) => {
     }
 
 
-    let destination;
-    if (req?.file?.path?.destination) {
+    let destination = "";
+    if (req?.file?.destination) {
       // 
-      destination = mapUploadPath(req.file.path.destination);
+      destination = mapUploadPath(req?.file?.destination);
     }
     const respDb = new storageModel({
       ...req.file,
@@ -98,9 +98,9 @@ export const uploadMultiple = async (req, res) => {
       downloadUrl = downloadUrl.replace("api.", "cdn.");
     }
     let destination;
-    if (req?.file?.path?.destination) {
+    if (req?.file?.destination) {
       // 
-      destination = mapUploadPath(req.file.path.destination);
+      destination = mapUploadPath(req?.file?.destination);
     }
 
     const respDb = new storageModel({
