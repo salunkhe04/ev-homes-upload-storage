@@ -59,7 +59,7 @@ export const uploadFile = async (req, res) => {
       downloadUrl: downloadUrl,
     });
   } catch (error) {
-    // console.log(error);
+    console.log(error);
 
     res.json({
       message: error,
