@@ -6,7 +6,7 @@ import { errorRes, successRes } from "../model/response.js";
 import { uploadsDir } from "../routes/storage/storageRouter.js";
 import fs from "fs";
 function mapUploadPath(p) {
-  const from = '/app/uploads';
+  const from = '/app/storage';
   const to = "/var/www/storage";
   return p?.startsWith(from) ? to + p.slice(from.length) : p;
 
@@ -38,14 +38,21 @@ export const uploadFile = async (req, res) => {
     }
 
 
-    let destination = "";
+    let destination = req?.file?.destination;
+    let path = req?.file?.path;
     if (req?.file?.destination) {
       // 
       destination = mapUploadPath(req?.file?.destination);
     }
+    if (req?.file?.path) {
+      // 
+      path = mapUploadPath(req?.file?.path);
+    }
+
     const respDb = new storageModel({
       ...req.file,
       downloadUrl,
+      path: path,
       destination: destination,
       token: token,
     });
@@ -97,16 +104,21 @@ export const uploadMultiple = async (req, res) => {
     if (downloadUrl.includes("api.")) {
       downloadUrl = downloadUrl.replace("api.", "cdn.");
     }
-    let destination;
+    let destination = req?.file?.destination;
+    let path = req?.file?.path;
     if (req?.file?.destination) {
       // 
       destination = mapUploadPath(req?.file?.destination);
+    }
+    if (req?.file?.path) {
+      // 
+      path = mapUploadPath(req?.file?.path);
     }
 
     const respDb = new storageModel({
       ...file,
       downloadUrl,
-      destination:destination,
+      destination: destination,
       token: token,
     });
 
