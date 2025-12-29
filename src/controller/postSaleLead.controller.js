@@ -2246,6 +2246,9 @@ export const updatePaymentDetailsAmtStatus = async (req, res) => {
 export const getPaymentReport = async (req, res) => {
   try {
     const { project, slab } = req.query;
+    // const slabIndex = slab
+    //   ? Number(slab.split("-").find((v) => !isNaN(v)))
+    //   : null;
 
     const pipeline = [
       ...(project
@@ -2315,6 +2318,84 @@ export const getPaymentReport = async (req, res) => {
         },
       },
 
+      ...(slab
+        ? [
+            {
+              $lookup: {
+                from: "slabs",
+                let: {
+                  projectId: "$project._id",
+                  selectedSlabId: slab,
+                },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: { $eq: ["$project", "$$projectId"] },
+                    },
+                  },
+
+                  { $unwind: "$slabs" },
+
+                  {
+                    $addFields: {
+                      isSelected: {
+                        $eq: ["$slabs.id", "$$selectedSlabId"],
+                      },
+                    },
+                  },
+
+                  {
+                    $group: {
+                      _id: null,
+                      selectedIndex: {
+                        $max: {
+                          $cond: ["$isSelected", "$slabs.index", null],
+                        },
+                      },
+                      slabs: { $push: "$slabs" },
+                    },
+                  },
+
+                  {
+                    $project: {
+                      totalSlabPercent: {
+                        $sum: {
+                          $map: {
+                            input: "$slabs",
+                            as: "s",
+                            in: {
+                              $cond: [
+                                { $lte: ["$$s.index", "$selectedIndex"] },
+                                "$$s.percent",
+                                0,
+                              ],
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                ],
+                as: "slabPercentInfo",
+              },
+            },
+            {
+              $addFields: {
+                totalSlabPercent: {
+                  $ifNull: [
+                    { $arrayElemAt: ["$slabPercentInfo.totalSlabPercent", 0] },
+                    0,
+                  ],
+                },
+              },
+            },
+          ]
+        : [
+            {
+              $addFields: { totalSlabPercent: 0 },
+            },
+          ]),
+
       {
         $addFields: {
           totalCgstPaid: {
@@ -2374,8 +2455,10 @@ export const getPaymentReport = async (req, res) => {
           totalCgstPaid: 1,
           totalTdsPaid: 1,
           totalStampDutyPaid: 1,
+
           totalAgreementPaid: 1,
           stampDutyPercent: 1,
+          totalSlabPercent: 1,
         },
       },
     ];
