@@ -12,6 +12,7 @@ const applicantSchema = new mongoose.Schema({
   pincode: { type: String, default: null },
   countryCode: { type: String, default: "+91" },
   phoneNumber: { type: Number, default: null },
+  dob: { type: Date, default: null },
   email: {
     type: String,
     default: null,
@@ -28,18 +29,23 @@ const applicantSchema = new mongoose.Schema({
       verified: { type: Boolean, default: false },
       document: { type: String, default: null },
       document2: { type: String, default: null },
+      documentNumber: { type: String, default: null },
       remark: { type: String, default: "" },
       type: { type: String, default: "aadhar" },
     },
     pan: {
       verified: { type: Boolean, default: false },
       document: { type: String, default: null },
+      documentNumber: { type: String, default: null },
+
       remark: { type: String, default: "" },
       type: { type: String, default: "pan" },
     },
     other: {
       verified: { type: Boolean, default: false },
       document: { type: String, default: null },
+      documentNumber: { type: String, default: null },
+
       remark: { type: String, default: "" },
       type: { type: String, default: "" },
     },
