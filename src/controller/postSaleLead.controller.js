@@ -2246,9 +2246,6 @@ export const updatePaymentDetailsAmtStatus = async (req, res) => {
 export const getPaymentReport = async (req, res) => {
   try {
     const { project, slab } = req.query;
-    // const slabIndex = slab
-    //   ? Number(slab.split("-").find((v) => !isNaN(v)))
-    //   : null;
 
     const pipeline = [
       ...(project
@@ -2269,6 +2266,22 @@ export const getPaymentReport = async (req, res) => {
           preserveNullAndEmptyArrays: true,
         },
       },
+
+      {
+        $lookup: {
+          from: "employees",
+          localField: "closingManager",
+          foreignField: "_id",
+          as: "closingManager",
+        },
+      },
+      {
+        $unwind: {
+          path: "$closingManager",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
       {
         $lookup: {
           from: "payments",
@@ -2293,12 +2306,6 @@ export const getPaymentReport = async (req, res) => {
                         },
                       ],
                     },
-
-                    // ...(project
-                    //   ? [{ $eq: ["$projects", project] }]
-                    //   : []),
-
-                    // ...(slab ? [{ $eq: ["$slab", slab] }] : []),
                   ],
                 },
               },
@@ -2459,6 +2466,23 @@ export const getPaymentReport = async (req, res) => {
           totalAgreementPaid: 1,
           stampDutyPercent: 1,
           totalSlabPercent: 1,
+
+          booking: {
+            _id: "$_id",
+            firstName: "$firstName",
+            lastName: "$lastName",
+            date: "$date",
+            registrationDoneDate: "$registrationDoneDate",
+            registrationDone: "$registrationDone",
+            buildingNo: "$buildingNo",
+            number: "$number",
+            unitNo: "$unitNo",
+            closingManager: {
+              _id: "$closingManager._id",
+              firstName: "$closingManager.firstName",
+              lastName: "$closingManager.lastName",
+            },
+          },
         },
       },
     ];
