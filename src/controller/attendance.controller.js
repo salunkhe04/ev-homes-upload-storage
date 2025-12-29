@@ -1984,7 +1984,7 @@ export const getAttendanceOverview = async (req, res) => {
       if (att.status === "weekoff") {
         weekoff += 1;
       }
-      if (att.status === "holiday") {
+      if (att.wlStatus === "holiday") {
         holiday += 1;
       }
 
@@ -2977,7 +2977,7 @@ export const getAttendanceOverviewFunc = async ({ id, date }) => {
       if (att.status === "weekoff") {
         weekoff += 1;
       }
-      if (att.status === "holiday") {
+      if (att.wlStatus === "holiday") {
         holiday += 1;
       }
 
@@ -3096,7 +3096,7 @@ export const getAttendanceOverviewFuncLocal = ({
       const checkOut = moment(att.checkOutTime).tz("Asia/Kolkata");
       if (att.status === "weekoff") {
         weekoff += 1;
-      } else if (att.status === "holiday") {
+      } else if (att.wlStatus === "holiday") {
         holiday += 1;
       } else if (
         att.status === "on-paid-leave" ||
