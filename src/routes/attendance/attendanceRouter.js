@@ -41,8 +41,9 @@ import {
 } from "../../utils/constant.js";
 import XLSX from "xlsx";
 import ExcelJS from "exceljs";
-import { errorRes2 } from "../../model/response.js";
+import { errorRes2, successRes2 } from "../../model/response.js";
 import leaveRequestModel from "../../model/attendance/leave/leaveRequest.model.js";
+import attendanceLogModel from "../../model/attendance/attendanceLog.model.js";
 
 const attendanceRouter = express.Router();
 
@@ -158,6 +159,16 @@ attendanceRouter.get(
 
   getPreviousRecord
 );
+
+attendanceRouter.post("/attendance-log-update", async (req, res) => {
+  const data = req.body;
+  try {
+    const resp = await attendanceLogModel.create({ ...data });
+    return successRes2(res, 200, "success", { data: resp });
+  } catch (error) {
+    return errorRes2(res, 500, `${error}`);
+  }
+});
 
 attendanceRouter.post("/attendance-difference", async (req, res) => {
   const { checkInTime } = req.body;
