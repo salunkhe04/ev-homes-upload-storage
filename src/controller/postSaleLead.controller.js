@@ -2266,6 +2266,44 @@ export const getPaymentReport = async (req, res) => {
           preserveNullAndEmptyArrays: true,
         },
       },
+      {
+        $addFields: {
+          selectedFlat: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: { $ifNull: ["$project.flatList", []] },
+                  as: "flat",
+                  cond: {
+                    $and: [
+                      {
+                        $eq: ["$$flat.flatNo", "$unitNo"],
+                      },
+                      {
+                        $eq: ["$$flat.number", "$number"],
+                      },
+                      {
+                        $eq: ["$$flat.buildingNo", "$buildingNo"],
+                      },
+                    ],
+                  },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $addFields: {
+          flatCarpetArea: {
+            $ifNull: ["$selectedFlat.carpetArea", 0],
+          },
+          flatSellableCarpetArea: {
+            $ifNull: ["$selectedFlat.sellableCarpetArea", 0],
+          },
+        },
+      },
 
       {
         $lookup: {
@@ -2467,6 +2505,10 @@ export const getPaymentReport = async (req, res) => {
           stampDutyPercent: 1,
           totalSlabPercent: 1,
 
+          flatCarpetArea: "$flatCarpetArea",
+          flatSellableCarpetArea: "$flatSellableCarpetArea",
+          // flatCarpetArea: 1,
+          // flatSellableCarpetArea: 1,
           booking: {
             _id: "$_id",
             firstName: "$firstName",
@@ -2477,10 +2519,18 @@ export const getPaymentReport = async (req, res) => {
             buildingNo: "$buildingNo",
             number: "$number",
             unitNo: "$unitNo",
+            floor: "$floor",
+            carpetArea: "$carpetArea",
+
             closingManager: {
               _id: "$closingManager._id",
               firstName: "$closingManager.firstName",
               lastName: "$closingManager.lastName",
+            },
+            project: {
+              _id: "$project._id",
+              name: "$project.name",
+              // flatList: "$project.flatList.carpetArea",
             },
           },
         },
