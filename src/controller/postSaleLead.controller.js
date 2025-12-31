@@ -2276,14 +2276,17 @@ export const getPaymentReport = async (req, res) => {
                   as: "flat",
                   cond: {
                     $and: [
+                      { $eq: ["$$flat.flatNo", "$unitNo"] },
+                      { $eq: ["$$flat.number", "$number"] },
+
                       {
-                        $eq: ["$$flat.flatNo", "$unitNo"],
-                      },
-                      {
-                        $eq: ["$$flat.number", "$number"],
-                      },
-                      {
-                        $eq: ["$$flat.buildingNo", "$buildingNo"],
+                        $or: [
+                          { $eq: ["$$flat.buildingNo", "$buildingNo"] },
+
+                          { $eq: ["$$flat.buildingNo", null] },
+
+                          { $eq: ["$buildingNo", null] },
+                        ],
                       },
                     ],
                   },
@@ -2294,6 +2297,7 @@ export const getPaymentReport = async (req, res) => {
           },
         },
       },
+
       {
         $addFields: {
           flatCarpetArea: {
