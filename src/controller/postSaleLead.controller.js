@@ -2366,6 +2366,56 @@ export const getPaymentReport = async (req, res) => {
           as: "paymentSummary",
         },
       },
+      {
+        $lookup: {
+          from: "leads",
+          let: { phone: "$phoneNumber" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$phoneNumber", "$$phone"] },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                channelPartner: 1,
+              },
+            },
+     
+          ],
+          as: "leadInfo",
+        },
+      },
+      {
+        $addFields: {
+          channelPartnerId: {
+            $arrayElemAt: ["$leadInfo.channelPartner", 0],
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "channelPartners",
+          localField: "channelPartnerId",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                firmName: 1,
+              },
+            },
+          ],
+          as: "channelPartner",
+        },
+      },
+      {
+        $unwind: {
+          path: "$channelPartner",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
 
       ...(slab
         ? [
@@ -2511,8 +2561,11 @@ export const getPaymentReport = async (req, res) => {
 
           flatCarpetArea: "$flatCarpetArea",
           flatSellableCarpetArea: "$flatSellableCarpetArea",
-          // flatCarpetArea: 1,
-          // flatSellableCarpetArea: 1,
+          channelPartner: {
+            _id: "$channelPartner._id",
+            firmName: "$channelPartner.firmName",
+          },
+
           booking: {
             _id: "$_id",
             firstName: "$firstName",
