@@ -2246,9 +2246,6 @@ export const updatePaymentDetailsAmtStatus = async (req, res) => {
 export const getPaymentReport = async (req, res) => {
   try {
     const { project, slab } = req.query;
-    // const slabIndex = slab
-    //   ? Number(slab.split("-").find((v) => !isNaN(v)))
-    //   : null;
 
     const pipeline = [
       ...(project
@@ -2269,6 +2266,64 @@ export const getPaymentReport = async (req, res) => {
           preserveNullAndEmptyArrays: true,
         },
       },
+      {
+        $addFields: {
+          selectedFlat: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: { $ifNull: ["$project.flatList", []] },
+                  as: "flat",
+                  cond: {
+                    $and: [
+                      { $eq: ["$$flat.flatNo", "$unitNo"] },
+                      { $eq: ["$$flat.number", "$number"] },
+
+                      {
+                        $or: [
+                          { $eq: ["$$flat.buildingNo", "$buildingNo"] },
+
+                          { $eq: ["$$flat.buildingNo", null] },
+
+                          { $eq: ["$buildingNo", null] },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+
+      {
+        $addFields: {
+          flatCarpetArea: {
+            $ifNull: ["$selectedFlat.carpetArea", 0],
+          },
+          flatSellableCarpetArea: {
+            $ifNull: ["$selectedFlat.sellableCarpetArea", 0],
+          },
+        },
+      },
+
+      {
+        $lookup: {
+          from: "employees",
+          localField: "closingManager",
+          foreignField: "_id",
+          as: "closingManager",
+        },
+      },
+      {
+        $unwind: {
+          path: "$closingManager",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
       {
         $lookup: {
           from: "payments",
@@ -2293,12 +2348,6 @@ export const getPaymentReport = async (req, res) => {
                         },
                       ],
                     },
-
-                    // ...(project
-                    //   ? [{ $eq: ["$projects", project] }]
-                    //   : []),
-
-                    // ...(slab ? [{ $eq: ["$slab", slab] }] : []),
                   ],
                 },
               },
@@ -2315,6 +2364,56 @@ export const getPaymentReport = async (req, res) => {
             },
           ],
           as: "paymentSummary",
+        },
+      },
+      {
+        $lookup: {
+          from: "leads",
+          let: { phone: "$phoneNumber" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$phoneNumber", "$$phone"] },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                channelPartner: 1,
+              },
+            },
+     
+          ],
+          as: "leadInfo",
+        },
+      },
+      {
+        $addFields: {
+          channelPartnerId: {
+            $arrayElemAt: ["$leadInfo.channelPartner", 0],
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "channelPartners",
+          localField: "channelPartnerId",
+          foreignField: "_id",
+          pipeline: [
+            {
+              $project: {
+                _id: 1,
+                firmName: 1,
+              },
+            },
+          ],
+          as: "channelPartner",
+        },
+      },
+      {
+        $unwind: {
+          path: "$channelPartner",
+          preserveNullAndEmptyArrays: true,
         },
       },
 
@@ -2459,6 +2558,38 @@ export const getPaymentReport = async (req, res) => {
           totalAgreementPaid: 1,
           stampDutyPercent: 1,
           totalSlabPercent: 1,
+
+          flatCarpetArea: "$flatCarpetArea",
+          flatSellableCarpetArea: "$flatSellableCarpetArea",
+          channelPartner: {
+            _id: "$channelPartner._id",
+            firmName: "$channelPartner.firmName",
+          },
+
+          booking: {
+            _id: "$_id",
+            firstName: "$firstName",
+            lastName: "$lastName",
+            date: "$date",
+            registrationDoneDate: "$registrationDoneDate",
+            registrationDone: "$registrationDone",
+            buildingNo: "$buildingNo",
+            number: "$number",
+            unitNo: "$unitNo",
+            floor: "$floor",
+            carpetArea: "$carpetArea",
+
+            closingManager: {
+              _id: "$closingManager._id",
+              firstName: "$closingManager.firstName",
+              lastName: "$closingManager.lastName",
+            },
+            project: {
+              _id: "$project._id",
+              name: "$project.name",
+              // flatList: "$project.flatList.carpetArea",
+            },
+          },
         },
       },
     ];
