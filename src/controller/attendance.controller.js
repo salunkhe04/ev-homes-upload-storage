@@ -3614,7 +3614,7 @@ export const exportAttendance3 = async (req, res) => {
     // ---------- Save & send ----------
     const fileName = `detailed_attendance_${Date.now()}.xlsx`;
     const cPath = config.STORAGE_ABSOLUTE_PATH
-      ? "/var/www/storage/attendance"
+      ? `${config.STORAGE_ABSOLUTE_PATH}/attendance`
       : __dirname;
     const filePath = path.join(cPath, fileName);
 
