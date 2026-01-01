@@ -391,6 +391,7 @@ leadRouterV2.get(
         bookingWalkIn: 0,
         cpNotePendingCount: 0,
         internalLeadCount: 0,
+        exhibition2025: 0,
       },
       task: {
         total: 0,
@@ -596,6 +597,15 @@ leadRouterV2.get(
               },
               { $count: "count" },
             ],
+
+            exhibition2025: [
+              {
+                $match: {
+                  leadFrom: "exhibition-2025",
+                },
+              },
+              { $count: "count" },
+            ],
           },
         },
         {
@@ -622,6 +632,9 @@ leadRouterV2.get(
             internalLeadCount: {
               $arrayElemAt: ["$internalLeadCount.count", 0],
             },
+            exhibition2025: {
+              $arrayElemAt: ["$exhibition2025.count", 0],
+            },
           },
         },
         {
@@ -640,6 +653,7 @@ leadRouterV2.get(
             cpNotePendingCount: 1,
             bulkCount: 1,
             internalLeadCount: 1,
+            exhibition2025: 1,
 
             // Include only the fields you need
           },
@@ -663,7 +677,7 @@ leadRouterV2.get(
         cpNotePendingCount = 0,
         bulkCount = 0,
         internalLeadCount = 0,
-
+        exhibition2025 = 0,
         // Add other counts as required
       } = counts[0] || {};
 
@@ -681,6 +695,7 @@ leadRouterV2.get(
       allCounts.lead.cpNotePendingCount = cpNotePendingCount;
       allCounts.lead.bulkCount = bulkCount;
       allCounts.lead.internalLeadCount = internalLeadCount;
+      allCounts.lead.exhibition2025 = exhibition2025;
 
       // console.log({
       //   assignTo: id,
@@ -819,6 +834,7 @@ leadRouterV2.get(
         cpNotePendingCount: 0,
         internalLeadCount: 0,
         bulkCount: 0,
+        exhibition2025: 0,
       },
       task: {
         total: 0,
@@ -1029,6 +1045,14 @@ leadRouterV2.get(
               },
               { $count: "count" },
             ],
+            exhibition2025: [
+              {
+                $match: {
+                  leadFrom: "exhibition-2025",
+                },
+              },
+              { $count: "count" },
+            ],
           },
         },
         {
@@ -1057,6 +1081,9 @@ leadRouterV2.get(
             internalLeadCount: {
               $arrayElemAt: ["$internalLeadCount.count", 0],
             },
+            exhibition2025: {
+              $arrayElemAt: ["$exhibition2025.count", 0],
+            },
 
             // Add other fields similarly as required
           },
@@ -1077,6 +1104,7 @@ leadRouterV2.get(
             cpNotePendingCount: 1,
             bulkCount: 1,
             internalLeadCount: 1,
+            exhibition2025: 1,
 
             // Include only the fields you need
           },
@@ -1100,7 +1128,7 @@ leadRouterV2.get(
         cpNotePendingCount = 0,
         bulkCount = 0,
         internalLeadCount = 0,
-
+        exhibition2025 = 0,
         // Add other counts as required
       } = counts[0] || {};
 
@@ -1118,6 +1146,7 @@ leadRouterV2.get(
       allCounts.lead.cpNotePendingCount = cpNotePendingCount;
       allCounts.lead.bulkCount = bulkCount;
       allCounts.lead.internalLeadCount = internalLeadCount;
+      allCounts.lead.exhibition2025 = exhibition2025;
 
       // console.log({
       //   assignTo: id,

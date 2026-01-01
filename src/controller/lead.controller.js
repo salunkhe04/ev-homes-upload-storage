@@ -953,6 +953,15 @@ export const getAllData = async (req, res, next) => {
             { $match: { isBulkLead: { $eq: true } } },
             { $count: "count" },
           ],
+            exhibition2025: [
+              {
+                $match: {
+                  leadFrom: "exhibition-2025",
+                },
+              },
+              { $count: "count" },
+            ],
+
           // Add other count stages as required
         },
       },
@@ -972,6 +981,7 @@ export const getAllData = async (req, res, next) => {
           // Add other fields similarly as required
           internalLeadCount: { $arrayElemAt: ["$internalLeadCount.count", 0] },
           bulkCount: { $arrayElemAt: ["$bulkCount.count", 0] },
+          exhibition2025: { $arrayElemAt: ["$exhibition2025.count", 0] },
         },
       },
       {
@@ -989,6 +999,7 @@ export const getAllData = async (req, res, next) => {
           lineUpCount: 1,
           internalLeadCount: 1,
           bulkCount: 1,
+          exhibition2025: 1,
           // Include only the fields you need
         },
       },
@@ -1008,6 +1019,7 @@ export const getAllData = async (req, res, next) => {
       lineUpCount = 0,
       internalLeadCount = 0,
       bulkCount = 0,
+      exhibition2025 =0,
       // Add other counts as required
     } = counts[0] || {};
 
@@ -1031,6 +1043,7 @@ export const getAllData = async (req, res, next) => {
         lineUpCount,
         internalLeadCount,
         bulkCount,
+        exhibition2025,
         data: leadsWithTeamLeader,
       })
     );
