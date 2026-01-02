@@ -6,7 +6,7 @@ import { errorRes, successRes } from "../model/response.js";
 import { uploadsDir } from "../routes/storage/storageRouter.js";
 import fs from "fs";
 function mapUploadPath(p) {
-  const from = '/app/storage';
+  const from = "/app/storage";
   const to = "/var/www/storage";
   return p?.startsWith(from) ? to + p.slice(from.length) : p;
 
@@ -37,15 +37,14 @@ export const uploadFile = async (req, res) => {
       downloadUrl = downloadUrl.replace("api.", "cdn.");
     }
 
-
     let destination = req?.file?.destination;
     let path = req?.file?.path;
     if (req?.file?.destination) {
-      // 
+      //
       destination = mapUploadPath(req?.file?.destination);
     }
     if (req?.file?.path) {
-      // 
+      //
       path = mapUploadPath(req?.file?.path);
     }
 
@@ -104,21 +103,22 @@ export const uploadMultiple = async (req, res) => {
     if (downloadUrl.includes("api.")) {
       downloadUrl = downloadUrl.replace("api.", "cdn.");
     }
-    let destination = req?.file?.destination;
-    let path = req?.file?.path;
-    if (req?.file?.destination) {
-      // 
-      destination = mapUploadPath(req?.file?.destination);
+    let destination = file?.destination;
+    let path = file?.path;
+    if (file?.destination) {
+      //
+      destination = mapUploadPath(file?.destination);
     }
-    if (req?.file?.path) {
-      // 
-      path = mapUploadPath(req?.file?.path);
+    if (file?.path) {
+      //
+      path = mapUploadPath(file?.path);
     }
 
     const respDb = new storageModel({
       ...file,
       downloadUrl,
       destination: destination,
+      path: path,
       token: token,
     });
 
