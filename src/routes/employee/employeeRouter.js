@@ -32,6 +32,7 @@ import { authenticateToken } from "../../middleware/auth.middleware.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
 import employeeModel from "../../model/employee.model.js";
 import shiftInfoModel from "../../model/attendance/shift/employeeShiftInfo.js";
+import moment from "moment-timezone";
 
 const employeeRouter = Router();
 
@@ -224,6 +225,35 @@ employeeRouter.post("/emp-attach-shift", async (req, res) => {
       })
     );
     res.send("ok");
+  } catch (error) {
+    //
+    res.send(error);
+  }
+});
+
+employeeRouter.get("/emp-list-bd", async (req, res) => {
+  try {
+    //
+    const eList = [];
+
+    const emps = await employeeModel.find({
+      status: "active",
+      $or: [
+        { division: "div-vashi-sector-9" },
+        { division: "div-vashi-sector-10" },
+      ],
+    });
+
+    emps.map((ele) => {
+      eList.push({
+        name: `${ele.firstName} ${ele.lastName}`,
+        dob: moment(ele.dateOfBirth).isValid()
+          ? `${moment(ele.dateOfBirth).tz("Asia/Kolkata").format("DD-MM-YYYY")}`
+          : "",
+      });
+    });
+
+    res.send(eList);
   } catch (error) {
     //
     res.send(error);
