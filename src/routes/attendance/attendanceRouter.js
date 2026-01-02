@@ -636,6 +636,10 @@ attendanceRouter.get("/attendance-ot-count-2", async (req, res) => {
         status = "weekoff";
       }
 
+      if (status === "absent" || status === "active" || status === "half-day") {
+        status = "--";
+      }
+
       const row = worksheet.addRow([
         i + 1,
         dateFormatted,
