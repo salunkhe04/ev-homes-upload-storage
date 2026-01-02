@@ -953,14 +953,14 @@ export const getAllData = async (req, res, next) => {
             { $match: { isBulkLead: { $eq: true } } },
             { $count: "count" },
           ],
-            exhibition2025: [
-              {
-                $match: {
-                  leadFrom: "exhibition-2025",
-                },
+          exhibition2025: [
+            {
+              $match: {
+                leadFrom: "exhibition-2025",
               },
-              { $count: "count" },
-            ],
+            },
+            { $count: "count" },
+          ],
 
           // Add other count stages as required
         },
@@ -1019,7 +1019,7 @@ export const getAllData = async (req, res, next) => {
       lineUpCount = 0,
       internalLeadCount = 0,
       bulkCount = 0,
-      exhibition2025 =0,
+      exhibition2025 = 0,
       // Add other counts as required
     } = counts[0] || {};
 
@@ -6521,6 +6521,15 @@ export const searchLeads = async (req, res, next) => {
         $and: [
           {
             leadType: { $eq: "internal-lead" },
+          },
+        ],
+      };
+    }else if (status === "exhibition-2025") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            leadFrom: { $eq: "exhibition-2025" },
           },
         ],
       };
