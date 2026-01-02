@@ -77,6 +77,7 @@ export const addPayment = async (req, res) => {
     stampDuty,
     tds,
     cgst,
+    amountRemark,
   } = body;
 
   // console.log(body);
