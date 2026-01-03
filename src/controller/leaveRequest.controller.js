@@ -117,6 +117,7 @@ export const addLeave = async (req, res, next) => {
     applicant,
   } = req.body;
   const user = req.user;
+  let newLeaveRequest = null;
   try {
     if (!startDate) return res.send(errorRes(401, "Start Date is required"));
     if (!endDate) return res.send(errorRes(401, "End Date is required"));
@@ -191,7 +192,7 @@ export const addLeave = async (req, res, next) => {
     });
 
     //leave cut
-    // try {
+    try {
     const info = await shiftInfoModel.findOne({ userId: applicant });
 
     if (!info) {
@@ -217,7 +218,7 @@ export const addLeave = async (req, res, next) => {
     await shiftInfoModel.findByIdAndUpdate(info._id, {
       $set: updateLeave,
     });
-    const newLeaveRequest = await leaveRequestModel.create({
+     newLeaveRequest = await leaveRequestModel.create({
       ...req.body,
       appliedOn: new Date(),
       approvalSteps,
@@ -234,10 +235,10 @@ export const addLeave = async (req, res, next) => {
       leave: newLeaveRequest._id,
       howManyBefore: lastLeaveCount,
     });
-    // } catch (e) {
-    //   console.log(e);
-    //   return res.status(500).send(errorRes(500, "Internal Server Error"));
-    // }
+    } catch (e) {
+      console.log(e);
+      return res.status(500).send(errorRes(500, "Internal Server Error"));
+    }
 
     const dta = await oneSignalModel.find({
       $or: [
