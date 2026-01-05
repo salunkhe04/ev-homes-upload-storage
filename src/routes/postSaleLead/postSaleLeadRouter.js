@@ -437,9 +437,7 @@ postSaleRouter.post(
   updatePaymentDetailsAmtStatus
 );
 
-
-
-postSaleRouter.get("/postsale-booking-payment-report",getPaymentReport);
+postSaleRouter.get("/postsale-booking-payment-report", getPaymentReport);
 
 postSaleRouter.get("/postsale-lead-by-unit", async (req, res) => {
   try {
@@ -455,7 +453,8 @@ postSaleRouter.get("/postsale-lead-by-unit", async (req, res) => {
         project: project,
         buildingNo: buildingNo,
         unitNo: unitNo,
-      }).sort({createdAt:-1})
+      })
+      .sort({ createdAt: -1 })
       .populate(postSalePopulateOptionsv2);
 
     if (!client) {
@@ -503,6 +502,46 @@ postSaleRouter.get("/postsale-fix-docs", async (req, res) => {
     // console.log(client);
     return successRes2(res, 200, "Booking details for client", {
       data: clients,
+    });
+  } catch (error) {
+    console.error("Error fetching client by unit:", error);
+    return errorRes2(res, 500, `${error}`);
+  }
+});
+
+postSaleRouter.get("/postsale-fixed-area", async (req, res) => {
+  try {
+    const client = await postSaleLeadModel.find({
+      project: "project-ev23-malibu-west-koparkhairne-202f4",
+      "bookingStatus.type": { $ne: "Cancelled" },
+    });
+
+    const proj = await ourProjectModel.findById(
+      "project-ev23-malibu-west-koparkhairne-2024"
+    );
+    const area = await Promise.all(
+      client.map(async (e) => {
+        //
+        const flat = proj.flatList.find(
+          (ele) =>
+            ele.buildingNo === e.buildingNo &&
+            ele.floor === e.floor &&
+            ele.number === e.number &&
+            ele.wing === e.wing
+        );
+        const resp = await postSaleLeadModel.findByIdAndUpdate(e._id, {
+          $set: {
+            carpetArea: flat?.carpetArea,
+            sellableCarpetArea: flat?.sellableCarpetArea,
+            configuration: flat?.configuration,
+          },
+        });
+      })
+    );
+
+    // console.log(client);
+    return successRes2(res, 200, "Booking details for client", {
+      data: client,
     });
   } catch (error) {
     console.error("Error fetching client by unit:", error);
