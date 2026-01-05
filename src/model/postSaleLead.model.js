@@ -388,6 +388,14 @@ export const postSaleLeadSchema = new mongoose.Schema(
       default: null,
     },
     paymentDetailSchema: [paymentDetailSchema],
+    sellableCarpetArea: {
+      type: Number,
+      default: null,
+    },
+    configuration: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
