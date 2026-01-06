@@ -139,6 +139,7 @@ import eoiExhibitionRouter from "./eoiExhibition/eoiExhibitionRouter.js";
 import exihibitionVideoRouter from "./exihibitionVideo/exhibitionVideoRouter.js";
 import exhibitionVideoCountRouter from "./exhibitionVideoCount/exhibtionVideoCount.js";
 import onbExhibRouter from "./onBoardingExhib/onboardingExhibRouter.js";
+import designTaskRouter from "./task/designTaskRouter.js";
 
 const router = Router();
 
@@ -1009,5 +1010,6 @@ router.use(eoiExhibitionRouter);
 router.use(exihibitionVideoRouter);
 router.use(exhibitionVideoCountRouter);
 router.use(onbExhibRouter);
+router.use(designTaskRouter);
 
 export default router;

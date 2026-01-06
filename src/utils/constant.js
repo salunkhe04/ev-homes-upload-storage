@@ -2821,3 +2821,14 @@ export const onBoardExhibPopulations = [
     select: "firstName lastName",
   },
 ];
+
+export const designTaskPopulateOptions = [
+  {
+    path: "assignBy",
+    select: "firstName lastName email",
+  },
+  {
+    path: "assignTo",
+    select: "firstName lastName email",
+  },
+];
