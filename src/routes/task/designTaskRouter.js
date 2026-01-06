@@ -130,6 +130,77 @@ designTaskRouter.get("/design-task-submissions", async (req, res, next) => {
   //
 });
 
+// get dashboard Info
+designTaskRouter.get(
+  "/design-task-dashboard/:assignTo",
+  async (req, res, next) => {
+    //
+    const id = req.params.assignTo;
+    //
+    if (!id) return errorRes2(res, 401, `id required`);
+
+    try {
+      const aggre = await designTaskModel.aggregate([
+        {
+          $match: {
+            //
+            assignTo: id,
+          },
+        },
+        {
+          $facet: {
+            totalTasks: [{ $count: "count" }],
+            completed: [
+              {
+                $match: {
+                  //
+                  status: "completed",
+                },
+              },
+              { $count: "count" },
+            ],
+            pending: [
+              {
+                $match: {
+                  //
+                  status: "not-completed",
+                },
+              },
+              { $count: "count" },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            totalTasks: { $arrayElemAt: ["$totalTasks.count", 0] },
+            completed: { $arrayElemAt: ["$completed.count", 0] },
+            pending: { $arrayElemAt: ["$pending.count", 0] },
+          },
+        },
+        {
+          $project: {
+            totalTasks: 1,
+            completed: 1,
+            pending: 1,
+          },
+        },
+      ]);
+
+      const { totalItems = 0, completed = 0, pending = 0 } = aggre[0] || {};
+      //
+      return successRes2(res, 200, "design Tasks", {
+        totalItems,
+        completed,
+        pending,
+      });
+    } catch (error) {
+      //
+      return errorRes2(res, 500, `${error?.message}`);
+    }
+    //
+  }
+);
+
 // update refrence Images
 designTaskRouter.post(
   "/design-task-update-reference-img/:id",
@@ -462,6 +533,10 @@ designTaskRouter.post(
       foundTask.approval.approvalDate = approvalDate;
       foundTask.approval.status = status;
       const oldTimeline = foundTask.timeline;
+      if (status === "approved") {
+        //
+        foundTask.status = "completed";
+      }
       //
       oldTimeline.push({
         type: "approval-task-submission",
@@ -506,6 +581,5 @@ designTaskRouter.post(
     //
   }
 );
-//
 //
 export default designTaskRouter;
