@@ -27,6 +27,13 @@ const designTaskSchema = new mongoose.Schema(
       enum: ["completed", "not-completed", "pendency"],
       default: "not-completed",
     },
+    //
+    priority: {
+      type: String,
+      enum: ["high", "medium", "low"],
+      default: "low",
+    },
+
     // approval - pendancy
     pendency: {
       //

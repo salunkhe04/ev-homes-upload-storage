@@ -9,14 +9,38 @@ const designTaskRouter = Router();
 // get all tasks
 designTaskRouter.get("/design-tasks", async (req, res, next) => {
   //
-  const { assignTo, assignBy } = req.query;
+  const { assignTo, assignBy, query, status, startDate, endDate, priority } =
+    req.query;
   //
   try {
     let statusToFind = {
       //
       ...(assignTo ? { assignTo: assignTo } : {}),
       ...(assignBy ? { assignBy: assignBy } : {}),
+      ...(status ? { status: status } : {}),
+      ...(priority ? { priority: priority } : {}),
     };
+    if (query) {
+      let searchFilter = {
+        $or: [
+          { details: { $regex: query, $options: "i" } },
+          { assignTo: { $regex: query, $options: "i" } },
+          { assignBy: { $regex: query, $options: "i" } },
+        ].filter(Boolean),
+      };
+      statusToFind = { ...statusToFind, ...searchFilter };
+    }
+
+    if (startDate && endDate) {
+      statusToFind = {
+        ...statusToFind,
+        assignDate: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      };
+    }
+
     const resp = await designTaskModel
       .find(statusToFind)
       .populate(designTaskPopulateOptions);
@@ -149,7 +173,7 @@ designTaskRouter.get(
         },
         {
           $facet: {
-            totalTasks: [{ $count: "count" }],
+            total: [{ $count: "count" }],
             completed: [
               {
                 $match: {
@@ -159,7 +183,7 @@ designTaskRouter.get(
               },
               { $count: "count" },
             ],
-            pending: [
+            incomplete: [
               {
                 $match: {
                   //
@@ -168,30 +192,47 @@ designTaskRouter.get(
               },
               { $count: "count" },
             ],
+            pendency: [
+              {
+                $match: {
+                  //
+                  status: "pendency",
+                },
+              },
+              { $count: "count" },
+            ],
           },
         },
         {
           $addFields: {
-            totalTasks: { $arrayElemAt: ["$totalTasks.count", 0] },
+            total: { $arrayElemAt: ["$total.count", 0] },
             completed: { $arrayElemAt: ["$completed.count", 0] },
-            pending: { $arrayElemAt: ["$pending.count", 0] },
+            incomplete: { $arrayElemAt: ["$incomplete.count", 0] },
+            pendency: { $arrayElemAt: ["$pendency.count", 0] },
           },
         },
         {
           $project: {
-            totalTasks: 1,
+            total: 1,
             completed: 1,
-            pending: 1,
+            incomplete: 1,
+            pendency: 1,
           },
         },
       ]);
 
-      const { totalItems = 0, completed = 0, pending = 0 } = aggre[0] || {};
+      const {
+        total = 0,
+        completed = 0,
+        incomplete = 0,
+        pendency = 0,
+      } = aggre[0] || {};
       //
       return successRes2(res, 200, "design Tasks", {
-        totalItems,
+        total,
         completed,
-        pending,
+        incomplete,
+        pendency,
       });
     } catch (error) {
       //
@@ -460,6 +501,10 @@ designTaskRouter.post(
       foundTask.pendency.approvalDate = approvalDate;
       foundTask.pendency.status = status;
       const oldTimeline = foundTask.timeline;
+      if (status === "approved") {
+        foundTask.status = "pendency";
+      }
+
       //
       oldTimeline.push({
         type: "approval-task-pendency",
@@ -478,7 +523,7 @@ designTaskRouter.post(
 
       // find user device id
       const foundTLPlayerId = await oneSignalModel.findOne({
-        docId: foundTask.assignBy,
+        docId: foundTask.assignTo,
         role: "employee",
       });
 
@@ -556,7 +601,7 @@ designTaskRouter.post(
 
       // find user device id
       const foundTLPlayerId = await oneSignalModel.findOne({
-        docId: foundTask.assignBy,
+        docId: foundTask.assignTo,
         role: "employee",
       });
 
