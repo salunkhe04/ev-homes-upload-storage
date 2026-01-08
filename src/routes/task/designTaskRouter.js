@@ -242,6 +242,94 @@ designTaskRouter.get(
   }
 );
 
+// get dashboard Info
+designTaskRouter.get(
+  "/design-task-tl-dashboard/:assignBy",
+  async (req, res, next) => {
+    //
+    const id = req.params.assignBy;
+    //
+    if (!id) return errorRes2(res, 401, `id required`);
+
+    try {
+      const aggre = await designTaskModel.aggregate([
+        {
+          $match: {
+            //
+            assignBy: id,
+          },
+        },
+        {
+          $facet: {
+            total: [{ $count: "count" }],
+            completed: [
+              {
+                $match: {
+                  //
+                  status: "completed",
+                },
+              },
+              { $count: "count" },
+            ],
+            incomplete: [
+              {
+                $match: {
+                  //
+                  status: "not-completed",
+                },
+              },
+              { $count: "count" },
+            ],
+            pendency: [
+              {
+                $match: {
+                  //
+                  status: "pendency",
+                },
+              },
+              { $count: "count" },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            total: { $arrayElemAt: ["$total.count", 0] },
+            completed: { $arrayElemAt: ["$completed.count", 0] },
+            incomplete: { $arrayElemAt: ["$incomplete.count", 0] },
+            pendency: { $arrayElemAt: ["$pendency.count", 0] },
+          },
+        },
+        {
+          $project: {
+            total: 1,
+            completed: 1,
+            incomplete: 1,
+            pendency: 1,
+          },
+        },
+      ]);
+
+      const {
+        total = 0,
+        completed = 0,
+        incomplete = 0,
+        pendency = 0,
+      } = aggre[0] || {};
+      //
+      return successRes2(res, 200, "design Tasks", {
+        total,
+        completed,
+        incomplete,
+        pendency,
+      });
+    } catch (error) {
+      //
+      return errorRes2(res, 500, `${error?.message}`);
+    }
+    //
+  }
+);
+
 // update refrence Images
 designTaskRouter.post(
   "/design-task-update-reference-img/:id",
