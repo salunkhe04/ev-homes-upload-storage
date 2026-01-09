@@ -26,6 +26,7 @@ import {
   getDataAnalyzers,
   sendAddLeaveNotification,
   getEmployeesForAttendance,
+  getEmployeeByCustomRole,
 } from "../../controller/employee.controller.js";
 import { validateEmployeeFields } from "../../middleware/employee.middleware.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
@@ -86,6 +87,12 @@ employeeRouter.get(
   "/employee-by-designation/:id",
   authenticateToken,
   getEmployeeByDesignation
+);
+
+employeeRouter.get(
+  "/employees-by-custom-role",
+  // authenticateToken,
+  getEmployeeByCustomRole
 );
 
 employeeRouter.get("/employee-team-leader", authenticateToken, getTeamLeaders);

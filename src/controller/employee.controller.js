@@ -285,6 +285,31 @@ export const getEmployeeByDesignation = async (req, res, next) => {
   }
 };
 
+export const getEmployeeByCustomRole = async (req, res, next) => {
+  try {
+    const desgId = req.query.role;
+    if (!desgId) return res.send(errorRes(200, "id is required"));
+    let filter = { permissions: desgId };
+
+    // console.log(desgId);
+    const respCP = await employeeModel
+      .find({
+        ...filter,
+        status: "active",
+      })
+      .select("-password -refreshToken")
+      .populate(employeePopulateOptions);
+
+    return res.send(
+      successRes(200, "get Employees", {
+        data: respCP,
+      })
+    );
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const getTeamLeaders = async (req, res, next) => {
   try {
     const respCP = await employeeModel
