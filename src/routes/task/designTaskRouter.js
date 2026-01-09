@@ -359,6 +359,15 @@ designTaskRouter.get(
               },
               { $count: "count" },
             ],
+            approval: [
+              {
+                $match: {
+                  //
+                  "approval.status": "pending",
+                },
+              },
+              { $count: "count" },
+            ],
           },
         },
         {
@@ -367,6 +376,7 @@ designTaskRouter.get(
             completed: { $arrayElemAt: ["$completed.count", 0] },
             incomplete: { $arrayElemAt: ["$incomplete.count", 0] },
             pendency: { $arrayElemAt: ["$pendency.count", 0] },
+            approval: { $arrayElemAt: ["$approval.count", 0] },
           },
         },
         {
@@ -375,59 +385,8 @@ designTaskRouter.get(
             completed: 1,
             incomplete: 1,
             pendency: 1,
+            approval: 1,
           },
-        },
-      ]);
-
-      const result = await designTaskModel.aggregate([
-        {
-          $match: {
-            assignBy: id,
-          },
-        },
-        {
-          $addFields: {
-            taskDate: {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: "$assignDate",
-                timezone: "Asia/Kolkata", // ✅ IMPORTANT
-              },
-            },
-          },
-        },
-        {
-          $group: {
-            _id: "$taskDate",
-
-            completed: {
-              $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
-            },
-            incomplete: {
-              $sum: { $cond: [{ $eq: ["$status", "not-completed"] }, 1, 0] },
-            },
-            pendency: {
-              $sum: { $cond: [{ $eq: ["$status", "pendency"] }, 1, 0] },
-            },
-          },
-        },
-        {
-          $project: {
-            _id: 0,
-            // returns ISODate at IST midnight but stored as UTC
-            date: {
-              $dateFromString: {
-                dateString: "$_id",
-                timezone: "Asia/Kolkata",
-              },
-            },
-            completed: 1,
-            incomplete: 1,
-            pendency: 1,
-          },
-        },
-        {
-          $sort: { date: 1 },
         },
       ]);
 
@@ -436,6 +395,7 @@ designTaskRouter.get(
         completed = 0,
         incomplete = 0,
         pendency = 0,
+        approval = 0,
       } = aggre[0] || {};
       //
       return successRes2(res, 200, "design Tasks", {
@@ -443,7 +403,7 @@ designTaskRouter.get(
         completed,
         incomplete,
         pendency,
-        data: result,
+        approval,
       });
     } catch (error) {
       //
