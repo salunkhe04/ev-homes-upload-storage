@@ -581,7 +581,7 @@ export const getCurrentRanks = async () => {
         //
         const user = ele.user;
         const tUser = teams.find((el2) => el2.user === user);
-        if (tUser && tUser.score > ele.score) {
+        if (tUser && (tUser.score < ele.score || tUser.score > ele.score)) {
           ele.score = tUser.score;
           hadChanges = true;
         }
