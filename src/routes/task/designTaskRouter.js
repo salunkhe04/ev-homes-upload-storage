@@ -571,7 +571,7 @@ designTaskRouter.post(
       }
 
       //
-      return successRes2(res, 200, `refrence Images updated`, {
+      return successRes2(res, 200, `Pendency request applied succesfully`, {
         data: updatedTask,
       });
     } catch (error) {
@@ -672,7 +672,7 @@ designTaskRouter.post(
       }
 
       //
-      return successRes2(res, 200, `Task submission Applied`, {
+      return successRes2(res, 200, `Task submission applied succesfully`, {
         data: updatedTask,
       });
     } catch (error) {
@@ -749,7 +749,7 @@ designTaskRouter.post(
       }
 
       //
-      return successRes2(res, 200, `Task submission Applied`, {
+      return successRes2(res, 200, `Task pendency request ${status}`, {
         data: updatedTask,
       });
     } catch (error) {

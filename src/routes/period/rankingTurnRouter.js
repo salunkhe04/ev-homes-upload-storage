@@ -213,7 +213,7 @@ rankingTurnRouter.get("/turn-ranking", async (req, res) => {
           //
           const user = ele.user;
           const tUser = teams.find((el2) => el2.user === user);
-          if (tUser && tUser.score > ele.score) {
+          if (tUser && (tUser.score < ele.score || tUser.score > ele.score)) {
             ele.score = tUser.score;
             hadChanges = true;
           }
@@ -257,8 +257,7 @@ rankingTurnRouter.get("/leads-rank-sync", async (req, res) => {
         return call.interestedStatus === "interested" && within20Min;
       });
 
-
-console.log(hasInterested);
+      console.log(hasInterested);
 
       if (hasInterested) {
         countableLeads.push(ele);
@@ -347,52 +346,50 @@ rankingTurnRouter.get("/leads-rank-sync-for-visit", async (req, res) => {
   }
 });
 
+rankingTurnRouter.get(
+  "/leads-rank-sync-for-visit-testing",
+  async (req, res) => {
+    try {
+      // Step 1: Fetch visits (excluding walk-ins)
+      const visits = await siteVisitModel.find({
+        createdAt: { $gte: new Date("2025-10-09T00:00:00.000+00:00") },
+        source: { $ne: "walk-in" },
+      });
 
+      console.log("Total visits fetched:", visits.length);
 
-rankingTurnRouter.get("/leads-rank-sync-for-visit-testing", async (req, res) => {
-  try {
-    // Step 1: Fetch visits (excluding walk-ins)
-    const visits = await siteVisitModel.find({
-      createdAt: { $gte: new Date("2025-10-09T00:00:00.000+00:00") },
-      source: { $ne: "walk-in" },
-    });
+      let count = 0;
 
-    console.log("Total visits fetched:", visits.length);
+      // Step 2: Check which are first-time visits
+      await Promise.all(
+        visits.map(async (ele) => {
+          const oldVisit = await siteVisitModel.findOne({
+            phoneNumber: ele.phoneNumber,
+            _id: { $ne: ele._id },
+            createdAt: { $lt: ele.createdAt }, // ensure it's an older visit
+          });
 
-    let count = 0;
+          if (!oldVisit) {
+            count++;
+            console.log("Unique visit found for:", ele.phoneNumber);
+          }
+        })
+      );
 
-    // Step 2: Check which are first-time visits
-    await Promise.all(
-      visits.map(async (ele) => {
-        const oldVisit = await siteVisitModel.findOne({
-          phoneNumber: ele.phoneNumber,
-          _id: { $ne: ele._id },
-          createdAt: { $lt: ele.createdAt }, // ensure it's an older visit
-        });
+      // Step 3: Just print final count
+      console.log("Total unique (first-time) visits:", count);
 
-        if (!oldVisit) {
-          count++;
-          console.log("Unique visit found for:", ele.phoneNumber);
-        }
-      })
-    );
-
-    // Step 3: Just print final count
-    console.log("Total unique (first-time) visits:", count);
-
-    // Step 4: Return response (no DB changes)
-    return successRes2(res, 200, "Checked successfully", {
-      totalFetched: visits.length,
-      totalUniqueCountable: count,
-    });
-  } catch (error) {
-    console.error("Error while checking visits:", error);
-    return errorRes2(res, 500, error);
+      // Step 4: Return response (no DB changes)
+      return successRes2(res, 200, "Checked successfully", {
+        totalFetched: visits.length,
+        totalUniqueCountable: count,
+      });
+    } catch (error) {
+      console.error("Error while checking visits:", error);
+      return errorRes2(res, 500, error);
+    }
   }
-});
-
-
-
+);
 
 export const getCurrentRanks = async () => {
   // 1. Static team list
