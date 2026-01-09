@@ -2831,4 +2831,12 @@ export const designTaskPopulateOptions = [
     path: "assignTo",
     select: "firstName lastName email",
   },
+  {
+    path: "pendency.approveBy",
+    select: "firstName lastName email",
+  },
+  {
+    path: "approval.approveBy",
+    select: "firstName lastName email",
+  },
 ];
