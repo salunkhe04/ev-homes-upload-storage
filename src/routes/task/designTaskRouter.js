@@ -711,6 +711,7 @@ designTaskRouter.post(
       foundTask.pendency.approvalReason = approvalReason;
       foundTask.pendency.approvalDate = approvalDate;
       foundTask.pendency.status = status;
+      foundTask.pendency.approveBy = foundTask.assignBy;
       const oldTimeline = foundTask.timeline;
       if (status === "approved") {
         foundTask.status = "pendency";
@@ -788,6 +789,7 @@ designTaskRouter.post(
       foundTask.approval.approvalReason = approvalReason;
       foundTask.approval.approvalDate = approvalDate;
       foundTask.approval.status = status;
+      foundTask.approval.approveBy = foundTask.assignBy;
       const oldTimeline = foundTask.timeline;
       if (status === "approved") {
         //
