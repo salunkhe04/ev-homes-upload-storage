@@ -12,6 +12,10 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
   const { assignTo, assignBy, query, status, startDate, endDate, priority } =
     req.query;
   //
+  let page = parseInt(req.query.page) || 1;
+  let limit = parseInt(req.query.limit) || 10;
+  let skip = (page - 1) * limit;
+
   try {
     let statusToFind = {
       //
@@ -35,17 +39,29 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
       statusToFind = {
         ...statusToFind,
         assignDate: {
-          $gte: startDate,
-          $lte: endDate,
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
         },
       };
     }
-
+    // console.log(JSON.stringify(statusToFind, null, 2));
     const resp = await designTaskModel
       .find(statusToFind)
+      .skip(skip)
+      .limit(limit)
+      .sort({ assignDate: -1 })
       .populate(designTaskPopulateOptions);
+
+    const totalItems = await designTaskModel.countDocuments(statusToFind);
+
+    const totalPages = Math.ceil(totalItems / limit);
+
     //
     return successRes2(res, 200, "design Tasks", {
+      page,
+      limit,
+      totalPages,
+      totalItems,
       data: resp,
     });
   } catch (error) {
@@ -58,9 +74,10 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
 // Assign Task
 designTaskRouter.post("/design-task-assign", async (req, res, next) => {
   //
-  const { assignTo, assignBy, details, deadline } = req.body;
+  const { assignTo, assignBy, title, details, deadline } = req.body;
   if (!assignTo) return errorRes2(res, 401, `assignTo is required`);
   if (!assignBy) return errorRes2(res, 401, `assignBy is required`);
+  if (!title) return errorRes2(res, 401, `Task details is required`);
   if (!details) return errorRes2(res, 401, `Task details is required`);
   if (!deadline) return errorRes2(res, 401, `deadline is required`);
   //
@@ -221,6 +238,58 @@ designTaskRouter.get(
         },
       ]);
 
+      const result = await designTaskModel.aggregate([
+        {
+          $match: {
+            assignTo: id,
+          },
+        },
+        {
+          $addFields: {
+            taskDate: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$assignDate",
+                timezone: "Asia/Kolkata", // ✅ IMPORTANT
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$taskDate",
+
+            completed: {
+              $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+            },
+            incomplete: {
+              $sum: { $cond: [{ $eq: ["$status", "not-completed"] }, 1, 0] },
+            },
+            pendency: {
+              $sum: { $cond: [{ $eq: ["$status", "pendency"] }, 1, 0] },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            // returns ISODate at IST midnight but stored as UTC
+            date: {
+              $dateFromString: {
+                dateString: "$_id",
+                timezone: "Asia/Kolkata",
+              },
+            },
+            completed: 1,
+            incomplete: 1,
+            pendency: 1,
+          },
+        },
+        {
+          $sort: { date: 1 },
+        },
+      ]);
+
       const {
         total = 0,
         completed = 0,
@@ -233,6 +302,148 @@ designTaskRouter.get(
         completed,
         incomplete,
         pendency,
+        data: result,
+      });
+    } catch (error) {
+      //
+      return errorRes2(res, 500, `${error?.message}`);
+    }
+    //
+  }
+);
+
+// get dashboard Info
+designTaskRouter.get(
+  "/design-task-tl-dashboard/:assignBy",
+  async (req, res, next) => {
+    //
+    const id = req.params.assignBy;
+    //
+    if (!id) return errorRes2(res, 401, `id required`);
+
+    try {
+      const aggre = await designTaskModel.aggregate([
+        {
+          $match: {
+            //
+            assignBy: id,
+          },
+        },
+        {
+          $facet: {
+            total: [{ $count: "count" }],
+            completed: [
+              {
+                $match: {
+                  //
+                  status: "completed",
+                },
+              },
+              { $count: "count" },
+            ],
+            incomplete: [
+              {
+                $match: {
+                  //
+                  status: "not-completed",
+                },
+              },
+              { $count: "count" },
+            ],
+            pendency: [
+              {
+                $match: {
+                  //
+                  status: "pendency",
+                },
+              },
+              { $count: "count" },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            total: { $arrayElemAt: ["$total.count", 0] },
+            completed: { $arrayElemAt: ["$completed.count", 0] },
+            incomplete: { $arrayElemAt: ["$incomplete.count", 0] },
+            pendency: { $arrayElemAt: ["$pendency.count", 0] },
+          },
+        },
+        {
+          $project: {
+            total: 1,
+            completed: 1,
+            incomplete: 1,
+            pendency: 1,
+          },
+        },
+      ]);
+
+      const result = await designTaskModel.aggregate([
+        {
+          $match: {
+            assignBy: id,
+          },
+        },
+        {
+          $addFields: {
+            taskDate: {
+              $dateToString: {
+                format: "%Y-%m-%d",
+                date: "$assignDate",
+                timezone: "Asia/Kolkata", // ✅ IMPORTANT
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$taskDate",
+
+            completed: {
+              $sum: { $cond: [{ $eq: ["$status", "completed"] }, 1, 0] },
+            },
+            incomplete: {
+              $sum: { $cond: [{ $eq: ["$status", "not-completed"] }, 1, 0] },
+            },
+            pendency: {
+              $sum: { $cond: [{ $eq: ["$status", "pendency"] }, 1, 0] },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            // returns ISODate at IST midnight but stored as UTC
+            date: {
+              $dateFromString: {
+                dateString: "$_id",
+                timezone: "Asia/Kolkata",
+              },
+            },
+            completed: 1,
+            incomplete: 1,
+            pendency: 1,
+          },
+        },
+        {
+          $sort: { date: 1 },
+        },
+      ]);
+
+      const {
+        total = 0,
+        completed = 0,
+        incomplete = 0,
+        pendency = 0,
+      } = aggre[0] || {};
+      //
+      return successRes2(res, 200, "design Tasks", {
+        total,
+        completed,
+        incomplete,
+        pendency,
+        data: result,
       });
     } catch (error) {
       //

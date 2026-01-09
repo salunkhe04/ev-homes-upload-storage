@@ -13,6 +13,7 @@ const designTaskSchema = new mongoose.Schema(
       ref: "employees",
     },
     // task details
+    title: { type: String, default: "" },
     details: { type: String, default: "" },
     // any images screenshot to explain
     referenceImages: [String],
