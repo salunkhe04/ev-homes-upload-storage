@@ -44,6 +44,20 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
         },
       };
     }
+
+    if (status === "pendency-request") {
+      statusToFind = {
+        ...statusToFind,
+        "pendency.status": "pending",
+      };
+    }
+    if (status === "submission-request") {
+      statusToFind = {
+        ...statusToFind,
+        "approval.status": "pending",
+      };
+    }
+
     // console.log(JSON.stringify(statusToFind, null, 2));
     const resp = await designTaskModel
       .find(statusToFind)
