@@ -663,7 +663,12 @@ designTaskRouter.post(
   async (req, res, next) => {
     //
     const id = req.params.id;
-    const { approvalReason, status, approvalDate = new Date() } = req.body;
+    const {
+      approvalReason,
+      status,
+      approvalDate = new Date(),
+      approveBy,
+    } = req.body;
 
     if (!id) return errorRes2(res, 401, `id is required`);
 
@@ -671,6 +676,7 @@ designTaskRouter.post(
       return errorRes2(res, 401, `status is required (approve / reject)`);
 
     if (!approvalReason) return errorRes2(res, 401, `reason is required`);
+    if (!approveBy) return errorRes2(res, 401, `approveBy is required`);
 
     //
     try {
@@ -685,7 +691,7 @@ designTaskRouter.post(
       foundTask.pendency.approvalReason = approvalReason;
       foundTask.pendency.approvalDate = approvalDate;
       foundTask.pendency.status = status;
-      foundTask.pendency.approveBy = foundTask.assignBy;
+      foundTask.pendency.approveBy = approveBy;
       const oldTimeline = foundTask.timeline;
       if (status === "approved") {
         foundTask.status = "pendency";
@@ -741,7 +747,12 @@ designTaskRouter.post(
   async (req, res, next) => {
     //
     const id = req.params.id;
-    const { approvalReason, status, approvalDate = new Date() } = req.body;
+    const {
+      approvalReason,
+      status,
+      approvalDate = new Date(),
+      approveBy,
+    } = req.body;
 
     if (!id) return errorRes2(res, 401, `id is required`);
 
@@ -749,6 +760,8 @@ designTaskRouter.post(
       return errorRes2(res, 401, `status is required (approve / reject)`);
 
     if (!approvalReason) return errorRes2(res, 401, `reason is required`);
+
+    if (!approveBy) return errorRes2(res, 401, `approveBy is required`);
 
     //
     try {
