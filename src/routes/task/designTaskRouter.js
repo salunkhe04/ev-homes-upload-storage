@@ -21,7 +21,6 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
       //
       ...(assignTo ? { assignTo: assignTo } : {}),
       ...(assignBy ? { assignBy: assignBy } : {}),
-      ...(status ? { status: status } : {}),
       ...(priority ? { priority: priority } : {}),
     };
     if (query) {
@@ -48,13 +47,18 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
     if (status === "pendency-request") {
       statusToFind = {
         ...statusToFind,
+
         "pendency.status": "pending",
       };
-    }
-    if (status === "submission-request") {
+    } else if (status === "submission-request") {
       statusToFind = {
         ...statusToFind,
         "approval.status": "pending",
+      };
+    } else {
+      statusToFind = {
+        ...statusToFind,
+        ...(status ? { status: status } : {}),
       };
     }
 
@@ -382,6 +386,24 @@ designTaskRouter.get(
               },
               { $count: "count" },
             ],
+            pendencyRequest: [
+              {
+                $match: {
+                  //
+                  "pendency.status": "pending",
+                },
+              },
+              { $count: "count" },
+            ],
+            approvalRequest: [
+              {
+                $match: {
+                  //
+                  "approval.status": "pending",
+                },
+              },
+              { $count: "count" },
+            ],
           },
         },
         {
@@ -391,6 +413,8 @@ designTaskRouter.get(
             incomplete: { $arrayElemAt: ["$incomplete.count", 0] },
             pendency: { $arrayElemAt: ["$pendency.count", 0] },
             approval: { $arrayElemAt: ["$approval.count", 0] },
+            pendencyRequest: { $arrayElemAt: ["$pendencyRequest.count", 0] },
+            approvalRequest: { $arrayElemAt: ["$approvalRequest.count", 0] },
           },
         },
         {
@@ -400,6 +424,8 @@ designTaskRouter.get(
             incomplete: 1,
             pendency: 1,
             approval: 1,
+            pendencyRequest: 1,
+            approvalRequest: 1,
           },
         },
       ]);
@@ -410,6 +436,8 @@ designTaskRouter.get(
         incomplete = 0,
         pendency = 0,
         approval = 0,
+        pendencyRequest = 0,
+        approvalRequest = 0,
       } = aggre[0] || {};
       //
       return successRes2(res, 200, "design Tasks", {
@@ -418,6 +446,8 @@ designTaskRouter.get(
         incomplete,
         pendency,
         approval,
+        pendencyRequest,
+        approvalRequest,
       });
     } catch (error) {
       //
