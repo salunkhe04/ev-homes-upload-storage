@@ -21,7 +21,6 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
       //
       ...(assignTo ? { assignTo: assignTo } : {}),
       ...(assignBy ? { assignBy: assignBy } : {}),
-      ...(status ? { status: status } : {}),
       ...(priority ? { priority: priority } : {}),
     };
     if (query) {
@@ -48,13 +47,18 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
     if (status === "pendency-request") {
       statusToFind = {
         ...statusToFind,
+
         "pendency.status": "pending",
       };
-    }
-    if (status === "submission-request") {
+    } else if (status === "submission-request") {
       statusToFind = {
         ...statusToFind,
         "approval.status": "pending",
+      };
+    } else {
+      statusToFind = {
+        ...statusToFind,
+        ...(status ? { status: status } : {}),
       };
     }
 
