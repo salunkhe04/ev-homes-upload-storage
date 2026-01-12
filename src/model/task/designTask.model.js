@@ -25,7 +25,16 @@ const designTaskSchema = new mongoose.Schema(
     // main status -
     status: {
       type: String,
-      enum: ["completed", "not-completed", "pendency"],
+      enum: [
+        "completed",
+        "not-completed",
+        "pendency",
+        "pendency-rejected",
+        "submission-rejected",
+
+        "pendency-request",
+        "submission-request",
+      ],
       default: "not-completed",
     },
     //
