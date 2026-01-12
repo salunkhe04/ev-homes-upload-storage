@@ -123,6 +123,10 @@ designTaskRouter.post("/design-task-assign", async (req, res, next) => {
         playerIds: [foundTLPlayerId.playerId],
         title: "New task assigned",
         message: `${details}`,
+                  data: {
+            type: "designTeamTask",
+          },
+
       });
     }
 
@@ -500,6 +504,10 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Reference Images Added",
           message: `check & follow up task`,
+                    data: {
+            type: "designTeamTask",
+          },
+
         });
       }
 
@@ -571,6 +579,10 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task Pendacy Applied",
           message: `${updatedTask.assignTo.firstName} has applied for pendency`,
+                    data: {
+            type: "designTLTask",
+          },
+
         });
       }
 
@@ -672,6 +684,9 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task submission Applied",
           message: `${updatedTask.assignTo.firstName} has applied for Task submission`,
+          data: {
+            type: "designTLTask",
+          },
         });
       }
 
@@ -726,7 +741,7 @@ designTaskRouter.post(
       const oldTimeline = foundTask.timeline;
       if (status === "approved") {
         foundTask.status = "pendency";
-      }else {
+      } else {
         foundTask.status = "pendency-rejected";
       }
 
@@ -759,6 +774,10 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task submission Applied",
           message: `${updatedTask.assignTo.firstName} has applied for Task submission`,
+                    data: {
+            type: "designTeamTask",
+          },
+
         });
       }
 
@@ -848,6 +867,10 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task submission Applied",
           message: `${updatedTask.assignTo.firstName} has applied for Task submission`,
+                    data: {
+            type: "designTeamTask",
+          },
+
         });
       }
 
