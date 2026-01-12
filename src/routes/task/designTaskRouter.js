@@ -722,9 +722,12 @@ designTaskRouter.post(
       foundTask.pendency.approvalDate = approvalDate;
       foundTask.pendency.status = status;
       foundTask.pendency.approveBy = approveBy;
+
       const oldTimeline = foundTask.timeline;
       if (status === "approved") {
         foundTask.status = "pendency";
+      }else {
+        foundTask.status = "pendency-rejected";
       }
 
       //
@@ -733,7 +736,7 @@ designTaskRouter.post(
         reason: foundTask.pendency.approvalReason,
         date: foundTask.pendency.appliedDate,
         status: foundTask.pendency.status,
-        user: foundTask.assignBy,
+        user: approveBy ?? foundTask.assignBy,
       });
       foundTask.timeline = oldTimeline;
 
@@ -806,11 +809,14 @@ designTaskRouter.post(
       foundTask.approval.approvalReason = approvalReason;
       foundTask.approval.approvalDate = approvalDate;
       foundTask.approval.status = status;
-      foundTask.approval.approveBy = foundTask.assignBy;
+
+      foundTask.approval.approveBy = approveBy ?? foundTask.assignBy;
       const oldTimeline = foundTask.timeline;
       if (status === "approved") {
         //
         foundTask.status = "completed";
+      } else {
+        foundTask.status = "submission-rejected";
       }
       //
       oldTimeline.push({
@@ -818,7 +824,7 @@ designTaskRouter.post(
         reason: foundTask.approval.approvalReason,
         date: foundTask.approval.appliedDate,
         status: foundTask.approval.status,
-        user: foundTask.assignBy,
+        user: approveBy ?? foundTask.assignBy,
         attachments: foundTask.approval.attachments,
       });
       foundTask.timeline = oldTimeline;
