@@ -43,10 +43,10 @@ parkingRouter.get("/get-parkings", async (req, res) => {
   try {
     const { project } = req.query;
     const cacheData = project ? `parking_${project}` : "parkings";
-    const cached = await RedisService.get(cacheData, true);
-    if (cached) {
-      return successRes2(res, 200, "Get parking-cached", { data: cached });
-    }
+    // const cached = await RedisService.get(cacheData, true);
+    // if (cached) {
+    //   return successRes2(res, 200, "Get parking-cached", { data: cached });
+    // }
 
     let query = { ...(project ? { project: project } : {}) };
 
@@ -111,18 +111,17 @@ parkingRouter.post("/add-new-parking/:id", async (req, res) => {
 parkingRouter.post("/parking-update/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    // console.log(req.body);
+    console.log(req.body);
 
     const flat = await parkingModel
-      .findByIdAndUpdate(id, { ...req.body }, { new: true })
-      .populate({ path: "project", select: "name" });
+      .findByIdAndUpdate(id, { ...req.body }, { new: true });
 
     const uflat = await parkingModel
       .findById(id)
       .populate({ path: "project", select: "name" });
 
     await RedisService.del("parkings");
-    await RedisService.del(`parking_${id}`);
+    await RedisService.del(`parking_${flat.project}`);
     return res.send(
       successRes(200, "parking update", {
         data: uflat,
