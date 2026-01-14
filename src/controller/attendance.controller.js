@@ -886,6 +886,10 @@ export const revisedCheckOutV2 = async (req, res) => {
       .findOne({ userId: userId })
       .populate(employeeShiftInfoPopulateOptions);
 
+    if (!myLeaves) {
+      return res.send(errorRes(404, "Attendance record not found for today"));
+    }
+
     const haveHoliday = await holidayModel.findOne({
       startDate: { $gte: nowStartOfDay, $lte: nowEndOfDay },
       endDate: { $lte: nowEndOfDay },
@@ -3662,7 +3666,11 @@ export const generateCompensatoryOff = async (req, res) => {
 
     // ---------- Attendance Month ----------
     const atts = await attendanceModel
-      .find({ month: currentMonth, year: currentYear })
+      .find({
+        userId: "ev201-aktarul-biswas",
+        month: currentMonth,
+        year: currentYear,
+      })
       .lean()
       .sort({ day: 1 });
 
@@ -3670,7 +3678,7 @@ export const generateCompensatoryOff = async (req, res) => {
       return res.json({ message: "No attendance records found." });
 
     const shiftInfoList = await shiftInfoModel
-      .find({ userId: "ev206-shreya-salunkhe" })
+      .find({ userId: "ev201-aktarul-biswas" })
       .populate(employeeShiftInfoPopulateOptions)
       .lean();
 
@@ -3952,7 +3960,7 @@ export const generateCompensatoryOff = async (req, res) => {
     res.status(500).json({ message: "Server error." });
   }
 };
-
+//not using
 export const generateCompensatoryOffLatest = async (req, res) => {
   const { date } = req.query;
   const list = [];
@@ -3972,7 +3980,11 @@ export const generateCompensatoryOffLatest = async (req, res) => {
 
     // ---------- Attendance Month ----------
     const atts = await attendanceModel
-      .find({ month: currentMonth + 1, year: currentYear })
+      .find({
+        userId: "EV295-suvidhya-kadam",
+        month: currentMonth + 1,
+        year: currentYear,
+      })
       .lean()
       .sort({ day: 1 });
 
@@ -3980,7 +3992,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
       return res.json({ message: "No attendance records found." });
 
     const shiftInfoList = await shiftInfoModel
-      .find({})
+      .find({ userId: "EV295-suvidhya-kadam" })
       .populate(employeeShiftInfoPopulateOptions)
       .lean();
 
@@ -4086,12 +4098,16 @@ export const generateCompensatoryOffLatest = async (req, res) => {
         const lastDayOfMonth = moment(currentDate).endOf("month");
 
         // ---------- Comp Off generation if weekoff < 4 ----------
+        console.log(weekoffDays);
+
         if (weekoffDays < 4) {
           let alreadyAddedPWO = 0;
           const presentOnWeekoff = attList.filter(
             (aEle) => aEle.status === "present" && aEle.wlStatus === "weekoff"
           );
           const missingWeekoffs = 4 - weekoffDays;
+          console.log(weekoffDays);
+          console.log(missingWeekoffs);
 
           // Check PWO entries and add if not found in leave history
           let shouldGenerateCO = false;
@@ -4099,73 +4115,45 @@ export const generateCompensatoryOffLatest = async (req, res) => {
           await Promise.all(
             presentOnWeekoff.map(async (dayRecord) => {
               const dt = moment(dayRecord.date);
-
-              const existingHistory = await leaveHistoryModel.findOne({
+              const query = {
                 userId: shiftInfo?.userId?._id,
                 type: "deposit",
                 date: {
                   $gte: dt.startOf("day").toDate(),
                   $lte: dt.endOf("day").toDate(),
                 },
-              });
+              };
+              console.log(query);
+              const existingHistory = await leaveHistoryModel.findOne(query);
+              console.log(existingHistory);
 
               if (!existingHistory) {
                 shouldGenerateCO = true; // mark once
               }
             })
           );
+          console.log(shouldGenerateCO);
 
           if (shouldGenerateCO && missingWeekoffs > 0) {
-            // const updated = await shiftInfoModel.findByIdAndUpdate(
-            //   shiftInfo._id,
-            //   { $inc: { compensatoryoff: missingWeekoffs } },
-            //   { new: true }
-            // );
-
-            // await createLeaveHistoryFunc({
-            //   userId: shiftInfo?.userId?._id,
-            //   date: lastDayOfMonth.toDate(),
-            //   description: `Auto-generated ${missingWeekoffs} CO(s) for missing weekoffs in ${currentDate.format(
-            //     "MMMM YYYY"
-            //   )}`,
-            //   count: missingWeekoffs,
-            //   type: "deposit",
-            //   leaveType: "on-compensation-off-leave",
-            //   deposittype: "auto-generated",
-            //   howManyBefore: (updated.compensatoryoff ?? 0) - missingWeekoffs,
-            // });
-
+            const updated = await shiftInfoModel.findByIdAndUpdate(
+              shiftInfo._id,
+              { $inc: { compensatoryoff: missingWeekoffs } },
+              { new: true }
+            );
+            await createLeaveHistoryFunc({
+              userId: shiftInfo?.userId?._id,
+              date: lastDayOfMonth.toDate(),
+              description: `Auto-generated ${missingWeekoffs} CO(s) for missing weekoffs in ${currentDate.format(
+                "MMMM YYYY"
+              )}`,
+              count: missingWeekoffs,
+              type: "deposit",
+              leaveType: "on-compensation-off-leave",
+              deposittype: "auto-generated",
+              howManyBefore: (updated.compensatoryoff ?? 0) - missingWeekoffs,
+            });
             totalComps += missingWeekoffs;
             shouldGenerateCO = true;
-          }
-
-          // Add missing weekoffs as compensatory off
-          if (!shouldGenerateCO && missingWeekoffs > 0) {
-            // const updated = await shiftInfoModel.findByIdAndUpdate(
-            //   shiftInfo._id,
-            //   { $inc: { compensatoryoff: missingWeekoffs } },
-            //   { new: true }
-            // );
-
-            console.log(
-              `Auto-generated ${missingWeekoffs} CO(s) for missing weekoffs in ${currentDate.format(
-                "MMMM YYYY"
-              )}`
-            );
-            // await createLeaveHistoryFunc({
-            //   userId: shiftInfo?.userId?._id,
-            //   date: lastDayOfMonth.toDate(),
-            //   description:  `Auto-generated ${missingWeekoffs} CO(s) for missing weekoffs in ${currentDate.format(
-            //     "MMMM YYYY"
-            //   )}`,
-            //   count: missingWeekoffs,
-            //   type: "deposit",
-            //   leaveType: "on-compensation-off-leave",
-            //   deposittype: "auto-generated",
-            //   howManyBefore: ((updated?.compensatoryoff ?? 0) - missingWeekoffs),
-            // });
-
-            totalComps += missingWeekoffs;
           }
         }
 
@@ -4174,27 +4162,27 @@ export const generateCompensatoryOffLatest = async (req, res) => {
         //   const ots = distributeHours(
         //     attOverview.activeHours - attOverview.requiredHours
         //   );
-
+        //   console.log(ots);
         //   for (const ele of ots) {
         //     totalComps += ele.day;
-        //     const updated = await shiftInfoModel.findByIdAndUpdate(
-        //       shiftInfo._id,
-        //       { $inc: { compensatoryoff: ele.day } },
-        //       { new: true }
-        //     );
+        //     // const updated = await shiftInfoModel.findByIdAndUpdate(
+        //     //   shiftInfo._id,
+        //     //   { $inc: { compensatoryoff: ele.day } },
+        //     //   { new: true }
+        //     // );
 
-        //     await createLeaveHistoryFunc({
-        //       userId: shiftInfo?.userId?._id,
-        //       date: currentDate.toDate(),
-        //       description: `Auto-generated from Overtime hours ${(
-        //         attOverview.activeHours - attOverview.requiredHours
-        //       ).toFixed(1)}hr`,
-        //       count: ele.day,
-        //       type: "deposit",
-        //       leaveType: "on-compensation-off-leave",
-        //       deposittype: "auto-generated",
-        //       howManyBefore:(updated.compensatoryoff ?? 0) - 1,
-        //     });
+        //     // await createLeaveHistoryFunc({
+        //     //   userId: shiftInfo?.userId?._id,
+        //     //   date: currentDate.toDate(),
+        //     //   description: `Auto-generated from Overtime hours ${(
+        //     //     attOverview.activeHours - attOverview.requiredHours
+        //     //   ).toFixed(1)}hr`,
+        //     //   count: ele.day,
+        //     //   type: "deposit",
+        //     //   leaveType: "on-compensation-off-leave",
+        //     //   deposittype: "auto-generated",
+        //     //   howManyBefore:(updated.compensatoryoff ?? 0) - 1,
+        //     // });
         //   }
         // }
 
