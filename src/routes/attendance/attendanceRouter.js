@@ -144,7 +144,7 @@ attendanceRouter.get(
 attendanceRouter.get(
   "/generate-comp-of-monthly",
   // authenticateToken,
-  generateCompensatoryOff
+  generateCompensatoryOffLatest
 );
 
 attendanceRouter.get(

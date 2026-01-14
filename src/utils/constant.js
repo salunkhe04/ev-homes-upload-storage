@@ -1851,7 +1851,7 @@ export const employeeShiftInfoPopulateOptions = [
   },
   {
     path: "faceId",
-    // select: "-preLoadedFace",
+    select: "-preLoadedFace",
     populate: [
       {
         path: "userId",
