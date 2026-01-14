@@ -1,24 +1,32 @@
 import { RedisService } from "../app/redis.js";
 import ourProjectModel from "../model/ourProjects.model.js";
-import { errorRes, errorRes2, successRes, successRes2 } from "../model/response.js";
+import {
+  errorRes,
+  errorRes2,
+  successRes,
+  successRes2,
+} from "../model/response.js";
 
 //GET BY ALL
 export const getOurProjects = async (req, res) => {
   try {
     // console.log("ok");
-    const cached = await RedisService.get("projects", true);
+    // const cached = await RedisService.get("projects", true);
 
-    if (cached != null) {
-      //
-      return res.send(
-        successRes(200, "Get projects - cached", {
-          data: cached,
-        })
-      );
-    }
+    // if (cached != null) {
+    //   //
+    //   return res.send(
+    //     successRes(200, "Get projects - cached", {
+    //       data: cached,
+    //     })
+    //   );
+    // }
 
-    const respPro = await ourProjectModel.find();
-    const cacheNew = await RedisService.set("projects", respPro, 86400); // 24 hr cache
+    const respPro = await ourProjectModel.find(
+      {},
+      { flatList: 0, parkingList: 0 }
+    );
+    // const cacheNew = await RedisService.set("projects", respPro, 86400); // 24 hr cache
 
     return res.send(
       successRes(200, "Get our projects", {
@@ -500,13 +508,10 @@ export const updateFlatInfoByIdFlatNo = async ({
 };
 
 export const getShortsForClient = async (req, res, next) => {
-  const id =req.params.id;
+  const id = req.params.id;
   try {
     //
-    const resp= await ourProjectModel.findById(id);
-
-
-
+    const resp = await ourProjectModel.findById(id);
   } catch (error) {
     //
   }
@@ -546,7 +551,6 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
     });
 
     await project.save();
- 
 
     return res.send(
       successRes(200, "All-Inclusive values updated successfully", {
@@ -559,12 +563,6 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
     return res.send(errorRes(500, "Server error"));
   }
 };
-
-
-
-
-
-
 
 // TODO:old
 // export const updateFlatInfoByIdFlatNo = async ({
@@ -609,9 +607,6 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
 //   }
 // };
 
-
-
-
 export const updatCarpetArea = async (req, res) => {
   console.log("passed 1");
   const id = req.params.id;
@@ -625,8 +620,8 @@ export const updatCarpetArea = async (req, res) => {
 
     // Update each flat's sellableCarpetArea
     project.flatList = project.flatList.map((flat) => {
-      const original = Number(flat.sellableCarpetArea) ;
-      flat.carpetArea = original / 2;   // update value
+      const original = Number(flat.sellableCarpetArea);
+      flat.carpetArea = original / 2; // update value
       return flat;
     });
 
@@ -636,7 +631,6 @@ export const updatCarpetArea = async (req, res) => {
     return successRes2(res, 200, "carpet area updated successfully", {
       data: project.flatList,
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -645,4 +639,3 @@ export const updatCarpetArea = async (req, res) => {
     });
   }
 };
-
