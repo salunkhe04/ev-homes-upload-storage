@@ -18,7 +18,7 @@ const designTaskSchema = new mongoose.Schema(
     // any images screenshot to explain
     referenceImages: [String],
     //
-    assignDate: { type: Date, default: Date.now() },
+    assignDate: { type: Date, default: Date.now },
     deadline: { type: Date, default: null },
     //
     completedDate: { type: Date, default: null },
