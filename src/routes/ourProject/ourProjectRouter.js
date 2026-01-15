@@ -26,6 +26,7 @@ import {
   successRes,
   successRes2,
 } from "../../model/response.js";
+import { RedisService } from "../../app/redis.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -430,14 +431,11 @@ ourProjectRouter.post(
     const results = [];
     const dataToPush = [];
 
-    const csvFilePath = path.join(
-      __dirname,
-      "9square_price.csv//"
-    );
+    const csvFilePath = path.join(__dirname, "captol9-flatlist-15-01-2026.csv");
 
     try {
       const projectResp = await ourProjectModel.findOne({
-        _id: "project-ev-9-square-vashi-sector-9",
+        _id: "project-ev-capitol-9-vashi-2025",
       });
 
       if (!projectResp) {
@@ -457,6 +455,11 @@ ourProjectRouter.post(
             const {
               buildingNo,
               floor,
+              OfficeNo,
+              salebleArea,
+              usableArea,
+              Basic,
+              //
               flatNo,
               occupied,
               configuration,
@@ -480,23 +483,31 @@ ourProjectRouter.post(
               //
             } = row;
 
-            let allInc = allInclusiveValue != "" ? parseFloat(allInclusiveValue) : 0;
-            let number = parseInt(flatNo) % 100;
+            // let allInc =
+            //   allInclusiveValue != "" ? parseFloat(allInclusiveValue) : 0;
+            // let number = parseInt(flatNo) % 100;
             dataToPush.push({
+              buildingNo: 1,
+              flatNo: OfficeNo,
+              floor: floor,
+              carpetArea: usableArea,
+              sellableCarpetArea: salebleArea,
+              allInclusiveValue: Basic,
+              // ...row,
               // reraArea,
               // balconyArea,
               // // usableCarpetArea:,
               // ssArea: SSArea,
               // buildingNo: 3, //buildingNo,
               // floor,
-              flatNo,
+              // flatNo,
               // number,
               // occupied:
               //   occupied?.toString().toLowerCase() === "true" ? true : false,
               // configuration: config,
               // carpetArea: usableCarpetArea,
               // sellableCarpetArea: totalSaleArea,
-              allInclusiveValue: allInc,
+              // allInclusiveValue: allInc,
               // type: flatName,
             });
           }
@@ -504,16 +515,17 @@ ourProjectRouter.post(
           // Update matching flats
           projectResp.flatList.forEach((flt) => {
             const match = dataToPush.find(
-              (item) => item.flatNo?.toString() === flt.flatNo?.toString()
-              // &&parseInt(flt?.buildingNo) === 3
+              (item) =>
+                item.flatNo?.toString() === flt.flatNo?.toString() &&
+                flt.buildingNo == 1
             );
 
             if (match) {
-              Object.keys(match).forEach((key) => {
-                if (match[key] !== undefined && match[key] !== null) {
-                  flt[key] = match[key]; // will create field if not exist
-                }
-              });
+              // Object.keys(match).forEach((key) => {
+              //   if (match[key] !== undefined && match[key] !== null) {
+              //     flt[key] = match[key]; // will create field if not exist
+              //   }
+              // });
 
               // flt.floor = match.floor;
               // flt.occupied = match.occupied;
@@ -521,15 +533,17 @@ ourProjectRouter.post(
               // flt.balconyArea = match.balconyArea;
               // flt.ssArea = match.ssArea;
               // flt.configuration = match.configuration;
-              // flt.carpetArea = match.carpetArea;
-              // flt.sellableCarpetArea = match.sellableCarpetArea;
+              flt.carpetArea = match.carpetArea;
+              flt.sellableCarpetArea = match.sellableCarpetArea;
               flt.allInclusiveValue = match.allInclusiveValue;
               // flt.type = match.type;
             }
           });
 
-          projectResp.markModified("flatList");
-          await projectResp.save();
+          // projectResp.markModified("flatList");
+          // await projectResp.save();
+          // await RedisService.delMultipleKeys(["projects"]);
+          //
           return res.send({
             message: "Flat list updated successfully",
             updatedCount: dataToPush,
@@ -684,7 +698,7 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
       e.flatNo = flatNo;
     });
 
-  //  await project.save();
+    //  await project.save();
 
     // for (let floor = 8; floor <= 42; floor++) {
     //   // const flatCount = 23;
@@ -752,9 +766,6 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
   }
 });
 
-
-
-
 // ourProjectRouter.post("/bulk-add-flats-9vtc/:id", async (req, res) => {
 //   const { id } = req.params;
 
@@ -763,8 +774,6 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
 //     if (!project) return errorRes2(res, 404, "No project found");
 
 //     const flatsToAdd = [];
-
-   
 
 //     // for (let floor = 8; floor <= 42; floor++) {
 //     //   const flatCount = [8, 13, 17].includes(floor) ? 37 : 39;
@@ -809,8 +818,6 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
 //     return res.send(errorRes(500, "Server error"));
 //   }
 // });
-
-
 
 // ourProjectRouter.post("/bulk-add-offices/:id", async (req, res) => {
 //   const { id } = req.params;
@@ -877,11 +884,6 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
 //     return res.send(errorRes(500, "Server error"));
 //   }
 // });
-
-
-
-
-
 
 ourProjectRouter.get("/flats-3rd-series-c", async (req, res) => {
   const project = await ourProjectModel.findById(
@@ -968,10 +970,7 @@ ourProjectRouter.get("/flats-3rd-series-c", async (req, res) => {
   });
 });
 
-
-
-
-ourProjectRouter.get("/update-carpet-area/:id",updatCarpetArea);
+ourProjectRouter.get("/update-carpet-area/:id", updatCarpetArea);
 
 // TODO: not used
 // ourProjectRouter.post("/project-updates-list-details", async (req, res) => {
@@ -1027,8 +1026,6 @@ ourProjectRouter.get("/update-carpet-area/:id",updatCarpetArea);
 //     });
 // });
 
-
-
 ourProjectRouter.put("/project/updateAllInclusive", async (req, res) => {
   try {
     const { projectId, flatNo, allInclusiveValue } = req.body;
@@ -1045,7 +1042,9 @@ ourProjectRouter.put("/project/updateAllInclusive", async (req, res) => {
 
     const flat = project.flatList.find((item) => item.flatNo === flatNo);
     if (!flat) {
-      return res.status(404).json({ message: "Flat not found in this project" });
+      return res
+        .status(404)
+        .json({ message: "Flat not found in this project" });
     }
 
     flat.allInclusiveValue = allInclusiveValue;
@@ -1058,12 +1057,10 @@ ourProjectRouter.put("/project/updateAllInclusive", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Server error", error: err.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
   }
 });
-
-
-
-
 
 export default ourProjectRouter;
