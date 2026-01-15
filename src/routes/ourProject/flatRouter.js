@@ -23,7 +23,7 @@ flatRouter.get("/flat", async (req, res) => {
     });
   });
 
-  // await flatModel.insertMany(flats);
+  await flatModel.insertMany(flats);
 
   res.send({
     message: "Flats inserted successfully",
