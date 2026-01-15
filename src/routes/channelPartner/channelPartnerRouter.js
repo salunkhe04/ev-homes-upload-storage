@@ -111,9 +111,6 @@ cpRouter.post(
   syncCp
 );
 
-
-
-
 cpRouter.post("/channel-partner-reset-password", resetPasswordChannelPartner);
 
 cpRouter.post("/channel-partner-pw/:id", newPassword);
@@ -131,6 +128,52 @@ cpRouter.get("/check-cp-email-exist/:email", async (req, res) => {
     if (!email) res.send(errorRes(500, "no email provided"));
     //
     const resp = await cpModel.findOne({ email: email }).select("email");
+
+    if (resp) return res.send(successRes(200, "exist", { data: true }));
+
+    return res.send(successRes(200, "exist", { data: false }));
+  } catch (error) {
+    //
+    return res.send(errorRes(500, "Internal Server Error"));
+  }
+});
+
+cpRouter.get("/check-cp-exist", async (req, res) => {
+  const { email, phoneNumber, reraNumber } = req.query;
+  try {
+    console.log(req.query);
+    if (!email && !phoneNumber && !reraNumber) {
+      return res.send(errorRes(400, "No query provided"));
+    }
+    let query = {
+      $or: [],
+    };
+    if (email) {
+      //
+      query.$or.push({
+        email: email,
+      });
+    }
+
+    if (phoneNumber) {
+      //
+      query.$or.push({
+        phoneNumber: phoneNumber,
+      });
+    }
+
+    if (reraNumber) {
+      //
+      query.$or.push({
+        reraNumber: reraNumber,
+      });
+    }
+
+    console.log(query);
+    //
+    const resp = await cpModel
+      .findOne(query)
+      .select("email phoneNumber reraNumber");
 
     if (resp) return res.send(successRes(200, "exist", { data: true }));
 
