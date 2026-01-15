@@ -43,10 +43,10 @@ parkingRouter.get("/get-parkings", async (req, res) => {
   try {
     const { project } = req.query;
     const cacheData = project ? `parking_${project}` : "parkings";
-    // const cached = await RedisService.get(cacheData, true);
-    // if (cached) {
-    //   return successRes2(res, 200, "Get parking-cached", { data: cached });
-    // }
+    const cached = await RedisService.get(cacheData, true);
+    if (cached) {
+      return successRes2(res, 200, "Get parking-cached", { data: cached });
+    }
 
     let query = { ...(project ? { project: project } : {}) };
 
@@ -113,8 +113,11 @@ parkingRouter.post("/parking-update/:id", async (req, res) => {
   try {
     console.log(req.body);
 
-    const flat = await parkingModel
-      .findByIdAndUpdate(id, { ...req.body }, { new: true });
+    const flat = await parkingModel.findByIdAndUpdate(
+      id,
+      { ...req.body },
+      { new: true }
+    );
 
     const uflat = await parkingModel
       .findById(id)
@@ -190,5 +193,37 @@ parkingRouter.post("/parking-floor/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to import parking list." });
   }
 });
+
+export const ParkingOccupancyChange = async ({
+  project,
+  floor,
+  number,
+  occupied,
+}) => {
+  //
+  try {
+    //
+    const flat = await parkingModel.findOne({
+      project: project,
+      floor: floor,
+      number: number,
+    });
+
+    if (!flat) return null;
+    const cacheData = project ? `parking_${project}` : "parkings";
+
+    const updated = await parkingModel
+      .findByIdAndUpdate(flat._id, { occupied: occupied }, { new: true })
+      .populate({ path: "project", select: "name" });
+    //
+    await RedisService.delMultipleKeys(["parkings", cacheData]);
+    //
+
+    return updated;
+  } catch (error) {
+    //
+    return null;
+  }
+};
 
 export default parkingRouter;

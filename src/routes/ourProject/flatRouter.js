@@ -32,7 +32,6 @@ flatRouter.get("/flat", async (req, res) => {
   });
 });
 
-
 //get all flats
 flatRouter.get("/get-flats", async (req, res) => {
   try {
@@ -130,8 +129,6 @@ flatRouter.post("/add-new-flat/:id", async (req, res) => {
   }
 });
 
-
-
 flatRouter.get("/project-occupied-count/:id", async (req, res) => {
   try {
     const id = req.params.id;
@@ -175,4 +172,37 @@ flatRouter.get("/project-occupied-count/:id", async (req, res) => {
   }
 });
 
+export const FlatOccupancyChange = async ({
+  project,
+  floor,
+  buildingNo,
+  number,
+  occupied,
+}) => {
+  //
+  try {
+    //
+    const flat = await flatModel.findOne({
+      project: project,
+      floor: floor,
+      buildingNo: buildingNo,
+      number: number,
+    });
+
+    if (!flat) return null;
+    const cacheData = project ? `flats_${project}` : "flats";
+
+    const updated = await flatModel
+      .findByIdAndUpdate(flat._id, { occupied: occupied }, { new: true })
+      .populate({ path: "project", select: "name" });
+    //
+    await RedisService.delMultipleKeys(["flats", cacheData]);
+    //
+
+    return updated;
+  } catch (error) {
+    //
+    return null;
+  }
+};
 export default flatRouter;
