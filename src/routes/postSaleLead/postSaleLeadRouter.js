@@ -96,7 +96,7 @@ postSaleRouter.post(
   // authenticateToken,
   sendPaymentDueEmail
 );
-
+// one time used
 postSaleRouter.get("/post-sale-list/:id", async (req, res) => {
   const id = req.params.id;
   try {

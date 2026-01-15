@@ -34,6 +34,8 @@ import revisedTargetModel from "../model/bookingTarget/bookingTarget.model.js";
 import { defaultProjectTargets, getQuarterInfo } from "./quarterInforFun.js";
 import { sendNotificationWithImage } from "./oneSignal.controller.js";
 import oneSignalModel from "../model/oneSignal.model.js";
+import { FlatOccupancyChange } from "../routes/ourProject/flatRouter.js";
+import { ParkingOccupancyChange } from "../routes/ourProject/parkingRouter.js";
 
 export const getPostSaleLeads = async (req, res, next) => {
   try {
@@ -1046,271 +1048,6 @@ export async function getLeadCounts(req, res, next) {
   }
 }
 
-// export async function getLeadCounts(req, res, next) {
-//   try {
-//     let project = req.query.project;
-//     const { interval = "monthly", year } = req.query;
-//     const currentYear = new Date().getFullYear();
-
-//     // Determine selected year
-//     let selectedYear = currentYear;
-//     if (year) {
-//       selectedYear = parseInt(year, 10);
-//       if (isNaN(selectedYear)) {
-//         return res.json({ message: "Invalid year parameter" });
-//       }
-//     }
-
-//     // Prepare match stage
-//     let matchStage = {};
-//     if (interval === "monthly") {
-//       matchStage.date = {
-//         $gte: new Date("2024-12-10T00:00:00Z"),
-//         $lt: new Date(`${selectedYear + 1}-01-01`),
-//       };
-//     } else {
-//       return res.json({ message: "Invalid interval parameter" });
-//     }
-
-//     if (project) {
-//       matchStage.project = project;
-//     }
-
-//     const groupStage = {
-//       _id: {
-//         month: { $month: "$date" },
-//         year: { $year: "$date" },
-//       },
-//       count: { $sum: 1 },
-//     };
-
-//     // Booking counts
-//     const leadCounts = await postSaleLeadModel.aggregate([
-//       { $match: matchStage },
-//       { $group: groupStage },
-//       { $sort: { "_id.month": 1 } },
-//     ]);
-
-//     // Registration counts
-//     const regMatchStage = { ...matchStage, registrationDone: true };
-//     const leadRegisCounts = await postSaleLeadModel.aggregate([
-//       { $match: regMatchStage },
-//       { $group: groupStage },
-//       { $sort: { "_id.month": 1 } },
-//     ]);
-
-//     // Month list
-//     const monthNames = [
-//       "Jan",
-//       "Feb",
-//       "Mar",
-//       "Apr",
-//       "May",
-//       "Jun",
-//       "Jul",
-//       "Aug",
-//       "Sep",
-//       "Oct",
-//       "Nov",
-//       "Dec",
-//     ];
-
-//     // Initialize arrays
-//     const monthlyData = monthNames.map((month, index) => ({
-//       month,
-//       year: selectedYear,
-//       count: 0,
-//       type: "booking",
-//     }));
-//     const monthlyRegisData = monthNames.map((month, index) => ({
-//       month,
-//       year: selectedYear,
-//       count: 0,
-//       type: "registration",
-//     }));
-
-//     // Fill booking counts
-//     leadCounts.forEach((item) => {
-//       const i = item._id.month - 1;
-//       if (monthlyData[i]) {
-//         monthlyData[i].count = item.count;
-//       }
-//     });
-
-//     // Fill registration counts
-//     leadRegisCounts.forEach((item) => {
-//       const i = item._id.month - 1;
-//       if (monthlyRegisData[i]) {
-//         monthlyRegisData[i].count = item.count;
-//       }
-//     });
-
-//     // Filter both lists to exclude zero-count months
-//     const filteredMonthlyData = monthlyData.filter((item) => item.count > 0);
-//     const filteredMonthlyRegisData = monthlyRegisData.filter(
-//       (item) => item.count > 0
-//     );
-
-//     // Send both lists separately
-//     return res.send(
-//       successRes(200, "ok", {
-//         data: filteredMonthlyData,
-//         data2: filteredMonthlyRegisData,
-//       })
-//     );
-//   } catch (error) {
-//     console.error("Error getting lead counts:", error);
-//     next(error);
-//   }
-// }
-
-// export async function getLeadCounts(req, res, next) {
-//   try {
-//     let query = req.query.query || "";
-//     let project = req.query.project; // Get project from query params
-//     const { interval = "monthly", year, date, endDate } = req.query;
-//     const currentYear = new Date().getFullYear();
-
-//     console.log(date);
-
-//     // Validate and set the year
-//     let selectedYear = currentYear;
-//     if (year) {
-//       selectedYear = parseInt(year, 10);
-//       if (isNaN(selectedYear)) {
-//         return res.json({ message: "Invalid year parameter" });
-//       }
-//     }
-
-//     // Weekly date range (Monday to Sunday)
-//     const currentDate = new Date();
-//     const startOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 1 });
-//     const endOfCurrentWeek = addDays(startOfCurrentWeek, 7);
-
-//     // Set match stage for MongoDB aggregation
-//     let matchStage = {};
-//     if (interval === "weekly") {
-//       matchStage.date = {
-//         $gte: startOfCurrentWeek,
-//         $lt: endOfCurrentWeek,
-//       };
-//     } else if (interval === "monthly") {
-//       if (date && endDate) {
-//         // Parse startDate and endDate
-//         const parsedStartDate = new Date(date);
-//         const parsedEndDate = new Date(endDate);
-//         if (isNaN(parsedStartDate) || isNaN(parsedEndDate)) {
-//           return res.json({ message: "Invalid date range" });
-//         }
-//         matchStage.date = {
-//           $gte: parsedStartDate,
-//           $lt: parsedEndDate,
-//         };
-//       } else {
-//         matchStage.date = {
-//           $gte: new Date(`${selectedYear}-01-01`),
-//           $lt: new Date(`${selectedYear + 1}-01-01`),
-//         };
-//       }
-//     } else {
-//       return res.json({ message: "Invalid interval parameter" });
-//     }
-
-//     // Add project filter if provided
-//     if (project) {
-//       matchStage.project = project;
-//     }
-
-//     // Group stage for MongoDB aggregation
-//     let groupStage = {};
-//     if (interval === "weekly") {
-//       groupStage = {
-//         _id: {
-//           dayOfWeek: { $dayOfWeek: "$date" },
-//           date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-//         },
-//         count: { $sum: 1 },
-//       };
-//     } else if (interval === "monthly") {
-//       groupStage = {
-//         _id: {
-//           month: { $month: "$date" },
-//           year: { $year: "$date" },
-//         },
-//         count: { $sum: 1 },
-//       };
-//     }
-
-//     const leadCounts = await postSaleLeadModel.aggregate([
-//       { $match: matchStage },
-//       { $group: groupStage },
-//       { $sort: { "_id.date": 1, "_id.month": 1, "_id.dayOfWeek": 1 } },
-//     ]);
-
-//     if (interval === "weekly") {
-//       // Weekly: fill missing days
-//       const dayMap = [
-//         "Sunday",
-//         "Monday",
-//         "Tuesday",
-//         "Wednesday",
-//         "Thursday",
-//         "Friday",
-//         "Saturday",
-//       ];
-//       const weekData = Array.from({ length: 7 }, (_, i) => {
-//         const date = addDays(startOfCurrentWeek, i);
-//         return {
-//           date: format(date, "yyyy-MM-dd"),
-//           day: dayMap[i],
-//           count: 0,
-//         };
-//       });
-
-//       // Populate counts
-//       leadCounts.forEach((item) => {
-//         const foundDay = weekData.find((day) => day.date === item._id.date);
-//         if (foundDay) foundDay.count = item.count;
-//       });
-
-//       return res.json(weekData);
-//     }
-
-//     // Monthly: format data
-//     const monthNames = [
-//       "Jan",
-//       "Feb",
-//       "Mar",
-//       "Apr",
-//       "May",
-//       "Jun",
-//       "Jul",
-//       "Aug",
-//       "Sep",
-//       "Oct",
-//       "Nov",
-//       "Dec",
-//     ];
-//     const formattedMonthlyData = leadCounts.map((item) => ({
-//       year: item._id.year,
-//       month: monthNames[item._id.month - 1],
-//       count: item.count,
-//     }));
-
-//     console.log("Query Parameters:", {
-//       interval,
-//       year,
-//       date,
-//       endDate,
-//       project,
-//     });
-//     return res.send(successRes(200, "ok", { data: formattedMonthlyData }));
-//   } catch (error) {
-//     console.error("Error getting lead counts:", error);
-//     next(error);
-//   }
-// }
-
 export const addPostSaleLead = async (req, res, next) => {
   const body = req.body;
   const {
@@ -1344,13 +1081,14 @@ export const addPostSaleLead = async (req, res, next) => {
         (ele) =>
           ele.floor === floor &&
           ele.number === number &&
-          ele.buildingNo === buildingNo
+          ele.buildingNo === buildingNo &&
+          ele.occupied === true
       );
-      // if (findExisintFlat) {
-      //   return res.send(
-      //     errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`)
-      //   );
-      // }
+      if (findExisintFlat) {
+        return res.send(
+          errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`)
+        );
+      }
     }
 
     // const resp = await postSaleLeadModel.find();
@@ -1463,16 +1201,56 @@ export const addPostSaleLead = async (req, res, next) => {
         console.log(e);
       }
     }
+    try {
+      await updateFlatInfoByIdFlatNo({
+        projectId: project,
+        floor,
+        buildingNo,
+        number,
+        updates: {
+          occupied: true,
+        },
+      });
+    } catch (error) {
+      //
+    }
 
-    await updateFlatInfoByIdFlatNo({
-      projectId: project,
-      floor,
-      buildingNo,
-      number,
-      updates: {
+    // new flat update
+    try {
+      //
+      await FlatOccupancyChange({
+        project: project,
+        floor,
+        buildingNo,
+        number,
         occupied: true,
-      },
-    });
+      });
+    } catch (error) {
+      //
+    }
+
+    try {
+      //
+      if (newLead.parking.length > 0) {
+        await Promise.all(
+          newLead.parking.map(async (ele) => {
+            //
+            try {
+              await ParkingOccupancyChange({
+                project: project,
+                floor: ele.floor,
+                number: ele.number,
+                occupied: true,
+              });
+            } catch (error) {
+              //
+            }
+          })
+        );
+      }
+    } catch (error) {
+      //
+    }
 
     //uppdate at lead
     try {
@@ -1840,6 +1618,43 @@ export const cancelBooking = async (req, res, next) => {
       });
     } catch (error) {
       // console.log(error);
+    }
+
+    // new flat update
+    try {
+      //
+      await FlatOccupancyChange({
+        project: project,
+        floor,
+        buildingNo,
+        number,
+        occupied: false,
+      });
+    } catch (error) {
+      //
+    }
+
+    try {
+      //
+      if (lead.parking.length > 0) {
+        await Promise.all(
+          lead.parking.map(async (ele) => {
+            //
+            try {
+              await ParkingOccupancyChange({
+                project: project,
+                floor: ele.floor,
+                number: ele.number,
+                occupied: false,
+              });
+            } catch (error) {
+              //
+            }
+          })
+        );
+      }
+    } catch (error) {
+      //
     }
 
     try {
@@ -2382,7 +2197,6 @@ export const getPaymentReport = async (req, res) => {
                 channelPartner: 1,
               },
             },
-     
           ],
           as: "leadInfo",
         },
@@ -2749,3 +2563,5 @@ export const getPaymentReport = async (req, res) => {
 //     // next(err);
 //   }
 // };
+
+//
