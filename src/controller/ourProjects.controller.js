@@ -24,7 +24,7 @@ export const getOurProjects = async (req, res) => {
 
     const respPro = await ourProjectModel.find(
       {},
-      // { flatList: 0, parkingList: 0 }
+      { flatList: 0, parkingList: 0 }
     );
     const cacheNew = await RedisService.set("projects", respPro, 86400); // 24 hr cache
 

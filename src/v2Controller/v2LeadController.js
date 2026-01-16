@@ -53,7 +53,6 @@ export const leadCycleTriggerV4 = async () => {
       // "cycle.currentOrder": 1,
       // "cycle.currentDays": 29,
       leadFrom: { $ne: "exhibition-2025" },
-
     };
 
     // get the leads
@@ -120,6 +119,9 @@ export const leadCycleTriggerV4 = async () => {
               taskRef: null,
               $set: { cycle: cCycle },
               $push: { cycleHistoryNew: previousCycle },
+              //reset ranks
+              isCountable: false,
+              isCountableVisit: false,
             },
           },
         });
