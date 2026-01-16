@@ -1236,12 +1236,14 @@ export const addPostSaleLead = async (req, res, next) => {
           newLead.parking.map(async (ele) => {
             //
             try {
+               if (ele?.number) {
               await ParkingOccupancyChange({
                 project: project,
                 floor: ele.floor,
                 number: ele.number,
                 occupied: true,
               });
+              }
             } catch (error) {
               //
             }
@@ -1390,12 +1392,14 @@ export const updatePostSaleLeadById = async (req, res, next) => {
           foundLead.parking.map(async (ele) => {
             //
             try {
-              await ParkingOccupancyChange({
-                project: foundLead?.project,
-                floor: ele?.floor,
-                number: ele?.number,
-                occupied: true,
-              });
+              if (ele?.number) {
+                await ParkingOccupancyChange({
+                  project: foundLead?.project,
+                  floor: ele?.floor,
+                  number: ele?.number,
+                  occupied: true,
+                });
+              }
             } catch (error) {
               //
             }
