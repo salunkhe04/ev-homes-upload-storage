@@ -11,22 +11,22 @@ import {
 export const getOurProjects = async (req, res) => {
   try {
     // console.log("ok");
-    // const cached = await RedisService.get("projects", true);
+    const cached = await RedisService.get("projects", true);
 
-    // if (cached != null) {
-    //   //
-    //   return res.send(
-    //     successRes(200, "Get projects - cached", {
-    //       data: cached,
-    //     })
-    //   );
-    // }
+    if (cached != null) {
+      //
+      return res.send(
+        successRes(200, "Get projects - cached", {
+          data: cached,
+        })
+      );
+    }
 
     const respPro = await ourProjectModel.find(
       {},
-      { flatList: 0, parkingList: 0 }
+      // { flatList: 0, parkingList: 0 }
     );
-    // const cacheNew = await RedisService.set("projects", respPro, 86400); // 24 hr cache
+    const cacheNew = await RedisService.set("projects", respPro, 86400); // 24 hr cache
 
     return res.send(
       successRes(200, "Get our projects", {
