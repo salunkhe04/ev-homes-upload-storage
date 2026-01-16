@@ -1376,11 +1376,35 @@ export const updatePostSaleLeadById = async (req, res, next) => {
       body.paymentFourAmt = 0;
     }
     // console.log("entered 2");
-    console.log(body);
+    // console.log(body);
     await foundLead.updateOne({ $set: body }, { new: true });
     const updatedLead = await postSaleLeadModel
       .findById(id)
       .populate(postSalePopulateOptions);
+
+    //
+    try {
+      //
+      if (foundLead.parking.length > 0) {
+        await Promise.all(
+          foundLead.parking.map(async (ele) => {
+            //
+            try {
+              await ParkingOccupancyChange({
+                project: foundLead?.project,
+                floor: ele?.floor,
+                number: ele?.number,
+                occupied: true,
+              });
+            } catch (error) {
+              //
+            }
+          })
+        );
+      }
+    } catch (error) {
+      //
+    }
 
     return res.send(
       successRes(200, "updated post sale lead", {
