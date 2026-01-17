@@ -257,20 +257,58 @@ eoiConfRouter.delete("/eoi-confirmation/:id", async (req, res) => {
 // handover
 eoiConfRouter.post("/eoi-confirmation-handover/:id", async (req, res) => {
   //
-  const { type, handOver, handOverDate } = req.body;
+  const { type, handOver, handOverDate, index, handOverBy } = req.body;
   const id = req.params.id;
   if (!id) return errorRes2(res, 500, "id require");
 
   try {
+    console.log(req.body);
     const oldDoc = await eoiConfModel.findById(id);
     if (!oldDoc) return errorRes2(res, 500, "no Eoi or conf found");
+    if (index) {
+      //
+      if (type === "eoi") {
+        oldDoc.eoiList.forEach((el, i) => {
+          //
+          if (index === i) {
+            //
+            el.handOver = handOver;
+            el.handOverDate = handOverDate;
+            el.handOverBy = handOverBy;
+          }
+        });
+        // console.log(oldDoc.eoiList);
+      } else if (type === "confirmation") {
+        //
+        oldDoc.confirmationList.forEach((el, i) => {
+          //
+          if (index === i) {
+            //
+            el.handOver = handOver;
+            el.handOverDate = handOverDate;
+            el.handOverBy = handOverBy;
+          }
+        });
+      }
+      await oldDoc.save();
+      //
+      const updatedDoc = await eoiConfModel
+        .findById(id)
+        .populate(eoiConfirmationPopulations);
+      //
+      return successRes2(res, 200, "ok", {
+        data: updatedDoc,
+      });
+    }
 
     let dataToUpdate = {};
     if (type === "eoi") {
       //
+
       dataToUpdate = {
         "eoi.handOver": handOver,
         "eoi.handOverdate": handOverDate,
+        "eoi.handOverBy": handOverBy,
       };
     }
     if (type === "confirmation") {
@@ -278,6 +316,7 @@ eoiConfRouter.post("/eoi-confirmation-handover/:id", async (req, res) => {
       dataToUpdate = {
         "confirmation.handOver": handOver,
         "confirmation.handOverdate": handOverDate,
+        "eoi.handOverBy": handOverBy,
       };
     }
 

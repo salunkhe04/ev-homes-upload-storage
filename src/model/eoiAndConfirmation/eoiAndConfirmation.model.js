@@ -37,6 +37,12 @@ const eoiSchem = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  handOverBy: {
+    type: String,
+    ref: "employees",
+    default: null,
+    // required: true,
+  },
 });
 
 const confSchem = new mongoose.Schema({
@@ -71,6 +77,13 @@ const confSchem = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  handOverBy: {
+    type: String,
+    ref: "employees",
+    default: null,
+    // required: true,
+  },
+
   isDeleted: {
     type: Boolean,
     default: false,
