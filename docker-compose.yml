@@ -1,19 +1,21 @@
-version: "3.9"
-
 services:
   ev-homes-backend:
     build: .
-    # image: ev_home-backend:1.0
     container_name: ev_homes_backend
     restart: unless-stopped
 
-    network_mode: host # ⭐ THIS IS THE FIX
+    # for linux
+    network_mode: host
+    # only for windows
+    # ports:
+    # - "8082:8082"
 
     env_file:
       - .env
 
     environment:
-      NODE_OPTIONS: "--max-old-space-size=1800"
+      TZ: Asia/Kolkata
+      NODE_OPTIONS: "--max-old-space-size=2000"
 
     mem_limit: 3024m
     cpus: "1.5"

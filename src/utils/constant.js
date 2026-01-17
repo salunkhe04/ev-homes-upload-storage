@@ -2793,6 +2793,14 @@ export const eoiConfirmationPopulations = [
       },
     ],
   },
+  {
+    path: "eoiList.generatedBy",
+    select: "firstName lastName",
+  },
+  {
+    path: "confirmationList.generatedBy",
+    select: "firstName lastName",
+  },
 ];
 
 export const eoiExhibitionPopulations = [
