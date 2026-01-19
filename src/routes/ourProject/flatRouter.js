@@ -64,21 +64,23 @@ flatRouter.post("/flat-update/:id", async (req, res) => {
   try {
     // console.log(req.body);
 
-    const flat = await flatModel
-      .findByIdAndUpdate(id, { ...req.body }, { new: true })
-      .populate({ path: "project", select: "name" });
+    const flat = await flatModel.findByIdAndUpdate(
+      id,
+      { ...req.body },
+      { new: true },
+    );
 
     const uflat = await flatModel
       .findById(id)
       .populate({ path: "project", select: "name" });
 
     await RedisService.del("flats");
-    await RedisService.del(`flats_${id}`);
+    await RedisService.del(`flats_${flat.project}`);
 
     return res.send(
       successRes(200, "flat update", {
         data: uflat,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);
@@ -121,7 +123,7 @@ flatRouter.post("/add-new-flat/:id", async (req, res) => {
     return res.send(
       successRes(200, "flat update", {
         data: uflat,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);
@@ -144,10 +146,10 @@ flatRouter.get("/project-occupied-count/:id", async (req, res) => {
 
     // Count occupied flats
     const notOccupiedCount = project.flatList.filter(
-      (flat) => flat.occupied == false
+      (flat) => flat.occupied == false,
     ).length;
     const occupiedCount = project.flatList.filter(
-      (flat) => flat.occupied == true
+      (flat) => flat.occupied == true,
     ).length;
 
     const occupiedUnits = project.flatList
