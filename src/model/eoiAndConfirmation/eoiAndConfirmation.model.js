@@ -146,7 +146,7 @@ export const eoiConfSchema = new mongoose.Schema(
 const eoiConfModel = mongoose.model(
   "eoiAndConfirmation",
   eoiConfSchema,
-  "eoiAndConfirmationTests"
+  "eoiAndConfirmation"
 );
 export default eoiConfModel;
 

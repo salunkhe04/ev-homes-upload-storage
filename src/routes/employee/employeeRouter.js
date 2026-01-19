@@ -34,6 +34,7 @@ import { errorRes2, successRes2 } from "../../model/response.js";
 import employeeModel from "../../model/employee.model.js";
 import shiftInfoModel from "../../model/attendance/shift/employeeShiftInfo.js";
 import moment from "moment-timezone";
+import { employeePopulateOptions } from "../../utils/constant.js";
 
 const employeeRouter = Router();
 
@@ -175,6 +176,29 @@ employeeRouter.post("/employee-logout", async (req, res) => {
     });
     return successRes2(res, 200, "logged Out");
   } catch (error) {
+    return errorRes2(res, 500, error);
+  }
+});
+
+employeeRouter.post("/make-inactive/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const resp = await employeeModel
+      .findByIdAndUpdate(
+        id,
+
+        { status: "inactive" },
+
+        { new: true }
+      )
+      .select("-password -refreshToken")
+      .populate(employeePopulateOptions);
+
+    const dataResp = await employeeModel.findById(resp._id);
+
+    return successRes2(res, 200, "Inactive", { data: resp });
+  } catch (e) {
     return errorRes2(res, 500, error);
   }
 });

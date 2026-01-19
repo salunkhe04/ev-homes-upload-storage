@@ -56,10 +56,12 @@ export const updateDesgEmp = async (req, res, next) => {
 
 export const getEmployees = async (req, res, next) => {
   try {
+    let { status } = req.query;
+
+    status = status || "active";
+    let query = { status };
     const respCP = await employeeModel
-      .find({
-        status: "active",
-      })
+      .find(query)
       // .select(
       //   "firstName lastName email designation phoneNumber division department employeeId"
       // )

@@ -14,6 +14,7 @@ import {
 import leadModelV2 from "../../model/lead/leadV2Model.js";
 import moment from "moment-timezone";
 import eoiConfCountModel from "../../model/eoiAndConfirmation/eoi-conf-count.model.js";
+import postSaleLeadModel from "../../model/postSaleLead.model.js";
 
 const eoiConfRouter = Router();
 // to get unqiue id incremented
@@ -49,18 +50,30 @@ eoiConfRouter.get("/eoi-conf-id", async (req, res) => {
 });
 
 eoiConfRouter.get("/eoi-confirmations", async (req, res) => {
-  //
   try {
-    //
-    console.log("p");
+    const { teamLeader, project } = req.query;
+
+    let query = {
+      ...(project ? { project } : {}),
+    };
+
+    if (teamLeader) {
+      const bookings = await postSaleLeadModel
+        .find({ closingManager: teamLeader })
+        .select("_id");
+
+      const bookingIds = bookings.map((b) => b._id);
+
+      query.booking = { $in: bookingIds };
+    }
+
     const oldDoc = await eoiConfModel
-      .find()
+      .find(query)
       .populate(eoiConfirmationPopulations);
 
-    //
     return successRes2(res, 200, "ok", { data: oldDoc });
   } catch (error) {
-    //
+    console.log(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });
