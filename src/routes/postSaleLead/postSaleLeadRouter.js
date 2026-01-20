@@ -33,42 +33,42 @@ postSaleRouter.get(
 
   // authenticateToken,
 
-  getPostSaleLeads
+  getPostSaleLeads,
 );
 postSaleRouter.get(
   "/post-sale-lead/:id",
   authenticateToken,
-  getPostSaleLeadByBookingId
+  getPostSaleLeadByBookingId,
 );
 postSaleRouter.post("/post-sale-lead-add", authenticateToken, addPostSaleLead);
 postSaleRouter.post(
   "/post-sale-lead-update/:id",
   authenticateToken,
-  updatePostSaleLeadById
+  updatePostSaleLeadById,
 );
 
 postSaleRouter.post("/cancel-booking", authenticateToken, cancelBooking);
 postSaleRouter.get(
   "/post-sale-leads-for-pse/:id",
   authenticateToken,
-  getPostSaleLeadsForExecutive
+  getPostSaleLeadsForExecutive,
 );
 postSaleRouter.get(
   "/post-sale-lead-by-id/:flatNo",
   authenticateToken,
-  getPostSaleLeadById
+  getPostSaleLeadById,
 );
 
 postSaleRouter.get(
   "/post-sale-leadCount",
   // authenticateToken,
-  getLeadCounts
+  getLeadCounts,
 );
 
 postSaleRouter.get(
   "/post-sale-leads-regraph",
   authenticateToken,
-  getpostSaleCountsRegGraph
+  getpostSaleCountsRegGraph,
 );
 // postSaleRouter.get(
 //   "/post-sale-leads-refunnel",authenticateToken,
@@ -78,23 +78,23 @@ postSaleRouter.get(
 postSaleRouter.get(
   "/post-sale-lead-by-flat",
   authenticateToken,
-  getPostSaleLeadByFlat
+  getPostSaleLeadByFlat,
 );
 postSaleRouter.post(
   "/update-booking-feedback/:id",
   authenticateToken,
-  updateBookingFeedback
+  updateBookingFeedback,
 );
 
 postSaleRouter.post(
   "/notification-payment-due",
   // authenticateToken,
-  notificationForPaymentDue
+  notificationForPaymentDue,
 );
 postSaleRouter.post(
   "/payment-due-email",
   // authenticateToken,
-  sendPaymentDueEmail
+  sendPaymentDueEmail,
 );
 // one time used
 postSaleRouter.get("/post-sale-list/:id", async (req, res) => {
@@ -114,7 +114,7 @@ postSaleRouter.get("/post-sale-list/:id", async (req, res) => {
         if (!flat && element.occupied == true) {
           update.push(element);
         }
-      })
+      }),
     );
 
     res.send({ total: update.length, data: update });
@@ -269,7 +269,7 @@ postSaleRouter.get(
       //
       return errorRes2(res, 500, `${error}`);
     }
-  }
+  },
 );
 postSaleRouter.get(
   "/post-sale-ex-dashboard-count/:id",
@@ -429,12 +429,12 @@ postSaleRouter.get(
       //
       return errorRes2(res, 500, `${error}`);
     }
-  }
+  },
 );
 
 postSaleRouter.post(
   "/update-payment-status/:id",
-  updatePaymentDetailsAmtStatus
+  updatePaymentDetailsAmtStatus,
 );
 
 postSaleRouter.get("/postsale-booking-payment-report", getPaymentReport);
@@ -442,7 +442,7 @@ postSaleRouter.get("/postsale-booking-payment-report", getPaymentReport);
 postSaleRouter.get("/postsale-lead-by-unit", async (req, res) => {
   try {
     const { project, unitNo, buildingNo } = req.query;
-    console.log(req.query);
+    // console.log(req.query);
 
     if (!project) {
       return errorRes2(res, 400, `Project is required`);
@@ -497,7 +497,7 @@ postSaleRouter.get("/postsale-fix-docs", async (req, res) => {
         } catch (error) {
           //
         }
-      })
+      }),
     );
     // console.log(client);
     return successRes2(res, 200, "Booking details for client", {
@@ -517,7 +517,7 @@ postSaleRouter.get("/postsale-fixed-area", async (req, res) => {
     });
 
     const proj = await ourProjectModel.findById(
-      "project-ev23-malibu-west-koparkhairne-2024"
+      "project-ev23-malibu-west-koparkhairne-2024",
     );
     const area = await Promise.all(
       client.map(async (e) => {
@@ -527,7 +527,7 @@ postSaleRouter.get("/postsale-fixed-area", async (req, res) => {
             ele.buildingNo === e.buildingNo &&
             ele.floor === e.floor &&
             ele.number === e.number &&
-            ele.wing === e.wing
+            ele.wing === e.wing,
         );
         const resp = await postSaleLeadModel.findByIdAndUpdate(e._id, {
           $set: {
@@ -536,7 +536,7 @@ postSaleRouter.get("/postsale-fixed-area", async (req, res) => {
             configuration: flat?.configuration,
           },
         });
-      })
+      }),
     );
 
     // console.log(client);

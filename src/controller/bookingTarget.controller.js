@@ -12,7 +12,7 @@ const zone = "Asia/Kolkata";
 export const getQuarterWiseTarget = async (req, res) => {
   const id = req.params.id;
   const { date, year: qYear, quarter: qQuarter } = req.query;
-  console.log(req.query);
+  // console.log(req.query);
 
   let now = moment(date).isValid() ? moment(date).tz(zone) : moment().tz(zone);
 
@@ -31,7 +31,7 @@ export const getQuarterWiseTarget = async (req, res) => {
     const { startDate, endDate, year, quarter } = getQuarterInfo(
       now.toDate(),
       qQuarter,
-      qYear
+      qYear,
     );
 
     let statusToFind = {
@@ -50,7 +50,7 @@ export const getQuarterWiseTarget = async (req, res) => {
     //   };
     // }
 
-    console.log(JSON.stringify(statusToFind, null, 2));
+    // console.log(JSON.stringify(statusToFind, null, 2));
 
     let targetData = await revisedTargetModel
       .findOne(statusToFind)
@@ -113,7 +113,7 @@ export const getQuarterWiseTarget = async (req, res) => {
         data: {
           ...targetData,
         },
-      })
+      }),
     );
   } catch (error) {
     console.error("Error fetching quarter-wise target:", error);
@@ -128,7 +128,7 @@ export const addTarget = async (req, res) => {
 
     if (!staffId || !projectWise || !Array.isArray(projectWise)) {
       return res.send(
-        errorRes(400, "staffId and projectWise array are required.")
+        errorRes(400, "staffId and projectWise array are required."),
       );
     }
 
@@ -153,8 +153,8 @@ export const addTarget = async (req, res) => {
       return res.send(
         errorRes(
           400,
-          "Target already set for this staff in the current quarter."
-        )
+          "Target already set for this staff in the current quarter.",
+        ),
       );
     }
 
@@ -171,7 +171,7 @@ export const addTarget = async (req, res) => {
     });
 
     return res.send(
-      successRes(200, "Target added successfully", { data: newTarget })
+      successRes(200, "Target added successfully", { data: newTarget }),
     );
   } catch (error) {
     console.error("Error in addTarget:", error);

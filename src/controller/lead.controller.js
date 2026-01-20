@@ -63,7 +63,7 @@ export const getAllLeads = async (req, res, next) => {
       successRes(200, "all Leads", {
         data: respLeads,
         // count: respLeads.len,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -87,12 +87,12 @@ export const getAllGraph = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval === "quarterly") {
       const quarter = Math.floor(currentDate.getMonth() / 3);
@@ -111,12 +111,12 @@ export const getAllGraph = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     }
 
@@ -429,7 +429,7 @@ export const getAllGraph = async (req, res, next) => {
           bookingWalkinCount,
           bookingCpCount,
         },
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error", error));
@@ -451,7 +451,7 @@ export const hideLead = async (req, res, next) => {
         hideStatusDate: Date.now(),
         hideRemark,
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedLead) {
@@ -461,7 +461,7 @@ export const hideLead = async (req, res, next) => {
     return res.send(
       successRes(200, "Lead Hide successfully", {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     // console.error(error);
@@ -698,12 +698,12 @@ export const getAllData = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval === "quarterly") {
       const quarter = Math.floor(currentDate.getMonth() / 3);
@@ -793,7 +793,7 @@ export const getAllData = async (req, res, next) => {
     const leadsWithTeamLeader = respLeads.map((lead) => {
       const currentOrder = lead.cycle.currentOrder;
       const cycleHistoryEntry = lead.cycleHistory.find(
-        (entry) => entry.currentOrder === currentOrder
+        (entry) => entry.currentOrder === currentOrder,
       );
       return {
         ...lead.toObject(),
@@ -1045,7 +1045,7 @@ export const getAllData = async (req, res, next) => {
         bulkCount,
         exhibition2025,
         data: leadsWithTeamLeader,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -1087,7 +1087,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
     let project = req.query.project;
     if (order === "Ascending" || order === "ascending") {
       sortDirection = 1;
-      console.log("ascending");
+      // console.log("ascending");
     } else if (order === "Descending" || order === "descending") {
       sortDirection = -1;
     }
@@ -1099,7 +1099,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
       _id: 1,
     };
 
-    console.log(sortFilter);
+    // console.log(sortFilter);
     const targetDate = validity
       ? moment.tz(validity, "Asia/Kolkata")
       : moment.tz("Asia/Kolkata");
@@ -1567,12 +1567,12 @@ export const getLeadsTeamLeader = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval == "quarterly") {
       const quarter = Math.floor(currentDate.getMonth() / 3);
@@ -1628,8 +1628,8 @@ export const getLeadsTeamLeader = async (req, res, next) => {
             },
           }
         : leadstatus
-        ? { interestedStatus: leadstatus }
-        : {}),
+          ? { interestedStatus: leadstatus }
+          : {}),
       ...(channelPartner ? { channelPartner: channelPartner } : {}),
       ...(project != null
         ? {
@@ -1721,7 +1721,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
 
     const sortedLeads = respLeads.map((ele) => {
       ele.callHistory.sort(
-        (a, b) => new Date(b.callDate) - new Date(a.callDate)
+        (a, b) => new Date(b.callDate) - new Date(a.callDate),
       );
       return ele;
     });
@@ -1982,7 +1982,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
         totalItemsCount,
         lineUpCount,
         data: sortedLeads,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -2008,31 +2008,31 @@ export const getLeadsByTarget = async (req, res, next) => {
       quarterEnd = new Date(parseInt(year), startMonth + 3, 0);
     }
 
-    console.log("Quarter:", quarter, "Year:", year);
-    console.log("Quarter Start:", quarterStart);
-    console.log("Quarter End:", quarterEnd);
+    // console.log("Quarter:", quarter, "Year:", year);
+    // console.log("Quarter Start:", quarterStart);
+    // console.log("Quarter End:", quarterEnd);
 
     let postSales = [];
     let bookingIds = [];
-    console.log(
-      JSON.stringify(
-        {
-          closingManager: teamLeaderId,
-          "bookingStatus.type": "confirm-booking",
-          ...(quarterStart && quarterEnd
-            ? {
-                $and: [
-                  { date: { $lte: quarterEnd } },
-                  { date: { $gte: quarterStart } },
-                ],
-                ...(project ? { project } : {}),
-              }
-            : {}),
-        },
-        null,
-        2
-      )
-    );
+    // console.log(
+    //   JSON.stringify(
+    //     {
+    //       closingManager: teamLeaderId,
+    //       "bookingStatus.type": "confirm-booking",
+    //       ...(quarterStart && quarterEnd
+    //         ? {
+    //             $and: [
+    //               { date: { $lte: quarterEnd } },
+    //               { date: { $gte: quarterStart } },
+    //             ],
+    //             ...(project ? { project } : {}),
+    //           }
+    //         : {}),
+    //     },
+    //     null,
+    //     2
+    //   )
+    // );
     if (status === "booking-done") {
       postSales = await postSaleLeadModel
         .find({
@@ -2077,7 +2077,7 @@ export const getLeadsByTarget = async (req, res, next) => {
         : {}),
     };
 
-    console.log(JSON.stringify(filter, null, 2));
+    // console.log(JSON.stringify(filter, null, 2));
 
     const totalItems = await leadModelV2.countDocuments(filter);
     const totalPages = Math.ceil(totalItems / limit);
@@ -2096,7 +2096,7 @@ export const getLeadsByTarget = async (req, res, next) => {
         totalPages,
         totalItems,
         data: leads,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -2565,7 +2565,7 @@ export const getLeadsAssignFeedback = async (req, res, next) => {
           totalItemsCount: matchingTasks.length,
           notFollowUpCount,
           data: matchingTasks,
-        })
+        }),
       );
     }
 
@@ -2581,7 +2581,7 @@ export const getLeadsAssignFeedback = async (req, res, next) => {
         notFollowUpCount,
         data2: notFollowUpIds,
         data: respLeads,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -2738,7 +2738,7 @@ export const getLeadsAssignFeedbackByTl = async (req, res, next) => {
       .populate(leadPopulateOptions);
     const sortedLeads = respLeads.map((ele) => {
       ele.callHistory.sort(
-        (a, b) => new Date(b.callDate) - new Date(a.callDate)
+        (a, b) => new Date(b.callDate) - new Date(a.callDate),
       );
       return ele;
     });
@@ -3105,7 +3105,7 @@ export const getLeadsAssignFeedbackByTl = async (req, res, next) => {
           totalItemsCount: matchingTasks.length,
           notFollowUpCount,
           data: matchingTasks,
-        })
+        }),
       );
     }
 
@@ -3121,7 +3121,7 @@ export const getLeadsAssignFeedbackByTl = async (req, res, next) => {
         notFollowUpCount,
         data2: notFollowUpIds,
         data: sortedLeads,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -3246,25 +3246,25 @@ export const getLeadsAssignFeedbackByTlCounts = async (req, res, next) => {
           notAssignedCount: counts[0]?.notAssignedCount || 0,
           notFollowUpCount: counts[0]?.notFollowUpCount || 0,
         };
-      })
+      }),
     );
 
     // Calculate global totals
     const totalItems = teamLeaderCounts.reduce(
       (sum, leader) => sum + leader.totalItems,
-      0
+      0,
     );
     const totalAssignedCount = teamLeaderCounts.reduce(
       (sum, leader) => sum + leader.assignedCount,
-      0
+      0,
     );
     const totalNotAssignedCount = teamLeaderCounts.reduce(
       (sum, leader) => sum + leader.notAssignedCount,
-      0
+      0,
     );
     const totalNotFollowUpCount = teamLeaderCounts.reduce(
       (sum, leader) => sum + leader.notFollowUpCount,
-      0
+      0,
     );
 
     // Calculate totalPages
@@ -3280,7 +3280,7 @@ export const getLeadsAssignFeedbackByTlCounts = async (req, res, next) => {
         totalNotAssignedCount,
         totalNotFollowUpCount,
         data: teamLeaderCounts,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -3296,7 +3296,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
   const respTeamLeader = await employeeModel.findById(salesManagerId);
   const teamLeaderId = respTeamLeader.reportingTo;
 
-  console.log(salesManagerId);
+  // console.log(salesManagerId);
   try {
     if (!salesManagerId) return res.send(errorRes(401, "id required"));
 
@@ -3779,7 +3779,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
             : {}),
         },
 
-        { phoneNumber: 1 }
+        { phoneNumber: 1 },
       );
 
       const phoneNumberSite = siteVisit.map((ele) => ele.phoneNumber);
@@ -3807,7 +3807,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
             },
           },
         },
-        { phoneNumber: 1 }
+        { phoneNumber: 1 },
       );
 
       const phoneNumberLineUp = leadLineUp.map((ele) => ele.phoneNumber);
@@ -3850,7 +3850,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
             },
           },
         },
-        { phoneNumber: 1 }
+        { phoneNumber: 1 },
       );
 
       const phoneNumberInt = leadInt.map((ele) => ele.phoneNumber);
@@ -3882,7 +3882,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
             : {}),
           deadline: { $gte: new Date() },
         },
-        { _id: 1, lead: 1, type: 1 }
+        { _id: 1, lead: 1, type: 1 },
       );
       let liveLeadTask = taskIds.filter((task) => task.type == "live-lead");
       let liveLeadMap = liveLeadTask.map((task) => task._id);
@@ -3908,10 +3908,10 @@ export const getAssignedToSalesManger = async (req, res, next) => {
             : {}),
           deadline: { $gte: new Date() },
         },
-        { _id: 1, type: 1 }
+        { _id: 1, type: 1 },
       );
       let transferLeadTask = taskIds.filter(
-        (task) => task.type == "transfer-lead"
+        (task) => task.type == "transfer-lead",
       );
       ids = transferLeadTask.map((task) => task._id);
       // let transferLeadMap = transferLeadTask.map((task) => task._id);
@@ -4133,7 +4133,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
 
     const sortedLeads = respLeads.map((ele) => {
       ele.callHistory.sort(
-        (a, b) => new Date(b.callDate) - new Date(a.callDate)
+        (a, b) => new Date(b.callDate) - new Date(a.callDate),
       );
       return ele;
     });
@@ -4301,7 +4301,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
         bookingCount,
         length: respLeads.length,
         data: sortedLeads,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -4829,12 +4829,12 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval == "quarterly") {
       const quarter = Math.floor(currentDate.getMonth() / 3);
@@ -4959,7 +4959,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
       .populate(leadPopulateOptions);
     const sortedLeads = respLeads.map((ele) => {
       ele.callHistory.sort(
-        (a, b) => new Date(b.callDate) - new Date(a.callDate)
+        (a, b) => new Date(b.callDate) - new Date(a.callDate),
       );
       return ele;
     });
@@ -5348,7 +5348,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
         totalItemsCount,
         length: respLeads.length,
         data: sortedLeads,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -5443,7 +5443,7 @@ export const leadUpdateStatus = async (req, res, next) => {
     return res.send(
       successRes(200, "Status Updated", {
         data: foundLead,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -5467,12 +5467,12 @@ export const getLeadTeamLeaderGraph = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval === "quarterly") {
       const quarter = Math.floor(currentDate.getMonth() / 3);
@@ -5490,12 +5490,12 @@ export const getLeadTeamLeaderGraph = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     }
 
@@ -5819,7 +5819,7 @@ export const getLeadTeamLeaderGraph = async (req, res, next) => {
           bookingWalkinCount,
           bookingCpCount,
         },
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error", error));
@@ -6068,7 +6068,7 @@ export const getLeadTeamLeaderReportingToGraph = async (req, res, next) => {
           // revisitToBookingCount,
           // leadToBookingCount,
         },
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error", error));
@@ -6150,7 +6150,7 @@ export const getLeadsPreSalesExecutive = async (req, res, next) => {
       .populate(leadPopulateOptions);
     const sortedLeads = respLeads.map((ele) => {
       ele.callHistory.sort(
-        (a, b) => new Date(b.callDate) - new Date(a.callDate)
+        (a, b) => new Date(b.callDate) - new Date(a.callDate),
       );
       return ele;
     });
@@ -6210,7 +6210,7 @@ export const getLeadsPreSalesExecutive = async (req, res, next) => {
         revisitCount,
         bookingCount,
         data: sortedLeads,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -6524,7 +6524,7 @@ export const searchLeads = async (req, res, next) => {
           },
         ],
       };
-    }else if (status === "exhibition-2025") {
+    } else if (status === "exhibition-2025") {
       statusToFind = {
         ...statusToFind,
         $and: [
@@ -6598,12 +6598,12 @@ export const searchLeads = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval == "quarterly") {
       const quarter = Math.floor(currentDate.getMonth() / 3);
@@ -6661,14 +6661,14 @@ export const searchLeads = async (req, res, next) => {
               regex: query,
             },
           },
-        }
+        },
       );
     }
 
     orFilters.push(
       { email: { $regex: query, $options: "i" } },
       { address: { $regex: query, $options: "i" } },
-      { interestedStatus: { $regex: query, $options: "i" } }
+      { interestedStatus: { $regex: query, $options: "i" } },
     );
 
     let searchFilter = {
@@ -6699,8 +6699,8 @@ export const searchLeads = async (req, res, next) => {
             },
           }
         : leadstatus
-        ? { interestedStatus: leadstatus }
-        : {}),
+          ? { interestedStatus: leadstatus }
+          : {}),
       // ...(lostStatus === "lost"
       //   ? {
       //       $expr: {
@@ -6742,7 +6742,7 @@ export const searchLeads = async (req, res, next) => {
       .populate(leadPopulateOptions);
     const sortedLeads = respCP.map((ele) => {
       ele.callHistory.sort(
-        (a, b) => new Date(b.callDate) - new Date(a.callDate)
+        (a, b) => new Date(b.callDate) - new Date(a.callDate),
       );
       return ele;
     });
@@ -6903,7 +6903,7 @@ export const searchLeads = async (req, res, next) => {
         internalLeadCount,
         bulkCount,
         data: sortedLeads,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -7081,14 +7081,14 @@ export const searchLeadsChannelPartner = async (req, res, next) => {
               regex: query,
             },
           },
-        }
+        },
       );
     }
 
     orFilters.push(
       { email: { $regex: query, $options: "i" } },
       { address: { $regex: query, $options: "i" } },
-      { interestedStatus: { $regex: query, $options: "i" } }
+      { interestedStatus: { $regex: query, $options: "i" } },
       //  {
       // hideStatus: false,
       //},
@@ -7304,7 +7304,7 @@ export const searchLeadsChannelPartner = async (req, res, next) => {
         rejectedCount,
         lineUpCount,
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -7321,13 +7321,13 @@ export const getLeadById = async (req, res, next) => {
 
     if (!respLead) return errorRes(404, "No lead found");
     respLead.callHistory.sort(
-      (a, b) => new Date(b.callDate) - new Date(a.callDate)
+      (a, b) => new Date(b.callDate) - new Date(a.callDate),
     );
 
     return res.send(
       successRes(200, "lead by id", {
         data: respLead,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -7358,7 +7358,7 @@ export const getLeadByBookingId = async (req, res, next) => {
     return res.send(
       successRes(200, "lead by id", {
         data: respLead,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -7390,7 +7390,7 @@ export const getSimilarLeadsById = async (req, res, next) => {
     return res.send(
       successRes(200, "Similar Leads", {
         data: similarLeads,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -7415,12 +7415,12 @@ export const getSiteVisitLeadByPhoneNumber = async (req, res) => {
       return res.send(
         successRes(404, `Site vist not found with id:${phoneNumber}`, {
           data: respSite,
-        })
+        }),
       );
     return res.send(
       successRes(200, "lead by id", {
         data: respSite,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `server error:${error?.message}`));
@@ -7501,8 +7501,8 @@ export const addLead = async (req, res, next) => {
         return res.send(
           errorRes(
             409,
-            `You cannot create the same lead with phone number ${phoneNumber} within 91 days.`
-          )
+            `You cannot create the same lead with phone number ${phoneNumber} within 91 days.`,
+          ),
         );
       }
     }
@@ -7555,8 +7555,8 @@ export const addLead = async (req, res, next) => {
           {
             existingLead: existingLeadForOtherCP,
             data: newLead,
-          }
-        )
+          },
+        ),
       );
     }
     // console.log("p8");
@@ -7597,7 +7597,7 @@ export const addLead = async (req, res, next) => {
     return res.send(
       successRes(200, `Lead added successfully: ${firstName} ${lastName}`, {
         data: newLead,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -7639,7 +7639,7 @@ export const updateLead = async (req, res, next) => {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     // Check if the lead was updated successfully
@@ -7649,7 +7649,7 @@ export const updateLead = async (req, res, next) => {
     return res.send(
       successRes(200, `Lead updated successfully`, {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -7690,13 +7690,13 @@ export const rejectLeadById = async (req, res, next) => {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     return res.send(
       successRes(200, `Lead Rejected Successfully`, {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -7740,7 +7740,7 @@ export const updateDetailsLead = async (req, res) => {
           propertyType,
           additionLinRemark,
         },
-        { new: true }
+        { new: true },
       )
       .populate(leadPopulateOptions);
 
@@ -7767,7 +7767,7 @@ export const deleteLead = async (req, res, next) => {
     return res.send(
       successRes(200, `Lead deleted successfully with ID: ${id}`, {
         deletedLead,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -7847,7 +7847,7 @@ export const leadAssignToTeamLeader = async (req, res, next) => {
             },
           },
         },
-        { new: true /*runValidators: true*/ }
+        { new: true /*runValidators: true*/ },
       )
       .populate(leadPopulateOptions);
 
@@ -7870,7 +7870,7 @@ export const leadAssignToTeamLeader = async (req, res, next) => {
     }
 
     return res.send(
-      successRes(200, "Lead Assigned Successfully", { data: updatedLead })
+      successRes(200, "Lead Assigned Successfully", { data: updatedLead }),
     );
   } catch (error) {
     return next(error);
@@ -7911,14 +7911,14 @@ export const assignLeadToTeamLeader = async (req, res, next) => {
                 },
               },
             },
-            { new: true, runValidators: true }
+            { new: true, runValidators: true },
           )
           .populate(leadPopulateOptions);
 
         return res.send(
           successRes(200, `Lead is Approved`, {
             data: updatedLead,
-          })
+          }),
         );
       }
       return res.send(errorRes(401, "Team Leader is Already Assigned"));
@@ -7961,7 +7961,7 @@ export const assignLeadToTeamLeader = async (req, res, next) => {
             },
           },
         },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       )
       .populate({
         path: "channelPartner",
@@ -8113,8 +8113,8 @@ export const assignLeadToTeamLeader = async (req, res, next) => {
         }`,
         {
           data: updatedLead,
-        }
-      )
+        },
+      ),
     );
   } catch (error) {
     // console.log("got error" + error?.message);
@@ -8153,7 +8153,7 @@ export const assignLeadToPreSaleExecutive = async (req, res, next) => {
             },
           },
         },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       )
       .populate(leadPopulateOptions);
 
@@ -8177,8 +8177,8 @@ export const assignLeadToPreSaleExecutive = async (req, res, next) => {
         `Lead Assign to Presale Executive ${preSalesExecutive.firstName} ${preSalesExecutive.lastName}`,
         {
           data: updatedLead,
-        }
-      )
+        },
+      ),
     );
   } catch (error) {
     // console.log("got error" + error?.message);
@@ -8203,7 +8203,7 @@ export const updateCallHistoryByPreSaleExcutive = async (req, res, next) => {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
   } catch (error) {}
 };
@@ -8241,7 +8241,7 @@ export const updateCallHistoryPreSales = async (req, res) => {
             },
           },
         },
-        { new: true }
+        { new: true },
       )
       .populate(leadPopulateOptions);
 
@@ -8252,7 +8252,7 @@ export const updateCallHistoryPreSales = async (req, res) => {
     return res.send(
       successRes(200, `Caller updated successfully: ${id}`, {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error updating call history:", error);
@@ -8273,7 +8273,7 @@ export const markLeadAsApproved = async (leadId, employeeId, remark) => {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     return updatedLead;
@@ -8296,7 +8296,7 @@ export const updateLeadDetails = async (leadId, employeeId, changes) => {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     return updatedLead;
@@ -8486,7 +8486,7 @@ export async function getLeadCounts(req, res, next) {
     return res.send(
       successRes(200, "ok", {
         data: formattedMonthlyData,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error getting lead counts:", error);
@@ -9248,7 +9248,7 @@ export async function getLeadCountsByChannelPartnerById(req, res, next) {
     const defaultStartDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() - 2,
-      1
+      1,
     );
     const startOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 1 });
 
@@ -9276,12 +9276,12 @@ export async function getLeadCountsByChannelPartnerById(req, res, next) {
       const firstDayOfMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       const firstDayOfNextMonth = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        1
+        1,
       );
       matchStage.startDate = {
         $gte: firstDayOfMonth,
@@ -9343,7 +9343,7 @@ export async function getLeadCountsByChannelPartnerById(req, res, next) {
       return res.send(
         successRes(200, "ok", {
           data: weekData,
-        })
+        }),
       );
 
       // return res.json(weekData); // Only send weekly data with all days accounted for
@@ -9374,7 +9374,7 @@ export async function getLeadCountsByChannelPartnerById(req, res, next) {
     return res.send(
       successRes(200, "ok", {
         data: formattedMonthlyData,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error getting lead counts by Channel Partner:", error);
@@ -9649,7 +9649,7 @@ export async function getLeadCountsByTeamLeader(req, res, next) {
     return res.send(
       successRes(200, "ok", {
         data: formattedMonthlyData,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error getting lead counts by team leader:", error);
@@ -9994,7 +9994,7 @@ export async function getAllLeadCountsFunnelForPreSaleTL(req, res, next) {
     // Map lead counts to allStatuses to ensure each status is represented
     const responseData = allStatuses.map((status) => {
       const found = leadCounts.find(
-        (item) => item.status === status || item.approvalStatus === status
+        (item) => item.status === status || item.approvalStatus === status,
       );
       return {
         status,
@@ -10004,8 +10004,8 @@ export async function getAllLeadCountsFunnelForPreSaleTL(req, res, next) {
         month: found
           ? found.month
           : interval === "monthly"
-          ? currentMonth
-          : undefined,
+            ? currentMonth
+            : undefined,
         week: found ? found.week : undefined,
         quarter: found ? found.quarter : undefined,
         half: found ? found.half : undefined,
@@ -10083,7 +10083,7 @@ export const getLeadByStartEndDate = async (req, res) => {
       successRes(200, "leads", {
         totalItems: resp.length,
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     res.send(error);
@@ -10144,7 +10144,7 @@ export const generateInternalLeadPdf = async (req, res) => {
         {
           align: "center",
           underline: true,
-        }
+        },
       )
       .moveDown();
 
@@ -10172,12 +10172,12 @@ export const generateInternalLeadPdf = async (req, res) => {
         .text(
           `Name: ${lead.firstName || "N/A"} ${lead.lastName || ""}`,
           50,
-          cardY + 15
+          cardY + 15,
         )
         .text(
           `Phone: ${lead.countryCode + " " + lead.phoneNumber || "N/A"}`,
           50,
-          cardY + 30
+          cardY + 30,
         )
         .text(
           `Alt Phone: ${
@@ -10186,7 +10186,7 @@ export const generateInternalLeadPdf = async (req, res) => {
               : "N/A"
           }`,
           50,
-          cardY + 45
+          cardY + 45,
         )
 
         .text(`Email: ${lead.email || "N/A"}`, 50, cardY + 60)
@@ -10195,12 +10195,12 @@ export const generateInternalLeadPdf = async (req, res) => {
             lead.project?.map((proj) => proj.name)?.join(", ") || "N/A"
           }`,
           50,
-          cardY + 75
+          cardY + 75,
         )
         .text(
           `Requirement: ${lead.requirement?.join(", ") || "N/A"}`,
           50,
-          cardY + 90
+          cardY + 90,
         )
 
         .text(`Status: ${getStatus1(lead) || "N/A"}`, 300, cardY + 15)
@@ -10211,7 +10211,7 @@ export const generateInternalLeadPdf = async (req, res) => {
               (lead.dataAnalyzer?.lastName ?? "") || "N/A"
           }`,
           300,
-          cardY + 30
+          cardY + 30,
         )
         .text(
           `Team Leader: ${
@@ -10220,13 +10220,13 @@ export const generateInternalLeadPdf = async (req, res) => {
               (lead.teamLeader?.lastName ?? "") || "N/A"
           }`,
           300,
-          cardY + 45
+          cardY + 45,
         )
 
         .text(
           `Channel Partner: ${lead.channelPartner?.firmName || "N/A"}`,
           300,
-          cardY + 60
+          cardY + 60,
         )
         // .text(`Status: ${getStatus1(lead) || "N/A"}`, 300, cardY + 60)
         .text(
@@ -10238,7 +10238,7 @@ export const generateInternalLeadPdf = async (req, res) => {
               : "N/A"
           }`,
           300,
-          cardY + 75
+          cardY + 75,
         )
         .text(
           `Deadline: ${
@@ -10249,7 +10249,7 @@ export const generateInternalLeadPdf = async (req, res) => {
               : "N/A"
           }`,
           300,
-          cardY + 90
+          cardY + 90,
         );
 
       // Add some spacing between cards
@@ -10316,7 +10316,7 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
         {
           align: "center",
           underline: true,
-        }
+        },
       )
       .moveDown();
     let i = 1;
@@ -10345,12 +10345,12 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
         .text(
           `Name: ${lead.firstName || "N/A"} ${lead.lastName || ""}`,
           50,
-          cardY + 15
+          cardY + 15,
         )
         .text(
           `Phone: ${lead.countryCode + " " + lead.phoneNumber || "N/A"}`,
           50,
-          cardY + 30
+          cardY + 30,
         )
         .text(
           `Alt Phone: ${
@@ -10359,7 +10359,7 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
               : "N/A"
           }`,
           50,
-          cardY + 45
+          cardY + 45,
         )
 
         .text(`Email: ${lead.email || "N/A"}`, 50, cardY + 60)
@@ -10368,12 +10368,12 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
             lead.project?.map((proj) => proj.name)?.join(", ") || "N/A"
           }`,
           50,
-          cardY + 75
+          cardY + 75,
         )
         .text(
           `Requirement: ${lead.requirement?.join(", ") || "N/A"}`,
           50,
-          cardY + 90
+          cardY + 90,
         )
 
         .text(`Status: ${getStatus1(lead) || "N/A"}`, 300, cardY + 15)
@@ -10383,7 +10383,7 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
             "N/A"
           }`,
           300,
-          cardY + 30
+          cardY + 30,
         )
         .text(
           `Team Leader: ${
@@ -10391,13 +10391,13 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
             "N/A"
           }`,
           300,
-          cardY + 45
+          cardY + 45,
         )
 
         .text(
           `Channel Partner: ${lead.channelPartner?.firmName || "N/A"}`,
           300,
-          cardY + 60
+          cardY + 60,
         )
         // .text(`Status: ${getStatus1(lead) || "N/A"}`, 300, cardY + 60)
         .text(
@@ -10409,7 +10409,7 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
               : "N/A"
           }`,
           300,
-          cardY + 75
+          cardY + 75,
         )
         .text(
           `Valid Till: ${
@@ -10420,7 +10420,7 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
               : "N/A"
           }`,
           300,
-          cardY + 90
+          cardY + 90,
         );
 
       // Add some spacing between cards
@@ -10496,7 +10496,7 @@ export const triggerCycleChange = async (req, res, next) => {
       const revisitDays = [15, 7, 3];
       allCycleExpiredLeads.map((entry) => {
         const lastIndex = teamLeaders.findIndex(
-          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString()
+          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString(),
         );
         const totalTeamLeader = teamLeaders.length;
         const cCycle = { ...entry.cycle }; // Clone cycle object
@@ -10631,7 +10631,7 @@ export const triggerCycleChange = async (req, res, next) => {
             modifiedCount: bulkResult.modifiedCount,
             total: bulkOperations?.length,
             data: bulkOperations,
-          })
+          }),
         );
       }
     }
@@ -10641,7 +10641,7 @@ export const triggerCycleChange = async (req, res, next) => {
       successRes(200, "No cycle changes needed", {
         data: [],
         totalItem: 0,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error updating cycles:", error);
@@ -10834,12 +10834,12 @@ export const get24hrLeadsNameList = async (req, res, next) => {
       });
     // itreseted, not intrested
     const newList = list.map(
-      (ele) => `${ele.channelPartner.firmName} just shared a Lead`
+      (ele) => `${ele.channelPartner.firmName} just shared a Lead`,
     );
     return res.send(
       successRes(200, "got", {
         data: newList,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);
@@ -10885,7 +10885,7 @@ export const triggerCycleChangeFunction = async () => {
 
       allCycleExpiredLeads.forEach((entry) => {
         const lastIndex = teamLeaders.findIndex(
-          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString()
+          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString(),
         );
         const totalTeamLeader = teamLeaders.length;
         const cCycle = { ...entry.cycle };
@@ -11106,7 +11106,7 @@ export const triggerCycleChangeFunctionFix = async () => {
       allCycleExpiredLeads.forEach((entry) => {
         //get lastIndex
         const lastIndex = teamLeaders.findIndex(
-          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString()
+          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString(),
         );
         const cCycle = { ...entry.cycle };
         const previousCycle = { ...cCycle };
@@ -11424,7 +11424,7 @@ export const getlast24HrNotAssignedLeads = async () => {
               moment(entry.cycle?.startDate)
                 .tz("Asia/Kolkata")
                 .format("DD-MM-YYYY hh:mm:ss") ?? "NA",
-              `${entry?.teamLeader?.firstName} ${entry?.teamLeader?.lastName}`
+              `${entry?.teamLeader?.firstName} ${entry?.teamLeader?.lastName}`,
             ),
             [],
             [
@@ -11433,7 +11433,7 @@ export const getlast24HrNotAssignedLeads = async () => {
               "ricki@evgroup.co.in",
               "pavan@evgroup.co.in",
               "evhomes.operations@evgroup.co.in",
-            ]
+            ],
           );
 
           taskOperations.push({
@@ -11449,7 +11449,7 @@ export const getlast24HrNotAssignedLeads = async () => {
           //
           // console.log(error);
         }
-      })
+      }),
     );
     // console.log(taskOperations.length);
     // console.log(resp.length);
@@ -11486,7 +11486,7 @@ export const getlast24HrNotFeedbackLeads = async () => {
       (tsk) =>
         tsk.lead?.callHistory?.length <= 0 &&
         tsk.lead?.taskRef?._id?.toString() ===
-          tsk._id?.toString() /* && tsk.lead?.cycle?.stage === "visit"*/
+          tsk._id?.toString() /* && tsk.lead?.cycle?.stage === "visit"*/,
     );
     // console.log(filteredTasks[0]?.lead);
 
@@ -11528,7 +11528,7 @@ export const getlast24HrNotFeedbackLeads = async () => {
               moment(entry.assignDate)
                 .tz("Asia/Kolkata")
                 .format("DD-MM-YYYY hh:mm:ss") ?? "NA",
-              eStatus
+              eStatus,
             ),
             [],
             [
@@ -11536,7 +11536,7 @@ export const getlast24HrNotFeedbackLeads = async () => {
               "pavan@evgroup.co.in",
               "ricki@evgroup.co.in",
               "evhomes.operations@evgroup.co.in",
-            ]
+            ],
           );
 
           taskOperations.push({
@@ -11552,7 +11552,7 @@ export const getlast24HrNotFeedbackLeads = async () => {
           //
           // console.log(error);
         }
-      })
+      }),
     );
     // console.log(filteredTasks.length);
     // console.log(taskOperations.length);
@@ -11604,7 +11604,7 @@ export const addLeadV2Autmated = async (req, res, next) => {
 
     if (existingLead) {
       return res.send(
-        errorRes(409, `Same lead with already exist with phone number.`)
+        errorRes(409, `Same lead with already exist with phone number.`),
       );
     }
 
@@ -11768,7 +11768,7 @@ export const addLeadV2Autmated = async (req, res, next) => {
     try {
       //
       const getPlayerIds = foundTLPlayerId.find(
-        (dt) => dt.docId === teamLeaderId
+        (dt) => dt.docId === teamLeaderId,
       );
       const allIt2 = [...getIds2, getPlayerIds];
       const allIt = allIt2.filter((ele) => ele != "");
@@ -11787,7 +11787,7 @@ export const addLeadV2Autmated = async (req, res, next) => {
             title: `Reminder ${i}: Lead Still Waiting!`,
             message: `Please act on the new lead assigned to you.`,
           },
-          { delay }
+          { delay },
         );
 
         try {
@@ -11799,7 +11799,7 @@ export const addLeadV2Autmated = async (req, res, next) => {
               title: `Reminder ${i}: Lead Still Waiting!`,
               message: `Please act on the new lead assigned to you.`,
             },
-            { delay }
+            { delay },
           );
         } catch (error) {
           //
@@ -11841,7 +11841,7 @@ export const addLeadV2Autmated = async (req, res, next) => {
     return res.send(
       successRes(200, `Lead added successfully: ${firstName} ${lastName}`, {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -11868,7 +11868,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
 
   try {
     if (!body) return res.send(errorRes(403, "Data is required"));
-    console.log(body);
+    // console.log(body);
 
     const validFields = validateRequiredLeadsFields(body);
     // console.log("p3");
@@ -11890,7 +11890,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
 
     if (existingLead) {
       return res.send(
-        errorRes(409, `Same lead with already exist with phone number.`)
+        errorRes(409, `Same lead with already exist with phone number.`),
       );
     }
 
@@ -11917,7 +11917,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     const foundPeriod = await periodModel.findOne(filter);
     if (!foundPeriod) {
       return res.send(
-        errorRes(404, `No Active Period Found Please Refresh the Period`)
+        errorRes(404, `No Active Period Found Please Refresh the Period`),
       );
     }
     let currentRTurn;
@@ -11925,7 +11925,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     let whichTurn;
     // code for ranking period
     if (foundPeriod.period === "ranking-period") {
-      console.log("its ranking period");
+      // console.log("its ranking period");
       // update ranking if any
       await getCurrentRanks();
       // refresh ranking
@@ -11933,7 +11933,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
 
       // get teamleader from that turn
       currentTurnIndex = currentRTurn.ranking.findIndex(
-        (ele) => ele.isMyTurn === true
+        (ele) => ele.isMyTurn === true,
       );
       // if fails
       if (currentTurnIndex === -1) {
@@ -11942,11 +11942,11 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
       // find whoseTurn is now
       const currentTurn = currentRTurn.ranking[currentTurnIndex];
       teamLeaderId = currentTurn.user;
-      console.log("ranking period tl " + teamLeaderId);
+      // console.log("ranking period tl " + teamLeaderId);
     }
     // for sample period
     else {
-      console.log("its sample period");
+      // console.log("its sample period");
 
       // console.log("p5");
       whichTurn = await TeamLeaderAssignTurn.findOne({});
@@ -11954,7 +11954,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
 
       const teamLeaders = whichTurn.listOfTeamLeaders;
       teamLeaderId = teamLeaders[whichTurn?.currentOrder];
-      console.log("sample period tl " + teamLeaderId);
+      // console.log("sample period tl " + teamLeaderId);
     }
 
     let curDate = moment().tz("Asia/Kolkata");
@@ -12042,16 +12042,16 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     if (foundPeriod.period === "ranking-period") {
       try {
         //
-        console.log("ranking period update 1");
+        // console.log("ranking period update 1");
         const currentTurn = currentRTurn.ranking[currentTurnIndex];
 
         // push lead id to turn.leads
         currentRTurn.ranking[currentTurnIndex].leads.push(newLead._id);
-        console.log("ranking period leads pushed");
+        // console.log("ranking period leads pushed");
 
         // append leads given count
         if (currentTurn.leadsGiven + 1 >= currentTurn.leadsShouldRecieve) {
-          console.log("ranking period is last lead given");
+          // console.log("ranking period is last lead given");
           //
           // check if leads should be leads-given is eq to should-be-given;
           currentRTurn.ranking[currentTurnIndex].isMyTurn = false;
@@ -12060,7 +12060,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
             (currentTurnIndex + 1) % currentRTurn.ranking.length;
           currentRTurn.ranking[nextIndex].isMyTurn = true;
           currentRTurn.ranking[nextIndex].leadsGiven = 0;
-          console.log("ranking period isMyturn Changes to - ", nextIndex);
+          // console.log("ranking period isMyturn Changes to - ", nextIndex);
         }
         currentRTurn.ranking[currentTurnIndex].leadsGiven =
           currentTurn.leadsGiven + 1;
@@ -12073,7 +12073,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     }
     // update on sample period tl -sequence
     if (leadType != "internal-lead" && foundPeriod.period != "ranking-period") {
-      console.log("sample period updates 1");
+      // console.log("sample period updates 1");
 
       let nextOrder = whichTurn?.currentOrder + 1;
       const teamLeaders = whichTurn.listOfTeamLeaders;
@@ -12081,7 +12081,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
       // Reset to 0 if nextOrder exceeds the length of teamLeaders
       if (nextOrder >= teamLeaders.length) {
         nextOrder = 0;
-        console.log("sample period last TL - changing now");
+        // console.log("sample period last TL - changing now");
       }
       // Update the currentOrder in the database
       await whichTurn.updateOne({
@@ -12089,7 +12089,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
         nextAssignTeamLeader: teamLeaders[nextOrder],
         currentOrder: nextOrder,
       });
-      console.log("sample period last TL - sequence updated");
+      // console.log("sample period last TL - sequence updated");
     }
 
     // console.log("p9");
@@ -12142,7 +12142,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     try {
       //
       const getPlayerIds = foundTLPlayerId.find(
-        (dt) => dt.docId === teamLeaderId
+        (dt) => dt.docId === teamLeaderId,
       );
       const allIt2 = [...getIds2, getPlayerIds];
       const allIt = allIt2.filter((ele) => ele != "");
@@ -12159,7 +12159,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
             title: `Reminder ${i}: Lead Still Waiting!`,
             message: `Please act on the new lead assigned to you.`,
           },
-          { delay }
+          { delay },
         );
         try {
           await notificationQueue.add(
@@ -12170,7 +12170,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
               title: `Reminder ${i}: Lead Still Waiting!`,
               message: `Please act on the new lead assigned to you.`,
             },
-            { delay }
+            { delay },
           );
         } catch (error) {
           //
@@ -12187,7 +12187,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     return res.send(
       successRes(200, `Lead added successfully: ${firstName} ${lastName}`, {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);

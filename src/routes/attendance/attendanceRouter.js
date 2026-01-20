@@ -51,7 +51,7 @@ const attendanceRouter = express.Router();
 attendanceRouter.get(
   "/checkout-pending/:id",
   authenticateToken,
-  getPendingCheckout
+  getPendingCheckout,
 );
 
 // Check-In Endpoint
@@ -61,27 +61,27 @@ attendanceRouter.post("/check-in", authenticateToken, checkIn);
 attendanceRouter.get(
   "/get-check-in/:id",
   authenticateToken,
-  getCheckInByUserId
+  getCheckInByUserId,
 );
 
 // Check-In Endpoint
 attendanceRouter.get(
   "/get-check-in-by-date",
   authenticateToken,
-  getCheckInByDate
+  getCheckInByDate,
 );
 
 // Check-In Endpoint
 attendanceRouter.get(
   "/get-grace-applicable-records",
   authenticateToken,
-  getGraceApplicableRecords
+  getGraceApplicableRecords,
 );
 
 attendanceRouter.post(
   "/apply-grace-time/:id",
   authenticateToken,
-  applyGraceTime
+  applyGraceTime,
 );
 
 // Break Start Endpoint
@@ -108,56 +108,56 @@ attendanceRouter.get(
 
   // authenticateToken,
 
-  getMyAttendance
+  getMyAttendance,
 );
 
 attendanceRouter.post(
   "/update-attendance-with-remark/:id",
   authenticateToken,
-  updateAttendanceById
+  updateAttendanceById,
 );
 
 attendanceRouter.get(
   "/attendance-all/:id",
   authenticateToken,
-  getAllMyAttendance
+  getAllMyAttendance,
 );
 
 attendanceRouter.get(
   "/export-attendance",
   authenticateToken,
   // exportAtendance
-  exportAttendance3
+  exportAttendance3,
 );
 
 attendanceRouter.get(
   "/export-attendance-2",
   authenticateToken,
-  exportAttendance3
+  exportAttendance3,
 );
 attendanceRouter.get(
   "/export-attendance-3",
   // authenticateToken,
-  exportAttendance3
+  exportAttendance3,
 );
 
 attendanceRouter.get(
   "/generate-comp-of-monthly",
   // authenticateToken,
-  generateCompensatoryOffLatest
+  generateCompensatoryOffLatest,
 );
 
 attendanceRouter.get(
   "/generate-comp-of-monthly-latest",
   // authenticateToken,
-  generateCompensatoryOffV2
+  generateCompensatoryOffV2,
 );
 
 attendanceRouter.get(
   "/absence-record/:id",
   authenticateToken,
 
-  getPreviousRecord
+  getPreviousRecord,
 );
 
 attendanceRouter.post("/attendance-log-update", async (req, res) => {
@@ -216,7 +216,7 @@ attendanceRouter.post("/attendance-add-date", async (req, res) => {
           ele.date = new Date(ele.year, ele.month - 1, ele.day, 9, 0);
         }
         return ele;
-      })
+      }),
     );
     return res.send({
       total: resp?.length,
@@ -439,11 +439,11 @@ attendanceRouter.get("/attendance-ot-count", async (req, res) => {
     const buffer = await workbook.xlsx.writeBuffer();
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=${id}_${thisMonthYearDash}_attendance.xlsx`
+      `attachment; filename=${id}_${thisMonthYearDash}_attendance.xlsx`,
     );
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
 
     return res.send(buffer);
@@ -629,8 +629,8 @@ attendanceRouter.get("/attendance-ot-count-2", async (req, res) => {
         ele.status === "active"
           ? "half-day"
           : ele.status === "on-compensation-off-leave"
-          ? "comp-off"
-          : ele.status;
+            ? "comp-off"
+            : ele.status;
 
       if (date.day() === 0 && ele.status === "absent") {
         status = "weekoff";
@@ -696,7 +696,7 @@ attendanceRouter.get("/attendance-ot-count-2", async (req, res) => {
     });
 
     const idk = distributeHours(
-      attOverview.activeHours - attOverview.requiredHours
+      attOverview.activeHours - attOverview.requiredHours,
     );
     // console.log(idk);
 
@@ -796,11 +796,11 @@ attendanceRouter.get("/attendance-ot-count-2", async (req, res) => {
     const buffer = await workbook.xlsx.writeBuffer();
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=${id}_${thisMonthYearDash}_attendance.xlsx`
+      `attachment; filename=${id}_${thisMonthYearDash}_attendance.xlsx`,
     );
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
 
     return res.send(buffer);
@@ -986,7 +986,7 @@ attendanceRouter.get("/attendance-leave-dur-update", async (req, res) => {
         });
         if (foundLv) {
           //
-          console.log(foundLv.dayType);
+          // console.log(foundLv.dayType);
           await attendanceModel.findByIdAndUpdate(ele._id, {
             leaveDuration: foundLv.dayType === "half-day" ? 0.5 : 1,
           });
@@ -996,7 +996,7 @@ attendanceRouter.get("/attendance-leave-dur-update", async (req, res) => {
         } catch (error) {
           //
         }
-      })
+      }),
     );
 
     res.send({

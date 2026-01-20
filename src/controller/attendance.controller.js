@@ -52,13 +52,13 @@ export const getPendingCheckout = async (req, res, next) => {
       currentDate.getMonth(),
       currentDate.getDate(),
       0,
-      0
+      0,
     );
 
     const startOfMonth = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
-      1
+      1,
     );
     const endOfMonth = new Date(
       currentDate.getFullYear(),
@@ -66,7 +66,7 @@ export const getPendingCheckout = async (req, res, next) => {
       0,
       23,
       59,
-      59
+      59,
     );
 
     const filter = {
@@ -96,7 +96,7 @@ export const getPendingCheckout = async (req, res, next) => {
       }
 
       const findShift = shiftsInfos.find(
-        (ele2) => ele2.userId?._id === ele.userId?._id
+        (ele2) => ele2.userId?._id === ele.userId?._id,
       );
       if (!findShift) return false;
       // if(!ele.checkInTime) return false;
@@ -145,7 +145,7 @@ export const getPendingCheckout = async (req, res, next) => {
       // console.log(totalShiftHours);
       // Find user's shift info
       const findShift = shiftsInfos.find(
-        (shift) => shift.userId?._id === ele.userId?._id
+        (shift) => shift.userId?._id === ele.userId?._id,
       );
 
       if (!findShift || !findShift.shift?.workingHours) return false;
@@ -217,7 +217,7 @@ export const getPendingCheckout = async (req, res, next) => {
         earlyLeaverCount,
         absentCount,
         data: filteredCheckouts,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -369,15 +369,15 @@ export const checkIn = async (req, res) => {
               : `Marked as ${statusWillBe}`,
             {
               data: updated,
-            }
-          )
+            },
+          ),
         );
       }
 
       return res.send(
         successRes(400, "User has already checked in today", {
           data: existingAttendance,
-        })
+        }),
       );
     }
 
@@ -436,8 +436,8 @@ export const checkIn = async (req, res) => {
         statusWillBe === "active"
           ? "Check-in successful"
           : `Marked as ${statusWillBe}`,
-        { data: newAtt }
-      )
+        { data: newAtt },
+      ),
     );
   } catch (error) {
     console.error(error);
@@ -614,7 +614,7 @@ export const checkOut = async (req, res) => {
     }
 
     return res.send(
-      successRes(200, "Check-out successful", { data: attendance })
+      successRes(200, "Check-out successful", { data: attendance }),
     );
   } catch (error) {
     // console.error(error);
@@ -825,7 +825,7 @@ export const checkOutV2 = async (req, res) => {
     }
 
     return res.send(
-      successRes(200, "Check-out successful", { data: attendance })
+      successRes(200, "Check-out successful", { data: attendance }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -1025,7 +1025,7 @@ export const revisedCheckOutV2 = async (req, res) => {
     }
 
     return res.send(
-      successRes(200, "Check-out successful", { data: attendance })
+      successRes(200, "Check-out successful", { data: attendance }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Internal Server Error ${error}`));
@@ -1075,7 +1075,7 @@ export const getCheckInByUserId = async (req, res) => {
     return res.send(
       successRes(200, "Checked In", {
         data: existingAttendance,
-      })
+      }),
     );
   } catch (error) {
     console.error(error);
@@ -1105,7 +1105,7 @@ export const getCheckInByDate = async (req, res) => {
       return res.send(
         successRes(200, "Attendance List -cached", {
           ...cached,
-        })
+        }),
       );
     }
     if (filter === "day") {
@@ -1168,21 +1168,21 @@ export const getCheckInByDate = async (req, res) => {
       .find()
       .populate(employeeShiftInfoPopulateOptions);
     const presentList = existingAttendance.filter(
-      (ele) => ele.status === "active" || ele.status === "present"
+      (ele) => ele.status === "active" || ele.status === "present",
     );
     const absentList = existingAttendance.filter(
-      (ele) => ele.status === "absent"
+      (ele) => ele.status === "absent",
     );
     const halfDayList = existingAttendance.filter(
-      (ele) => ele.status === "half-day"
+      (ele) => ele.status === "half-day",
     );
 
     const weekOffList = existingAttendance.filter(
-      (ele) => ele.status === "weekoff"
+      (ele) => ele.status === "weekoff",
     );
 
     const onLeaveList = existingAttendance.filter(
-      (ele) => ele.status === "on-leave"
+      (ele) => ele.status === "on-leave",
     );
 
     const lateComersList = presentList.filter((ele) => {
@@ -1192,7 +1192,7 @@ export const getCheckInByDate = async (req, res) => {
       const now2 = moment(ele.checkInTime);
 
       const myLeaves = allLeaves.find(
-        (ele2) => ele2?.userId?._id === ele?.userId?._id
+        (ele2) => ele2?.userId?._id === ele?.userId?._id,
       );
 
       if (!myLeaves) return true;
@@ -1261,7 +1261,7 @@ export const getCheckInByDate = async (req, res) => {
           lateComersList,
           earlyLeaversList,
         },
-        86400
+        86400,
       );
     }
 
@@ -1282,7 +1282,7 @@ export const getCheckInByDate = async (req, res) => {
         onLeaveList,
         lateComersList,
         earlyLeaversList,
-      })
+      }),
     );
   } catch (error) {
     console.error(error);
@@ -1421,7 +1421,7 @@ export const getGraceApplicableRecords = async (req, res) => {
     return res.send(
       successRes(200, "Attendance List", {
         data: filteredList,
-      })
+      }),
     );
   } catch (error) {
     console.error(error);
@@ -1478,7 +1478,7 @@ export const applyGraceTime = async (req, res) => {
       //
     }
     return res.send(
-      successRes(200, "Grace time applied successfully", { data: attendance })
+      successRes(200, "Grace time applied successfully", { data: attendance }),
     );
   } catch (e) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -1511,7 +1511,7 @@ export const breakStart = async (req, res) => {
     await attendance.save();
 
     return res.send(
-      successRes(200, "Break started successfully", { data: attendance })
+      successRes(200, "Break started successfully", { data: attendance }),
     );
   } catch (error) {
     console.error(error);
@@ -1543,7 +1543,7 @@ export const breakEnd = async (req, res) => {
     await attendance.save();
 
     return res.send(
-      successRes(200, "Break ended successfully", { data: attendance })
+      successRes(200, "Break ended successfully", { data: attendance }),
     );
   } catch (error) {
     console.error(error);
@@ -1585,7 +1585,7 @@ export const manualEntry = async (req, res) => {
 
     await attendance.save();
     return res.send(
-      successRes(200, "Manual entry added successfully", { data: attendance })
+      successRes(200, "Manual entry added successfully", { data: attendance }),
     );
   } catch (error) {
     console.error(error);
@@ -1625,7 +1625,7 @@ export const updateTimeLine = async (req, res) => {
 
     await attendance.save();
     return res.send(
-      successRes(200, "Timeline updated successfully", { data: attendance })
+      successRes(200, "Timeline updated successfully", { data: attendance }),
     );
   } catch (error) {
     console.error(error);
@@ -1659,7 +1659,7 @@ export const getMyAttendance = async (req, res) => {
     return res.send(
       successRes(200, "attendance", {
         data: resp,
-      })
+      }),
     );
   } catch (e) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -1695,7 +1695,7 @@ export const updateAttendanceById = async (req, res) => {
             userId: resp?.userId,
           },
           { $inc: { compensatoryoff: 1 } },
-          { new: true }
+          { new: true },
         );
       } catch (error) {
         console.log(error);
@@ -1718,7 +1718,7 @@ export const updateAttendanceById = async (req, res) => {
             userId: resp?.userId,
           },
           { $inc: { compensatoryoff: 1 } },
-          { new: true }
+          { new: true },
         );
       } catch (error) {
         console.log(error);
@@ -1748,7 +1748,7 @@ export const updateAttendanceById = async (req, res) => {
         {
           $set: updates,
         },
-        { new: true }
+        { new: true },
       )
       .populate(attendancePopulateOption);
 
@@ -1832,7 +1832,7 @@ export const updateAttendanceById = async (req, res) => {
     return res.send(
       successRes(200, "updated Attendance", {
         data: updatedRecord,
-      })
+      }),
     );
   } catch (e) {
     // console.log(e);
@@ -1865,7 +1865,7 @@ export const getAllMyAttendance = async (req, res) => {
       const cached = await RedisService.set(
         `all_attendance_list_${id}`,
         resp,
-        86400
+        86400,
       );
     } catch (error) {
       //
@@ -1873,7 +1873,7 @@ export const getAllMyAttendance = async (req, res) => {
     return res.send(
       successRes(200, "attendance", {
         data: resp,
-      })
+      }),
     );
   } catch (e) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -1894,7 +1894,7 @@ export const triggerMonthlyCompOff = async (req, res) => {
 
     const totalWorkHrs = totalDays * minWorkHours;
 
-    console.log(totalWorkHrs); // monthly working hrs
+    // console.log(totalWorkHrs); // monthly working hrs
 
     //1. get total attendance of current month
     const resp = await attendanceModel.find({
@@ -1913,8 +1913,8 @@ export const triggerMonthlyCompOff = async (req, res) => {
       const checkIntime = moment(att.checkInTime).tz("Asia/Kolkata");
       const checkOutTime = moment(att.checkOutTime).tz("Asia/Kolkata");
 
-      console.log(checkIntime);
-      console.log(att.checkOutTime);
+      // console.log(checkIntime);
+      // console.log(att.checkOutTime);
 
       const diffInHours = checkOutTime.diff(checkIntime, "hour");
       totalActiveHrs += diffInHours;
@@ -1922,8 +1922,8 @@ export const triggerMonthlyCompOff = async (req, res) => {
 
     //
 
-    console.log(`totalActiveHrs ${totalActiveHrs}`);
-    console.log(`holidayDays ${holidayDays}`);
+    // console.log(`totalActiveHrs ${totalActiveHrs}`);
+    // console.log(`holidayDays ${holidayDays}`);
 
     // console.log(currentDate.daysInMonth());
 
@@ -2166,7 +2166,7 @@ export const exportAtendance = async (req, res) => {
       "Total Present Days",
       "Total Absent Days",
       "Total Leaves Taken",
-      "Payable Days"
+      "Payable Days",
     );
 
     // Prepare data rows for Excel
@@ -2256,7 +2256,7 @@ export const exportAttendance2 = async (req, res) => {
 
       if (!usersAttendance[user._id]) {
         const foundShiftInfo = shiftsInfos.find(
-          (ele) => ele.userId === user._id
+          (ele) => ele.userId === user._id,
         );
         usersAttendance[user._id] = {
           user: {
@@ -2298,25 +2298,21 @@ export const exportAttendance2 = async (req, res) => {
 
         const duration = moment.duration(timeOut.diff(timeIn));
         const totalHours = `${Math.floor(
-          duration.asHours()
+          duration.asHours(),
         )}h ${duration.minutes()}m`;
 
         if (record.wlStatus === "weekoff") {
-          usersAttendance[user._id].days[
-            dayIndex
-          ] = `P/WO (${timeInStr}-${timeOutStr}, ${totalHours})`;
+          usersAttendance[user._id].days[dayIndex] =
+            `P/WO (${timeInStr}-${timeOutStr}, ${totalHours})`;
         } else if (record.wlStatus === "on-paid-leave") {
-          usersAttendance[user._id].days[
-            dayIndex
-          ] = `P(PL) (${timeInStr}-${timeOutStr}, ${totalHours})`;
+          usersAttendance[user._id].days[dayIndex] =
+            `P(PL) (${timeInStr}-${timeOutStr}, ${totalHours})`;
         } else if (record.wlStatus === "on-casual-leave") {
-          usersAttendance[user._id].days[
-            dayIndex
-          ] = `P(CL) (${timeInStr}-${timeOutStr}, ${totalHours})`;
+          usersAttendance[user._id].days[dayIndex] =
+            `P(CL) (${timeInStr}-${timeOutStr}, ${totalHours})`;
         } else {
-          usersAttendance[user._id].days[
-            dayIndex
-          ] = `P (${timeInStr}-${timeOutStr}, ${totalHours})`;
+          usersAttendance[user._id].days[dayIndex] =
+            `P (${timeInStr}-${timeOutStr}, ${totalHours})`;
         }
 
         usersAttendance[user._id].present += 1;
@@ -2349,12 +2345,11 @@ export const exportAttendance2 = async (req, res) => {
 
         const duration = moment.duration(timeOut.diff(timeIn));
         const totalHours = `${Math.floor(
-          duration.asHours()
+          duration.asHours(),
         )}h ${duration.minutes()}m`;
 
-        usersAttendance[user._id].days[
-          dayIndex
-        ] = `HD (${timeInStr}-${timeOutStr}, ${totalHours})`;
+        usersAttendance[user._id].days[dayIndex] =
+          `HD (${timeInStr}-${timeOutStr}, ${totalHours})`;
         usersAttendance[user._id].absent -= 0.5;
         usersAttendance[user._id].present += 0.5;
       } else if (record.status === "holiday") {
@@ -2512,7 +2507,7 @@ export const exportAttendance2 = async (req, res) => {
         division: attendance.user.division?.division,
         department: attendance.user.department?.department,
         ...Object.fromEntries(
-          attendance.days.map((status, i) => [`day${i + 1}`, status])
+          attendance.days.map((status, i) => [`day${i + 1}`, status]),
         ),
         present: attendance.present,
         weekOff: attendance.onWeekOff,
@@ -2582,11 +2577,11 @@ export const exportAttendance2 = async (req, res) => {
     } else {
       res.setHeader(
         "Content-Disposition",
-        "attachment; filename=detailed_attendance.xlsx"
+        "attachment; filename=detailed_attendance.xlsx",
       );
       res.setHeader(
         "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       );
 
       res.download(filePath, fileName, (err) => {
@@ -2693,13 +2688,13 @@ export const insertDailyAttendance = async () => {
             {
               new: true,
               upsert: true, // Create the record if it doesn't exist
-            }
+            },
           );
           resp2.push(resp3);
         } catch (error) {
           // console.error("Error updating attendance:", error);
         }
-      })
+      }),
     );
     return resp2;
   } catch (error) {
@@ -2723,7 +2718,7 @@ export const markPendingDailyAttendance = async () => {
         year: today.getFullYear(),
         checkOutTime: null,
       },
-      { status: "pending" }
+      { status: "pending" },
     );
 
     return pendingresp;
@@ -2756,7 +2751,7 @@ export const getPreviousRecord = async (req, res) => {
     return res.send(
       successRes(200, "Please update the status in your attendance", {
         data: absentRecord,
-      })
+      }),
     );
   } catch (e) {
     console.log(e);
@@ -2867,7 +2862,7 @@ export const insertMonthlyAttendance = async () => {
     // console.log(dateArray);
     const employees = await employeeModel.find(
       { _id: "EV288-sangita-hinge", status: "active" },
-      "_id"
+      "_id",
     );
 
     await Promise.all(
@@ -2902,15 +2897,15 @@ export const insertMonthlyAttendance = async () => {
                 {
                   new: true,
                   upsert: true, // Create the record if it doesn't exist
-                }
+                },
               );
               resp2.push(resp3);
             } catch (error) {
               console.error("Error updating attendance:", error);
             }
-          })
+          }),
         );
-      })
+      }),
     );
     // const formattedDate = moment
     //   .tz("Asia/Kolkata")
@@ -3265,7 +3260,7 @@ export const exportAttendance3 = async (req, res) => {
 
       const mDate = moment.tz(
         { year: currentYear, month: currentMonth - 1, day: i },
-        timeZone
+        timeZone,
       );
       const weekday = mDate.format("ddd");
 
@@ -3273,7 +3268,7 @@ export const exportAttendance3 = async (req, res) => {
         weekdayRowIndex,
         firstCol,
         weekdayRowIndex,
-        secondCol
+        secondCol,
       );
       const weekdayCell = worksheet.getCell(weekdayRowIndex, firstCol);
       weekdayCell.value = weekday;
@@ -3289,7 +3284,7 @@ export const exportAttendance3 = async (req, res) => {
         dayNumberRowIndex,
         firstCol,
         dayNumberRowIndex,
-        secondCol
+        secondCol,
       );
       const dayCell = worksheet.getCell(dayNumberRowIndex, firstCol);
       dayCell.value = `${i}`;
@@ -3372,7 +3367,7 @@ export const exportAttendance3 = async (req, res) => {
           };
           cell.font = { bold: true };
         });
-      }
+      },
     );
 
     // ---------- Populate Employee Data ----------
@@ -3380,7 +3375,7 @@ export const exportAttendance3 = async (req, res) => {
       (ele) =>
         ele?.userId?.status === "active" &&
         ele?.shift &&
-        ele?.userId?.department._id != "dept-it"
+        ele?.userId?.department._id != "dept-it",
     );
 
     filteredShifts.forEach((shiftInfo, idx) => {
@@ -3519,7 +3514,7 @@ export const exportAttendance3 = async (req, res) => {
       let abs = daysInMonth - payableDays;
       absentDays = roundToHalf(abs < 0 ? 0 : abs);
       const ots = distributeHours(
-        attOverview.activeHours - attOverview.requiredHours
+        attOverview.activeHours - attOverview.requiredHours,
       );
       if (shiftInfo?.userId?.department?._id === "dept-it") {
         ots.map((ele) => {
@@ -3529,7 +3524,7 @@ export const exportAttendance3 = async (req, res) => {
 
       const remos = [
         `${Math.floor(attOverview.activeHours)}hr / ${Math.floor(
-          attOverview.requiredHours
+          attOverview.requiredHours,
         )}hr`,
         weekoffDays,
         onLeaveDays,
@@ -3578,7 +3573,7 @@ export const exportAttendance3 = async (req, res) => {
           bottomRowIndex,
           firstCol,
           bottomRowIndex,
-          secondCol
+          secondCol,
         );
         const totalCell = worksheet.getCell(bottomRowIndex, firstCol);
 
@@ -3588,7 +3583,7 @@ export const exportAttendance3 = async (req, res) => {
           if (checkIn.isValid() && checkOut.isValid()) {
             const duration = moment.duration(checkOut.diff(checkIn));
             totalCell.value = `${Math.floor(
-              duration.asHours()
+              duration.asHours(),
             )}h ${duration.minutes()}m`;
           } else if (att.status === "weekoff") {
             totalCell.value = "WO";
@@ -3632,7 +3627,7 @@ export const exportAttendance3 = async (req, res) => {
       res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
       res.setHeader(
         "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       );
       res.download(filePath, fileName, (err) => {
         if (err) {
@@ -3684,7 +3679,7 @@ export const generateCompensatoryOff = async (req, res) => {
 
     // ---------- Populate Employee Data ----------
     const filteredShifts = shiftInfoList.filter(
-      (ele) => ele?.userId?.status === "active" && ele?.shift
+      (ele) => ele?.userId?.status === "active" && ele?.shift,
     );
 
     await Promise.all(
@@ -3806,7 +3801,7 @@ export const generateCompensatoryOff = async (req, res) => {
           let alreadyAddedPWO = 0;
           // how many present on weekoff
           const filterPWO = attList.filter(
-            (aEle) => aEle.status === "present" && aEle.wlStatus === "weekoff"
+            (aEle) => aEle.status === "present" && aEle.wlStatus === "weekoff",
           );
           // how many not taken weekoff - including PWO
           let generated = 4 - weekoffDays;
@@ -3825,10 +3820,10 @@ export const generateCompensatoryOff = async (req, res) => {
                     $lte: dt.endOf("day").toDate(),
                   },
                 };
-                console.log(query);
+                // console.log(query);
                 // find leaveHistory for this record - date;
                 const leaveHist = await leaveHistoryModel.findOne(query);
-                console.log(leaveHist);
+                // console.log(leaveHist);
 
                 if (!leaveHist) {
                   // if not found add CO + history
@@ -3860,11 +3855,11 @@ export const generateCompensatoryOff = async (req, res) => {
                 alreadyAddedPWO++;
               } catch (error) {
                 //
-                console.log(
-                  `adding leave eror on PWO ${shiftInfo?.userId?._id}`
-                );
+                // console.log(
+                //   `adding leave eror on PWO ${shiftInfo?.userId?._id}`
+                // );
               }
-            })
+            }),
           );
           // then alreadyAddedPWO - generated = remaining CO add it
           totalComps += alreadyAddedPWO - generated;
@@ -3896,7 +3891,7 @@ export const generateCompensatoryOff = async (req, res) => {
         absentDays = roundToHalf(abs < 0 ? 0 : abs);
         if (shiftInfo.userId?.department?._id === "dept-it") {
           const ots = distributeHours(
-            attOverview.activeHours - attOverview.requiredHours
+            attOverview.activeHours - attOverview.requiredHours,
           );
 
           ots.map((ele) => {
@@ -3910,7 +3905,7 @@ export const generateCompensatoryOff = async (req, res) => {
                 {
                   $inc: { compensatoryoff: ele.day },
                 },
-                { new: true }
+                { new: true },
               );
 
               await createLeaveHistoryFunc({
@@ -3925,7 +3920,7 @@ export const generateCompensatoryOff = async (req, res) => {
                 deposittype: "auto-generated",
                 howManyBefore: updated.compensatoryoff - 1,
               });
-            })
+            }),
           );
         }
 
@@ -3949,7 +3944,7 @@ export const generateCompensatoryOff = async (req, res) => {
           payableDays: payableDays > daysInMonth ? daysInMonth : payableDays,
           daysInMonth,
         });
-      })
+      }),
     );
 
     return successRes2(res, 200, "generate atts", {
@@ -3998,7 +3993,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
 
     // ---------- Filter active employees with valid shift ----------
     const filteredShifts = shiftInfoList.filter(
-      (ele) => ele?.userId?.status === "active" && ele?.shift
+      (ele) => ele?.userId?.status === "active" && ele?.shift,
     );
 
     await Promise.all(
@@ -4098,16 +4093,16 @@ export const generateCompensatoryOffLatest = async (req, res) => {
         const lastDayOfMonth = moment(currentDate).endOf("month");
 
         // ---------- Comp Off generation if weekoff < 4 ----------
-        console.log(weekoffDays);
+        // console.log(weekoffDays);
 
         if (weekoffDays < 4) {
           let alreadyAddedPWO = 0;
           const presentOnWeekoff = attList.filter(
-            (aEle) => aEle.status === "present" && aEle.wlStatus === "weekoff"
+            (aEle) => aEle.status === "present" && aEle.wlStatus === "weekoff",
           );
           const missingWeekoffs = 4 - weekoffDays;
-          console.log(weekoffDays);
-          console.log(missingWeekoffs);
+          // console.log(weekoffDays);
+          // console.log(missingWeekoffs);
 
           // Check PWO entries and add if not found in leave history
           let shouldGenerateCO = false;
@@ -4123,28 +4118,28 @@ export const generateCompensatoryOffLatest = async (req, res) => {
                   $lte: dt.endOf("day").toDate(),
                 },
               };
-              console.log(query);
+              // console.log(query);
               const existingHistory = await leaveHistoryModel.findOne(query);
-              console.log(existingHistory);
+              // console.log(existingHistory);
 
               if (!existingHistory) {
                 shouldGenerateCO = true; // mark once
               }
-            })
+            }),
           );
-          console.log(shouldGenerateCO);
+          // console.log(shouldGenerateCO);
 
           if (shouldGenerateCO && missingWeekoffs > 0) {
             const updated = await shiftInfoModel.findByIdAndUpdate(
               shiftInfo._id,
               { $inc: { compensatoryoff: missingWeekoffs } },
-              { new: true }
+              { new: true },
             );
             await createLeaveHistoryFunc({
               userId: shiftInfo?.userId?._id,
               date: lastDayOfMonth.toDate(),
               description: `Auto-generated ${missingWeekoffs} CO(s) for missing weekoffs in ${currentDate.format(
-                "MMMM YYYY"
+                "MMMM YYYY",
               )}`,
               count: missingWeekoffs,
               type: "deposit",
@@ -4206,7 +4201,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
             totalComps,
           daysInMonth,
         });
-      })
+      }),
     );
 
     return successRes2(res, 200, "Compensatory offs generated successfully", {
@@ -4217,7 +4212,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
     return errorRes2(
       res,
       500,
-      "Server error while generating compensatory offs"
+      "Server error while generating compensatory offs",
     );
   }
 };
@@ -4313,7 +4308,7 @@ export const exportAttendance3Bak = async (req, res) => {
       // get weekday using moment-timezone
       const mDate = moment.tz(
         { year: currentYear, month: currentMonth - 1, day: i },
-        timeZone
+        timeZone,
       );
       const weekday = mDate.format("ddd"); // Mon/Tue/Wed
 
@@ -4322,7 +4317,7 @@ export const exportAttendance3Bak = async (req, res) => {
         weekdayRowIndex,
         firstCol,
         weekdayRowIndex,
-        secondCol
+        secondCol,
       );
       const weekdayCell = worksheet.getCell(weekdayRowIndex, firstCol);
       weekdayCell.value = weekday;
@@ -4339,7 +4334,7 @@ export const exportAttendance3Bak = async (req, res) => {
         dayNumberRowIndex,
         firstCol,
         dayNumberRowIndex,
-        secondCol
+        secondCol,
       );
       const dayCell = worksheet.getCell(dayNumberRowIndex, firstCol);
       dayCell.value = `${i}`;
@@ -4458,7 +4453,7 @@ export const exportAttendance3Bak = async (req, res) => {
 
     atts.map((ele, i) => {
       if (i == 14) {
-        console.log(ele);
+        // console.log(ele);
       }
       const date = moment(ele.date);
       const checkIn = moment(ele.checkInTime).tz("Asia/Kolkata");
@@ -4583,7 +4578,7 @@ export const exportAttendance3Bak = async (req, res) => {
         dayNumberRowIndex + 2,
         firstCol,
         dayNumberRowIndex + 2,
-        secondCol
+        secondCol,
       );
 
       const weekdayCell = worksheet.getCell(dayNumberRowIndex + 2, firstCol);
@@ -4593,7 +4588,7 @@ export const exportAttendance3Bak = async (req, res) => {
       if (checkIn.isValid() && checkOut.isValid()) {
         const duration = moment.duration(checkOut.diff(checkIn));
         const totalHours = `${Math.floor(
-          duration.asHours()
+          duration.asHours(),
         )}h ${duration.minutes()}m`;
 
         weekdayCell.value = totalHours;
@@ -4624,7 +4619,7 @@ export const exportAttendance3Bak = async (req, res) => {
 
     absentDays = roundToHalf(daysInMonth - payableDays);
     const ots = distributeHours(
-      attOverview.requiredHours - attOverview.activeHours
+      attOverview.requiredHours - attOverview.activeHours,
     );
     ots.map((ele) => {
       totalComps += ele.day;
@@ -4632,7 +4627,7 @@ export const exportAttendance3Bak = async (req, res) => {
 
     const remos = [
       `${Math.floor(attOverview.activeHours)}hr / ${Math.floor(
-        attOverview.requiredHours
+        attOverview.requiredHours,
       )}hr`,
       weekoffDays,
       onLeaveDays,
@@ -4672,7 +4667,7 @@ export const exportAttendance3Bak = async (req, res) => {
         dayNumberRowIndex + 2,
         col,
         dayNumberRowIndex + 3,
-        col
+        col,
       );
       cell.value = header;
       cell.alignment = { horizontal: "center", vertical: "middle" };
@@ -4706,7 +4701,7 @@ export const exportAttendance3Bak = async (req, res) => {
       res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
       res.setHeader(
         "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       );
 
       res.download(filePath, fileName, (err) => {
@@ -4753,7 +4748,7 @@ export const generateCompensatoryOffV2 = async (req, res) => {
       .lean()
       .sort({ day: 1 });
     const filteredShifts = shiftInfoList.filter(
-      (ele) => ele?.userId?.status === "active" && ele?.shift
+      (ele) => ele?.userId?.status === "active" && ele?.shift,
     );
     filteredShifts.forEach((shiftInfo, idx) => {
       let payableDays = 0;
@@ -4864,7 +4859,7 @@ export const generateCompensatoryOffV2 = async (req, res) => {
       let abs = daysInMonth - payableDays;
       absentDays = roundToHalf(abs < 0 ? 0 : abs);
       const ots = distributeHours(
-        attOverview.activeHours - attOverview.requiredHours
+        attOverview.activeHours - attOverview.requiredHours,
       );
       if (shiftInfo?.userId?.department?._id === "dept-it") {
         ots.map((ele) => {

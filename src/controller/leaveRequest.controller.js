@@ -66,7 +66,7 @@ export const getApplyLeave = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error retrieving leave requests:", error);
@@ -97,7 +97,7 @@ export const getMyLeave = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error retrieving leave requests:", error);
@@ -151,7 +151,7 @@ export const addLeave = async (req, res, next) => {
 
     if (totalPendingLeaves >= leaves) {
       return res.send(
-        errorRes(401, "you cant apply more request than available leaves")
+        errorRes(401, "you cant apply more request than available leaves"),
       );
     }
 
@@ -193,48 +193,48 @@ export const addLeave = async (req, res, next) => {
 
     //leave cut
     try {
-    const info = await shiftInfoModel.findOne({ userId: applicant });
+      const info = await shiftInfoModel.findOne({ userId: applicant });
 
-    if (!info) {
-      return res.send(errorRes(404, "Shift info not found"));
-    }
+      if (!info) {
+        return res.send(errorRes(404, "Shift info not found"));
+      }
 
-    let updateLeave = {};
-    let lastLeaveCount = 0;
+      let updateLeave = {};
+      let lastLeaveCount = 0;
 
-    if (leaveType === "on-paid-leave") {
-      lastLeaveCount = info.paidLeave;
-      updateLeave = { paidLeave: info.paidLeave - numberOfDays };
-    } else if (leaveType === "on-casual-leave") {
-      lastLeaveCount = info.casualLeave;
-      updateLeave = { casualLeave: info.casualLeave - numberOfDays };
-    } else if (leaveType === "on-compensation-off-leave") {
-      lastLeaveCount = info.compensatoryoff;
-      updateLeave = {
-        compensatoryoff: info.compensatoryoff - numberOfDays,
-      };
-    }
+      if (leaveType === "on-paid-leave") {
+        lastLeaveCount = info.paidLeave;
+        updateLeave = { paidLeave: info.paidLeave - numberOfDays };
+      } else if (leaveType === "on-casual-leave") {
+        lastLeaveCount = info.casualLeave;
+        updateLeave = { casualLeave: info.casualLeave - numberOfDays };
+      } else if (leaveType === "on-compensation-off-leave") {
+        lastLeaveCount = info.compensatoryoff;
+        updateLeave = {
+          compensatoryoff: info.compensatoryoff - numberOfDays,
+        };
+      }
 
-    await shiftInfoModel.findByIdAndUpdate(info._id, {
-      $set: updateLeave,
-    });
-     newLeaveRequest = await leaveRequestModel.create({
-      ...req.body,
-      appliedOn: new Date(),
-      approvalSteps,
-      currentLevel: 0,
-    });
+      await shiftInfoModel.findByIdAndUpdate(info._id, {
+        $set: updateLeave,
+      });
+      newLeaveRequest = await leaveRequestModel.create({
+        ...req.body,
+        appliedOn: new Date(),
+        approvalSteps,
+        currentLevel: 0,
+      });
 
-    const resp = await createLeaveHistoryFunc({
-      date: new Date(),
-      description: leaveReason,
-      count: numberOfDays,
-      userId: applicant,
-      type: "used",
-      leaveType: leaveType,
-      leave: newLeaveRequest._id,
-      howManyBefore: lastLeaveCount,
-    });
+      const resp = await createLeaveHistoryFunc({
+        date: new Date(),
+        description: leaveReason,
+        count: numberOfDays,
+        userId: applicant,
+        type: "used",
+        leaveType: leaveType,
+        leave: newLeaveRequest._id,
+        howManyBefore: lastLeaveCount,
+      });
     } catch (e) {
       console.log(e);
       return res.status(500).send(errorRes(500, "Internal Server Error"));
@@ -271,7 +271,7 @@ export const addLeave = async (req, res, next) => {
     return res.send(
       successRes(200, "Leave Request added", {
         data: updateLeaveRequest,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error in addLeave:", error);
@@ -373,7 +373,7 @@ export const updateLeaveStatus = async (req, res) => {
     }
 
     return res.send(
-      successRes(200, "Leave Status updated successfully", { data: leave })
+      successRes(200, "Leave Status updated successfully", { data: leave }),
     );
   } catch (error) {
     console.error("Error updating Leave Status :", error);
@@ -399,7 +399,7 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
 
     // Find the current step that is pending for this admin
     const step = leaveResp.approvalSteps.find(
-      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending"
+      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending",
     );
     // console.log(step);
 
@@ -418,7 +418,7 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
       // console.log("status is approved");
 
       let nextStep = leaveResp.approvalSteps.find(
-        (s) => s.level === step.level + 1
+        (s) => s.level === step.level + 1,
       );
       // console.log(nextStep);
       // Auto-approve if next step has the same admin
@@ -432,13 +432,13 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
         leaveResp.currentLevel = nextStep.level;
         // console.log(nextStep);
         nextStep = leaveResp.approvalSteps.find(
-          (s) => s.level === leaveResp.currentLevel + 1
+          (s) => s.level === leaveResp.currentLevel + 1,
         );
         // console.log("update next step");
         // console.log(nextStep);
       }
       const allStepsApproved = leaveResp.approvalSteps.every(
-        (step) => step.status?.toLowerCase() === "approved"
+        (step) => step.status?.toLowerCase() === "approved",
       );
       // console.log(`all step approved ? ${allStepsApproved}`);
       let lastLeaveCount;
@@ -489,9 +489,9 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
                 },
                 {
                   upsert: true,
-                }
+                },
               );
-            })
+            }),
           );
           // await attendanceModel.insertMany(dates, { ordered: false });
         } catch (error) {
@@ -691,7 +691,7 @@ export const deleteLeaveRequest = async (req, res) => {
     });
 
     return res.send(
-      successRes(200, "Leave Request deleted and leave reversed successfully")
+      successRes(200, "Leave Request deleted and leave reversed successfully"),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));

@@ -36,13 +36,13 @@ ourProjectRouter.get(
   "/ourProjects",
   // authenticateToken,
 
-  getOurProjects
+  getOurProjects,
 );
 
 ourProjectRouter.get(
   "/ourProjects/:id",
   //  authenticateToken,
-  getProjectsById
+  getProjectsById,
 );
 ourProjectRouter.get("/ourProjects-flat/:id", getFlatListByProject);
 
@@ -51,29 +51,29 @@ ourProjectRouter.post(
 
   authenticateToken,
 
-  addProjects
+  addProjects,
 );
 ourProjectRouter.post(
   "/ourProjects-update/:id",
   authenticateToken,
-  updateProjects
+  updateProjects,
 );
 // NEW:
 ourProjectRouter.post(
   "/our-project-flat-update/:id",
   authenticateToken,
-  updateFlatInProject
+  updateFlatInProject,
 );
 ourProjectRouter.delete(
   "/our-project-flat-delete/:id",
   authenticateToken,
-  deleteFlatInProject
+  deleteFlatInProject,
 );
 
 ourProjectRouter.post(
   "/our-project-flat-update",
   authenticateToken,
-  updateFlatDetails
+  updateFlatDetails,
 );
 
 ourProjectRouter.delete("/ourProjects/:id", authenticateToken, deleteProject);
@@ -87,7 +87,7 @@ ourProjectRouter.get(
     try {
       // Fetch the project and get flatList
       const resp = await ourProjectModel.findById(
-        "project-ev-10-marina-bay-vashi-sector-10"
+        "project-ev-10-marina-bay-vashi-sector-10",
       );
       const flats = resp.flatList;
 
@@ -137,7 +137,7 @@ ourProjectRouter.get(
       console.error("Error exporting data:", error);
       res.status(500).send("Error exporting data.");
     }
-  }
+  },
 );
 ourProjectRouter.get(
   "/ourProjects-parking-csv",
@@ -146,7 +146,7 @@ ourProjectRouter.get(
     try {
       // Fetch the project and get flatList
       const resp = await ourProjectModel.findById(
-        "project-ev-9-square-vashi-sector-9"
+        "project-ev-9-square-vashi-sector-9",
       );
       const flats = resp.parkingList;
 
@@ -177,7 +177,7 @@ ourProjectRouter.get(
             console.error("Error sending file:", err);
             res.status(500).send("Failed to download file.");
           } else {
-            console.log("File sent successfully.");
+            // console.log("File sent successfully.");
           }
 
           // Cleanup: Remove the file after sending
@@ -188,7 +188,7 @@ ourProjectRouter.get(
       console.error("Error exporting data:", error);
       res.status(500).send("Error exporting data.");
     }
-  }
+  },
 );
 
 ourProjectRouter.post(
@@ -267,7 +267,7 @@ ourProjectRouter.post(
       console.error("Error updating flat list:", error);
       res.status(500).send("Internal server error");
     }
-  }
+  },
 );
 
 ourProjectRouter.post(
@@ -277,7 +277,7 @@ ourProjectRouter.post(
     try {
       const filePath = path.join(
         __dirname,
-        "marina_bay_flatlist_latest_changed.csv"
+        "marina_bay_flatlist_latest_changed.csv",
       );
       // console.log("Looking for CSV at:", filePath);
       if (!fs.existsSync(filePath)) {
@@ -354,7 +354,7 @@ ourProjectRouter.post(
       console.error("Error updating flat list from CSV:", error);
       res.status(500).send("Internal server error");
     }
-  }
+  },
 );
 
 ourProjectRouter.post(
@@ -383,7 +383,7 @@ ourProjectRouter.post(
       console.error(error);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 ourProjectRouter.post("/project-heart-fix-bldg", async (req, res) => {
   try {
@@ -414,7 +414,7 @@ ourProjectRouter.post("/project-updates-flat-list-sort", async (req, res) => {
       _id: "project-ev23-malibu-west-koparkhairne-2024",
     });
     projectResp.flatList.sort(
-      (a, b) => parseInt(a.flatNo) - parseInt(b.flatNo)
+      (a, b) => parseInt(a.flatNo) - parseInt(b.flatNo),
     );
     await projectResp.save();
     res.send("ok");
@@ -517,7 +517,7 @@ ourProjectRouter.post(
             const match = dataToPush.find(
               (item) =>
                 item.flatNo?.toString() === flt.flatNo?.toString() &&
-                flt.buildingNo == 1
+                flt.buildingNo == 1,
             );
 
             if (match) {
@@ -557,7 +557,7 @@ ourProjectRouter.post(
         .status(500)
         .send({ error: "Something went wrong", details: err.message });
     }
-  }
+  },
 );
 
 // actuallly working flat list updates
@@ -626,7 +626,7 @@ ourProjectRouter.post(
         .status(500)
         .send({ error: "Something went wrong", details: err.message });
     }
-  }
+  },
 );
 
 ourProjectRouter.post("/project-floor-plan/:id", async (req, res) => {
@@ -664,14 +664,14 @@ ourProjectRouter.post("/project-floor-plan/:id", async (req, res) => {
     const updatedFlats = project.flatList.filter(
       (flat) =>
         flat.carpetArea === carpetArea &&
-        (buildingNo ? flat.buildingNo === buildingNo : true)
+        (buildingNo ? flat.buildingNo === buildingNo : true),
     );
 
     return res.send(
       successRes(200, "Floor plans updated successfully", {
         modifiedCount,
         updatedFlats,
-      })
+      }),
     );
   } catch (err) {
     console.error(err);
@@ -742,7 +742,7 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
     //   }
     // }
 
-    console.log(flatsToAdd);
+    // console.log(flatsToAdd);
     // await ourProjectModel.findByIdAndUpdate(
     //   id,
     //   {
@@ -758,7 +758,7 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
     return res.send(
       successRes(200, "Flats bulk added successfully", {
         data: project.flatList,
-      })
+      }),
     );
   } catch (err) {
     console.error(err);
@@ -887,7 +887,7 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
 
 ourProjectRouter.get("/flats-3rd-series-c", async (req, res) => {
   const project = await ourProjectModel.findById(
-    "project-ev-capitol-9-vashi-2025"
+    "project-ev-capitol-9-vashi-2025",
   );
 
   project.flatList.forEach((ele) => {
