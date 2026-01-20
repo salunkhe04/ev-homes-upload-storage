@@ -8,6 +8,7 @@ import moment from "moment-timezone";
 import { normalizeRanking } from "../../utils/helper.js";
 import { rankingTurnPopulate } from "../../utils/constant.js";
 import siteVisitModel from "../../model/siteVisit.model.js";
+import employeeModel from "../../model/employee.model.js";
 
 const rankingTurnRouter = Router();
 
@@ -390,6 +391,108 @@ rankingTurnRouter.get(
     }
   },
 );
+
+rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const allCounts = {
+    id: id,
+    name: null,
+    designation: null,
+
+      interestedClient: 0,
+      firstVisit: 0,
+      booking: 0,
+
+  };
+
+  try {
+    const empResp = await employeeModel
+      .findById(id)
+      .select("firstName lastName reportingTo designation");
+    //
+    allCounts.name = `${empResp.firstName} ${empResp.lastName}`;
+    allCounts.designation = empResp.designation;
+
+    let filter = {
+      $match: {
+        teamLeader: id,
+      },
+    };
+
+    console.log(filter);
+    const counts = await leadModelV2.aggregate([
+      filter,
+      {
+        $facet: {
+          interestedClient: [
+            {
+              $match: {
+                disabled: false,
+                isCountable: true,
+              },
+            },
+            { $count: "count" },
+          ],
+          firstVisit: [
+            {
+              $match: {
+                disabled: false,
+
+                isCountableVisit: true,
+              },
+            },
+            { $count: "count" },
+          ],
+          booking: [
+            { $match: { disabled: false, isCountableBooking: true } },
+            { $count: "count" },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          interestedClientCount: {
+            $arrayElemAt: ["$interestedClient.count", 0],
+          },
+          firstVisitCount: { $arrayElemAt: ["$firstVisit.count", 0] },
+          bookingCount: { $arrayElemAt: ["$booking.count", 0] },
+        },
+      },
+      {
+        $project: {
+          interestedClientCount: 1,
+          firstVisitCount: 1,
+          bookingCount: 1,
+        },
+      },
+    ]);
+
+    const {
+      interestedClientCount = 0,
+      firstVisitCount = 0,
+      bookingCount = 0,
+
+      // Add other counts as required
+    } = counts[0] || {};
+
+    allCounts.interestedClient = interestedClientCount;
+    allCounts.firstVisit = firstVisitCount;
+    allCounts.booking = bookingCount;
+
+    // console.log({
+    //   assignTo: id,
+    //   // teamLeader: empResp.reportingTo,
+    //   deadline: { $gte: now },
+    // });
+
+    return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
+  } catch (error) {
+    //
+    console.log(error);
+    return errorRes2(res, 500, "Internal Server Error");
+  }
+});
 
 export const getCurrentRanks = async () => {
   // 1. Static team list
