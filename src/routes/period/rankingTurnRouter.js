@@ -400,10 +400,9 @@ rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
     name: null,
     designation: null,
 
-      interestedClient: 0,
-      firstVisit: 0,
-      booking: 0,
-
+    interestedClient: 0,
+    firstVisit: 0,
+    booking: 0,
   };
 
   try {
@@ -420,7 +419,7 @@ rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
       },
     };
 
-    console.log(filter);
+    // console.log(filter);
     const counts = await leadModelV2.aggregate([
       filter,
       {
