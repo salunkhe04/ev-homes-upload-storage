@@ -39,7 +39,7 @@ RUN mkdir -p /app/storage \
 # ----------------------------
 # Runtime limits
 # ----------------------------
-ENV NODE_OPTIONS="--max-old-space-size=1800"
+ENV NODE_OPTIONS="--max-old-space-size=2500"
 
 USER app
 
