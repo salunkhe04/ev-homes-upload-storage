@@ -39,7 +39,7 @@ RUN mkdir -p /app/storage \
 # ----------------------------
 # Runtime limits
 # ----------------------------
-ENV NODE_OPTIONS="--max-old-space-size=1800"
+ENV NODE_OPTIONS="--max-old-space-size=2500"
 
 USER app
 
@@ -48,4 +48,5 @@ EXPOSE 8082
 # ----------------------------
 # Start Node directly
 # ----------------------------
-CMD ["node", "src/server.js"]
+# CMD ["node", "src/server.js"]
+CMD ["node", "--cpu-prof", "src/server.js"]

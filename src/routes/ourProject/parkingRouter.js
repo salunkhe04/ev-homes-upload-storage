@@ -99,7 +99,7 @@ parkingRouter.post("/add-new-parking/:id", async (req, res) => {
     return res.send(
       successRes(200, "flat update", {
         data: uflat,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);
@@ -111,12 +111,12 @@ parkingRouter.post("/add-new-parking/:id", async (req, res) => {
 parkingRouter.post("/parking-update/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    console.log(req.body);
+    // console.log(req.body);
 
     const flat = await parkingModel.findByIdAndUpdate(
       id,
       { ...req.body },
-      { new: true }
+      { new: true },
     );
 
     const uflat = await parkingModel
@@ -128,7 +128,7 @@ parkingRouter.post("/parking-update/:id", async (req, res) => {
     return res.send(
       successRes(200, "parking update", {
         data: uflat,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);

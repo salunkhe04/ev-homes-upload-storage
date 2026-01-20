@@ -15,10 +15,10 @@ services:
 
     environment:
       TZ: Asia/Kolkata
-      NODE_OPTIONS: "--max-old-space-size=2000"
+      NODE_OPTIONS: "--max-old-space-size=2500"
 
-    mem_limit: 3024m
-    cpus: "1.5"
+    mem_limit: 4024m
+    cpus: "2.0"
 
     volumes:
       - /var/www/storage:/app/storage

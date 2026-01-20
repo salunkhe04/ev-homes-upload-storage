@@ -272,7 +272,7 @@ export const getPostSaleLeads = async (req, res, next) => {
         eoiRecieved,
         cancelled,
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -291,7 +291,7 @@ export const getPostSaleLeadByBookingId = async (req, res, next) => {
     return res.send(
       successRes(200, "get booking by id", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -322,23 +322,23 @@ export const getpostSaleCountsRegGraph = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval === "monthly") {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval === "quarterly") {
       const quarter = Math.floor(currentDate.getMonth() / 3);
@@ -441,7 +441,7 @@ export const getpostSaleCountsRegGraph = async (req, res, next) => {
         interval,
         eoiRecieved,
         cancelled,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -622,7 +622,7 @@ export const getPostSaleLeadById = async (req, res, next) => {
     return res.send(
       successRes(200, "get post sale lead by id", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -919,7 +919,7 @@ export const getPostSaleLeadsForExecutive = async (req, res, next) => {
         eoiRecieved,
         cancelled,
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1034,13 +1034,13 @@ export async function getLeadCounts(req, res, next) {
 
     // Filter to remove empty months
     const filteredMonthlyData = mergedMonthlyData.filter(
-      (item) => item.bookingCount > 0 || item.registrationCount > 0
+      (item) => item.bookingCount > 0 || item.registrationCount > 0,
     );
 
     return res.send(
       successRes(200, "ok", {
         data: filteredMonthlyData,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error getting lead counts:", error);
@@ -1082,11 +1082,11 @@ export const addPostSaleLead = async (req, res, next) => {
           ele.floor === floor &&
           ele.number === number &&
           ele.buildingNo === buildingNo &&
-          ele.occupied === true
+          ele.occupied === true,
       );
       if (findExisintFlat) {
         return res.send(
-          errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`)
+          errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`),
         );
       }
     }
@@ -1115,7 +1115,7 @@ export const addPostSaleLead = async (req, res, next) => {
         findTarget.achieved += 1;
         findTarget.extraAchieved = Math.max(
           0,
-          findTarget.achieved - findTarget.target
+          findTarget.achieved - findTarget.target,
         );
         findTarget.bookings.push(resp._id);
 
@@ -1174,7 +1174,7 @@ export const addPostSaleLead = async (req, res, next) => {
       try {
         const alreadyInBooking = revisedTarget.booking?.includes(resp._id);
         const alreadyInRegistration = revisedTarget.registration?.includes(
-          resp._id
+          resp._id,
         );
 
         if (isBooking && !alreadyInBooking) {
@@ -1236,18 +1236,18 @@ export const addPostSaleLead = async (req, res, next) => {
           newLead.parking.map(async (ele) => {
             //
             try {
-               if (ele?.number) {
-              await ParkingOccupancyChange({
-                project: project,
-                floor: ele.floor,
-                number: ele.number,
-                occupied: true,
-              });
+              if (ele?.number) {
+                await ParkingOccupancyChange({
+                  project: project,
+                  floor: ele.floor,
+                  number: ele.number,
+                  occupied: true,
+                });
               }
             } catch (error) {
               //
             }
-          })
+          }),
         );
       }
     } catch (error) {
@@ -1327,12 +1327,12 @@ export const addPostSaleLead = async (req, res, next) => {
           foundLead?.visitRef?.date ?? "NA",
           foundLead?.revisitRef?.date ?? "NA",
           date ?? "NA",
-          newLead?.preRegistrationCheckList?.kyc?.recieved ?? "NO"
+          newLead?.preRegistrationCheckList?.kyc?.recieved ?? "NO",
         ),
         // attchment
         [],
         // cc
-        emailsRecp
+        emailsRecp,
       );
       // await sendEmail("aktarul.evgroup@gmail.com","Congratulations there has been a new booking in Nine Square by Deepak Karki.","");
     } catch (error) {
@@ -1342,7 +1342,7 @@ export const addPostSaleLead = async (req, res, next) => {
     return res.send(
       successRes(200, "Booking Added Succesfully", {
         data: newLead,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1403,7 +1403,7 @@ export const updatePostSaleLeadById = async (req, res, next) => {
             } catch (error) {
               //
             }
-          })
+          }),
         );
       }
     } catch (error) {
@@ -1413,7 +1413,7 @@ export const updatePostSaleLeadById = async (req, res, next) => {
     return res.send(
       successRes(200, "updated post sale lead", {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1433,7 +1433,7 @@ export const deletePostSaleLeadBydId = async (req, res, next) => {
     return res.send(
       successRes(200, "deleted post sale lead", {
         data: foundLead,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1459,7 +1459,7 @@ export const getPostSaleLeadByFlat = async (req, res) => {
     return res.send(
       successRes(200, "Get Post Lead payment", {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -1624,7 +1624,7 @@ export const cancelBooking = async (req, res, next) => {
           bookingCancelDate: new Date(),
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedLead) {
@@ -1678,7 +1678,7 @@ export const cancelBooking = async (req, res, next) => {
             } catch (error) {
               //
             }
-          })
+          }),
         );
       }
     } catch (error) {
@@ -1688,7 +1688,7 @@ export const cancelBooking = async (req, res, next) => {
     try {
       await leadModelV2.findOneAndUpdate(
         { bookingRef: id },
-        { bookingStatus: "cancelled", isCountableBooking: false }
+        { bookingStatus: "cancelled", isCountableBooking: false },
       );
     } catch (error) {
       // console.log(error);
@@ -1704,7 +1704,7 @@ export const cancelBooking = async (req, res, next) => {
     return res.send(
       successRes(200, "Booking cancelled successfully", {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error cancelling booking:", error); // Log the error for debugging
@@ -1735,14 +1735,14 @@ export const updateBookingFeedback = async (req, res, next) => {
             },
           },
         },
-        { new: true }
+        { new: true },
       )
       .populate(postSalePopulateOptions);
 
     return res.send(
       successRes(200, "Feedback Updated successfully", {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error cancelling booking:", error); // Log the error for debugging
@@ -1835,8 +1835,8 @@ export const notificationForPaymentDue = async (req, res, next) => {
         const when = moment(p.date).isSame(today, "day")
           ? "today"
           : moment(p.date).isSame(tomorrow, "day")
-          ? "tomorrow"
-          : null;
+            ? "tomorrow"
+            : null;
 
         if (!when) continue;
 
@@ -1856,9 +1856,9 @@ export const notificationForPaymentDue = async (req, res, next) => {
           },
         });
 
-        console.log(
-          `Sent ${p.label} reminder (${when}) for ${lead.firstName} ${lead.lastName}`
-        );
+        // console.log(
+        //   `Sent ${p.label} reminder (${when}) for ${lead.firstName} ${lead.lastName}`
+        // );
       }
     }
 
@@ -1957,9 +1957,9 @@ export const sendPaymentDueEmail = async (req, res) => {
           [manager.email],
           `Payment Due Reminder`,
           html,
-          []
+          [],
         );
-      })
+      }),
     );
 
     const allLeadsByManager = Object.values(managerMap).flat();
@@ -1974,7 +1974,7 @@ export const sendPaymentDueEmail = async (req, res) => {
         "shreya@evgroup.co.in",
       ],
       `Payment Due Reminders`,
-      htmlAll
+      htmlAll,
     );
 
     return { data: allLeadsByManager };
@@ -2035,7 +2035,7 @@ export const updatePaymentDetailsAmtStatus = async (req, res) => {
     const leadId = req.params.id;
     const { paymentId, update } = req.body;
 
-    console.log("Update body:", update);
+    // console.log("Update body:", update);
 
     const lead = await leadModel.findOne({ bookingRef: leadId });
 
@@ -2063,7 +2063,7 @@ export const updatePaymentDetailsAmtStatus = async (req, res) => {
           "paymentDetailSchema.$.receivedAmount": update.receivedAmount,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedPostSaleLead) {

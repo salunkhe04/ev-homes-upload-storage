@@ -9,21 +9,21 @@ const ai = new GoogleGenAI({
 
 geminiRouter.post("/gemini-chat", async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: req.body.text,
       // contents:
       //   'Here is user data: {"name": "Nikhil Rupainwar", "phoneNumber": "+91-8657684467", "linkedIn":"https://www.linkedin.com/in/nikhil-rupainwar-702640136"} based on the linkedIn i provide,can you tell me what is the designation, a?',
     });
-    console.log(response.text);
-    
+    // console.log(response.text);
+
     return res.send(
       successRes(200, "oka", {
         data: {
           response: response.text,
         },
-      })
+      }),
     );
   } catch (e) {
     console.log(e);
@@ -32,7 +32,7 @@ geminiRouter.post("/gemini-chat", async (req, res) => {
         data: {
           response: `${e}`,
         },
-      })
+      }),
     );
   }
   // const ai = new GoogleGenAI({ apiKey: "AIzaSyCF4RBaoOghGK7YRXEPlcmxsgO2G-quq4I" });

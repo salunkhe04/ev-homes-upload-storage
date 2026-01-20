@@ -50,7 +50,7 @@ export const getTask = async (req, res, next) => {
         searchConditions.push(
           { clientName: { $regex: query, $options: "i" } },
           { firstName: { $regex: query, $options: "i" } },
-          { lastName: { $regex: query, $options: "i" } }
+          { lastName: { $regex: query, $options: "i" } },
         );
       } else {
         searchConditions.push({ someNumericField: Number(query) });
@@ -113,7 +113,7 @@ export const getTask = async (req, res, next) => {
     });
 
     const filteredMissed = resp.filter(
-      (ele) => !resp2.some((e) => e._id.toString() === ele._id.toString())
+      (ele) => !resp2.some((e) => e._id.toString() === ele._id.toString()),
     );
 
     return res.send(
@@ -122,7 +122,7 @@ export const getTask = async (req, res, next) => {
         // totalM: filteredMissed?.length,
         data: resp,
         // dataM: filteredMissed,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -174,7 +174,7 @@ export const getTaskPage = async (req, res, next) => {
               options: "i",
             },
           },
-        }
+        },
       );
 
       if (isNumberQuery) {
@@ -188,7 +188,7 @@ export const getTaskPage = async (req, res, next) => {
                   },
                 },
               }
-            : null
+            : null,
         );
       }
 
@@ -263,7 +263,7 @@ export const getTaskPage = async (req, res, next) => {
     // });
 
     const filteredMissed = resp.filter(
-      (ele) => !resp.some((e) => e?._id.toString() === ele?._id?.toString())
+      (ele) => !resp.some((e) => e?._id.toString() === ele?._id?.toString()),
     );
     const totalPages = Math.ceil(totalItems / limit);
 
@@ -278,7 +278,7 @@ export const getTaskPage = async (req, res, next) => {
         totalM: filteredMissed?.length,
         data: resp,
         dataM: filteredMissed,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -321,7 +321,7 @@ export const getTaskReminders = async (req, res, next) => {
         searchConditions.push(
           { clientName: { $regex: query, $options: "i" } },
           { firstName: { $regex: query, $options: "i" } },
-          { lastName: { $regex: query, $options: "i" } }
+          { lastName: { $regex: query, $options: "i" } },
         );
       } else {
         searchConditions.push({ someNumericField: Number(query) });
@@ -355,7 +355,7 @@ export const getTaskReminders = async (req, res, next) => {
     return res.send(
       successRes(200, "Get task", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -430,7 +430,7 @@ export const getReminderToAll = async (req, res, next) => {
       successRes(200, "Get task", {
         total: resp.length,
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);
@@ -450,7 +450,7 @@ export const getTaskByid = async (req, res, next) => {
     return res.send(
       successRes(200, "Get task", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -536,7 +536,7 @@ export const getTaskTeam = async (req, res, next) => {
         searchConditions.push(
           { clientName: { $regex: query, $options: "i" } },
           { firstName: { $regex: query, $options: "i" } },
-          { lastName: { $regex: query, $options: "i" } }
+          { lastName: { $regex: query, $options: "i" } },
         );
       } else {
         searchConditions.push({ someNumericField: Number(query) });
@@ -554,7 +554,7 @@ export const getTaskTeam = async (req, res, next) => {
     const resp2 = resp.filter(
       (ele) =>
         ele.lead?.taskRef?._id?.toString() === ele?._id?.toString() &&
-        ele.lead?.hideStatus === false
+        ele.lead?.hideStatus === false,
     );
     // console.log(resp2);
 
@@ -562,7 +562,7 @@ export const getTaskTeam = async (req, res, next) => {
       successRes(200, "Get task", {
         total: resp2.length,
         data: resp2,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -661,7 +661,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
               options: "i",
             },
           },
-        }
+        },
       );
 
       if (isNumberQuery) {
@@ -675,7 +675,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
                   },
                 },
               }
-            : null
+            : null,
         );
       }
 
@@ -693,7 +693,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
     const resp2 = resp.filter(
       (ele) =>
         ele.lead?.taskRef?._id?.toString() === ele?._id?.toString() &&
-        ele.lead?.hideStatus === false
+        ele.lead?.hideStatus === false,
     );
     // console.log(resp2);
     const totalPages = Math.ceil(totalItems / limit);
@@ -706,7 +706,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
         totalItems,
         total: resp2.length,
         data: resp2,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -749,7 +749,7 @@ export const assignTask = async (req, res, next) => {
     if (body?.lead) {
       foundLead = await leadModelV2.findOneAndUpdate(
         { _id: body?.lead },
-        { taskRef: resp?._id }
+        { taskRef: resp?._id },
       );
     }
 
@@ -772,7 +772,7 @@ export const assignTask = async (req, res, next) => {
     return res.send(
       successRes(200, "Task Assigned", {
         data: resp2,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -836,7 +836,7 @@ export const assignMultipleTask = async (req, res, next) => {
           });
           foundLead = await leadModelV2.findOneAndUpdate(
             { _id: ele },
-            { taskRef: resp?._id }
+            { taskRef: resp?._id },
           );
 
           // console.log("passed");
@@ -857,12 +857,12 @@ export const assignMultipleTask = async (req, res, next) => {
           //
           console.error(`Error assigning task to lead ID: ${ele}`, error);
         }
-      })
+      }),
     );
     return res.send(
       successRes(200, "Task Assigned", {
         data: true,
-      })
+      }),
     );
   } catch (error) {
     console.error(`main Err: `, error);
@@ -905,7 +905,7 @@ export const transferTask = async (req, res, next) => {
     return res.send(
       successRes(200, "Task Transferred Successfully", {
         data: populatedTask,
-      })
+      }),
     );
   } catch (error) {
     // console.error("Error transferring task:", error); // Debugging: Log the error
@@ -963,7 +963,7 @@ export const transferMultipleTasks = async (req, res, next) => {
               timeLine: timelineEntry,
             },
           },
-          { new: true }
+          { new: true },
         )
         .populate(taskPopulateOptions);
 
@@ -973,7 +973,7 @@ export const transferMultipleTasks = async (req, res, next) => {
     return res.send(
       successRes(200, "Tasks Transferred Successfully", {
         data: updatedTasks,
-      })
+      }),
     );
   } catch (error) {
     // console.error("Error transferring tasks:", error);
@@ -1045,7 +1045,7 @@ export const updateTask = async (req, res, next) => {
     return res.send(
       successRes(200, "Task updated", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1072,7 +1072,7 @@ export const updateTaskReminder = async (req, res, next) => {
     return res.send(
       successRes(200, "Task updated", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1143,7 +1143,7 @@ export const updateFeedback = async (req, res, next) => {
     return res.send(
       successRes(200, "Feedback added", {
         data: true,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1296,7 +1296,7 @@ export const updateFeedbackV2 = async (req, res, next) => {
     return res.send(
       successRes(200, "Feedback added", {
         data: true,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -1423,7 +1423,7 @@ export const getTaskTeamReminderPaginated = async (req, res, next) => {
               options: "i",
             },
           },
-        }
+        },
       );
 
       if (isNumberQuery) {
@@ -1437,7 +1437,7 @@ export const getTaskTeamReminderPaginated = async (req, res, next) => {
                   },
                 },
               }
-            : null
+            : null,
         );
       }
 
@@ -1713,7 +1713,7 @@ export const getTaskMyReminderPaginated = async (req, res, next) => {
               options: "i",
             },
           },
-        }
+        },
       );
 
       if (isNumberQuery) {
@@ -1727,7 +1727,7 @@ export const getTaskMyReminderPaginated = async (req, res, next) => {
                   },
                 },
               }
-            : null
+            : null,
         );
       }
 
@@ -1941,7 +1941,7 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
     const createdDiff = now.diff(created, "minutes");
     // let validDiff = createdDiff <= 20 || feedbackGraceDiff;
 
-    console.log(createdDiff);
+    // console.log(createdDiff);
 
     //first cond: call history is empty
 
@@ -2094,7 +2094,7 @@ export const getLeadsTimer = async (req, res, next) => {
             },
           ],
         },
-        { firstName: 1, lastName: 1, phoneNumber: 1, createdAt: 1, taskRef: 1 }
+        { firstName: 1, lastName: 1, phoneNumber: 1, createdAt: 1, taskRef: 1 },
       )
       .sort({ createdAt: -1 })
       .populate([

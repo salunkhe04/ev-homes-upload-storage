@@ -139,14 +139,14 @@ export const eoiConfSchema = new mongoose.Schema(
     eoiList: [eoiSchem],
     confirmationList: [confSchem],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Create the model
 const eoiConfModel = mongoose.model(
   "eoiAndConfirmation",
   eoiConfSchema,
-  "eoiAndConfirmation"
+  "eoiAndConfirmation",
 );
 export default eoiConfModel;
 

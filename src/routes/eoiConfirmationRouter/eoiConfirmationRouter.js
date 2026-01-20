@@ -108,7 +108,7 @@ eoiConfRouter.get("/get-eoi-confirmation", async (req, res) => {
     return successRes2(res, 200, "ok", { data: oldDoc });
   } catch (error) {
     //
-    console.error(error);
+    // console.error(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });
@@ -130,7 +130,7 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
     buildingNo,
     generatedBy,
   } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
   if (!type) return errorRes2(res, 401, "type is required");
   // console.log(req.body);
   const filteredBody = filterNullValue(req.body);
@@ -200,7 +200,7 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
           //
           ...dataToUpdate,
         },
-        { new: true }
+        { new: true },
       );
 
       return successRes2(res, 200, "ok", { data: oldDoc2 });
@@ -275,7 +275,7 @@ eoiConfRouter.post("/eoi-confirmation-handover/:id", async (req, res) => {
   if (!id) return errorRes2(res, 500, "id require");
 
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const oldDoc = await eoiConfModel.findById(id);
     if (!oldDoc) return errorRes2(res, 500, "no Eoi or conf found");
     if (index) {
@@ -360,7 +360,7 @@ eoiConfRouter.get("/eoi-by-phone/:phone", async (req, res) => {
       return res.send(
         successRes(404, `No lead found for phone number: ${phone}`, {
           data: null,
-        })
+        }),
       );
     }
 
@@ -370,14 +370,14 @@ eoiConfRouter.get("/eoi-by-phone/:phone", async (req, res) => {
 
     if (!eoiData) {
       return res.send(
-        successRes(404, `No EOI/Confirmation found for this lead`, {})
+        successRes(404, `No EOI/Confirmation found for this lead`, {}),
       );
     }
 
     return res.send(
       successRes(200, "EOI/Confirmation found", {
         data: eoiData,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `server error: ${error.message}`));

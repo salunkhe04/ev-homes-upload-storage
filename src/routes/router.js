@@ -154,8 +154,8 @@ router.get("/test-tesp", async (req, res) => {
 });
 
 router.post("/test-easylu-leads", async (req, res) => {
-  console.log(req.body);
-  console.log(req.query);
+  // console.log(req.body);
+  // console.log(req.query);
   let curDate = moment().tz("Asia/Kolkata");
   let endOfDay = moment().tz("Asia/Kolkata").endOf("day");
   let curAft = moment({ hour: 21, minute: 1 }).tz("Asia/Kolkata");
@@ -163,10 +163,10 @@ router.post("/test-easylu-leads", async (req, res) => {
     .add(1, "days")
     .tz("Asia/Kolkata");
 
-  console.log(curDate);
-  console.log(endOfDay);
-  console.log(curAft);
-  console.log(nextDay);
+  // console.log(curDate);
+  // console.log(endOfDay);
+  // console.log(curAft);
+  // console.log(nextDay);
 
   if (
     curDate.isBefore(endOfDay) &&
@@ -182,7 +182,7 @@ router.post("/test-easylu-leads", async (req, res) => {
 
 router.post("/test-easylu-leads/:phoneNumber", async (req, res) => {
   const phoneNumber = req.params.phoneNumber;
-  console.log("Raw body:", req.body);
+  // console.log("Raw body:", req.body);
 
   let cleanedData = null;
 
@@ -201,7 +201,7 @@ router.post("/test-easylu-leads/:phoneNumber", async (req, res) => {
     console.error("Failed to parse data:", err);
   }
 
-  console.log("Cleaned Data:", cleanedData);
+  // console.log("Cleaned Data:", cleanedData);
 
   await linkDintestModel.create({
     phoneNumber,
@@ -259,7 +259,7 @@ router.post("/gemini-api-key", async (req, res) => {
   //     },
   //   },
   // });
-  console.log(response.text);
+  // console.log(response.text);
 
   // console.log(response.text);
 
@@ -315,7 +315,7 @@ router.post("/chatgpt-api-key", async (req, res) => {
 router.get("/", async (req, res) => {
   const htmlContent = await readFile(
     "./src/templates/api_welcome_page.html",
-    "utf8"
+    "utf8",
   );
   return res.type("html").send(htmlContent);
 });
@@ -394,7 +394,7 @@ router.get("/email", async (req, res, next) => {
         teamLeader: { firstName: "test", lastName: "test" },
       }),
       attachment,
-      ["aktarul@evgroup.co.in", "deepak@evgroup.co.in"]
+      ["aktarul@evgroup.co.in", "deepak@evgroup.co.in"],
     );
 
     // const resp = await sendMultipleEmail(
@@ -542,7 +542,7 @@ router.post("/sync-test-easy-leadz", async (req, res, next) => {
           },
           data: datat2, // use params for GET
         });
-        console.log(`✅ Called API for ${ele.phoneNumber}`);
+        // console.log(`✅ Called API for ${ele.phoneNumber}`);
       } catch (error) {
         console.error(`❌ Error for ${ele.phoneNumber}:`, error.message);
       }
@@ -565,7 +565,7 @@ router.get("/sync-visit-rank", async (req, res, next) => {
   try {
     //
     const date = moment().tz("Asia/Kolkata").subtract(1, "day").startOf("day");
-    console.log(date.toDate().toISOString());
+    // console.log(date.toDate().toISOString());
     const visits = await siteVisitModel.find({
       date: { $gte: date.toDate() },
       visitType: "visit",
@@ -597,11 +597,11 @@ router.get("/sync-visit-rank", async (req, res, next) => {
           {
             //
             isCountableVisit: true,
-          }
+          },
         );
-        console.log(`visit countable for ${ele.phoneNumber}`);
+        // console.log(`visit countable for ${ele.phoneNumber}`);
         avlsVist.push(ele);
-      })
+      }),
     );
 
     return successRes2(res, 200, "sync visit", {
@@ -621,7 +621,7 @@ router.get("/find-no-lead-visits", async (req, res, next) => {
 
     const allVisits = await siteVisitModel.find(
       {},
-      { phoneNumber: 1, closingManager: 1, date: 1, source: 1 }
+      { phoneNumber: 1, closingManager: 1, date: 1, source: 1 },
     );
     //
     for (let i = 0; i < allVisits.length; i++) {
@@ -636,7 +636,7 @@ router.get("/find-no-lead-visits", async (req, res, next) => {
           createdAt: 1,
           approvalDate: 1,
           dataAnalyzer: 1,
-        }
+        },
       );
       if (!foundLead) {
         //
@@ -672,7 +672,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
           channelPartner: { $ne: null },
           brevoCpTaggingRemovedFromList: { $ne: true },
         },
-        { phoneNumber: 1, channelPartner: 1, validTill: 1, startDate: 1 }
+        { phoneNumber: 1, channelPartner: 1, validTill: 1, startDate: 1 },
       )
       .sort({ validTill: -1 })
       .limit(10);
@@ -692,7 +692,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
       try {
         const brevoResponse = await axios.get(
           `https://api.brevo.com/v3/contacts/91${ele.phoneNumber}?identifierType=phone_id`,
-          { headers }
+          { headers },
         );
 
         const data = brevoResponse?.data;
@@ -728,7 +728,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
 
     // Convert grouped object to array and remove null groups
     const needToRemove = Object.values(groupedByList).filter(
-      (g) => g.listId !== null && g.listId !== undefined
+      (g) => g.listId !== null && g.listId !== undefined,
     );
 
     // 2️⃣ Throttled POST calls

@@ -15,7 +15,7 @@ commercialProjectRouter.get("/commercial-project", async (req, res) => {
     return res.send(
       successRes(200, "Get commercial project", {
         data: respPro,
-      })
+      }),
     );
   } catch (error) {
     return res.json({
@@ -35,7 +35,7 @@ commercialProjectRouter.get("/commercial-projects", async (req, res) => {
     return res.send(
       successRes(200, "Get commercial project", {
         data: respPro,
-      })
+      }),
     );
   } catch (error) {
     return res.json({
@@ -62,7 +62,7 @@ commercialProjectRouter.post("/add-commerical-project", async (req, res) => {
     return res.send(
       successRes(200, `Project added successfully: ${name}`, {
         data: newProject,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -75,7 +75,7 @@ commercialProjectRouter.post(
     const { id } = req.params;
     const { id: flatId, floor, number, buildingNo } = req.body;
 
-    console.log(req.body);
+    // console.log(req.body);
 
     try {
       let resp = await commercialProjModel.findById(id);
@@ -87,9 +87,9 @@ commercialProjectRouter.post(
           (ele.number === number &&
             ele.floor === floor &&
             ele.buildingNo == buildingNo) ||
-          ele._id === flatId
+          ele._id === flatId,
       );
-      console.log(foundFlat);
+      // console.log(foundFlat);
 
       if (!foundFlat) {
         // add new flat
@@ -102,14 +102,14 @@ commercialProjectRouter.post(
               },
             },
           },
-          { new: true }
+          { new: true },
         );
         const updateProj = await commercialProjModel.findById(id);
 
         return res.send(
           successRes(200, "Flat Added successfully", {
             data: updateProj,
-          })
+          }),
         );
       }
 
@@ -123,7 +123,7 @@ commercialProjectRouter.post(
           _id: id,
           "list._id": foundFlat._id,
         },
-        { $set: updateFields }
+        { $set: updateFields },
       );
 
       const updateProj = await commercialProjModel.findById(id).populate({
@@ -135,13 +135,13 @@ commercialProjectRouter.post(
       return res.send(
         successRes(200, "Flat updated successfully", {
           data: updateProj,
-        })
+        }),
       );
     } catch (err) {
       console.log(err);
       return res.send(errorRes(500, "Server error"));
     }
-  }
+  },
 );
 
 commercialProjectRouter.post("/bulk-add-flats/:id", async (req, res) => {
@@ -172,7 +172,7 @@ commercialProjectRouter.post("/bulk-add-flats/:id", async (req, res) => {
           list: { $each: flatsToAdd },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     const updatedProject = await commercialProjModel.findById(id);
@@ -180,7 +180,7 @@ commercialProjectRouter.post("/bulk-add-flats/:id", async (req, res) => {
     return res.send(
       successRes(200, "Flats bulk added successfully", {
         data: updatedProject,
-      })
+      }),
     );
   } catch (err) {
     console.error(err);

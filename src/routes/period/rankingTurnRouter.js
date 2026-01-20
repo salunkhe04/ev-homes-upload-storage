@@ -66,7 +66,7 @@ rankingTurnRouter.get("/turn-ranking", async (req, res) => {
         isCountableBooking: 1,
         visitRef: 1,
         bookingRef: 1,
-      }
+      },
     );
 
     // 3. Calculate score for each team
@@ -80,7 +80,7 @@ rankingTurnRouter.get("/turn-ranking", async (req, res) => {
     // 3. Calculate score for each team
     teams.forEach((tm) => {
       const filteredLeads = leads.filter(
-        (ele) => ele.cycle?.teamLeader === tm.user
+        (ele) => ele.cycle?.teamLeader === tm.user,
       );
 
       // New scoring system
@@ -253,12 +253,12 @@ rankingTurnRouter.get("/leads-rank-sync", async (req, res) => {
       const hasInterested = ele.callHistory.some((call) => {
         const callDate = moment(call.callDate).tz("Asia/Kolkata");
         const within20Min = callDate.isBefore(
-          moment(leadDate).add(20, "minute")
+          moment(leadDate).add(20, "minute"),
         );
         return call.interestedStatus === "interested" && within20Min;
       });
 
-      console.log(hasInterested);
+      // console.log(hasInterested);
 
       if (hasInterested) {
         countableLeads.push(ele);
@@ -279,7 +279,7 @@ rankingTurnRouter.get("/leads-rank-sync", async (req, res) => {
         } catch (error) {
           //
         }
-      })
+      }),
     );
 
     return successRes2(res, 200, "s", {
@@ -312,7 +312,7 @@ rankingTurnRouter.get("/leads-rank-sync-for-visit", async (req, res) => {
           //
           countableLeads.push(ele);
         }
-      })
+      }),
     );
 
     await Promise.all(
@@ -328,13 +328,13 @@ rankingTurnRouter.get("/leads-rank-sync-for-visit", async (req, res) => {
             },
             {
               isCountableVisit: true,
-            }
+            },
           );
           // }
         } catch (error) {
           //
         }
-      })
+      }),
     );
 
     return successRes2(res, 200, "s", {
@@ -357,7 +357,7 @@ rankingTurnRouter.get(
         source: { $ne: "walk-in" },
       });
 
-      console.log("Total visits fetched:", visits.length);
+      // console.log("Total visits fetched:", visits.length);
 
       let count = 0;
 
@@ -372,13 +372,13 @@ rankingTurnRouter.get(
 
           if (!oldVisit) {
             count++;
-            console.log("Unique visit found for:", ele.phoneNumber);
+            // console.log("Unique visit found for:", ele.phoneNumber);
           }
-        })
+        }),
       );
 
       // Step 3: Just print final count
-      console.log("Total unique (first-time) visits:", count);
+      // console.log("Total unique (first-time) visits:", count);
 
       // Step 4: Return response (no DB changes)
       return successRes2(res, 200, "Checked successfully", {
@@ -389,7 +389,7 @@ rankingTurnRouter.get(
       console.error("Error while checking visits:", error);
       return errorRes2(res, 500, error);
     }
-  }
+  },
 );
 
 rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
@@ -543,7 +543,7 @@ export const getCurrentRanks = async () => {
       isCountableBooking: 1,
       visitRef: 1,
       bookingRef: 1,
-    }
+    },
   );
 
   // 3. Calculate score for each team
@@ -556,7 +556,7 @@ export const getCurrentRanks = async () => {
   // });
   teams.forEach((tm) => {
     const filteredLeads = leads.filter(
-      (ele) => ele.cycle?.teamLeader === tm.user
+      (ele) => ele.cycle?.teamLeader === tm.user,
     );
 
     // New scoring system

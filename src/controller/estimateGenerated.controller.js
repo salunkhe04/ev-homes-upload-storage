@@ -24,14 +24,14 @@ export const getEstimateGenerated = async (req, res, next) => {
     const filteredEstimates = teamLeader
       ? estimateGenerated.filter(
           (estimate) =>
-            estimate.lead?.teamLeader?._id?.toString() === teamLeader
+            estimate.lead?.teamLeader?._id?.toString() === teamLeader,
         )
       : estimateGenerated;
     // console.log(filteredEstimates.length);
     return res.send(
       successRes(200, "Get Estimate Details", {
         data: filteredEstimates,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error fetching estimates:", error);
@@ -45,7 +45,7 @@ export const addGeneratedEstimate = async (req, res, next) => {
     if (!body) {
       return res.send(errorRes(403, "body is required"));
     }
-    console.log(body);
+    // console.log(body);
 
     const newEstimate = new estimateGeneratedModel(body);
 
@@ -68,7 +68,7 @@ export const addGeneratedEstimate = async (req, res, next) => {
     return res.send(
       successRes(200, "Estimate Details Added Successfully!!", {
         data: newSaved,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error adding estimates:", error);
@@ -91,7 +91,7 @@ export const getEstimateGeneratedById = async (req, res, next) => {
     return res.send(
       successRes(200, "Get Estimate Details By Lead", {
         data: estimateGenerated,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -113,7 +113,7 @@ export const getEstimatedById = async (req, res, next) => {
     return res.send(
       successRes(200, "Get Estimate Details By Lead", {
         data: estimateGenerated,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -135,7 +135,7 @@ export const getEstimateGeneratedByEstId = async (req, res, next) => {
     return res.send(
       successRes(200, "Get Estimate Details By Est ID", {
         data: estimateGenerated,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -154,7 +154,7 @@ export const updateEstimateGeneratedById = async (req, res, next) => {
     return res.send(
       successRes(200, "updated Estimate Details By Lead", {
         data: estimateGenerated,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);
@@ -188,14 +188,14 @@ export const updateEstimateGeneratedByIdArray = async (req, res, next) => {
             },
           },
         },
-        { new: true }
+        { new: true },
       )
       .populate(estimateGeneratedPopulateOptions);
 
     return res.send(
       successRes(200, "updated Estimate Details By Lead", {
         data: estimateGenerated,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -220,7 +220,7 @@ export const getEstimateGeneratedMultiple = async (req, res) => {
     return res.send(
       successRes(200, "Estimate details", {
         data: respSite,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `server error:${error?.message}`));
@@ -244,7 +244,7 @@ export const updateHandoverRevoke = async (req, res) => {
       // Perform the update
       resp = await estimateGeneratedModel.updateOne(
         { _id: id, "finalDocumentCreated.index": index }, // Match project and specific flat
-        { $set: updateFields } // Dynamically update fields
+        { $set: updateFields }, // Dynamically update fields
       );
       // console.log(req.body);
     } else {
@@ -257,7 +257,7 @@ export const updateHandoverRevoke = async (req, res) => {
       resp = await estimateGeneratedModel.findByIdAndUpdate(
         id,
         { $set: updateFields },
-        { new: true }
+        { new: true },
       );
     }
     // console.log(id);
@@ -268,7 +268,7 @@ export const updateHandoverRevoke = async (req, res) => {
     return res.send(
       successRes(200, "Document updated", {
         data: doc,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
