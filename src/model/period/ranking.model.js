@@ -22,6 +22,19 @@ export const rankingsSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    isCountable: {
+      type: Number,
+      default: 0,
+    },
+    isCountableVisit: {
+      type: Number,
+      default: 0,
+    },
+    isCountableBooking: {
+      type: Number,
+      default: 0,
+    },
+
     isMyTurn: {
       type: Boolean,
       default: false,
@@ -30,7 +43,7 @@ export const rankingsSchema = new mongoose.Schema(
     visits: [{ type: mongoose.Schema.Types.ObjectId, ref: "siteVisits" }],
     bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "postSaleLead" }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const rankingTurnSchema = new mongoose.Schema(
@@ -46,7 +59,7 @@ export const rankingTurnSchema = new mongoose.Schema(
     ranking: [rankingsSchema],
     timeline: [[rankingsSchema]],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Ensure unique week + period type
