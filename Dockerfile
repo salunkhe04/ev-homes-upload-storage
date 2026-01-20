@@ -48,4 +48,5 @@ EXPOSE 8082
 # ----------------------------
 # Start Node directly
 # ----------------------------
-CMD ["node", "src/server.js"]
+# CMD ["node", "src/server.js"]
+CMD ["node", "--cpu-prof", "src/server.js"]
