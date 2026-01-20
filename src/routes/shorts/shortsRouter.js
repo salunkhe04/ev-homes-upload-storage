@@ -73,7 +73,7 @@ shortsRouter.post("/edit-ev-homes-shorts/:id", async (req, res) => {
       .findByIdAndUpdate(
         id,
         { $addToSet: { shorts: { $each: shorts } } },
-        { new: true }
+        { new: true },
       )
       .populate({ path: "project", select: "name" });
 
@@ -101,10 +101,10 @@ shortsRouter.delete("/delete-shorts-shorts-id/:id", async (req, res) => {
     if (!resp) return errorRes2(res, 404, "no short found");
 
     const foundShort = resp.shorts.find(
-      (ele) => ele._id?.toString() === shortId
+      (ele) => ele._id?.toString() === shortId,
     );
 
-    console.log(foundShort);
+    // console.log(foundShort);
 
     if (!foundShort) {
       return errorRes2(res, 404, "no short 1 found");
@@ -124,7 +124,7 @@ shortsRouter.delete("/delete-shorts-shorts-id/:id", async (req, res) => {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     const updateProj = await shortsModel.findById(id);

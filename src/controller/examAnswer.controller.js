@@ -13,7 +13,7 @@ export const getExamResponse = async (req, res, next) => {
     return res.send(
       successRes(200, "Get Exam Resoponse", {
         data: respMe,
-      })
+      }),
     );
   } catch (e) {
     console.log(e);
@@ -163,7 +163,7 @@ export const addAnswer = async (req, res) => {
 
     if (!Array.isArray(selectedAnswer)) {
       return res.send(
-        errorRes(400, "Selected answers are required and must be an array")
+        errorRes(400, "Selected answers are required and must be an array"),
       );
     }
 
@@ -178,14 +178,14 @@ export const addAnswer = async (req, res) => {
 
     // console.log(durationMinutes);
     const examEndTime = new Date(
-      scheduledDate.getTime() + durationMinutes * 60000
+      scheduledDate.getTime() + durationMinutes * 60000,
     );
 
     // console.log(examEndTime);
 
     if (now < scheduledDate) {
       return res.send(
-        errorRes(403, "Please wait until your scheduled exam time.")
+        errorRes(403, "Please wait until your scheduled exam time."),
       );
     }
 
@@ -195,7 +195,7 @@ export const addAnswer = async (req, res) => {
 
     const processedAnswers = eligibility.exam.questions.map((question) => {
       const selectedEntry = selectedAnswer.find(
-        (ans) => ans.questionText === question.questionText
+        (ans) => ans.questionText === question.questionText,
       );
 
       const ans = selectedEntry?.selectedAnswer;
@@ -258,7 +258,7 @@ export const addAnswer = async (req, res) => {
     await eligibilityModel.findByIdAndUpdate(eligibilityRequestId, updateData);
 
     return res.send(
-      successRes(200, "Exam submitted successfully", { data: newAnswer })
+      successRes(200, "Exam submitted successfully", { data: newAnswer }),
     );
   } catch (e) {
     return res.send(errorRes(500, `Server error: ${e.message}`));
@@ -276,7 +276,7 @@ export const submitExam = async (req, res) => {
 
     if (questions && !Array.isArray(questions)) {
       return res.send(
-        errorRes(400, "Selected answers are required and must be an array")
+        errorRes(400, "Selected answers are required and must be an array"),
       );
     }
     // console.log("pass 1");
@@ -292,7 +292,7 @@ export const submitExam = async (req, res) => {
     // console.log("pass 3");
 
     const eligibility = await eligibilityModel.findById(
-      foundExam?.eligibilityRequest
+      foundExam?.eligibilityRequest,
     );
     // console.log("pass 4");
 
@@ -347,7 +347,7 @@ export const submitExam = async (req, res) => {
           timeTaken,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     // console.log("pass 7");
@@ -374,13 +374,13 @@ export const submitExam = async (req, res) => {
 
     await eligibilityModel.findByIdAndUpdate(
       foundExam?.eligibilityRequest,
-      updateData
+      updateData,
     );
 
     // console.log("pass 11");
 
     return res.send(
-      successRes(200, "Exam submitted successfully", { data: updatedAnswers })
+      successRes(200, "Exam submitted successfully", { data: updatedAnswers }),
     );
   } catch (e) {
     console.log(e);
@@ -409,11 +409,11 @@ export const addExamTimeLine = async (req, res) => {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     return res.send(
-      successRes(200, "Exam Timeline added", { data: foundExam })
+      successRes(200, "Exam Timeline added", { data: foundExam }),
     );
   } catch (e) {
     console.log(e);
@@ -429,11 +429,11 @@ export const saveAnswer = async (req, res) => {
     const { questions, recording, score, timeTaken } = req.body;
 
     // console.log(examId);
-    console.log(req.body);
+    // console.log(req.body);
 
     if (questions && !Array.isArray(questions)) {
       return res.send(
-        errorRes(400, "Selected answers are required and must be an array")
+        errorRes(400, "Selected answers are required and must be an array"),
       );
     }
     // console.log("pass 1");
@@ -479,14 +479,14 @@ export const saveAnswer = async (req, res) => {
           questions: processedAnswers,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     // console.log("pass 7");
     // console.log("pass 11");
 
     return res.send(
-      successRes(200, "Exam submitted successfully", { data: updatedAnswers })
+      successRes(200, "Exam submitted successfully", { data: updatedAnswers }),
     );
   } catch (e) {
     console.log(e);

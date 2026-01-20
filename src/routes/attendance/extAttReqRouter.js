@@ -40,7 +40,7 @@ extAttReqRouter.post("/ext-att-request", async (req, res) => {
 
     if (!body) return errorRes2(res, "body is required");
 
-    console.log(body);
+    // console.log(body);
     const newAtt = await extAttReqModel.create({
       ...body,
     });
@@ -94,7 +94,7 @@ extAttReqRouter.post("/ext-att-req-status/:id", async (req, res) => {
     const resp = await extAttReqModel.findByIdAndUpdate(
       id,
       { ...body, status: "approved" },
-      { new: true }
+      { new: true },
     );
 
     const att = await extAttReqModel
@@ -124,7 +124,7 @@ extAttReqRouter.delete("/delete-ext-att-req/:id", async (req, res) => {
     return res.send(
       successRes(200, `Request deleted successfully`, {
         data: deleteWeekoff,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));

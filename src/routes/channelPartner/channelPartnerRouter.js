@@ -37,13 +37,13 @@ cpRouter.get("/channel-partner", authenticateToken, getChannelPartners);
 cpRouter.get(
   "/channel-partner-review-list",
   authenticateToken,
-  getChannelPartnerReviewList
+  getChannelPartnerReviewList,
 );
 
 cpRouter.get(
   "/search-channel-partner",
   authenticateToken,
-  searchChannelPartners
+  searchChannelPartners,
 );
 
 cpRouter.get("/channel-partner/:id", authenticateToken, getChannelPartnerById);
@@ -51,32 +51,32 @@ cpRouter.get("/channel-partner/:id", authenticateToken, getChannelPartnerById);
 cpRouter.post(
   "/channel-partner-register",
   validateChannelPartnerFields,
-  registerChannelPartner
+  registerChannelPartner,
 );
 
 cpRouter.post(
   "/channel-partner-login",
   validateChannelPartnerFields,
-  loginChannelPartner
+  loginChannelPartner,
 );
 
 cpRouter.post(
   "/channel-partner-login-v2",
   validateChannelPartnerFields,
-  loginChannelPartnerV2
+  loginChannelPartnerV2,
 );
 
 cpRouter.post(
   "/channel-partner-edit/:id",
   authenticateToken,
   validateChannelPartnerFields,
-  editChannelPartnerById
+  editChannelPartnerById,
 );
 
 cpRouter.post(
   "/channel-partner-onboarding-update/:id",
   // authenticateToken,
-  cpOnboardingUpdate
+  cpOnboardingUpdate,
 );
 
 cpRouter.post("/channel-partner-onboarding-register", cpOnboardingRegister);
@@ -87,12 +87,12 @@ cpRouter.post("/channel-partner-forgot-password", forgotPasswordChannelPartner);
 cpRouter.post("/channel-partner-email-otp", sendEmailVerificationOtp);
 cpRouter.post(
   "/channel-partner-register-email-otp",
-  sendRegisterEmailVerificationOtp
+  sendRegisterEmailVerificationOtp,
 );
 cpRouter.post("/channel-partner-verify-email-otp", verifyEmailOTP);
 cpRouter.post(
   "/channel-partner-verify-register-email-otp",
-  verifyRegisterEmailOTP
+  verifyRegisterEmailOTP,
 );
 
 //otp for phone verification
@@ -102,13 +102,13 @@ cpRouter.post("/channel-partner-verify-phone-otp", verifyPhoneOTP);
 cpRouter.post(
   "/channel-partner-review-request/:id",
   // authenticateToken,
-  cpOnboardingApproval
+  cpOnboardingApproval,
 );
 
 cpRouter.post(
   "/sync-cp",
   // authenticateToken,
-  syncCp
+  syncCp,
 );
 
 cpRouter.post("/channel-partner-reset-password", resetPasswordChannelPartner);
@@ -118,7 +118,7 @@ cpRouter.post("/channel-partner-pw/:id", newPassword);
 cpRouter.delete(
   "/channel-partner/:id",
   authenticateToken,
-  deleteChannelPartnerById
+  deleteChannelPartnerById,
 );
 
 cpRouter.post("/validate-channel-partner-session", getCPReAuth);
@@ -141,7 +141,7 @@ cpRouter.get("/check-cp-email-exist/:email", async (req, res) => {
 cpRouter.get("/check-cp-exist", async (req, res) => {
   const { email, phoneNumber, reraNumber } = req.query;
   try {
-    console.log(req.query);
+    // console.log(req.query);
     if (!email && !phoneNumber && !reraNumber) {
       return res.send(errorRes(400, "No query provided"));
     }
@@ -169,7 +169,7 @@ cpRouter.get("/check-cp-exist", async (req, res) => {
       });
     }
 
-    console.log(query);
+    // console.log(query);
     //
     const resp = await cpModel
       .findOne(query)

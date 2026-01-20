@@ -11,7 +11,7 @@ export const getTeam = async (req, res) => {
     return res.send(
       successRes(200, "Get Teams", {
         data: respDes,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -31,13 +31,13 @@ export const getTeamById = async (req, res) => {
       return res.send(
         successRes(404, `Team not found`, {
           data: respDes,
-        })
+        }),
       );
 
     return res.send(
       successRes(200, `get team`, {
         data: respDes,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -82,7 +82,7 @@ export const getTeamReportingTo = async (req, res) => {
         },
         {
           _id: 1,
-        }
+        },
       );
 
       const taskIds = tasks.map((t) => t._id);
@@ -98,7 +98,7 @@ export const getTeamReportingTo = async (req, res) => {
           },
           {
             taskRef: 1,
-          }
+          },
         )
         .lean();
 
@@ -114,7 +114,7 @@ export const getTeamReportingTo = async (req, res) => {
     return res.send(
       successRes(200, "get team", {
         data: teams,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error.message || error));
@@ -176,7 +176,7 @@ export const getMyTeam = async (req, res) => {
     return res.send(
       successRes(200, `get team`, {
         data: teams,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error.message || error));
@@ -202,7 +202,7 @@ export const addTeamInsight = async (req, res) => {
     return res.send(
       successRes(200, `Team created successfully: ${teamName}`, {
         data: newTeam,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -220,15 +220,15 @@ export const updateCrew = async (req, res) => {
     if (!team) return res.send(errorRes(404, "team not found"));
 
     const existingIds = team.crew.map((c) => c.teamMember.toString());
-    console.log(existingIds);
+    // console.log(existingIds);
 
     const newIds = crew.map((c) => c.teamMember.toString());
 
-    console.log(newIds);
+    // console.log(newIds);
     const alreadyExists = newIds.find((teamMember) =>
-      existingIds.includes(teamMember)
+      existingIds.includes(teamMember),
     );
-    console.log(alreadyExists);
+    // console.log(alreadyExists);
     if (alreadyExists) {
       return res.send(errorRes(401, `These team members already exist`));
     }
@@ -237,12 +237,12 @@ export const updateCrew = async (req, res) => {
       .findByIdAndUpdate(
         id,
         { $addToSet: { crew: { $each: crew } } },
-        { new: true }
+        { new: true },
       )
       .populate(teamInsightPopulate);
 
     return res.send(
-      successRes(200, `crew updated successfully`, { data: updateTeam })
+      successRes(200, `crew updated successfully`, { data: updateTeam }),
     );
   } catch (error) {
     return res.send(errorRes(500, error.message || error));
@@ -250,11 +250,9 @@ export const updateCrew = async (req, res) => {
 };
 
 export const validateInsight = async (id) => {
-  
   try {
-    let teams = await teamInsightModel
-      .find({ "crew.teamMember": id });
-      // .populate(teamInsightPopulate);
+    let teams = await teamInsightModel.find({ "crew.teamMember": id });
+    // .populate(teamInsightPopulate);
 
     //  let teams = await teamInsightModel
     //       .find({ reportingTo: id })
@@ -269,7 +267,7 @@ export const validateInsight = async (id) => {
         },
         {
           _id: 1,
-        }
+        },
       );
 
       const taskIds = tasks.map((t) => t._id);
@@ -285,7 +283,7 @@ export const validateInsight = async (id) => {
           },
           {
             taskRef: 1,
-          }
+          },
         )
         .lean();
 

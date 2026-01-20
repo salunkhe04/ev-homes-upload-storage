@@ -21,7 +21,7 @@ export const getEligibiltyRequest = async (req, res, next) => {
     return res.send(
       successRes(200, "Eligible", {
         data: respMe,
-      })
+      }),
     );
   } catch (e) {
     console.log(e);
@@ -39,7 +39,7 @@ export const getEligibiltyRequestById = async (req, res, next) => {
     return res.send(
       successRes(200, "Eligible", {
         data: respMe,
-      })
+      }),
     );
   } catch (e) {
     console.log(e);
@@ -63,7 +63,7 @@ export const getRequestByAppliedBy = async (req, res, next) => {
     return res.send(
       successRes(200, "Requests made by appliedBy ID", {
         data: resp,
-      })
+      }),
     );
   } catch (e) {
     console.log(e);
@@ -117,7 +117,7 @@ export const addEligibilityRequest = async (req, res, next) => {
     return res.send(
       successRes(200, "Request added", {
         data: populateResp,
-      })
+      }),
     );
   } catch (e) {
     console.log(e);
@@ -137,7 +137,7 @@ export const deleteEligibilityRequest = async (req, res) => {
     return res.send(
       successRes(200, `Deleted successfully`, {
         data: deleteEligibility,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -160,7 +160,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
     } = req.body;
 
     // console.log(tests);
-    console.log(req.body);
+    // console.log(req.body);
 
     const eligibleReq = await eligibilityModel
       .findById(id)
@@ -172,7 +172,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
 
     // console.log(eligibleReq);
     const step = eligibleReq.approvalSteps.find(
-      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending"
+      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending",
     );
     // console.log(step);
     // console.log("id:", adminId);
@@ -237,7 +237,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
               scheduleExam: createdExam,
               examConductedDate: examConductedDate,
               typeOfAttempt: typeOfAttempt,
-            }
+            },
           );
           eligibleReq.status = "exam-schedule";
         } catch (error) {
@@ -245,7 +245,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
         }
         await eligibleReq.save();
         return res.send(
-          successRes(200, `Request ${status}`, { data: eligibleReq })
+          successRes(200, `Request ${status}`, { data: eligibleReq }),
         );
       }
 
@@ -304,14 +304,14 @@ export const updateEligibilityApproval = async (req, res, next) => {
             scheduleExam: createdExam,
             examConductedDate: examConductedDate,
             typeOfAttempt: typeOfAttempt,
-          }
+          },
         );
       } catch (error) {
         console.error(error);
       }
 
       let nextStep = eligibleReq.approvalSteps.find(
-        (s) => s.level === step.level + 1
+        (s) => s.level === step.level + 1,
       );
 
       while (nextStep && nextStep.adminId?._id.toString() === adminId) {
@@ -321,7 +321,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
         nextStep.remark = "Auto-approved (same admin)";
         eligibleReq.currentLevel = nextStep.level;
         nextStep = eligibleReq.approvalSteps.find(
-          (s) => s.level === eligibleReq.currentLevel + 1
+          (s) => s.level === eligibleReq.currentLevel + 1,
         );
       }
 
@@ -338,7 +338,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
 
     await eligibleReq.save();
     return res.send(
-      successRes(200, `Request ${status}`, { data: eligibleReq })
+      successRes(200, `Request ${status}`, { data: eligibleReq }),
     );
   } catch (error) {
     // console.log(error);
@@ -444,7 +444,7 @@ export const getEligibleCriteria = async (req, res, next) => {
         experienceStatus: employee.experienceStatus,
         hasRequiredExperience,
         // employee,
-      })
+      }),
     );
   } catch (e) {
     console.error(e);
@@ -463,7 +463,7 @@ export const deleteEligibiltyRequestById = async (req, res, next) => {
     return res.send(
       successRes(200, "Eligible", {
         data: respMe,
-      })
+      }),
     );
   } catch (e) {
     console.log(e);
@@ -483,7 +483,7 @@ export const updateExamStatus = async (req, res, next) => {
     const updated = await eligibilityModel.findByIdAndUpdate(
       id,
       { status: status.toLowerCase() },
-      { new: true }
+      { new: true },
     );
 
     if (!updated) {
@@ -506,7 +506,7 @@ export const updateExamStatus = async (req, res, next) => {
       .populate(eligibilityRequestPopulate);
 
     return res.send(
-      successRes(200, "Status updated successfully", { data: newResp })
+      successRes(200, "Status updated successfully", { data: newResp }),
     );
   } catch (e) {
     console.error("Error updating exam status:", e);

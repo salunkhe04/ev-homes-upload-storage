@@ -23,13 +23,15 @@ import { sendNotificationWithImage } from "./oneSignal.controller.js";
 
 export const getChannelPartners = async (req, res, next) => {
   try {
-    const respCP = await cpModel.find({
+    const respCP = await cpModel
+      .find({
         status: "active",
-      }).select("-password -refreshToken");
+      })
+      .select("-password -refreshToken");
     return res.send(
       successRes(200, "Get Channel Partners ", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -58,7 +60,7 @@ export const getChannelPartnerReviewList = async (req, res, next) => {
     return res.send(
       successRes(200, "Get Channel Partners for review ", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -106,7 +108,7 @@ export const searchChannelPartners = async (req, res, next) => {
         totalPages,
         totalItems,
         items: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -122,14 +124,14 @@ export const getChannelPartnerById = async (req, res, next) => {
     //if not found
     if (!respCP) {
       return res.send(
-        errorRes(404, `Channel Partner not found with id: ${id}`)
+        errorRes(404, `Channel Partner not found with id: ${id}`),
       );
     }
     //if found
     return res.send(
       successRes(200, `get Channel Partner by id ${id}`, {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -149,7 +151,7 @@ export const editChannelPartnerById = async (req, res, next) => {
     //if not found
     if (!respCP) {
       return res.send(
-        errorRes(404, `Channel Partner not found with id: ${id}`)
+        errorRes(404, `Channel Partner not found with id: ${id}`),
       );
     }
     if (body.password) {
@@ -161,7 +163,7 @@ export const editChannelPartnerById = async (req, res, next) => {
       {
         ...body,
       },
-      { new: true }
+      { new: true },
     );
 
     // const updateResp = await cpModel.updateOne(
@@ -175,7 +177,7 @@ export const editChannelPartnerById = async (req, res, next) => {
     return res.send(
       successRes(200, `updated Channel Partner by id ${id}`, {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -192,7 +194,7 @@ export const deleteChannelPartnerById = async (req, res, next) => {
     //if not found
     if (!respCP) {
       return res.send(
-        errorRes(404, `Channel Partner not found with id: ${id}`)
+        errorRes(404, `Channel Partner not found with id: ${id}`),
       );
     }
     const deletedResp = await respCP.deleteOne();
@@ -200,7 +202,7 @@ export const deleteChannelPartnerById = async (req, res, next) => {
     return res.send(
       successRes(200, `deleted Channel Partner by id ${id}`, {
         data: deletedResp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -215,7 +217,7 @@ export const registerChannelPartner = async (req, res, next) => {
     if (!body) return res.send(errorRes(403, "data is required"));
     if (password.length < 6) {
       return res.send(
-        errorRes(400, "Password should be at least 6 character long.")
+        errorRes(400, "Password should be at least 6 character long."),
       );
     }
     const validateFields = validateRegisterCPFields(body);
@@ -236,7 +238,7 @@ export const registerChannelPartner = async (req, res, next) => {
 
     if (oldUser) {
       return res.send(
-        errorRes(400, "Account already exist with this email or phone number")
+        errorRes(400, "Account already exist with this email or phone number"),
       );
     }
 
@@ -267,12 +269,12 @@ export const registerChannelPartner = async (req, res, next) => {
     const accessToken = createJwtToken(
       dataToken,
       config.SECRET_ACCESS_KEY,
-      "15m"
+      "15m",
     );
     const refreshToken = createJwtToken(
       dataToken,
       config.SECRET_REFRESH_KEY,
-      "7d"
+      "7d",
     );
     savedCp.refreshToken = refreshToken;
     await savedCp.save();
@@ -282,7 +284,7 @@ export const registerChannelPartner = async (req, res, next) => {
         data: userWithoutPassword,
         accessToken,
         refreshToken,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -327,13 +329,13 @@ export const loginChannelPartner = async (req, res, next) => {
     const accessToken = createJwtToken(
       dataToken,
       config.SECRET_ACCESS_KEY,
-      "15m"
+      "15m",
     );
 
     const refreshToken = createJwtToken(
       dataToken,
       config.SECRET_REFRESH_KEY,
-      "7d"
+      "7d",
     );
     await channelPartnerDb.updateOne({
       refreshToken: refreshToken,
@@ -353,7 +355,7 @@ export const loginChannelPartner = async (req, res, next) => {
         data: userWithoutPassword,
         accessToken,
         refreshToken,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -398,13 +400,13 @@ export const loginChannelPartnerV2 = async (req, res, next) => {
     const accessToken = createJwtToken(
       dataToken,
       config.SECRET_ACCESS_KEY,
-      "15m"
+      "15m",
     );
 
     const refreshToken = createJwtToken(
       dataToken,
       config.SECRET_REFRESH_KEY,
-      "7d"
+      "7d",
     );
     await channelPartnerDb.updateOne({
       refreshToken: refreshToken,
@@ -424,7 +426,7 @@ export const loginChannelPartnerV2 = async (req, res, next) => {
         data: userWithoutPassword,
         accessToken,
         refreshToken,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -450,7 +452,7 @@ export const newPassword = async (req, res, next) => {
 
     if (!respCP) {
       return res.send(
-        errorRes(404, `Channel Partner not found with id: ${id}`)
+        errorRes(404, `Channel Partner not found with id: ${id}`),
       );
     }
     // console.log("pass 1");
@@ -470,7 +472,7 @@ export const newPassword = async (req, res, next) => {
     // console.log("pass 4");
 
     return res.send(
-      successRes(200, "Password updated successfully", { data: respCP })
+      successRes(200, "Password updated successfully", { data: respCP }),
     );
   } catch (error) {
     return next(error);
@@ -504,7 +506,7 @@ export const reAuthChannelPartner = async (req, res, next) => {
     return res.send(
       successRes(200, "channel partner is verified", {
         status: true,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -565,7 +567,7 @@ export const forgotPasswordChannelPartner = async (req, res, next) => {
 
     if (!channelPartnerDb) {
       return res.send(
-        errorRes(400, `No channel partner found with given email: ${email}`)
+        errorRes(400, `No channel partner found with given email: ${email}`),
       );
     }
 
@@ -578,14 +580,14 @@ export const forgotPasswordChannelPartner = async (req, res, next) => {
         forgotPasswordTemplete(
           `${channelPartnerDb.firstName} ${channelPartnerDb.lastName}`,
           oldOtp.otp,
-          "https://evhomes.tech/"
+          "https://evhomes.tech/",
         ),
-        []
+        [],
       );
       return res.send(
         successRes(200, `Your OTP has been re-sent to ${email}`, {
           data: oldOtp,
-        })
+        }),
       );
     }
 
@@ -606,15 +608,15 @@ export const forgotPasswordChannelPartner = async (req, res, next) => {
       forgotPasswordTemplete(
         `${channelPartnerDb.firstName} ${channelPartnerDb.lastName}`,
         savedOtp.otp,
-        "https://evhomes.tech/"
+        "https://evhomes.tech/",
       ),
-      []
+      [],
     );
 
     return res.send(
       successRes(200, `Your OTP has been sent to ${email}`, {
         data: savedOtp._doc,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -635,7 +637,7 @@ export const sendEmailVerificationOtp = async (req, res, next) => {
 
     if (!channelPartnerDb) {
       return res.send(
-        errorRes(400, `No channel partner found with given email: ${email}`)
+        errorRes(400, `No channel partner found with given email: ${email}`),
       );
     }
 
@@ -649,14 +651,14 @@ export const sendEmailVerificationOtp = async (req, res, next) => {
           `${channelPartnerDb.firstName} ${channelPartnerDb.lastName}`,
           "email",
           oldOtp.otp,
-          "https://evhomes.tech/"
+          "https://evhomes.tech/",
         ),
-        []
+        [],
       );
       return res.send(
         successRes(200, `Your OTP has been re-sent to ${email}`, {
           data: oldOtp,
-        })
+        }),
       );
     }
 
@@ -678,15 +680,15 @@ export const sendEmailVerificationOtp = async (req, res, next) => {
         `${channelPartnerDb.firstName} ${channelPartnerDb.lastName}`,
         "email",
         savedOtp.otp,
-        "https://evhomes.tech/"
+        "https://evhomes.tech/",
       ),
-      []
+      [],
     );
 
     return res.send(
       successRes(200, `Your OTP has been sent to ${email}`, {
         data: savedOtp._doc,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -710,14 +712,14 @@ export const sendRegisterEmailVerificationOtp = async (req, res, next) => {
           `${firmName}`,
           "email",
           oldOtp.otp,
-          "https://evhomes.tech/"
+          "https://evhomes.tech/",
         ),
-        []
+        [],
       );
       return res.send(
         successRes(200, `Your OTP has been re-sent to ${email}`, {
           data: oldOtp,
-        })
+        }),
       );
     }
 
@@ -739,15 +741,15 @@ export const sendRegisterEmailVerificationOtp = async (req, res, next) => {
         `${email}`,
         "email",
         savedOtp.otp,
-        "https://evhomes.tech/"
+        "https://evhomes.tech/",
       ),
-      []
+      [],
     );
 
     return res.send(
       successRes(200, `Your OTP has been sent to ${email}`, {
         data: savedOtp._doc,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -785,7 +787,7 @@ export const verifyEmailOTP = async (req, res, next) => {
       {
         isVerifiedEmail: true,
       },
-      { new: true }
+      { new: true },
     );
     const updatedCP = await cpModel
       .findById(channelPartnerDb._id)
@@ -801,7 +803,7 @@ export const verifyEmailOTP = async (req, res, next) => {
     return res.send(
       successRes(200, `Email Verified Successfully`, {
         data: updatedCP,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -839,7 +841,7 @@ export const verifyRegisterEmailOTP = async (req, res, next) => {
     return res.send(
       successRes(200, `Email Verified Successfully`, {
         data: true,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -864,8 +866,8 @@ export const sendPhoneVerificationOtp = async (req, res, next) => {
       return res.send(
         errorRes(
           400,
-          `No channel partner found with given email: ${phoneNumber}`
-        )
+          `No channel partner found with given email: ${phoneNumber}`,
+        ),
       );
     }
 
@@ -886,7 +888,7 @@ export const sendPhoneVerificationOtp = async (req, res, next) => {
       return res.send(
         successRes(200, `Your OTP has been re-sent to ${phoneNumber}`, {
           data: oldOtp,
-        })
+        }),
       );
     }
 
@@ -916,7 +918,7 @@ export const sendPhoneVerificationOtp = async (req, res, next) => {
     return res.send(
       successRes(200, `Your OTP has been sent to ${email}`, {
         data: savedOtp._doc,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -948,7 +950,7 @@ export const verifyPhoneOTP = async (req, res, next) => {
 
     if (!channelPartnerDb) {
       return res.send(
-        errorRes(404, "No Employee found with given phoneNumber")
+        errorRes(404, "No Employee found with given phoneNumber"),
       );
     }
 
@@ -956,7 +958,7 @@ export const verifyPhoneOTP = async (req, res, next) => {
       {
         isVerifiedPhone: true,
       },
-      { new: true }
+      { new: true },
     );
     const updatedCP = await cpModel
       .findById(channelPartnerDb._id)
@@ -972,7 +974,7 @@ export const verifyPhoneOTP = async (req, res, next) => {
     return res.send(
       successRes(200, `Phone Number Verified Successfully`, {
         data: updatedCP,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -1068,7 +1070,7 @@ export const resetPasswordChannelPartner = async (req, res, next) => {
       {
         password: hashPassword,
       },
-      { new: true }
+      { new: true },
     );
     // const updatedPassChannelPartner = await employeeModel.updateOne(
     //   {
@@ -1084,7 +1086,7 @@ export const resetPasswordChannelPartner = async (req, res, next) => {
     return res.send(
       successRes(200, `Reset password sucessfully for: ${otpDbResp.email}`, {
         data: channelPartnerDb,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1130,8 +1132,8 @@ export const getCPReAuth = async (req, res, next) => {
       return res.send(
         errorRes(
           401,
-          "Your session has expired. Please log in again to continue."
-        )
+          "Your session has expired. Please log in again to continue.",
+        ),
       );
     }
 
@@ -1148,7 +1150,7 @@ export const getCPReAuth = async (req, res, next) => {
       if (!user) {
         res.setHeader("x-force-logout", `force-logout`);
         return res.send(
-          errorRes(401, "Session Expired, Please log in again to continue.")
+          errorRes(401, "Session Expired, Please log in again to continue."),
         );
       }
 
@@ -1165,14 +1167,14 @@ export const getCPReAuth = async (req, res, next) => {
         if (!refreshToken) {
           res.setHeader("x-force-logout", `force-logout`);
           return res.send(
-            errorRes(401, "Session Expired, Please log in again to continue.")
+            errorRes(401, "Session Expired, Please log in again to continue."),
           );
         }
 
         try {
           const decoded = verifyJwtToken(
             refreshToken,
-            config.SECRET_REFRESH_KEY
+            config.SECRET_REFRESH_KEY,
           );
           const user = await cpModel
             .findById(decoded.data._id)
@@ -1182,7 +1184,10 @@ export const getCPReAuth = async (req, res, next) => {
           if (!user) {
             res.setHeader("x-force-logout", `force-logout`);
             return res.send(
-              errorRes(401, "Session Expired, Please log in again to continue.")
+              errorRes(
+                401,
+                "Session Expired, Please log in again to continue.",
+              ),
             );
           }
 
@@ -1196,13 +1201,13 @@ export const getCPReAuth = async (req, res, next) => {
           const newAccessToken = createJwtToken(
             dataToken,
             config.SECRET_ACCESS_KEY,
-            "15m"
+            "15m",
           );
 
           // Check if refresh token is about to expire (e.g., less than 1 day)
           const refreshDecoded = verifyJwtToken(
             refreshToken,
-            config.SECRET_REFRESH_KEY
+            config.SECRET_REFRESH_KEY,
           );
           // console.log(refreshDecoded);
           const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
@@ -1214,7 +1219,7 @@ export const getCPReAuth = async (req, res, next) => {
             newRefreshToken = createJwtToken(
               dataToken,
               config.SECRET_REFRESH_KEY,
-              "7d"
+              "7d",
             ); // Generate a new refresh token
             res.setHeader("x-new-refresh-token", newRefreshToken); // Send new refresh token in response header
           }
@@ -1227,20 +1232,20 @@ export const getCPReAuth = async (req, res, next) => {
               data: user,
               newRefreshToken:
                 timeLeft < 24 * 60 * 60 ? newRefreshToken : undefined, // Include new token if generated
-            })
+            }),
           );
         } catch (refreshError) {
           // console.log(refreshError);
           res.setHeader("x-force-logout", `force-logout`);
           return res.send(
-            errorRes(401, "Session Expired, Please log in again to continue.")
+            errorRes(401, "Session Expired, Please log in again to continue."),
           );
         }
       }
       res.setHeader("x-force-logout", `force-logout`);
 
       return res.send(
-        errorRes(401, "Session Expired, Please log in again to continue.")
+        errorRes(401, "Session Expired, Please log in again to continue."),
       );
     }
   } catch (error) {
@@ -1263,7 +1268,7 @@ export const cpOnboardingRegister = async (req, res, next) => {
 
     if (oldCp)
       return res.send(
-        errorRes(401, "account already exist with email or phone Number")
+        errorRes(401, "account already exist with email or phone Number"),
       );
 
     const hashPassword = await encryptPassword(password?.toString());
@@ -1317,7 +1322,7 @@ export const cpOnboardingRegister = async (req, res, next) => {
     return res.send(
       successRes(200, `Your request is sent for review`, {
         data: updatedResp,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -1333,13 +1338,13 @@ export const cpOnboardingUpdate = async (req, res, next) => {
   try {
     if (!id) return res.send(errorRes(403, "id is required"));
     if (!body) return res.send(errorRes(403, "valid data is required"));
-    console.log(body);
+    // console.log(body);
     const respCP = await cpModel.findById(id);
 
     //if not found
     if (!respCP) {
       return res.send(
-        errorRes(404, `Channel Partner not found with id: ${id}`)
+        errorRes(404, `Channel Partner not found with id: ${id}`),
       );
     }
 
@@ -1350,7 +1355,7 @@ export const cpOnboardingUpdate = async (req, res, next) => {
         onBoarding: "under-review",
         onBoardingDate: new Date(),
       },
-      { new: true }
+      { new: true },
     );
     const updatedResp = await cpModel.findById(id);
 
@@ -1386,7 +1391,7 @@ export const cpOnboardingUpdate = async (req, res, next) => {
     return res.send(
       successRes(200, `Your request is sent for review`, {
         data: updatedResp,
-      })
+      }),
     );
   } catch (error) {
     console.log(error);
@@ -1411,7 +1416,7 @@ export const cpOnboardingApproval = async (req, res, next) => {
     //if not found
     if (!respCP) {
       return res.send(
-        errorRes(404, `Channel Partner not found with id: ${id}`)
+        errorRes(404, `Channel Partner not found with id: ${id}`),
       );
     }
     let updates = {
@@ -1440,7 +1445,7 @@ export const cpOnboardingApproval = async (req, res, next) => {
         status: "active",
         onBoardingApprovalRemark: remark,
       },
-      { new: true }
+      { new: true },
     );
 
     if (status === "approved") {
@@ -1458,10 +1463,10 @@ export const cpOnboardingApproval = async (req, res, next) => {
           name: updatedResp?.firmName,
           folderId: brevoFolderId,
         },
-        { headers }
+        { headers },
       );
 
-      console.log("bre list created:", brevoResponse.data);
+      // console.log("bre list created:", brevoResponse.data);
 
       const brevoListId = brevoResponse?.data?.id;
 
@@ -1469,7 +1474,7 @@ export const cpOnboardingApproval = async (req, res, next) => {
         await cpModel.findByIdAndUpdate(
           id,
           { brevoId: brevoListId },
-          { new: true }
+          { new: true },
         );
         updatedResp = await cpModel.findById(id);
       }
@@ -1504,7 +1509,7 @@ export const cpOnboardingApproval = async (req, res, next) => {
     return res.send(
       successRes(200, `Your request is sent for review`, {
         data: updatedResp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1538,12 +1543,12 @@ export const syncCp = async (req, res, next) => {
             name: cp.firmName,
             folderId: brevoFolderId,
           },
-          { headers }
+          { headers },
         );
 
         const brevoListId = brevoResponse?.data?.id;
 
-        console.log(brevoListId);
+        // console.log(brevoListId);
 
         if (brevoListId) {
           await cpModel.findByIdAndUpdate(cp._id, { brevoId: brevoListId });
@@ -1553,7 +1558,7 @@ export const syncCp = async (req, res, next) => {
         console.log(
           "Brevo sync error for CP:",
           cp.firmName,
-          err?.response?.data || err.message
+          err?.response?.data || err.message,
         );
       }
     }
@@ -1562,7 +1567,7 @@ export const syncCp = async (req, res, next) => {
       successRes(200, "Auto Sync Completed", {
         syncedCount: synced.length,
         synced,
-      })
+      }),
     );
   } catch (error) {
     return next(error);

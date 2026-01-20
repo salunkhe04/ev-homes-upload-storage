@@ -60,7 +60,7 @@ leadRouterV2.post(
               },
             },
           },
-          { new: true }
+          { new: true },
         )
         .populate(leadPopulateOptions);
 
@@ -69,7 +69,7 @@ leadRouterV2.post(
       //
       res.json(error);
     }
-  }
+  },
 );
 
 leadRouterV2.post(
@@ -120,7 +120,7 @@ leadRouterV2.post(
               },
             },
           },
-          { new: true }
+          { new: true },
         )
         .populate(leadPopulateOptions);
 
@@ -130,7 +130,7 @@ leadRouterV2.post(
       // console.log(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
 );
 
 leadRouterV2.post("/add-cp-to-queue-list", async (req, res) => {
@@ -761,7 +761,7 @@ leadRouterV2.get(
       // console.log(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
 );
 
 leadRouterV2.get(
@@ -862,7 +862,7 @@ leadRouterV2.get(
           ...dateFilter,
         };
       }
-      console.log(filter);
+      // console.log(filter);
       const counts = await leadModelV2.aggregate([
         filter,
         {
@@ -1213,7 +1213,7 @@ leadRouterV2.get(
       console.log(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
 );
 
 //list of employees count with filter
@@ -1267,7 +1267,7 @@ leadRouterV2.get(
     const employees = await employeeModel
       .find(filter)
       .select(
-        "firstName lastName profilePic designation employeeId email phoneNumber"
+        "firstName lastName profilePic designation employeeId email phoneNumber",
       )
       .populate({
         path: "designation",
@@ -1381,7 +1381,7 @@ leadRouterV2.get(
       console.log(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
 );
 
 //individual count with filter
@@ -1420,7 +1420,7 @@ leadRouterV2.get(
       const emp = await employeeModel
         .findById(id)
         .select(
-          "firstName lastName profilePic designation employeeId email phoneNumber reportingTo"
+          "firstName lastName profilePic designation employeeId email phoneNumber reportingTo",
         )
         .populate({
           path: "designation",
@@ -1545,12 +1545,12 @@ leadRouterV2.get(
             : {}),
           deadline: { $gte: new Date() },
         },
-        { _id: 1, lead: 1, phoneNumber: 1, type: 1 }
+        { _id: 1, lead: 1, phoneNumber: 1, type: 1 },
       );
       let assignedTaskIds = taskIds.map((task) => task.phoneNumber);
       let liveLeadTask = taskIds.filter((task) => task.type == "live-lead");
       let transferLeadTask = taskIds.filter(
-        (task) => task.type == "transfer-lead"
+        (task) => task.type == "transfer-lead",
       );
 
       // console.log(assignedTaskIds);
@@ -1740,7 +1740,7 @@ leadRouterV2.get(
       console.error(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
 );
 
 leadRouterV2.get("/leads-team-leader/:id", getLeadsTeamLeaderV2);
@@ -1798,8 +1798,8 @@ function generateDummyData(count) {
     const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
     const phoneNumber = parseInt(
       `${Math.floor(Math.random() * 900 + 100)}${Math.floor(
-        Math.random() * 900 + 100
-      )}${Math.floor(Math.random() * 9000 + 1000)}`
+        Math.random() * 900 + 100,
+      )}${Math.floor(Math.random() * 9000 + 1000)}`,
     );
 
     data.push({ firstName, lastName, phoneNumber, leadType: "cp" });
@@ -1834,10 +1834,10 @@ leadRouterV2.get(
           //
           console.log(error);
         }
-      })
+      }),
     );
     res.send(resp);
-  }
+  },
 );
 
 leadRouterV2.get("/leads-visit-stimate", async (req, res) => {
@@ -1869,7 +1869,7 @@ leadRouterV2.get("/leads-visit-stimate", async (req, res) => {
         } catch (error) {
           //
         }
-      })
+      }),
     );
     res.send(results);
   } catch (error) {
@@ -1944,14 +1944,14 @@ leadRouterV2.get("/internal-leads-trigger-date-fix", async (req, res) => {
 });
 
 leadRouterV2.get("/last-weeek-rj-lead", async (req, res) => {
-  console.log("okay");
+  // console.log("okay");
 
   const format = [];
   try {
     const todayDate = moment().tz("Asia/kolkata");
     const curDate = moment().tz("Asia/kolkata").subtract(2, "weeks");
 
-    console.log(curDate);
+    // console.log(curDate);
     const lead = await leadModelV2
       .find({
         approvalDate: {
@@ -1987,7 +1987,7 @@ leadRouterV2.get("/last-weeek-rj-lead", async (req, res) => {
               assignTo: `${e.taskRef?.assignTo?.firstName} ${e.taskRef?.assignTo?.lastName}`,
               assignBy: `${e.taskRef?.assignBy?.firstName} ${e.taskRef?.assignBy?.lastName}`,
               assignDate: moment(e.taskRef?.assignDate).format(
-                "DD/MM/YYYY HH:mm"
+                "DD/MM/YYYY HH:mm",
               ),
               callDate: callDate.format("DD/MM/YYYY HH:mm"),
               callStatus: callHistory?.remark,
@@ -2042,9 +2042,9 @@ leadRouterV2.post("/upload-channel-partner-bulk-leads", async (req, res) => {
           (
             await leadModelV2.find(
               { phoneNumber: { $in: results.map((r) => r.phoneNumber) } },
-              { phoneNumber: 1 }
+              { phoneNumber: 1 },
             )
-          ).map((d) => d.phoneNumber)
+          ).map((d) => d.phoneNumber),
         );
 
         const timeZone = "Asia/Kolkata";
@@ -2068,7 +2068,7 @@ leadRouterV2.post("/upload-channel-partner-bulk-leads", async (req, res) => {
             if (!lead) continue;
             let phoneExits = false;
             if (existingNumbers.has(lead.phoneNumber)) {
-              console.log("Skipping duplicate:", lead.phoneNumber);
+              // console.log("Skipping duplicate:", lead.phoneNumber);
               phoneExits = true;
               continue;
             }
