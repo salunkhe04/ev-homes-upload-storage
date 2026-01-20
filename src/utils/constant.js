@@ -2759,6 +2759,7 @@ export const postSalePopulateOptionsv2 = [
 ];
 
 export const eoiConfirmationPopulations = [
+  
   {
     path: "eoi.generatedBy",
     select: "firstName lastName",
@@ -2793,14 +2794,14 @@ export const eoiConfirmationPopulations = [
       },
     ],
   },
-  {
-    path: "eoiList.generatedBy",
-    select: "firstName lastName",
-  },
-  {
-    path: "confirmationList.generatedBy",
-    select: "firstName lastName",
-  },
+  // {
+  //   path: "eoiList.generatedBy",
+  //   select: "firstName lastName",
+  // },
+  // {
+  //   path: "confirmationList.generatedBy",
+  //   select: "firstName lastName",
+  // },
 ];
 
 export const eoiExhibitionPopulations = [

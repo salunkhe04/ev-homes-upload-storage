@@ -68,7 +68,8 @@ eoiConfRouter.get("/eoi-confirmations", async (req, res) => {
     }
 
     const oldDoc = await eoiConfModel
-      .find(query)
+      .find(query, { eoiList: 0, confirmationList: 0 })
+
       .populate(eoiConfirmationPopulations);
 
     return successRes2(res, 200, "ok", { data: oldDoc });
