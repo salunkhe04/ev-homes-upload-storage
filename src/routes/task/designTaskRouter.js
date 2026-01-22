@@ -123,10 +123,9 @@ designTaskRouter.post("/design-task-assign", async (req, res, next) => {
         playerIds: [foundTLPlayerId.playerId],
         title: "New task assigned",
         message: `${details}`,
-                  data: {
-            type: "designTeamTask",
-          },
-
+        data: {
+          type: "designTeamTask",
+        },
       });
     }
 
@@ -331,7 +330,7 @@ designTaskRouter.get(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // get dashboard Info
@@ -445,20 +444,22 @@ designTaskRouter.get(
       } = aggre[0] || {};
       //
       return successRes2(res, 200, "design Tasks", {
-        total,
-        completed,
-        incomplete,
-        pendency,
-        approval,
-        pendencyRequest,
-        approvalRequest,
+        data: {
+          total,
+          completed,
+          incomplete,
+          pendency,
+          approval,
+          pendencyRequest,
+          approvalRequest,
+        },
       });
     } catch (error) {
       //
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // update refrence Images
@@ -504,10 +505,9 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Reference Images Added",
           message: `check & follow up task`,
-                    data: {
+          data: {
             type: "designTeamTask",
           },
-
         });
       }
 
@@ -520,7 +520,7 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // apply pendancy
@@ -545,7 +545,7 @@ designTaskRouter.post(
         return errorRes2(
           res,
           400,
-          `you've already have pending pendency request.`
+          `you've already have pending pendency request.`,
         );
       //
       foundTask.pendency.reason = reason;
@@ -579,10 +579,9 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task Pendacy Applied",
           message: `${updatedTask.assignTo.firstName} has applied for pendency`,
-                    data: {
+          data: {
             type: "designTLTask",
           },
-
         });
       }
 
@@ -595,7 +594,7 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // apply submission
@@ -636,14 +635,14 @@ designTaskRouter.post(
         return errorRes2(
           res,
           400,
-          `you've already have pending submission request.`
+          `you've already have pending submission request.`,
         );
 
       if (foundTask.approval.status === "approved")
         return errorRes2(
           res,
           400,
-          `you've already have approved submission request.`
+          `you've already have approved submission request.`,
         );
 
       //
@@ -699,7 +698,7 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // approve pendency
@@ -774,10 +773,9 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task submission Applied",
           message: `${updatedTask.assignTo.firstName} has applied for Task submission`,
-                    data: {
+          data: {
             type: "designTeamTask",
           },
-
         });
       }
 
@@ -790,7 +788,7 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // approve submission
@@ -867,10 +865,9 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task submission Applied",
           message: `${updatedTask.assignTo.firstName} has applied for Task submission`,
-                    data: {
+          data: {
             type: "designTeamTask",
           },
-
         });
       }
 
@@ -883,7 +880,7 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 //
 export default designTaskRouter;
