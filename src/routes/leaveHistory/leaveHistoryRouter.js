@@ -5,6 +5,7 @@ import {
   createLeaveHistory,
   deleteLeaveHistory,
   createLeaveHistoryFunc,
+  compOffExpiry,
 } from "../../controller/leaveHistory.controller.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
 
@@ -13,22 +14,22 @@ leaveHistoryRouter.get(
   "/leaveHistory",
 
   authenticateToken,
-  getLeaveHistory
+  getLeaveHistory,
 );
 leaveHistoryRouter.get(
   "/leaveHistory/:id",
   // authenticateToken,
-  getLeaveHistoryById
+  getLeaveHistoryById,
 );
 leaveHistoryRouter.post(
   "/leaveHistory-add",
   authenticateToken,
-  createLeaveHistory
+  createLeaveHistory,
 );
 leaveHistoryRouter.delete(
   "/leaveHistory-delete/:id",
   authenticateToken,
-  deleteLeaveHistory
+  deleteLeaveHistory,
 );
 leaveHistoryRouter.post(
   "/leave-history-add-test",
@@ -37,7 +38,13 @@ leaveHistoryRouter.post(
     const body = req.body;
     const resp = await createLeaveHistoryFunc({ ...body });
     res.send(resp);
-  }
+  },
+);
+
+leaveHistoryRouter.get(
+  "/comp-off-expiry",
+  // authenticateToken,
+  compOffExpiry,
 );
 
 export default leaveHistoryRouter;
