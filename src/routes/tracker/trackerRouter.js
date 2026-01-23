@@ -17,14 +17,17 @@ trackerRouter.post("/agent/sync", async (req, res) => {
           blockUid: b.blockUid,
           agentId,
           userId,
-          start: new Date(b.start),
-          end: new Date(b.end),
+          approved: null,
         },
         $set: {
+          start: new Date(b.start),
+          end: new Date(b.end),
           state: b.state,
+          mode: b.mode,
           process: b.process,
           title: b.title,
           duration: b.duration,
+          remark: b.remark,
         },
       },
       { upsert: true },
@@ -36,46 +39,6 @@ trackerRouter.post("/agent/sync", async (req, res) => {
   res.json({ AckedUids: acked });
 });
 
-// trackerRouter.post("/agent/sync", async (req, res) => {
-//   const { agentId, userId, blocks } = req.body;
-
-//   //   console.log(req.body);
-//   if (!agentId || !userId || !Array.isArray(blocks)) {
-//     return res.status(400).json({ error: "invalid payload" });
-//   }
-
-//   const ackedIds = [];
-
-//   for (const b of blocks) {
-//     try {
-//       const { updatedAt, createdAt, ...safePayload } = b;
-
-//       await timelineTracker.updateOne(
-//         {
-//           agentId,
-//           start: new Date(b.start),
-//           end: new Date(b.end),
-//         },
-//         {
-//           $setOnInsert: {
-//             agentId,
-//             userId,
-//             ...safePayload,
-//           },
-//         },
-//         { upsert: true },
-//       );
-
-//       // ACK local row regardless (duplicate or inserted)
-//       ackedIds.push(b.id);
-//     } catch (err) {
-//       console.error("sync error:", err);
-//     }
-//   }
-
-//   res.json({ ackedIds });
-// });
-
 // -----------------------------
 // DEV: user timeline
 // -----------------------------
@@ -83,6 +46,62 @@ trackerRouter.post("/agent/sync", async (req, res) => {
 trackerRouter.get("/user/:userId/timeline", async (req, res) => {
   const rows = await timelineTracker
     .find({ userId: req.params.userId })
+    .sort({ start: 1 })
+    .lean();
+
+  res.json(rows);
+});
+
+trackerRouter.post("/timeline/:uid/approve", async (req, res) => {
+  const { uid } = req.params;
+  const { approved, remark, approvedBy } = req.body;
+
+  if (typeof approved !== "boolean") {
+    return res.status(400).json({ error: "approved must be boolean" });
+  }
+
+  const row = await timelineTracker.findOneAndUpdate(
+    { blockUid: uid },
+    {
+      $set: {
+        approved,
+        remark: remark ?? null,
+        approvedBy: approvedBy ?? "system",
+        approvedAt: new Date(),
+      },
+    },
+    { new: true },
+  );
+
+  if (!row) {
+    return res.status(404).json({ error: "timeline_not_found" });
+  }
+
+  res.json({
+    ok: true,
+    uid,
+    approved: row.approved,
+  });
+});
+
+trackerRouter.get("/timeline/pending/:userId", async (req, res) => {
+  const rows = await timelineTracker
+    .find({
+      userId: req.params.userId,
+      approved: null,
+    })
+    .sort({ start: 1 })
+    .lean();
+
+  res.json(rows);
+});
+
+trackerRouter.get("/timeline/pending/:userId", async (req, res) => {
+  const rows = await timelineTracker
+    .find({
+      userId: req.params.userId,
+      approved: null,
+    })
     .sort({ start: 1 })
     .lean();
 

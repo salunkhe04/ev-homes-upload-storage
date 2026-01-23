@@ -28,6 +28,18 @@ const TimelineSchema = new mongoose.Schema(
     title: String,
 
     duration: { type: Number, required: true },
+    approved: { type: Boolean, default: null },
+    remark: String,
+    mode: String,
+
+    approvedBy: {
+      type: String, // managerId
+      default: null,
+    },
+    approvedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );
