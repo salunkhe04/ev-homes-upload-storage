@@ -462,6 +462,15 @@ designTaskRouter.get(
       } = aggre[0] || {};
       //
       return successRes2(res, 200, "design Tasks", {
+        total,
+        completed,
+        incomplete,
+        pendency,
+        approval,
+        pendencyRequest,
+        approvalRequest,
+        tasks,
+
         data: {
           total,
           completed,
