@@ -524,6 +524,70 @@ designTaskRouter.post(
   },
 );
 
+designTaskRouter.post(
+  "/design-task-update-deadline/:id",
+  async (req, res, next) => {
+    //
+    const id = req.params.id;
+    const { deadline } = req.body;
+    if (!id) return errorRes2(res, 401, `id is required`);
+    //
+    if (!deadline) return errorRes2(res, 401, `deadline is required`);
+    //
+    const isvalidDeadline = moment(deadline).isValid();
+    if (!isvalidDeadline) {
+      return errorRes2(res, 401, `Invalid deadline Date`);
+    }
+    let validDate = isvalidDeadline
+      ? moment(deadline).tz("Asia/Kolkata")
+      : null;
+
+    //
+    try {
+      const foundTask = await designTaskModel.findById(id);
+      //
+
+      if (!foundTask) return errorRes2(res, 401, `Task Not Found`);
+      //
+      if (validDate != null) {
+        foundTask.deadline = validDate.toDate();
+        await foundTask.save();
+      }
+      //
+      const updatedTask = await designTaskModel
+        .findById(id)
+        .populate(designTaskPopulateOptions);
+
+      // find user device id
+      const foundTLPlayerId = await oneSignalModel.findOne({
+        docId: foundTask.assignTo,
+        role: "employee",
+      });
+      //
+      if (foundTLPlayerId.playerId != null) {
+        // notify user
+        await sendNotificationWithInfo({
+          playerIds: [foundTLPlayerId.playerId],
+          title: "Deadline updated",
+          message: `check & follow up task`,
+          data: {
+            type: "designTeamTask",
+          },
+        });
+      }
+
+      //
+      return successRes2(res, 200, `Deadline updated`, {
+        data: updatedTask,
+      });
+    } catch (error) {
+      //
+      return errorRes2(res, 500, `${error?.message}`);
+    }
+    //
+  },
+);
+
 // apply pendancy
 designTaskRouter.post(
   "/design-task-apply-pendency/:id",

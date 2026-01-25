@@ -176,7 +176,7 @@ export const compOffExpiry = async (req, res) => {
       leaveType: "on-compensation-off-leave",
       validTill: {
         $gte: startOfDay,
-        $lte: endOfDay,
+        // $lte: endOfDay,
       },
     });
     const updatedUsers = [];
