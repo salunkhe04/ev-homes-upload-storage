@@ -140,6 +140,7 @@ import exihibitionVideoRouter from "./exihibitionVideo/exhibitionVideoRouter.js"
 import exhibitionVideoCountRouter from "./exhibitionVideoCount/exhibtionVideoCount.js";
 import onbExhibRouter from "./onBoardingExhib/onboardingExhibRouter.js";
 import designTaskRouter from "./task/designTaskRouter.js";
+import trackerRouter from "./tracker/trackerRouter.js";
 
 const router = Router();
 
@@ -1011,5 +1012,6 @@ router.use(exihibitionVideoRouter);
 router.use(exhibitionVideoCountRouter);
 router.use(onbExhibRouter);
 router.use(designTaskRouter);
+router.use(trackerRouter);
 
 export default router;
