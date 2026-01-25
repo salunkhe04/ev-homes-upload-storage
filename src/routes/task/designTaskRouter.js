@@ -924,6 +924,7 @@ designTaskRouter.post(
       if (status === "approved") {
         //
         foundTask.status = "completed";
+        foundTask.completedDate = approvalDate;
       } else {
         foundTask.status = "submission-rejected";
       }
