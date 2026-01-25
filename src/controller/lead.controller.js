@@ -10281,7 +10281,7 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
     const startOfYesterday = moment()
       .tz(timeZone)
       .subtract(1, "day")
-      .startOf("day")
+      .startOf("day") 
       .toDate();
     const endOfYesterday = moment()
       .tz(timeZone)
@@ -10291,7 +10291,7 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
 
     const leads = await leadModelV2
       .find({
-        startDate: { $gte: startOfYesterday, $lt: endOfYesterday },
+        startDate: { $lte: startOfYesterday, $lt: endOfYesterday },
         channelPartner: { $ne: null },
       })
       .populate(leadPopulateOptions);

@@ -25,8 +25,9 @@ export const employeeShiftInfoSchema = new mongoose.Schema(
     overtime: { type: Number, default: 0 },
     payable: { type: Boolean, default: false },
     department: { type: String, ref: "departments" },
+    overDueCompOff: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 employeeShiftInfoSchema.index({ userId: 1 }, { unique: true });
 // const shiftInfoModel = mongoose.model(
@@ -38,6 +39,6 @@ employeeShiftInfoSchema.index({ userId: 1 }, { unique: true });
 const shiftInfoModel = mongoose.model(
   "employeeShiftInfo",
   employeeShiftInfoSchema,
-  "employeeShiftInfos"
+  "employeeShiftInfos",
 );
 export default shiftInfoModel;
