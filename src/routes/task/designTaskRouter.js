@@ -4,6 +4,7 @@ import { errorRes2, successRes2 } from "../../model/response.js";
 import { sendNotificationWithInfo } from "../../controller/oneSignal.controller.js";
 import oneSignalModel from "../../model/oneSignal.model.js";
 import { designTaskPopulateOptions } from "../../utils/constant.js";
+import moment from "moment-timezone";
 
 const designTaskRouter = Router();
 // get all tasks
@@ -123,10 +124,9 @@ designTaskRouter.post("/design-task-assign", async (req, res, next) => {
         playerIds: [foundTLPlayerId.playerId],
         title: "New task assigned",
         message: `${details}`,
-                  data: {
-            type: "designTeamTask",
-          },
-
+        data: {
+          type: "designTeamTask",
+        },
       });
     }
 
@@ -331,7 +331,7 @@ designTaskRouter.get(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // get dashboard Info
@@ -458,7 +458,7 @@ designTaskRouter.get(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // update refrence Images
@@ -504,10 +504,9 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Reference Images Added",
           message: `check & follow up task`,
-                    data: {
+          data: {
             type: "designTeamTask",
           },
-
         });
       }
 
@@ -520,7 +519,72 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
+);
+
+// update deadline
+designTaskRouter.post(
+  "/design-task-update-deadline/:id",
+  async (req, res, next) => {
+    //
+    const id = req.params.id;
+    const { deadline } = req.body;
+    if (!id) return errorRes2(res, 401, `id is required`);
+    //
+    if (!deadline) return errorRes2(res, 401, `deadline is required`);
+    //
+    const isvalidDeadline = moment(deadline).isValid();
+    if (!isvalidDeadline) {
+      return errorRes2(res, 401, `Invalid deadline Date`);
+    }
+    let validDate = isvalidDeadline
+      ? moment(deadline).tz("Asia/Kolkata")
+      : null;
+
+    //
+    try {
+      const foundTask = await designTaskModel.findById(id);
+      //
+
+      if (!foundTask) return errorRes2(res, 401, `Task Not Found`);
+      //
+      if (validDate != null) {
+        foundTask.deadline = validDate.toDate();
+        await foundTask.save();
+      }
+      //
+      const updatedTask = await designTaskModel
+        .findById(id)
+        .populate(designTaskPopulateOptions);
+
+      // find user device id
+      const foundTLPlayerId = await oneSignalModel.findOne({
+        docId: foundTask.assignTo,
+        role: "employee",
+      });
+      //
+      if (foundTLPlayerId.playerId != null) {
+        // notify user
+        await sendNotificationWithInfo({
+          playerIds: [foundTLPlayerId.playerId],
+          title: "Deadline updated",
+          message: `check & follow up task`,
+          data: {
+            type: "designTeamTask",
+          },
+        });
+      }
+
+      //
+      return successRes2(res, 200, `Deadline updated`, {
+        data: updatedTask,
+      });
+    } catch (error) {
+      //
+      return errorRes2(res, 500, `${error?.message}`);
+    }
+    //
+  },
 );
 
 // apply pendancy
@@ -545,7 +609,7 @@ designTaskRouter.post(
         return errorRes2(
           res,
           400,
-          `you've already have pending pendency request.`
+          `you've already have pending pendency request.`,
         );
       //
       foundTask.pendency.reason = reason;
@@ -579,10 +643,9 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task Pendacy Applied",
           message: `${updatedTask.assignTo.firstName} has applied for pendency`,
-                    data: {
+          data: {
             type: "designTLTask",
           },
-
         });
       }
 
@@ -595,7 +658,7 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // apply submission
@@ -636,14 +699,14 @@ designTaskRouter.post(
         return errorRes2(
           res,
           400,
-          `you've already have pending submission request.`
+          `you've already have pending submission request.`,
         );
 
       if (foundTask.approval.status === "approved")
         return errorRes2(
           res,
           400,
-          `you've already have approved submission request.`
+          `you've already have approved submission request.`,
         );
 
       //
@@ -699,7 +762,7 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // approve pendency
@@ -774,10 +837,9 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task submission Applied",
           message: `${updatedTask.assignTo.firstName} has applied for Task submission`,
-                    data: {
+          data: {
             type: "designTeamTask",
           },
-
         });
       }
 
@@ -790,7 +852,7 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 
 // approve submission
@@ -867,10 +929,9 @@ designTaskRouter.post(
           playerIds: [foundTLPlayerId.playerId],
           title: "Task submission Applied",
           message: `${updatedTask.assignTo.firstName} has applied for Task submission`,
-                    data: {
+          data: {
             type: "designTeamTask",
           },
-
         });
       }
 
@@ -883,7 +944,7 @@ designTaskRouter.post(
       return errorRes2(res, 500, `${error?.message}`);
     }
     //
-  }
+  },
 );
 //
 export default designTaskRouter;
