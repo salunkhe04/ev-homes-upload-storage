@@ -863,8 +863,8 @@ designTaskRouter.post(
         // notify user
         await sendNotificationWithInfo({
           playerIds: [foundTLPlayerId.playerId],
-          title: "Task submission Applied",
-          message: `${updatedTask.assignTo.firstName} has applied for Task submission`,
+          title: `Task Pendency ${status}`,
+          message: `${updatedTask.assignBy} has ${status} your Pendency`,
           data: {
             type: "designTeamTask",
           },
@@ -956,8 +956,8 @@ designTaskRouter.post(
         // notify user
         await sendNotificationWithInfo({
           playerIds: [foundTLPlayerId.playerId],
-          title: "Task submission Applied",
-          message: `${updatedTask.assignTo.firstName} has applied for Task submission`,
+          title: `Task submission ${status}`,
+          message: `${updatedTask.assignBy} has ${status} your submission`,
           data: {
             type: "designTeamTask",
           },
@@ -965,7 +965,7 @@ designTaskRouter.post(
       }
 
       //
-      return successRes2(res, 200, `Task submission Applied`, {
+      return successRes2(res, 200, `Task submission ${status}`, {
         data: updatedTask,
       });
     } catch (error) {
