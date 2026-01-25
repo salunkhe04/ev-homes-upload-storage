@@ -346,14 +346,15 @@ designTaskRouter.get(
     try {
       const aggre = await designTaskModel.aggregate([
         {
-          $match: {
-            //
-            assignBy: id,
-          },
-        },
-        {
           $facet: {
-            total: [{ $count: "count" }],
+            total: [
+              {
+                $match: {
+                  assignBy: id,
+                },
+              },
+              { $count: "count" },
+            ],
             completed: [
               {
                 $match: {
@@ -368,6 +369,7 @@ designTaskRouter.get(
                 $match: {
                   //
                   status: "not-completed",
+                  assignBy: id,
                 },
               },
               { $count: "count" },
@@ -377,6 +379,7 @@ designTaskRouter.get(
                 $match: {
                   //
                   status: "pendency",
+                  assignBy: id,
                 },
               },
               { $count: "count" },
@@ -386,6 +389,7 @@ designTaskRouter.get(
                 $match: {
                   //
                   "approval.status": "pending",
+                  assignBy: id,
                 },
               },
               { $count: "count" },
@@ -395,6 +399,7 @@ designTaskRouter.get(
                 $match: {
                   //
                   "pendency.status": "pending",
+                  assignBy: id,
                 },
               },
               { $count: "count" },
@@ -404,6 +409,15 @@ designTaskRouter.get(
                 $match: {
                   //
                   "approval.status": "pending",
+                  assignBy: id,
+                },
+              },
+              { $count: "count" },
+            ],
+            tasks: [
+              {
+                $match: {
+                  assignTo: id,
                 },
               },
               { $count: "count" },
@@ -419,6 +433,7 @@ designTaskRouter.get(
             approval: { $arrayElemAt: ["$approval.count", 0] },
             pendencyRequest: { $arrayElemAt: ["$pendencyRequest.count", 0] },
             approvalRequest: { $arrayElemAt: ["$approvalRequest.count", 0] },
+            tasks: { $arrayElemAt: ["$tasks.count", 0] },
           },
         },
         {
@@ -430,6 +445,7 @@ designTaskRouter.get(
             approval: 1,
             pendencyRequest: 1,
             approvalRequest: 1,
+            tasks: 1,
           },
         },
       ]);
@@ -442,6 +458,7 @@ designTaskRouter.get(
         approval = 0,
         pendencyRequest = 0,
         approvalRequest = 0,
+        tasks = 0,
       } = aggre[0] || {};
       //
       return successRes2(res, 200, "design Tasks", {
@@ -453,6 +470,7 @@ designTaskRouter.get(
           approval,
           pendencyRequest,
           approvalRequest,
+          tasks,
         },
       });
     } catch (error) {
