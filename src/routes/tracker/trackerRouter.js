@@ -2,6 +2,7 @@ import { Router } from "express";
 import timelineTracker from "../../model/timeline/timeline.model.js";
 import timeTrackerConfModel from "../../model/timeline/timeTrackerConfig.model.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
+import timeTrackerActivityModel from "../../model/timeline/timelineActivity.model.js";
 const trackerRouter = Router();
 // -----------------------------
 // POST /agent/sync
@@ -30,6 +31,43 @@ trackerRouter.post("/agent/sync", async (req, res) => {
           title: b.title,
           duration: b.duration,
           remark: b.remark,
+        },
+      },
+      { upsert: true },
+    );
+
+    acked.push(b.blockUid);
+  }
+
+  res.json({ AckedUids: acked });
+});
+
+// -----------------------------
+// POST /agent/sync
+// -----------------------------
+trackerRouter.post("/agent/sync-activity", async (req, res) => {
+  const { agentId, userId, blocks } = req.body;
+
+  const acked = [];
+
+  for (const b of blocks) {
+    await timeTrackerActivityModel.updateOne(
+      { uid: b.uid },
+      {
+        $setOnInsert: {
+          uid: b.uid,
+          agentId,
+          userId,
+          startTime: new Date(b.startTime),
+          date: new Date(b.date),
+        },
+        $set: {
+          mode: b.mode,
+          process: b.process,
+          activity: b.activity,
+          title: b.title,
+          screenshotUrl: b.screenshotUrl,
+          webcamUrl: b.webcamUrl,
         },
       },
       { upsert: true },
