@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const TimeTrackerConfSchema = new mongoose.Schema(
   {
-    agentId: { type: String, required: true, index: true },
+    agentId: { type: String, default: null },
     userId: { type: String, required: true, index: true, unique: true },
     idleThreshold: { type: Number, default: 120 },
     minuteGap: { type: Number, default: 120 },
@@ -11,7 +11,6 @@ const TimeTrackerConfSchema = new mongoose.Schema(
     canTakeBreak: { type: Boolean, default: true },
     canUseMeeting: { type: Boolean, default: true },
     monitorInterval: { type: Number, default: 30 }, // 30 sec
-    userId: { type: Number, default: 0 },
     role: { type: String, default: "user" },
   },
   { timestamps: true },
