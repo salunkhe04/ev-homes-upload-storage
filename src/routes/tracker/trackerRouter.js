@@ -1,5 +1,7 @@
 import { Router } from "express";
 import timelineTracker from "../../model/timeline/timeline.model.js";
+import timeTrackerConfModel from "../../model/timeline/timeTrackerConfig.model.js";
+import { errorRes2, successRes2 } from "../../model/response.js";
 const trackerRouter = Router();
 // -----------------------------
 // POST /agent/sync
@@ -106,6 +108,69 @@ trackerRouter.get("/timeline/pending/:userId", async (req, res) => {
     .lean();
 
   res.json(rows);
+});
+
+trackerRouter.get("/get-time-tracker-config/:id", async (req, res) => {
+  const id = req.params.id;
+  const agentId = req.query.agentId;
+  try {
+    let foundEntry = await timeTrackerConfModel
+      .findOne({
+        userId: id,
+      })
+      .lean();
+    if (!foundEntry) {
+      //
+      foundEntry = await timeTrackerConfModel.create({
+        userId: id,
+        agentId: agentId,
+      });
+    }
+
+    return successRes2(res, 200, "ok", {
+      data: foundEntry,
+    });
+  } catch (error) {
+    return errorRes2(res, 500, `${error}`);
+  }
+});
+
+trackerRouter.post("/update-time-tracker-config/:id", async (req, res) => {
+  const id = req.params.id;
+  const body = req.body;
+  if (!id) return errorRes2(res, 401, "id required");
+  try {
+    let foundEntry = await timeTrackerConfModel
+      .findOne({
+        userId: id,
+      })
+      .lean();
+
+    //
+    if (!foundEntry) {
+      //
+      foundEntry = await timeTrackerConfModel.create({
+        userId: id,
+        ...body,
+      });
+    }
+    //
+    foundEntry = await timeTrackerConfModel.findOneAndUpdate(
+      { userId: id },
+      {
+        ...body,
+      },
+      {
+        new: true,
+      },
+    );
+
+    return successRes2(res, 200, "ok", {
+      data: foundEntry,
+    });
+  } catch (error) {
+    return errorRes2(res, 500, `${error}`);
+  }
 });
 
 export default trackerRouter;
