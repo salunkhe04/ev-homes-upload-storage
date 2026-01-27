@@ -73,7 +73,7 @@ trackerRouter.post("/agent/sync-activity", async (req, res) => {
       { upsert: true },
     );
 
-    acked.push(b.blockUid);
+    acked.push(b.uid);
   }
 
   res.json({ AckedUids: acked });
