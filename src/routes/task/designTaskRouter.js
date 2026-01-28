@@ -864,7 +864,7 @@ designTaskRouter.post(
         await sendNotificationWithInfo({
           playerIds: [foundTLPlayerId.playerId],
           title: `Task Pendency ${status}`,
-          message: `${updatedTask.assignBy} has ${status} your Pendency`,
+          message: `${updatedTask.assignBy?.firstName} ${updatedTask.assignBy?.lastName} has ${status} your Pendency`,
           data: {
             type: "designTeamTask",
           },
@@ -957,7 +957,7 @@ designTaskRouter.post(
         await sendNotificationWithInfo({
           playerIds: [foundTLPlayerId.playerId],
           title: `Task submission ${status}`,
-          message: `${updatedTask.assignBy} has ${status} your submission`,
+          message: `${updatedTask.assignBy?.firstName} ${updatedTask.assignBy?.lastName} has ${status} your submission`,
           data: {
             type: "designTeamTask",
           },
