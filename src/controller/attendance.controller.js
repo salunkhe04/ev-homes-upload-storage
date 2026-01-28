@@ -1801,7 +1801,7 @@ export const updateAttendanceById = async (req, res) => {
         leaveType: "on-compensation-off-leave",
         deposittype: body.status,
         adminId: body.updatedBy,
-        howManyBefore: eShiftInfo?.compensatoryoff,
+        howManyBefore: eShiftInfo?.compensatoryoff - 1,
       });
     } else if (body.deductType != null) {
       const attresp = await createLeaveHistoryFunc({
@@ -1812,7 +1812,7 @@ export const updateAttendanceById = async (req, res) => {
         type: "used",
         leaveType: body.deductType,
         adminId: body.updatedBy,
-        howManyBefore: eShiftInfo?.compensatoryoff,
+        howManyBefore: eShiftInfo?.compensatoryoff + 1,
       });
     }
 
