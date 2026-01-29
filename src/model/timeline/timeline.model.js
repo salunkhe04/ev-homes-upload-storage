@@ -24,13 +24,21 @@ const TimelineSchema = new mongoose.Schema(
       default: "WORK",
     },
 
-    process: String,
-    title: String,
+    process: {
+      type: String,
+      default: null,
+    },
+    title: {
+      type: String,
+      default: null,
+    },
 
     duration: { type: Number, required: true },
-    approved: { type: Boolean, default: null },
-    remark: String,
-    mode: String,
+    approved: { type: String, default: null },
+    remark: {
+      type: String,
+      default: null,
+    },
 
     approvedBy: {
       type: String, // managerId
@@ -38,6 +46,16 @@ const TimelineSchema = new mongoose.Schema(
     },
     approvedAt: {
       type: Date,
+      default: null,
+    },
+
+    applyDate: {
+      type: Date,
+      default: null,
+    },
+
+    approvalRemark: {
+      type: String,
       default: null,
     },
   },
