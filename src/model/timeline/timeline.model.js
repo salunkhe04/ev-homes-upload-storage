@@ -58,6 +58,10 @@ const TimelineSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    approvalSync: {
+      type: Boolean,
+      default: null,
+    },
   },
   { timestamps: true },
 );
