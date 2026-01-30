@@ -180,44 +180,44 @@ export const compOffExpiry = async (req, res) => {
       },
     });
     const updatedUsers = [];
-    // for (const user of expiredCompOffs) {
-    //   const { userId } = user;
+    for (const user of expiredCompOffs) {
+      const { userId } = user;
 
-    //   await createLeaveHistoryFunc({
-    //     userId,
-    //     date: today.toDate(),
-    //     description: "Comp-off expired after 6 months",
-    //     count: 1,
-    //     type: "expired",
-    //     leaveType: "on-compensation-off-leave",
-    //     deposittype: "auto-generated",
-    //   });
+      await createLeaveHistoryFunc({
+        userId,
+        date: today.toDate(),
+        description: "Comp-off expired after 6 months",
+        count: 1,
+        type: "expired",
+        leaveType: "on-compensation-off-leave",
+        deposittype: "auto-generated",
+      });
 
-    //   const shift = await shiftInfoModel.findOne({ userId });
+      const shift = await shiftInfoModel.findOne({ userId });
 
-    //   console.log(shift);
+      console.log(shift);
 
-    //   if (!shift) continue;
+      // if (!shift) continue;
 
-    //   const currentCompOff = shift.compensatoryoff || 0;
-    //   const currentOverDue = shift.overDueCompOff || 0;
+      const currentCompOff = shift.compensatoryoff || 0;
+      const currentOverDue = shift.overDueCompOff || 0;
 
-    //   const updatedCompOff = Math.max(currentCompOff - 1, 0);
-    //   const updatedOverDue = currentOverDue + 1;
+      const updatedCompOff = Math.max(currentCompOff - 1, 0);
+      const updatedOverDue = currentOverDue + 1;
 
-    //   const resp = await shiftInfoModel.updateOne(
-    //     { userId },
-    //     {
-    //       $set: {
-    //         compensatoryoff: updatedCompOff,
-    //         overDueCompOff: updatedOverDue,
-    //       },
-    //     },
-    //   );
+      const resp = await shiftInfoModel.updateOne(
+        { userId },
+        {
+          $set: {
+            compensatoryoff: updatedCompOff,
+            overDueCompOff: updatedOverDue,
+          },
+        },
+      );
 
-    //   const updatedShift = await shiftInfoModel.findOne({ userId });
-    //   updatedUsers.push(updatedShift);
-    // }
+      const updatedShift = await shiftInfoModel.findOne({ userId });
+      updatedUsers.push(updatedShift);
+    }
 
     return res.send(
       successRes(200, "Comp-off expiry processed", {
