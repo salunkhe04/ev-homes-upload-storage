@@ -3,6 +3,7 @@ import timelineTracker from "../../model/timeline/timeline.model.js";
 import timeTrackerConfModel from "../../model/timeline/timeTrackerConfig.model.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
 import timeTrackerActivityModel from "../../model/timeline/timelineActivity.model.js";
+import moment from "moment-timezone";
 const trackerRouter = Router();
 // -----------------------------
 // POST /agent/sync
@@ -84,29 +85,42 @@ trackerRouter.post("/agent/sync-activity", async (req, res) => {
 // -----------------------------
 
 trackerRouter.get("/user/:userId/timeline", async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  const timeZone = "Asia/Kolkata";
+  const start = moment(startDate).isValid()
+    ? moment(startDate).tz(timeZone).startOf("day")
+    : moment().tz(timeZone).startOf("day");
+  const end = moment(endDate).isValid()
+    ? moment(endDate).tz(timeZone).endOf("day")
+    : moment().tz(timeZone).endOf("day");
+
+  let statusToFInd = {
+    userId: req.params.userId,
+    start: { $gte: start.toDate() },
+    end: { $lte: end.toDate() },
+  };
+
+  console.log(statusToFInd);
   const rows = await timelineTracker
-    .find({ userId: req.params.userId })
+    .find(statusToFInd)
     .sort({ start: 1 })
     .lean();
 
   res.json(rows);
 });
 
-trackerRouter.post("/timeline/:uid/approve", async (req, res) => {
+trackerRouter.post("/timeline-approve/:uid", async (req, res) => {
   const { uid } = req.params;
-  const { approved, remark, approvedBy } = req.body;
-
-  if (typeof approved !== "boolean") {
-    return res.status(400).json({ error: "approved must be boolean" });
-  }
+  const { approvalRemark, approvedBy } = req.body;
 
   const row = await timelineTracker.findOneAndUpdate(
     { blockUid: uid },
     {
       $set: {
-        approved,
-        remark: remark ?? null,
-        approvedBy: approvedBy ?? "system",
+        approved: "approved",
+        approvalRemark: approvalRemark ?? null,
+        approvedBy: approvedBy ?? "system-approved",
         approvedAt: new Date(),
       },
     },
@@ -128,19 +142,7 @@ trackerRouter.get("/timeline/pending/:userId", async (req, res) => {
   const rows = await timelineTracker
     .find({
       userId: req.params.userId,
-      approved: null,
-    })
-    .sort({ start: 1 })
-    .lean();
-
-  res.json(rows);
-});
-
-trackerRouter.get("/timeline/pending/:userId", async (req, res) => {
-  const rows = await timelineTracker
-    .find({
-      userId: req.params.userId,
-      approved: null,
+      approved: "pending",
     })
     .sort({ start: 1 })
     .lean();
@@ -209,6 +211,35 @@ trackerRouter.post("/update-time-tracker-config/:id", async (req, res) => {
   } catch (error) {
     return errorRes2(res, 500, `${error}`);
   }
+});
+
+//apply idle or ant request
+trackerRouter.post("/timeline-apply/:uid", async (req, res) => {
+  const { uid } = req.params;
+  const { remark } = req.body;
+
+  const row = await timelineTracker.findOneAndUpdate(
+    { blockUid: uid },
+    {
+      $set: {
+        approved: "pending",
+        remark: remark ?? null,
+
+        applyDate: new Date(),
+      },
+    },
+    { new: true },
+  );
+
+  if (!row) {
+    return res.status(404).json({ error: "timeline_not_found" });
+  }
+
+  res.json({
+    ok: true,
+    uid,
+    approved: row.approved,
+  });
 });
 
 export default trackerRouter;

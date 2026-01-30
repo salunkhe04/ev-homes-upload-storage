@@ -1682,6 +1682,9 @@ export const updateAttendanceById = async (req, res) => {
       updates.status = "present";
     } else if (body?.status === "absent") {
       updates.status = "absent";
+      updates.checkInTime = null;
+      updates.checkOutTime = null;
+
     } else if (body?.status === "weekoff") {
       updates.status = "weekoff";
     } else if (body?.status === "half-day") {
@@ -1734,13 +1737,16 @@ export const updateAttendanceById = async (req, res) => {
       updates.wlStatus = "on-compensation-off-leave";
     }
 
-    if (body.checkInTime) {
+    if (body.checkInTime && body.status !== "absent") {
       updates.checkInTime = new Date(body.checkInTime);
     }
 
-    if (body.checkOutTime) {
+    if (body.checkOutTime && body.status !== "absent") {
       updates.checkOutTime = new Date(body.checkOutTime);
     }
+    // console.log(JSON.stringify(body, null, 2));
+
+    // console.log(JSON.stringify(updates, null, 2));
 
     const updatedRecord = await attendanceModel
       .findByIdAndUpdate(
