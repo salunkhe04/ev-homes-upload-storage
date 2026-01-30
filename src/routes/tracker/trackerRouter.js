@@ -242,4 +242,47 @@ trackerRouter.post("/timeline-apply/:uid", async (req, res) => {
   });
 });
 
+trackerRouter.get("/agent/:userId/approvals", async (req, res) => {
+  const id = req.params.userId;
+
+  const timeLines = await timelineTracker.find(
+    {
+      userId: id,
+      approved: "approved",
+      // approvalSync: false
+    },
+    { blockUid: 1,approved:1 },
+  );
+
+  // const blockId = timeLines.map((e) => e.blockUid);
+
+  const acked = [];
+
+  res.json({  timeLines });
+});
+//apply idle or ant request
+trackerRouter.post("/agent/timeline-approval-sync/:uid", async (req, res) => {
+  const { uid } = req.params;
+
+  const row = await timelineTracker.findOneAndUpdate(
+    { blockUid: uid },
+    {
+      $set: {
+        approvalSync: true,
+      },
+    },
+    { new: true },
+  );
+
+  if (!row) {
+    return res.status(404).json({ error: "timeline_not_found" });
+  }
+
+  res.json({
+    ok: true,
+    uid,
+    row
+  });
+});
+
 export default trackerRouter;
