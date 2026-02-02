@@ -2972,6 +2972,7 @@ export const getAttendanceOverviewFunc = async ({ id, date }) => {
     const attendanceList = await attendanceModel.find({
       userId: id,
       month: currentDate.month() + 1,
+      year: currentDate.year(),
     });
 
     attendanceList.forEach((att) => {
