@@ -2846,10 +2846,10 @@ export const calculateHoursDifferenceWithTZ = (passedDate) => {
 export const insertMonthlyAttendance = async () => {
   try {
     // const formattedDate = new Date();
-    const today = moment({ day: 1, month: 8, year: 2025 })
+    const today = moment({ day: 1, month: 0, year: 2026 })
       .tz("Asia/Kolkata")
       .startOf("day");
-    const end = moment({ day: 30, month: 8, year: 2025 })
+    const end = moment({ day: 31, month: 0, year: 2026 })
       .tz("Asia/Kolkata")
       .startOf("day");
 
@@ -2867,7 +2867,7 @@ export const insertMonthlyAttendance = async () => {
 
     // console.log(dateArray);
     const employees = await employeeModel.find(
-      { _id: "EV288-sangita-hinge", status: "active" },
+      { _id: "ev68-kashibai-mangoda", status: "active" },
       "_id",
     );
 
@@ -2890,13 +2890,14 @@ export const insertMonthlyAttendance = async () => {
                     day: dateEle.getDate(),
                     month: dateEle.getMonth() + 1,
                     year: dateEle.getFullYear(),
-                    status: "present",
-                    checkInTime: moment(dateEle)
-                      .set({ hour: 11, minute: 0 })
-                      .toDate(),
-                    checkOutTime: moment(dateEle)
-                      .set({ hour: 20, minute: 0 })
-                      .toDate(),
+                    status: "absent",
+                    // status: "present",
+                    // checkInTime: moment(dateEle)
+                    //   .set({ hour: 11, minute: 0 })
+                    //   .toDate(),
+                    // checkOutTime: moment(dateEle)
+                    //   .set({ hour: 20, minute: 0 })
+                    //   .toDate(),
                     // Add other default fields if needed
                   },
                 },
