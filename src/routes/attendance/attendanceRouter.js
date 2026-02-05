@@ -203,10 +203,7 @@ attendanceRouter.post("/attendance-fill-month", async (req, res) => {
 
 attendanceRouter.post("/attendance-add-date", async (req, res) => {
   try {
-    const resp = await attendanceModel.find({
-      month: 9,
-      userId: RegExp("mahesh", "i"),
-    });
+    const resp = await attendanceModel.find();
     const dates = await Promise.all(
       resp.map(async (ele) => {
         if (!ele.date) {

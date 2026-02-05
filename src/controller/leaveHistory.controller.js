@@ -5,6 +5,7 @@ import { leaveHistoryPopulateOptions } from "../utils/constant.js";
 import moment from "moment-timezone";
 import shiftModel from "../model/attendance/shift/shift.model.js";
 import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
+import leaveRequestModel from "../model/attendance/leave/leaveRequest.model.js";
 
 export const getLeaveHistory = async (req, res) => {
   try {
@@ -156,76 +157,157 @@ export const deleteLeaveHistory = async (req, res) => {
 };
 
 //comp - off expiry
+// export const compOffExpiry = async (req, res) => {
+//   try {
+//     const timeZone = "Asia/Kolkata";
+//     const today = moment().tz(timeZone);
+
+//     // const targetDate = today.subtract(6, "months");
+
+//     console.log(today);
+
+//     const startOfDay = today.startOf("day").toDate();
+
+//     const endOfDay = today.endOf("day").toDate();
+
+//     console.log("star", startOfDay);
+//     console.log("endOfDay", endOfDay);
+
+//     const expiredCompOffs = await leaveHistoryModel.find({
+//       leaveType: "on-compensation-off-leave",
+//       validTill: {
+//         $gte: startOfDay,
+//         // $lte: endOfDay,
+//       },
+//     });
+
+//     const updatedUsers = [];
+//     // for (const user of expiredCompOffs) {
+//     //   const { userId } = user;
+
+//     const leaveHistory = await leaveHistoryModel.find({
+//       userId,
+
+//       leaveType: "on-compensation-off-leave",
+//     });
+
+//     //   await createLeaveHistoryFunc({
+//     //     userId,
+//     //     date: today.toDate(),
+//     //     description: "Comp-off expired after 6 months",
+//     //     count: 1,
+//     //     type: "expired",
+//     //     leaveType: "on-compensation-off-leave",
+//     //     deposittype: "auto-generated",
+//     //   });
+
+//     //   const shift = await shiftInfoModel.findOne({ userId });
+
+//     //   console.log(shift);
+
+//     //   // if (!shift) continue;
+
+//     //   const currentCompOff = shift.compensatoryoff || 0;
+//     //   const currentOverDue = shift.overDueCompOff || 0;
+
+//     //   const updatedCompOff = Math.max(currentCompOff - 1, 0);
+//     //   const updatedOverDue = currentOverDue + 1;
+
+//     //   const resp = await shiftInfoModel.updateOne(
+//     //     { userId },
+//     //     {
+//     //       $set: {
+//     //         compensatoryoff: updatedCompOff,
+//     //         overDueCompOff: updatedOverDue,
+//     //       },
+//     //     },
+//     //   );
+
+//     //   const updatedShift = await shiftInfoModel.findOne({ userId });
+//     //   updatedUsers.push(updatedShift);
+//     // }
+
+//     return res.send(
+//       successRes(200, "Comp-off expiry processed", {
+//         length: updatedUsers.length,
+//         data: updatedUsers,
+//       }),
+//     );
+//   } catch (e) {
+//     return res.send(errorRes(500, `Server error ${e}`));
+//   }
+// };
+
+//all comp off leaves //the most oldest "used" comp off is less than today's 6 month
+// if yes dont do anythong , else deduct //like 31/01/2026 , oldest "deposit" is 06/09 etc.. means 6 months not complted, dont minus , if deposit is before than that minus it
+//  //like 02/04/2025
+
 export const compOffExpiry = async (req, res) => {
   try {
     const timeZone = "Asia/Kolkata";
     const today = moment().tz(timeZone);
 
-    // const targetDate = today.subtract(6, "months");
+    const targetDay = today.subtract(6, "months");
+    const expiryStDate = targetDay.startOf("day").toDate();
+    const expiryDate = targetDay.endOf("day").toDate();
 
-    console.log(today);
+    const userId = "EV900-test-closing-m";
 
-    const startOfDay = today.startOf("day").toDate();
-
-    const endOfDay = today.endOf("day").toDate();
-
-    console.log("star", startOfDay);
-    console.log("endOfDay", endOfDay);
-
-    const expiredCompOffs = await leaveHistoryModel.find({
+    const oldDeposits = await leaveHistoryModel.find({
+      userId,
       leaveType: "on-compensation-off-leave",
-      validTill: {
-        $gte: startOfDay,
-        // $lte: endOfDay,
-      },
+      type: "deposit",
+      date: { $gte: expiryStDate, $lte: expiryDate },
     });
+
+    let expiredCount = 0;
     const updatedUsers = [];
-    // for (const user of expiredCompOffs) {
-    //   const { userId } = user;
 
-    //   await createLeaveHistoryFunc({
-    //     userId,
-    //     date: today.toDate(),
-    //     description: "Comp-off expired after 6 months",
-    //     count: 1,
-    //     type: "expired",
-    //     leaveType: "on-compensation-off-leave",
-    //     deposittype: "auto-generated",
-    //   });
+    for (const deposit of oldDeposits) {
+      const usedEntry = await leaveHistoryModel.findOne({
+        userId,
+        leaveType: "on-compensation-off-leave",
+        type: "used",
+        leave: { $exists: true },
+      });
 
-    //   const shift = await shiftInfoModel.findOne({ userId });
+      if (!usedEntry) continue;
 
-    //   console.log(shift);
+      const leave = await leaveRequestModel.findById(usedEntry.leave);
 
-    //   if (!shift) continue;
+      if (leave && leave.leaveStatus === "rejected") {
+        await createLeaveHistoryFunc({
+          userId,
+          date: today.toDate(),
+          description: "Comp-off expired after 6 months",
+          count: 1,
+          type: "expired",
+          leaveType: "on-compensation-off-leave",
+          deposittype: "auto-generated-expiry",
+        });
 
-    //   const currentCompOff = shift.compensatoryoff || 0;
-    //   const currentOverDue = shift.overDueCompOff || 0;
+        await shiftInfoModel.updateOne(
+          { userId },
+          {
+            $set: {
+              compensatoryoff: Math.max((shift.compensatoryoff || 0) - 1, 0),
+              overDueCompOff: (shift.overDueCompOff || 0) + 1,
+            },
+          },
+        );
 
-    //   const updatedCompOff = Math.max(currentCompOff - 1, 0);
-    //   const updatedOverDue = currentOverDue + 1;
-
-    //   const resp = await shiftInfoModel.updateOne(
-    //     { userId },
-    //     {
-    //       $set: {
-    //         compensatoryoff: updatedCompOff,
-    //         overDueCompOff: updatedOverDue,
-    //       },
-    //     },
-    //   );
-
-    //   const updatedShift = await shiftInfoModel.findOne({ userId });
-    //   updatedUsers.push(updatedShift);
-    // }
+        expiredCount++;
+        updatedUsers.push(userId);
+      }
+    }
 
     return res.send(
       successRes(200, "Comp-off expiry processed", {
-        length: updatedUsers.length,
-        data: updatedUsers,
+        expiredCount,
+        users: updatedUsers,
       }),
     );
   } catch (e) {
-    return res.send(errorRes(500, `Server error ${e}`));
+    return res.send(errorRes(500, `Server error ${e.message}`));
   }
 };

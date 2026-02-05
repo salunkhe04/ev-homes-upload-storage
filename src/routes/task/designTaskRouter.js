@@ -324,7 +324,7 @@ designTaskRouter.get(
         completed,
         incomplete,
         pendency,
-        data: result,
+        data: { result, total, completed, incomplete, pendency },
       });
     } catch (error) {
       //

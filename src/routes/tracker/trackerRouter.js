@@ -258,7 +258,7 @@ trackerRouter.get("/agent/:userId/approvals", async (req, res) => {
 
   const acked = [];
 
-  res.json({  timeLines });
+  res.json(timeLines);
 });
 //apply idle or ant request
 trackerRouter.post("/agent/timeline-approval-sync/:uid", async (req, res) => {
