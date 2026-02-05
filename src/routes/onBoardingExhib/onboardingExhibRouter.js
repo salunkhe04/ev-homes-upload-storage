@@ -85,7 +85,7 @@ onbExhibRouter.post("/onboard-add", async (req, res) => {
     // (optional) preserve your existing id logic
     const total = await onboarExhibModel.countDocuments({} /*, { session }*/);
     const [newProj] = await onboarExhibModel.create(
-      [{ ...req.body, id: total + 1 }] /*, { session }*/
+      [{ ...req.body, id: total + 1 }] /*, { session }*/,
     );
 
     // Atomically increment counter (upsert display doc if missing)
@@ -96,7 +96,7 @@ onbExhibRouter.post("/onboard-add", async (req, res) => {
         $inc: { counter: 1 },
         $setOnInsert: { slots: [null, null, null, null, null, null] },
       },
-      { new: true, upsert: true /*, session*/ }
+      { new: true, upsert: true /*, session*/ },
     );
 
     // compute slot index (counter is 1-based)
@@ -106,7 +106,7 @@ onbExhibRouter.post("/onboard-add", async (req, res) => {
     // Set the slot to the new onboarding id
     await displaySlotModel.updateOne(
       { _id: "main" },
-      { $set: { [`slots.${slotIndex}`]: newProj._id } }
+      { $set: { [`slots.${slotIndex}`]: newProj._id } },
       // { session }
     );
 
@@ -147,7 +147,7 @@ onbExhibRouter.get("/onboard-slots", async (req, res) => {
     const slots = Array(6)
       .fill(null)
       .map((_, i) =>
-        slotsDoc.slots && slotsDoc.slots[i] ? slotsDoc.slots[i] : null
+        slotsDoc.slots && slotsDoc.slots[i] ? slotsDoc.slots[i] : null,
       );
 
     return successRes2(res, 200, "display slots", {
@@ -197,12 +197,61 @@ onbExhibRouter.post("/onboard-add-feedback", async (req, res) => {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     return successRes2(res, 200, "boarding updated", {
       data: updated,
       slotIndex,
+    });
+  } catch (error) {
+    return errorRes2(res, 500, `${error}`);
+  }
+});
+
+onbExhibRouter.post("/onboard-update-feedback", async (req, res) => {
+  // const id = req.params.id;
+  const { phoneNumber, attendedBy, feedback } = req.body;
+
+  if (!phoneNumber) return errorRes2(res, 401, "id required");
+
+  try {
+    // (optional) preserve your existing id logic
+    const updated = await onboarExhibModel.findOneAndUpdate(
+      { phoneNumber },
+      {
+        $addToSet: {
+          //
+          attendedHistory: {
+            //
+            attendedBy: attendedBy,
+
+            feedback: feedback ?? "",
+          },
+        },
+      },
+      { new: true },
+    );
+
+    return successRes2(res, 200, "attended ", {
+      data: updated,
+    });
+  } catch (error) {
+    return errorRes2(res, 500, `${error}`);
+  }
+});
+onbExhibRouter.get("/onboard-by-phone", async (req, res) => {
+  // const id = req.params.id;
+  const { phoneNumber } = req.query;
+
+  if (!phoneNumber) return errorRes2(res, 401, "id required");
+
+  try {
+    // (optional) preserve your existing id logic
+    const updated = await onboarExhibModel.findOne({ phoneNumber });
+
+    return successRes2(res, 200, "attended ", {
+      data: updated,
     });
   } catch (error) {
     return errorRes2(res, 500, `${error}`);
@@ -302,7 +351,7 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
         // email,
         // feedback2,
       },
-      { new: true }
+      { new: true },
     );
     const proj = await onboarExhibModel
       .findById(id)
@@ -355,7 +404,7 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
         // email,
         // feedback2,
       },
-      { new: true }
+      { new: true },
     );
     const proj = await onboarExhibModel
       .findById(id)
@@ -373,7 +422,7 @@ onbExhibRouter.get("/matching-exhibition-clients", async (req, res) => {
   try {
     const exhibitionPath = path.join(
       __dirname,
-      "formatted_exhibition_list//.csv"
+      "formatted_exhibition_list//.csv",
     );
     const dbPath = path.join(__dirname, "ev_homes_main.onboardexhibsDB1//.csv");
 
@@ -437,7 +486,7 @@ onbExhibRouter.get("/matching-exhibition-clients", async (req, res) => {
     const existingLeads = await leadModelV2
       .find(
         { phoneNumber: { $in: phoneNumbers } },
-        { firstName: 1, lastName: 1, phoneNumber: 1, taskRef: 1 }
+        { firstName: 1, lastName: 1, phoneNumber: 1, taskRef: 1 },
       )
       .populate({
         path: "taskRef",
@@ -445,18 +494,18 @@ onbExhibRouter.get("/matching-exhibition-clients", async (req, res) => {
       });
 
     const existingPhoneSet = new Set(
-      existingLeads.map((e) => e.phoneNumber.toString())
+      existingLeads.map((e) => e.phoneNumber.toString()),
     );
 
     const newNumbers = uniqueMatchedRecords.filter(
-      (item) => !existingPhoneSet.has(item.phoneNumber)
+      (item) => !existingPhoneSet.has(item.phoneNumber),
     );
 
     const assignToIds = [...new Set(newNumbers.map((n) => n.assignTo.trim()))];
 
     const employees = await employeeModel.find(
       { _id: { $in: assignToIds } },
-      { reportingTo: 1 }
+      { reportingTo: 1 },
     );
 
     const employeeMap = employees.map((emp) => [
@@ -527,7 +576,6 @@ onbExhibRouter.get("/matching-exhibition-clients", async (req, res) => {
       },
       previewResults,
     });
-
   } catch (error) {
     console.error("Error processing CSV:", error);
     res.status(500).send("Internal server error");
@@ -536,10 +584,7 @@ onbExhibRouter.get("/matching-exhibition-clients", async (req, res) => {
 
 onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
   try {
-    const exhibitionPath = path.join(
-      __dirname,
-      "onboard_exhib_leadsds.csv"
-    );
+    const exhibitionPath = path.join(__dirname, "onboard_exhib_leadsds.csv");
 
     if (!fs.existsSync(exhibitionPath)) {
       return res.status(400).send("Exhibition CSV not found");
@@ -572,7 +617,6 @@ onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
       return res.status(400).send("No valid leads found in CSV");
     }
 
-
     const teamMembers = [
       "ev15-deepak-karki",
       "ev54-ranjna-gupta",
@@ -604,20 +648,19 @@ onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
       };
     });
 
-
     const phoneNumbers = preparedLeads.map((l) => l.phoneNumber);
 
     const existingLeads = await leadModelV2.find(
       { phoneNumber: { $in: phoneNumbers } },
-      { phoneNumber: 1 }
+      { phoneNumber: 1 },
     );
 
     const existingSet = new Set(
-      existingLeads.map((l) => l.phoneNumber.toString())
+      existingLeads.map((l) => l.phoneNumber.toString()),
     );
 
     const freshLeads = preparedLeads.filter(
-      (l) => !existingSet.has(l.phoneNumber)
+      (l) => !existingSet.has(l.phoneNumber),
     );
 
     if (!freshLeads.length) {
@@ -626,11 +669,9 @@ onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
       });
     }
 
-
     const insertedLeads = await leadModelV2.insertMany(freshLeads, {
       ordered: false,
     });
-
 
     return res.send({
       message: "Exhibition leads created successfully",
@@ -640,7 +681,7 @@ onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
         skippedExisting: existingSet.size,
         perMember: teamMembers.reduce((acc, member) => {
           acc[member] = insertedLeads.filter(
-            (l) => l.teamLeader === member
+            (l) => l.teamLeader === member,
           ).length;
           return acc;
         }, {}),
@@ -652,13 +693,9 @@ onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
   }
 });
 
-
 onbExhibRouter.get("/create-exhibition-leads-dryrun", async (req, res) => {
   try {
-    const exhibitionPath = path.join(
-      __dirname,
-      "onboard_exhib_leads.csv"
-    );
+    const exhibitionPath = path.join(__dirname, "onboard_exhib_leads.csv");
 
     if (!fs.existsSync(exhibitionPath)) {
       return res.status(400).send("Fresh exhibition CSV not found");
@@ -687,8 +724,11 @@ onbExhibRouter.get("/create-exhibition-leads-dryrun", async (req, res) => {
         .on("error", reject);
     });
 
-
-    const teamMembers = ["ev15-deepak-karki", "ev54-ranjna-gupta", "ev70-jaspreet-arora"];
+    const teamMembers = [
+      "ev15-deepak-karki",
+      "ev54-ranjna-gupta",
+      "ev70-jaspreet-arora",
+    ];
 
     const leadsPayload = csvLeads.map((item, index) => {
       const assignedTo = teamMembers[index % teamMembers.length];
@@ -721,7 +761,7 @@ onbExhibRouter.get("/create-exhibition-leads-dryrun", async (req, res) => {
         totalLeads: leadsPayload.length,
         perMember: teamMembers.reduce((acc, member) => {
           acc[member] = leadsPayload.filter(
-            (l) => l.teamLeader === member
+            (l) => l.teamLeader === member,
           ).length;
           return acc;
         }, {}),
@@ -747,11 +787,13 @@ const normalizePhone = (value) => {
   };
 };
 
-
 //download xlsx file
 onbExhibRouter.get("/matching-exhibition-clients-excel", async (req, res) => {
   try {
-    const filePath = path.join(__dirname, "exhibition-database_lead_list_1.csv");
+    const filePath = path.join(
+      __dirname,
+      "exhibition-database_lead_list_1.csv",
+    );
 
     if (!fs.existsSync(filePath)) {
       return res.status(400).send("CSV file not found");
@@ -821,11 +863,11 @@ onbExhibRouter.get("/matching-exhibition-clients-excel", async (req, res) => {
     const phoneNumbers = uniqueValidNumbers.map((e) => e.phoneNumber);
     const existingLeads = await leadModelV2.find(
       { phoneNumber: { $in: phoneNumbers } },
-      { phoneNumber: 1 }
+      { phoneNumber: 1 },
     );
 
     const existingSet = new Set(
-      existingLeads.map((l) => l.phoneNumber.toString())
+      existingLeads.map((l) => l.phoneNumber.toString()),
     );
 
     const freshNumbers = [];
@@ -903,7 +945,7 @@ function normalizePhoneNumber(input) {
   }
 
   return {
-    phoneNumber: phone,  
+    phoneNumber: phone,
     isValid: true,
   };
 }
