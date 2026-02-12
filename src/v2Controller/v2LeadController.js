@@ -52,6 +52,7 @@ export const leadCycleTriggerV4 = async () => {
       // "cycle.teamLeader": { $ne: "ev54-ranjna-gupta" },
       // "cycle.currentOrder": 1,
       // "cycle.currentDays": 29,
+      leadFrom: { $ne: "exhibition-2025" },
     };
 
     // get the leads
@@ -118,6 +119,9 @@ export const leadCycleTriggerV4 = async () => {
               taskRef: null,
               $set: { cycle: cCycle },
               $push: { cycleHistoryNew: previousCycle },
+              //reset ranks
+              isCountable: false,
+              isCountableVisit: false,
             },
           },
         });
@@ -179,6 +183,7 @@ export const internalLeadCycleTrigger = async () => {
     const actualTriggerQuery = {
       // "cycle.startDate": { $gte: filterDate.toDate() },
       bookingStatus: { $ne: "booked" },
+
       bookingRef: null,
       "cycle.internalCallDone": false,
       // "cycle.startDate": { $gte: endOfYesterday },
@@ -187,6 +192,7 @@ export const internalLeadCycleTrigger = async () => {
       // "cycle.teamLeader": { $ne: "ev54-ranjna-gupta" },
       // "cycle.currentOrder": 1,
       // "cycle.currentDays": 29,
+      leadFrom: { $ne: "exhibition-2025" },
     };
 
     // get the leads
@@ -441,24 +447,29 @@ export const bulk_cp_lead_trigger_35 = async () => {
     }
 
     const teamLeaders = Object.keys(grouped);
-  
+
     const allPhones = results.map((r) => r.phoneNumber).filter(Boolean);
     const existingNumbers = new Set(
       (
-        await leadModelV2.find({ phoneNumber: { $in: allPhones } }, { phoneNumber: 1 })
+        await leadModelV2.find(
+          { phoneNumber: { $in: allPhones } },
+          { phoneNumber: 1 }
+        )
       ).map((d) => d.phoneNumber)
     );
 
     const timeZone = "Asia/Kolkata";
-    const baseTime = moment().tz(timeZone).add(1, "day").hour(12).minute(0).second(0);
+    const baseTime = moment()
+      .tz(timeZone)
+      .add(1, "day")
+      .hour(12)
+      .minute(0)
+      .second(0);
 
-  
     const rounds = Math.max(...teamLeaders.map((tl) => grouped[tl].length), 0);
 
-    
     for (const tl of teamLeaders) {
       try {
-  
         const myTeamNotify = await employeeModel
           .find({
             permissions: "lead_assign_notify",
@@ -467,7 +478,6 @@ export const bulk_cp_lead_trigger_35 = async () => {
           })
           .sort({ createdAt: 1, _id: 1 });
 
-    
         const getIds2 = myTeamNotify.map((dt) => dt._id.toString());
         const docIdsToSearch = [...getIds2, tl];
 
@@ -476,14 +486,16 @@ export const bulk_cp_lead_trigger_35 = async () => {
         });
 
         if (foundTLPlayerId && foundTLPlayerId.length > 0) {
-          const playerIds = foundTLPlayerId.map((d) => d.playerId).filter(Boolean);
+          const playerIds = foundTLPlayerId
+            .map((d) => d.playerId)
+            .filter(Boolean);
           if (playerIds.length > 0) {
-         
             try {
               await sendNotificationWithImage({
                 playerIds,
                 title: "You've Got a New Lead!",
-                imageUrl: "https://cdn-icons-png.flaticon.com/512/12210/12210154.png",
+                imageUrl:
+                  "https://cdn-icons-png.flaticon.com/512/12210/12210154.png",
                 message: `A new lead is now available for you. Please check the details and take the required steps.`,
                 android_channel_id: "leads_assign",
                 data: {},
@@ -494,11 +506,11 @@ export const bulk_cp_lead_trigger_35 = async () => {
           }
         }
 
-        
-        const foundForTL = foundTLPlayerId.find((d) => d.docId === tl) || foundTLPlayerId[0];
+        const foundForTL =
+          foundTLPlayerId.find((d) => d.docId === tl) || foundTLPlayerId[0];
         if (foundForTL && foundForTL.playerId) {
           const delayMs = 10 * 60_000; // 10 minutes
-       
+
           await notificationQueue.add(
             "sendCPLeadTriggeredNotification",
             {
@@ -525,7 +537,6 @@ export const bulk_cp_lead_trigger_35 = async () => {
         console.log("per-TL notification error for", tl, err);
       }
     }
-
 
     for (let round = 0; round < rounds; round++) {
       const slotTime = moment(baseTime).add(round * 10, "minutes");
@@ -589,4 +600,3 @@ export const bulk_cp_lead_trigger_35 = async () => {
     throw err;
   }
 };
-

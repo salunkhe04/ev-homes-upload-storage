@@ -14,12 +14,12 @@ export const fetchLeadContact = async (queryParams) => {
       headers,
       params: queryParams, // e.g., { email: "example@company.com", name: "John Doe" }
     });
-    console.log("Contact fetched:", response.data);
+    // console.log("Contact fetched:", response.data);
     return response.data;
   } catch (error) {
     console.error(
       "Error fetching contact:",
-      error.response ? error.response.data : error.message
+      error.response ? error.response.data : error.message,
     );
     throw error;
   }

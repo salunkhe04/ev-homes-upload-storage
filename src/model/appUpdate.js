@@ -7,8 +7,10 @@ export const appUpdateSchema = new mongoose.Schema(
     versionNumber: { type: Number, default: null },
     versionCode: { type: String, default: null },
     description: { type: String, default: null },
+    critical: { type: Boolean, default: false },
+    sha256: { type: String, default: "" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const appUpdateModel = mongoose.model("appVersionUpdates", appUpdateSchema);

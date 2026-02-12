@@ -33,42 +33,42 @@ postSaleRouter.get(
 
   // authenticateToken,
 
-  getPostSaleLeads
+  getPostSaleLeads,
 );
 postSaleRouter.get(
   "/post-sale-lead/:id",
   authenticateToken,
-  getPostSaleLeadByBookingId
+  getPostSaleLeadByBookingId,
 );
 postSaleRouter.post("/post-sale-lead-add", authenticateToken, addPostSaleLead);
 postSaleRouter.post(
   "/post-sale-lead-update/:id",
   authenticateToken,
-  updatePostSaleLeadById
+  updatePostSaleLeadById,
 );
 
 postSaleRouter.post("/cancel-booking", authenticateToken, cancelBooking);
 postSaleRouter.get(
   "/post-sale-leads-for-pse/:id",
   authenticateToken,
-  getPostSaleLeadsForExecutive
+  getPostSaleLeadsForExecutive,
 );
 postSaleRouter.get(
   "/post-sale-lead-by-id/:flatNo",
   authenticateToken,
-  getPostSaleLeadById
+  getPostSaleLeadById,
 );
 
 postSaleRouter.get(
   "/post-sale-leadCount",
   // authenticateToken,
-  getLeadCounts
+  getLeadCounts,
 );
 
 postSaleRouter.get(
   "/post-sale-leads-regraph",
   authenticateToken,
-  getpostSaleCountsRegGraph
+  getpostSaleCountsRegGraph,
 );
 // postSaleRouter.get(
 //   "/post-sale-leads-refunnel",authenticateToken,
@@ -78,25 +78,25 @@ postSaleRouter.get(
 postSaleRouter.get(
   "/post-sale-lead-by-flat",
   authenticateToken,
-  getPostSaleLeadByFlat
+  getPostSaleLeadByFlat,
 );
 postSaleRouter.post(
   "/update-booking-feedback/:id",
   authenticateToken,
-  updateBookingFeedback
+  updateBookingFeedback,
 );
 
 postSaleRouter.post(
   "/notification-payment-due",
   // authenticateToken,
-  notificationForPaymentDue
+  notificationForPaymentDue,
 );
 postSaleRouter.post(
   "/payment-due-email",
   // authenticateToken,
-  sendPaymentDueEmail
+  sendPaymentDueEmail,
 );
-
+// one time used
 postSaleRouter.get("/post-sale-list/:id", async (req, res) => {
   const id = req.params.id;
   try {
@@ -114,7 +114,7 @@ postSaleRouter.get("/post-sale-list/:id", async (req, res) => {
         if (!flat && element.occupied == true) {
           update.push(element);
         }
-      })
+      }),
     );
 
     res.send({ total: update.length, data: update });
@@ -269,7 +269,7 @@ postSaleRouter.get(
       //
       return errorRes2(res, 500, `${error}`);
     }
-  }
+  },
 );
 postSaleRouter.get(
   "/post-sale-ex-dashboard-count/:id",
@@ -429,22 +429,20 @@ postSaleRouter.get(
       //
       return errorRes2(res, 500, `${error}`);
     }
-  }
+  },
 );
 
 postSaleRouter.post(
   "/update-payment-status/:id",
-  updatePaymentDetailsAmtStatus
+  updatePaymentDetailsAmtStatus,
 );
 
-
-
-postSaleRouter.get("/postsale-booking-payment-report",getPaymentReport);
+postSaleRouter.get("/postsale-booking-payment-report", getPaymentReport);
 
 postSaleRouter.get("/postsale-lead-by-unit", async (req, res) => {
   try {
     const { project, unitNo, buildingNo } = req.query;
-    console.log(req.query);
+    // console.log(req.query);
 
     if (!project) {
       return errorRes2(res, 400, `Project is required`);
@@ -455,7 +453,8 @@ postSaleRouter.get("/postsale-lead-by-unit", async (req, res) => {
         project: project,
         buildingNo: buildingNo,
         unitNo: unitNo,
-      }).sort({createdAt:-1})
+      })
+      .sort({ createdAt: -1 })
       .populate(postSalePopulateOptionsv2);
 
     if (!client) {
@@ -498,11 +497,51 @@ postSaleRouter.get("/postsale-fix-docs", async (req, res) => {
         } catch (error) {
           //
         }
-      })
+      }),
     );
     // console.log(client);
     return successRes2(res, 200, "Booking details for client", {
       data: clients,
+    });
+  } catch (error) {
+    console.error("Error fetching client by unit:", error);
+    return errorRes2(res, 500, `${error}`);
+  }
+});
+
+postSaleRouter.get("/postsale-fixed-area", async (req, res) => {
+  try {
+    const client = await postSaleLeadModel.find({
+      project: "project-ev23-malibu-west-koparkhairne-202f4",
+      "bookingStatus.type": { $ne: "Cancelled" },
+    });
+
+    const proj = await ourProjectModel.findById(
+      "project-ev23-malibu-west-koparkhairne-2024",
+    );
+    const area = await Promise.all(
+      client.map(async (e) => {
+        //
+        const flat = proj.flatList.find(
+          (ele) =>
+            ele.buildingNo === e.buildingNo &&
+            ele.floor === e.floor &&
+            ele.number === e.number &&
+            ele.wing === e.wing,
+        );
+        const resp = await postSaleLeadModel.findByIdAndUpdate(e._id, {
+          $set: {
+            carpetArea: flat?.carpetArea,
+            sellableCarpetArea: flat?.sellableCarpetArea,
+            configuration: flat?.configuration,
+          },
+        });
+      }),
+    );
+
+    // console.log(client);
+    return successRes2(res, 200, "Booking details for client", {
+      data: client,
     });
   } catch (error) {
     console.error("Error fetching client by unit:", error);

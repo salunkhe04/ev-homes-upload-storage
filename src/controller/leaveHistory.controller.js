@@ -3,6 +3,8 @@ import leaveHistoryModel from "../model/attendance/leave/leavehistory.model.js";
 import { errorRes, successRes } from "../model/response.js";
 import { leaveHistoryPopulateOptions } from "../utils/constant.js";
 import moment from "moment-timezone";
+import shiftModel from "../model/attendance/shift/shift.model.js";
+import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
 
 export const getLeaveHistory = async (req, res) => {
   try {
@@ -13,7 +15,7 @@ export const getLeaveHistory = async (req, res) => {
     return res.send(
       successRes(200, "Get Leave History", {
         data: respDes,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);
@@ -36,7 +38,7 @@ export const getLeaveHistoryById = async (req, res, next) => {
     return res.send(
       successRes(200, "get leave history", {
         data: resp,
-      })
+      }),
     );
   } catch (e) {
     return res.send(errorRes(500, `Server error ${e}`));
@@ -67,7 +69,7 @@ export const createLeaveHistory = async (req, res) => {
     return res.send(
       successRes(200, `leave history added successfully: ${body}`, {
         data: newLeaveHistory,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -145,10 +147,85 @@ export const deleteLeaveHistory = async (req, res) => {
         `Leave History deleted successfully: ${deleteLeaveHistory.leaveType}`,
         {
           deleteLeaveHistory,
-        }
-      )
+        },
+      ),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
+  }
+};
+
+//comp - off expiry
+export const compOffExpiry = async (req, res) => {
+  try {
+    const timeZone = "Asia/Kolkata";
+    const today = moment().tz(timeZone);
+
+    // const targetDate = today.subtract(6, "months");
+
+    console.log(today);
+
+    const startOfDay = today.startOf("day").toDate();
+
+    const endOfDay = today.endOf("day").toDate();
+
+    console.log("star", startOfDay);
+    console.log("endOfDay", endOfDay);
+
+    const expiredCompOffs = await leaveHistoryModel.find({
+      leaveType: "on-compensation-off-leave",
+      validTill: {
+        $gte: startOfDay,
+        // $lte: endOfDay,
+      },
+    });
+    const updatedUsers = [];
+    // for (const user of expiredCompOffs) {
+    //   const { userId } = user;
+
+    //   await createLeaveHistoryFunc({
+    //     userId,
+    //     date: today.toDate(),
+    //     description: "Comp-off expired after 6 months",
+    //     count: 1,
+    //     type: "expired",
+    //     leaveType: "on-compensation-off-leave",
+    //     deposittype: "auto-generated",
+    //   });
+
+    //   const shift = await shiftInfoModel.findOne({ userId });
+
+    //   console.log(shift);
+
+    //   if (!shift) continue;
+
+    //   const currentCompOff = shift.compensatoryoff || 0;
+    //   const currentOverDue = shift.overDueCompOff || 0;
+
+    //   const updatedCompOff = Math.max(currentCompOff - 1, 0);
+    //   const updatedOverDue = currentOverDue + 1;
+
+    //   const resp = await shiftInfoModel.updateOne(
+    //     { userId },
+    //     {
+    //       $set: {
+    //         compensatoryoff: updatedCompOff,
+    //         overDueCompOff: updatedOverDue,
+    //       },
+    //     },
+    //   );
+
+    //   const updatedShift = await shiftInfoModel.findOne({ userId });
+    //   updatedUsers.push(updatedShift);
+    // }
+
+    return res.send(
+      successRes(200, "Comp-off expiry processed", {
+        length: updatedUsers.length,
+        data: updatedUsers,
+      }),
+    );
+  } catch (e) {
+    return res.send(errorRes(500, `Server error ${e}`));
   }
 };

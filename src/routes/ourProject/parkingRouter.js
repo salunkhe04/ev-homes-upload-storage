@@ -7,12 +7,13 @@ import fs from "fs";
 import csv from "csv-parser";
 import path from "path";
 import { fileURLToPath } from "url";
-import { successRes } from "../../model/response.js";
+import { errorRes2, successRes, successRes2 } from "../../model/response.js";
+import { RedisService } from "../../app/redis.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const parkingRouter = Router();
 
-parkingRouter.get("/parkings", authenticateToken, async (req, res) => {
+parkingRouter.get("/parkings", async (req, res) => {
   const projs = await ourProjectModel.find().lean();
   const flats = [];
 
@@ -30,8 +31,109 @@ parkingRouter.get("/parkings", authenticateToken, async (req, res) => {
   });
 
   // await parkingModel.insertMany(flats);
+  res.send({
+    message: "parking inserted successfully",
+    count: flats.length,
+    data: flats,
+  });
+});
 
-  res.send(flats);
+//get parking all
+parkingRouter.get("/get-parkings", async (req, res) => {
+  try {
+    const { project } = req.query;
+    const cacheData = project ? `parking_${project}` : "parkings";
+    const cached = await RedisService.get(cacheData, true);
+    if (cached) {
+      return successRes2(res, 200, "Get parking-cached", { data: cached });
+    }
+
+    let query = { ...(project ? { project: project } : {}) };
+
+    const flats = await parkingModel
+      .find(query)
+      .populate({ path: "project", select: "name" });
+
+    await RedisService.set(cacheData, flats, 86400); // 24 hours
+
+    return successRes2(res, 200, `parking fetched `, { data: flats });
+  } catch (error) {
+    console.error(error);
+    return errorRes2(res, 500, " server error ");
+  }
+});
+
+//add parking
+parkingRouter.post("/add-new-parking/:id", async (req, res) => {
+  const id = req.params.id;
+  const body = req.body;
+
+  try {
+    let { parkingNo, floor } = req.body;
+
+    let pNum = parkingNo?.replace("S-", "");
+    let pid = `${id}-f${floor}-n${pNum}`;
+
+    const existingFlat = await parkingModel.findOne({ project: id });
+
+    if (!existingFlat) {
+      return errorRes2(res, 404, "project not found in parking");
+    }
+
+    const newFlat = await parkingModel.create({
+      ...body,
+      _id: pid,
+    });
+
+    await newFlat.save();
+
+    // console.log(req.body);
+
+    const uflat = await parkingModel
+      .findById(newFlat._id)
+      .populate({ path: "project", select: "name" });
+
+    await RedisService.del("parkings");
+    await RedisService.del(`parking_${id}`);
+
+    return res.send(
+      successRes(200, "flat update", {
+        data: uflat,
+      }),
+    );
+  } catch (error) {
+    // console.log(error);
+    return errorRes2(res, 500, " server error ");
+  }
+});
+
+//update parking by project id
+parkingRouter.post("/parking-update/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    // console.log(req.body);
+
+    const flat = await parkingModel.findByIdAndUpdate(
+      id,
+      { ...req.body },
+      { new: true },
+    );
+
+    const uflat = await parkingModel
+      .findById(id)
+      .populate({ path: "project", select: "name" });
+
+    await RedisService.del("parkings");
+    await RedisService.del(`parking_${flat.project}`);
+    return res.send(
+      successRes(200, "parking update", {
+        data: uflat,
+      }),
+    );
+  } catch (error) {
+    // console.log(error);
+    return errorRes2(res, 500, " server error ");
+  }
 });
 
 parkingRouter.post("/parkings-ev9-update/:id", async (req, res) => {
@@ -91,5 +193,37 @@ parkingRouter.post("/parking-floor/:id", async (req, res) => {
     res.status(500).json({ message: "Failed to import parking list." });
   }
 });
+
+export const ParkingOccupancyChange = async ({
+  project,
+  floor,
+  number,
+  occupied,
+}) => {
+  //
+  try {
+    //
+    const flat = await parkingModel.findOne({
+      project: project,
+      floor: floor,
+      number: number,
+    });
+
+    if (!flat) return null;
+    const cacheData = project ? `parking_${project}` : "parkings";
+
+    const updated = await parkingModel
+      .findByIdAndUpdate(flat._id, { occupied: occupied }, { new: true })
+      .populate({ path: "project", select: "name" });
+    //
+    await RedisService.delMultipleKeys(["parkings", cacheData]);
+    //
+
+    return updated;
+  } catch (error) {
+    //
+    return null;
+  }
+};
 
 export default parkingRouter;

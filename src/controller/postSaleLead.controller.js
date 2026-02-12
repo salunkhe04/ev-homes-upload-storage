@@ -34,6 +34,8 @@ import revisedTargetModel from "../model/bookingTarget/bookingTarget.model.js";
 import { defaultProjectTargets, getQuarterInfo } from "./quarterInforFun.js";
 import { sendNotificationWithImage } from "./oneSignal.controller.js";
 import oneSignalModel from "../model/oneSignal.model.js";
+import { FlatOccupancyChange } from "../routes/ourProject/flatRouter.js";
+import { ParkingOccupancyChange } from "../routes/ourProject/parkingRouter.js";
 
 export const getPostSaleLeads = async (req, res, next) => {
   try {
@@ -270,7 +272,7 @@ export const getPostSaleLeads = async (req, res, next) => {
         eoiRecieved,
         cancelled,
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -289,7 +291,7 @@ export const getPostSaleLeadByBookingId = async (req, res, next) => {
     return res.send(
       successRes(200, "get booking by id", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -320,23 +322,23 @@ export const getpostSaleCountsRegGraph = async (req, res, next) => {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval === "monthly") {
       startDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
-        1
+        1,
       );
       endDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth() + 1,
-        0
+        0,
       );
     } else if (interval === "quarterly") {
       const quarter = Math.floor(currentDate.getMonth() / 3);
@@ -439,7 +441,7 @@ export const getpostSaleCountsRegGraph = async (req, res, next) => {
         interval,
         eoiRecieved,
         cancelled,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -620,7 +622,7 @@ export const getPostSaleLeadById = async (req, res, next) => {
     return res.send(
       successRes(200, "get post sale lead by id", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -917,7 +919,7 @@ export const getPostSaleLeadsForExecutive = async (req, res, next) => {
         eoiRecieved,
         cancelled,
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1032,284 +1034,19 @@ export async function getLeadCounts(req, res, next) {
 
     // Filter to remove empty months
     const filteredMonthlyData = mergedMonthlyData.filter(
-      (item) => item.bookingCount > 0 || item.registrationCount > 0
+      (item) => item.bookingCount > 0 || item.registrationCount > 0,
     );
 
     return res.send(
       successRes(200, "ok", {
         data: filteredMonthlyData,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error getting lead counts:", error);
     next(error);
   }
 }
-
-// export async function getLeadCounts(req, res, next) {
-//   try {
-//     let project = req.query.project;
-//     const { interval = "monthly", year } = req.query;
-//     const currentYear = new Date().getFullYear();
-
-//     // Determine selected year
-//     let selectedYear = currentYear;
-//     if (year) {
-//       selectedYear = parseInt(year, 10);
-//       if (isNaN(selectedYear)) {
-//         return res.json({ message: "Invalid year parameter" });
-//       }
-//     }
-
-//     // Prepare match stage
-//     let matchStage = {};
-//     if (interval === "monthly") {
-//       matchStage.date = {
-//         $gte: new Date("2024-12-10T00:00:00Z"),
-//         $lt: new Date(`${selectedYear + 1}-01-01`),
-//       };
-//     } else {
-//       return res.json({ message: "Invalid interval parameter" });
-//     }
-
-//     if (project) {
-//       matchStage.project = project;
-//     }
-
-//     const groupStage = {
-//       _id: {
-//         month: { $month: "$date" },
-//         year: { $year: "$date" },
-//       },
-//       count: { $sum: 1 },
-//     };
-
-//     // Booking counts
-//     const leadCounts = await postSaleLeadModel.aggregate([
-//       { $match: matchStage },
-//       { $group: groupStage },
-//       { $sort: { "_id.month": 1 } },
-//     ]);
-
-//     // Registration counts
-//     const regMatchStage = { ...matchStage, registrationDone: true };
-//     const leadRegisCounts = await postSaleLeadModel.aggregate([
-//       { $match: regMatchStage },
-//       { $group: groupStage },
-//       { $sort: { "_id.month": 1 } },
-//     ]);
-
-//     // Month list
-//     const monthNames = [
-//       "Jan",
-//       "Feb",
-//       "Mar",
-//       "Apr",
-//       "May",
-//       "Jun",
-//       "Jul",
-//       "Aug",
-//       "Sep",
-//       "Oct",
-//       "Nov",
-//       "Dec",
-//     ];
-
-//     // Initialize arrays
-//     const monthlyData = monthNames.map((month, index) => ({
-//       month,
-//       year: selectedYear,
-//       count: 0,
-//       type: "booking",
-//     }));
-//     const monthlyRegisData = monthNames.map((month, index) => ({
-//       month,
-//       year: selectedYear,
-//       count: 0,
-//       type: "registration",
-//     }));
-
-//     // Fill booking counts
-//     leadCounts.forEach((item) => {
-//       const i = item._id.month - 1;
-//       if (monthlyData[i]) {
-//         monthlyData[i].count = item.count;
-//       }
-//     });
-
-//     // Fill registration counts
-//     leadRegisCounts.forEach((item) => {
-//       const i = item._id.month - 1;
-//       if (monthlyRegisData[i]) {
-//         monthlyRegisData[i].count = item.count;
-//       }
-//     });
-
-//     // Filter both lists to exclude zero-count months
-//     const filteredMonthlyData = monthlyData.filter((item) => item.count > 0);
-//     const filteredMonthlyRegisData = monthlyRegisData.filter(
-//       (item) => item.count > 0
-//     );
-
-//     // Send both lists separately
-//     return res.send(
-//       successRes(200, "ok", {
-//         data: filteredMonthlyData,
-//         data2: filteredMonthlyRegisData,
-//       })
-//     );
-//   } catch (error) {
-//     console.error("Error getting lead counts:", error);
-//     next(error);
-//   }
-// }
-
-// export async function getLeadCounts(req, res, next) {
-//   try {
-//     let query = req.query.query || "";
-//     let project = req.query.project; // Get project from query params
-//     const { interval = "monthly", year, date, endDate } = req.query;
-//     const currentYear = new Date().getFullYear();
-
-//     console.log(date);
-
-//     // Validate and set the year
-//     let selectedYear = currentYear;
-//     if (year) {
-//       selectedYear = parseInt(year, 10);
-//       if (isNaN(selectedYear)) {
-//         return res.json({ message: "Invalid year parameter" });
-//       }
-//     }
-
-//     // Weekly date range (Monday to Sunday)
-//     const currentDate = new Date();
-//     const startOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 1 });
-//     const endOfCurrentWeek = addDays(startOfCurrentWeek, 7);
-
-//     // Set match stage for MongoDB aggregation
-//     let matchStage = {};
-//     if (interval === "weekly") {
-//       matchStage.date = {
-//         $gte: startOfCurrentWeek,
-//         $lt: endOfCurrentWeek,
-//       };
-//     } else if (interval === "monthly") {
-//       if (date && endDate) {
-//         // Parse startDate and endDate
-//         const parsedStartDate = new Date(date);
-//         const parsedEndDate = new Date(endDate);
-//         if (isNaN(parsedStartDate) || isNaN(parsedEndDate)) {
-//           return res.json({ message: "Invalid date range" });
-//         }
-//         matchStage.date = {
-//           $gte: parsedStartDate,
-//           $lt: parsedEndDate,
-//         };
-//       } else {
-//         matchStage.date = {
-//           $gte: new Date(`${selectedYear}-01-01`),
-//           $lt: new Date(`${selectedYear + 1}-01-01`),
-//         };
-//       }
-//     } else {
-//       return res.json({ message: "Invalid interval parameter" });
-//     }
-
-//     // Add project filter if provided
-//     if (project) {
-//       matchStage.project = project;
-//     }
-
-//     // Group stage for MongoDB aggregation
-//     let groupStage = {};
-//     if (interval === "weekly") {
-//       groupStage = {
-//         _id: {
-//           dayOfWeek: { $dayOfWeek: "$date" },
-//           date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-//         },
-//         count: { $sum: 1 },
-//       };
-//     } else if (interval === "monthly") {
-//       groupStage = {
-//         _id: {
-//           month: { $month: "$date" },
-//           year: { $year: "$date" },
-//         },
-//         count: { $sum: 1 },
-//       };
-//     }
-
-//     const leadCounts = await postSaleLeadModel.aggregate([
-//       { $match: matchStage },
-//       { $group: groupStage },
-//       { $sort: { "_id.date": 1, "_id.month": 1, "_id.dayOfWeek": 1 } },
-//     ]);
-
-//     if (interval === "weekly") {
-//       // Weekly: fill missing days
-//       const dayMap = [
-//         "Sunday",
-//         "Monday",
-//         "Tuesday",
-//         "Wednesday",
-//         "Thursday",
-//         "Friday",
-//         "Saturday",
-//       ];
-//       const weekData = Array.from({ length: 7 }, (_, i) => {
-//         const date = addDays(startOfCurrentWeek, i);
-//         return {
-//           date: format(date, "yyyy-MM-dd"),
-//           day: dayMap[i],
-//           count: 0,
-//         };
-//       });
-
-//       // Populate counts
-//       leadCounts.forEach((item) => {
-//         const foundDay = weekData.find((day) => day.date === item._id.date);
-//         if (foundDay) foundDay.count = item.count;
-//       });
-
-//       return res.json(weekData);
-//     }
-
-//     // Monthly: format data
-//     const monthNames = [
-//       "Jan",
-//       "Feb",
-//       "Mar",
-//       "Apr",
-//       "May",
-//       "Jun",
-//       "Jul",
-//       "Aug",
-//       "Sep",
-//       "Oct",
-//       "Nov",
-//       "Dec",
-//     ];
-//     const formattedMonthlyData = leadCounts.map((item) => ({
-//       year: item._id.year,
-//       month: monthNames[item._id.month - 1],
-//       count: item.count,
-//     }));
-
-//     console.log("Query Parameters:", {
-//       interval,
-//       year,
-//       date,
-//       endDate,
-//       project,
-//     });
-//     return res.send(successRes(200, "ok", { data: formattedMonthlyData }));
-//   } catch (error) {
-//     console.error("Error getting lead counts:", error);
-//     next(error);
-//   }
-// }
 
 export const addPostSaleLead = async (req, res, next) => {
   const body = req.body;
@@ -1344,13 +1081,14 @@ export const addPostSaleLead = async (req, res, next) => {
         (ele) =>
           ele.floor === floor &&
           ele.number === number &&
-          ele.buildingNo === buildingNo
+          ele.buildingNo === buildingNo &&
+          ele.occupied === true,
       );
-      // if (findExisintFlat) {
-      //   return res.send(
-      //     errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`)
-      //   );
-      // }
+      if (findExisintFlat) {
+        return res.send(
+          errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`),
+        );
+      }
     }
 
     // const resp = await postSaleLeadModel.find();
@@ -1377,7 +1115,7 @@ export const addPostSaleLead = async (req, res, next) => {
         findTarget.achieved += 1;
         findTarget.extraAchieved = Math.max(
           0,
-          findTarget.achieved - findTarget.target
+          findTarget.achieved - findTarget.target,
         );
         findTarget.bookings.push(resp._id);
 
@@ -1436,7 +1174,7 @@ export const addPostSaleLead = async (req, res, next) => {
       try {
         const alreadyInBooking = revisedTarget.booking?.includes(resp._id);
         const alreadyInRegistration = revisedTarget.registration?.includes(
-          resp._id
+          resp._id,
         );
 
         if (isBooking && !alreadyInBooking) {
@@ -1463,16 +1201,58 @@ export const addPostSaleLead = async (req, res, next) => {
         console.log(e);
       }
     }
+    try {
+      await updateFlatInfoByIdFlatNo({
+        projectId: project,
+        floor,
+        buildingNo,
+        number,
+        updates: {
+          occupied: true,
+        },
+      });
+    } catch (error) {
+      //
+    }
 
-    await updateFlatInfoByIdFlatNo({
-      projectId: project,
-      floor,
-      buildingNo,
-      number,
-      updates: {
+    // new flat update
+    try {
+      //
+      await FlatOccupancyChange({
+        project: project,
+        floor,
+        buildingNo,
+        number,
         occupied: true,
-      },
-    });
+      });
+    } catch (error) {
+      //
+    }
+
+    try {
+      //
+      if (newLead.parking.length > 0) {
+        await Promise.all(
+          newLead.parking.map(async (ele) => {
+            //
+            try {
+              if (ele?.number) {
+                await ParkingOccupancyChange({
+                  project: project,
+                  floor: ele.floor,
+                  number: ele.number,
+                  occupied: true,
+                });
+              }
+            } catch (error) {
+              //
+            }
+          }),
+        );
+      }
+    } catch (error) {
+      //
+    }
 
     //uppdate at lead
     try {
@@ -1547,12 +1327,12 @@ export const addPostSaleLead = async (req, res, next) => {
           foundLead?.visitRef?.date ?? "NA",
           foundLead?.revisitRef?.date ?? "NA",
           date ?? "NA",
-          newLead?.preRegistrationCheckList?.kyc?.recieved ?? "NO"
+          newLead?.preRegistrationCheckList?.kyc?.recieved ?? "NO",
         ),
         // attchment
         [],
         // cc
-        emailsRecp
+        emailsRecp,
       );
       // await sendEmail("aktarul.evgroup@gmail.com","Congratulations there has been a new booking in Nine Square by Deepak Karki.","");
     } catch (error) {
@@ -1562,7 +1342,7 @@ export const addPostSaleLead = async (req, res, next) => {
     return res.send(
       successRes(200, "Booking Added Succesfully", {
         data: newLead,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1598,16 +1378,42 @@ export const updatePostSaleLeadById = async (req, res, next) => {
       body.paymentFourAmt = 0;
     }
     // console.log("entered 2");
-    console.log(body);
+    // console.log(body);
     await foundLead.updateOne({ $set: body }, { new: true });
     const updatedLead = await postSaleLeadModel
       .findById(id)
       .populate(postSalePopulateOptions);
 
+    //
+    try {
+      //
+      if (foundLead.parking.length > 0) {
+        await Promise.all(
+          foundLead.parking.map(async (ele) => {
+            //
+            try {
+              if (ele?.number) {
+                await ParkingOccupancyChange({
+                  project: foundLead?.project,
+                  floor: ele?.floor,
+                  number: ele?.number,
+                  occupied: true,
+                });
+              }
+            } catch (error) {
+              //
+            }
+          }),
+        );
+      }
+    } catch (error) {
+      //
+    }
+
     return res.send(
       successRes(200, "updated post sale lead", {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1627,7 +1433,7 @@ export const deletePostSaleLeadBydId = async (req, res, next) => {
     return res.send(
       successRes(200, "deleted post sale lead", {
         data: foundLead,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1653,7 +1459,7 @@ export const getPostSaleLeadByFlat = async (req, res) => {
     return res.send(
       successRes(200, "Get Post Lead payment", {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -1818,7 +1624,7 @@ export const cancelBooking = async (req, res, next) => {
           bookingCancelDate: new Date(),
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedLead) {
@@ -1842,10 +1648,47 @@ export const cancelBooking = async (req, res, next) => {
       // console.log(error);
     }
 
+    // new flat update
+    try {
+      //
+      await FlatOccupancyChange({
+        project: project,
+        floor,
+        buildingNo,
+        number,
+        occupied: false,
+      });
+    } catch (error) {
+      //
+    }
+
+    try {
+      //
+      if (lead.parking.length > 0) {
+        await Promise.all(
+          lead.parking.map(async (ele) => {
+            //
+            try {
+              await ParkingOccupancyChange({
+                project: project,
+                floor: ele.floor,
+                number: ele.number,
+                occupied: false,
+              });
+            } catch (error) {
+              //
+            }
+          }),
+        );
+      }
+    } catch (error) {
+      //
+    }
+
     try {
       await leadModelV2.findOneAndUpdate(
         { bookingRef: id },
-        { bookingStatus: "cancelled", isCountableBooking: false }
+        { bookingStatus: "cancelled", isCountableBooking: false },
       );
     } catch (error) {
       // console.log(error);
@@ -1861,7 +1704,7 @@ export const cancelBooking = async (req, res, next) => {
     return res.send(
       successRes(200, "Booking cancelled successfully", {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error cancelling booking:", error); // Log the error for debugging
@@ -1892,14 +1735,14 @@ export const updateBookingFeedback = async (req, res, next) => {
             },
           },
         },
-        { new: true }
+        { new: true },
       )
       .populate(postSalePopulateOptions);
 
     return res.send(
       successRes(200, "Feedback Updated successfully", {
         data: updatedLead,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error cancelling booking:", error); // Log the error for debugging
@@ -1992,8 +1835,8 @@ export const notificationForPaymentDue = async (req, res, next) => {
         const when = moment(p.date).isSame(today, "day")
           ? "today"
           : moment(p.date).isSame(tomorrow, "day")
-          ? "tomorrow"
-          : null;
+            ? "tomorrow"
+            : null;
 
         if (!when) continue;
 
@@ -2013,9 +1856,9 @@ export const notificationForPaymentDue = async (req, res, next) => {
           },
         });
 
-        console.log(
-          `Sent ${p.label} reminder (${when}) for ${lead.firstName} ${lead.lastName}`
-        );
+        // console.log(
+        //   `Sent ${p.label} reminder (${when}) for ${lead.firstName} ${lead.lastName}`
+        // );
       }
     }
 
@@ -2114,9 +1957,9 @@ export const sendPaymentDueEmail = async (req, res) => {
           [manager.email],
           `Payment Due Reminder`,
           html,
-          []
+          [],
         );
-      })
+      }),
     );
 
     const allLeadsByManager = Object.values(managerMap).flat();
@@ -2131,7 +1974,7 @@ export const sendPaymentDueEmail = async (req, res) => {
         "shreya@evgroup.co.in",
       ],
       `Payment Due Reminders`,
-      htmlAll
+      htmlAll,
     );
 
     return { data: allLeadsByManager };
@@ -2192,7 +2035,7 @@ export const updatePaymentDetailsAmtStatus = async (req, res) => {
     const leadId = req.params.id;
     const { paymentId, update } = req.body;
 
-    console.log("Update body:", update);
+    // console.log("Update body:", update);
 
     const lead = await leadModel.findOne({ bookingRef: leadId });
 
@@ -2220,7 +2063,7 @@ export const updatePaymentDetailsAmtStatus = async (req, res) => {
           "paymentDetailSchema.$.receivedAmount": update.receivedAmount,
         },
       },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedPostSaleLead) {
@@ -2382,7 +2225,6 @@ export const getPaymentReport = async (req, res) => {
                 channelPartner: 1,
               },
             },
-     
           ],
           as: "leadInfo",
         },
@@ -2749,3 +2591,5 @@ export const getPaymentReport = async (req, res) => {
 //     // next(err);
 //   }
 // };
+
+//

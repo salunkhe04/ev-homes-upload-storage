@@ -26,6 +26,8 @@ import {
   successRes,
   successRes2,
 } from "../../model/response.js";
+import { RedisService } from "../../app/redis.js";
+import flatModel from "../../model/flat.model.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,13 +37,13 @@ ourProjectRouter.get(
   "/ourProjects",
   // authenticateToken,
 
-  getOurProjects
+  getOurProjects,
 );
 
 ourProjectRouter.get(
   "/ourProjects/:id",
   //  authenticateToken,
-  getProjectsById
+  getProjectsById,
 );
 ourProjectRouter.get("/ourProjects-flat/:id", getFlatListByProject);
 
@@ -50,29 +52,29 @@ ourProjectRouter.post(
 
   authenticateToken,
 
-  addProjects
+  addProjects,
 );
 ourProjectRouter.post(
   "/ourProjects-update/:id",
   authenticateToken,
-  updateProjects
+  updateProjects,
 );
 // NEW:
 ourProjectRouter.post(
   "/our-project-flat-update/:id",
   authenticateToken,
-  updateFlatInProject
+  updateFlatInProject,
 );
 ourProjectRouter.delete(
   "/our-project-flat-delete/:id",
   authenticateToken,
-  deleteFlatInProject
+  deleteFlatInProject,
 );
 
 ourProjectRouter.post(
   "/our-project-flat-update",
   authenticateToken,
-  updateFlatDetails
+  updateFlatDetails,
 );
 
 ourProjectRouter.delete("/ourProjects/:id", authenticateToken, deleteProject);
@@ -86,7 +88,7 @@ ourProjectRouter.get(
     try {
       // Fetch the project and get flatList
       const resp = await ourProjectModel.findById(
-        "project-ev-10-marina-bay-vashi-sector-10"
+        "project-ev-10-marina-bay-vashi-sector-10",
       );
       const flats = resp.flatList;
 
@@ -136,7 +138,7 @@ ourProjectRouter.get(
       console.error("Error exporting data:", error);
       res.status(500).send("Error exporting data.");
     }
-  }
+  },
 );
 ourProjectRouter.get(
   "/ourProjects-parking-csv",
@@ -145,7 +147,7 @@ ourProjectRouter.get(
     try {
       // Fetch the project and get flatList
       const resp = await ourProjectModel.findById(
-        "project-ev-9-square-vashi-sector-9"
+        "project-ev-9-square-vashi-sector-9",
       );
       const flats = resp.parkingList;
 
@@ -176,7 +178,7 @@ ourProjectRouter.get(
             console.error("Error sending file:", err);
             res.status(500).send("Failed to download file.");
           } else {
-            console.log("File sent successfully.");
+            // console.log("File sent successfully.");
           }
 
           // Cleanup: Remove the file after sending
@@ -187,7 +189,7 @@ ourProjectRouter.get(
       console.error("Error exporting data:", error);
       res.status(500).send("Error exporting data.");
     }
-  }
+  },
 );
 
 ourProjectRouter.post(
@@ -266,7 +268,7 @@ ourProjectRouter.post(
       console.error("Error updating flat list:", error);
       res.status(500).send("Internal server error");
     }
-  }
+  },
 );
 
 ourProjectRouter.post(
@@ -276,7 +278,7 @@ ourProjectRouter.post(
     try {
       const filePath = path.join(
         __dirname,
-        "marina_bay_flatlist_latest_changed.csv"
+        "marina_bay_flatlist_latest_changed.csv",
       );
       // console.log("Looking for CSV at:", filePath);
       if (!fs.existsSync(filePath)) {
@@ -353,7 +355,7 @@ ourProjectRouter.post(
       console.error("Error updating flat list from CSV:", error);
       res.status(500).send("Internal server error");
     }
-  }
+  },
 );
 
 ourProjectRouter.post(
@@ -382,7 +384,7 @@ ourProjectRouter.post(
       console.error(error);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 ourProjectRouter.post("/project-heart-fix-bldg", async (req, res) => {
   try {
@@ -413,7 +415,7 @@ ourProjectRouter.post("/project-updates-flat-list-sort", async (req, res) => {
       _id: "project-ev23-malibu-west-koparkhairne-2024",
     });
     projectResp.flatList.sort(
-      (a, b) => parseInt(a.flatNo) - parseInt(b.flatNo)
+      (a, b) => parseInt(a.flatNo) - parseInt(b.flatNo),
     );
     await projectResp.save();
     res.send("ok");
@@ -430,14 +432,11 @@ ourProjectRouter.post(
     const results = [];
     const dataToPush = [];
 
-    const csvFilePath = path.join(
-      __dirname,
-      "9square_price.csv//"
-    );
+    const csvFilePath = path.join(__dirname, "captol9-flatlist-15-01-2026.csv");
 
     try {
       const projectResp = await ourProjectModel.findOne({
-        _id: "project-ev-9-square-vashi-sector-9",
+        _id: "project-ev-capitol-9-vashi-2025",
       });
 
       if (!projectResp) {
@@ -457,6 +456,11 @@ ourProjectRouter.post(
             const {
               buildingNo,
               floor,
+              OfficeNo,
+              salebleArea,
+              usableArea,
+              Basic,
+              //
               flatNo,
               occupied,
               configuration,
@@ -480,23 +484,31 @@ ourProjectRouter.post(
               //
             } = row;
 
-            let allInc = allInclusiveValue != "" ? parseFloat(allInclusiveValue) : 0;
-            let number = parseInt(flatNo) % 100;
+            // let allInc =
+            //   allInclusiveValue != "" ? parseFloat(allInclusiveValue) : 0;
+            // let number = parseInt(flatNo) % 100;
             dataToPush.push({
+              buildingNo: 1,
+              flatNo: OfficeNo,
+              floor: floor,
+              carpetArea: usableArea,
+              sellableCarpetArea: salebleArea,
+              allInclusiveValue: Basic,
+              // ...row,
               // reraArea,
               // balconyArea,
               // // usableCarpetArea:,
               // ssArea: SSArea,
               // buildingNo: 3, //buildingNo,
               // floor,
-              flatNo,
+              // flatNo,
               // number,
               // occupied:
               //   occupied?.toString().toLowerCase() === "true" ? true : false,
               // configuration: config,
               // carpetArea: usableCarpetArea,
               // sellableCarpetArea: totalSaleArea,
-              allInclusiveValue: allInc,
+              // allInclusiveValue: allInc,
               // type: flatName,
             });
           }
@@ -504,16 +516,17 @@ ourProjectRouter.post(
           // Update matching flats
           projectResp.flatList.forEach((flt) => {
             const match = dataToPush.find(
-              (item) => item.flatNo?.toString() === flt.flatNo?.toString()
-              // &&parseInt(flt?.buildingNo) === 3
+              (item) =>
+                item.flatNo?.toString() === flt.flatNo?.toString() &&
+                flt.buildingNo == 1,
             );
 
             if (match) {
-              Object.keys(match).forEach((key) => {
-                if (match[key] !== undefined && match[key] !== null) {
-                  flt[key] = match[key]; // will create field if not exist
-                }
-              });
+              // Object.keys(match).forEach((key) => {
+              //   if (match[key] !== undefined && match[key] !== null) {
+              //     flt[key] = match[key]; // will create field if not exist
+              //   }
+              // });
 
               // flt.floor = match.floor;
               // flt.occupied = match.occupied;
@@ -521,15 +534,17 @@ ourProjectRouter.post(
               // flt.balconyArea = match.balconyArea;
               // flt.ssArea = match.ssArea;
               // flt.configuration = match.configuration;
-              // flt.carpetArea = match.carpetArea;
-              // flt.sellableCarpetArea = match.sellableCarpetArea;
+              flt.carpetArea = match.carpetArea;
+              flt.sellableCarpetArea = match.sellableCarpetArea;
               flt.allInclusiveValue = match.allInclusiveValue;
               // flt.type = match.type;
             }
           });
 
-          projectResp.markModified("flatList");
-          await projectResp.save();
+          // projectResp.markModified("flatList");
+          // await projectResp.save();
+          // await RedisService.delMultipleKeys(["projects"]);
+          //
           return res.send({
             message: "Flat list updated successfully",
             updatedCount: dataToPush,
@@ -543,7 +558,7 @@ ourProjectRouter.post(
         .status(500)
         .send({ error: "Something went wrong", details: err.message });
     }
-  }
+  },
 );
 
 // actuallly working flat list updates
@@ -612,7 +627,7 @@ ourProjectRouter.post(
         .status(500)
         .send({ error: "Something went wrong", details: err.message });
     }
-  }
+  },
 );
 
 ourProjectRouter.post("/project-floor-plan/:id", async (req, res) => {
@@ -650,14 +665,14 @@ ourProjectRouter.post("/project-floor-plan/:id", async (req, res) => {
     const updatedFlats = project.flatList.filter(
       (flat) =>
         flat.carpetArea === carpetArea &&
-        (buildingNo ? flat.buildingNo === buildingNo : true)
+        (buildingNo ? flat.buildingNo === buildingNo : true),
     );
 
     return res.send(
       successRes(200, "Floor plans updated successfully", {
         modifiedCount,
         updatedFlats,
-      })
+      }),
     );
   } catch (err) {
     console.error(err);
@@ -684,7 +699,7 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
       e.flatNo = flatNo;
     });
 
-  //  await project.save();
+    //  await project.save();
 
     // for (let floor = 8; floor <= 42; floor++) {
     //   // const flatCount = 23;
@@ -728,7 +743,7 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
     //   }
     // }
 
-    console.log(flatsToAdd);
+    // console.log(flatsToAdd);
     // await ourProjectModel.findByIdAndUpdate(
     //   id,
     //   {
@@ -744,7 +759,7 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
     return res.send(
       successRes(200, "Flats bulk added successfully", {
         data: project.flatList,
-      })
+      }),
     );
   } catch (err) {
     console.error(err);
@@ -752,8 +767,135 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
   }
 });
 
+// actuallly working flat list updates
+ourProjectRouter.post(
+  "/project-updates-flat-list-new",
+  // authenticateToken,
+  async (req, res) => {
+    const results = [];
+    const dataToPush = [];
 
+    const csvFilePath = path.join(__dirname, "aspire2.csv");
 
+    try {
+      const projectResp = await ourProjectModel.findOne({
+        _id: "project-solaris-rohinjan-2025",
+      });
+
+      if (!projectResp) {
+        return res.status(404).send("Project not found");
+      }
+      const flatList = projectResp.flatList;
+      if (!fs.existsSync(csvFilePath)) {
+        return res.status(400).send("CSV file not found");
+      }
+
+      fs.createReadStream(csvFilePath)
+        .pipe(csv())
+        .on("data", (data) => results.push(data))
+        .on("end", async () => {
+          // Collect only the required fields from CSV
+          for (const row of results) {
+            const {
+              flatNo,
+              Configuration,
+              Type,
+              "Rera area": reraArea,
+              usableCarpetArea,
+              "TOTAL SALE AREA": totalSaleArea,
+              "All Inlusive": allInclusive,
+              Status,
+              floor,
+            } = row;
+
+            let number = parseInt(flatNo) % 100;
+            dataToPush.push({
+              flatNo,
+              floor: parseInt(floor),
+              number: number,
+              buildingNo: 2,
+              configuration: Configuration?.replaceAll(" ", ""),
+              type: Type,
+              reraArea: reraArea,
+              usableCarpetArea: usableCarpetArea,
+              carpetArea: usableCarpetArea,
+              allInclusiveValue: allInclusive,
+              sellableCarpetArea: totalSaleArea,
+              occupied: Status.toLowerCase() === "sold" ? true : false,
+            });
+          }
+
+          await Promise.all(
+            dataToPush.map(async (ele) => {
+              //
+              try {
+                //
+                await flatModel.findOneAndUpdate(
+                  {
+                    project: "project-solaris-rohinjan-2025",
+                    flatNo: ele.flatNo,
+                    // number: ele.number,
+                    buildingNo: ele.buildingNo,
+                  },
+                  {
+                    ...ele,
+                  },
+                  { upsert: true },
+                );
+              } catch (error) {
+                //
+                console.log(error);
+              }
+            }),
+          );
+
+          // Update matching flats
+          // projectResp.flatList.forEach((flt) => {
+          //   const match = dataToPush.find(
+          //     (item) =>
+          //       item.flatNo?.toString() === flt.flatNo?.toString() &&
+          //       flt.buildingNo == 1,
+          //   );
+
+          //   if (match) {
+          //     // Object.keys(match).forEach((key) => {
+          //     //   if (match[key] !== undefined && match[key] !== null) {
+          //     //     flt[key] = match[key]; // will create field if not exist
+          //     //   }
+          //     // });
+
+          //     // flt.floor = match.floor;
+          //     // flt.occupied = match.occupied;
+          //     // flt.reraArea = match.carpetArea;
+          //     // flt.balconyArea = match.balconyArea;
+          //     // flt.ssArea = match.ssArea;
+          //     // flt.configuration = match.configuration;
+          //     // flt.carpetArea = match.carpetArea;
+          //     // flt.sellableCarpetArea = match.sellableCarpetArea;
+          //     // flt.allInclusiveValue = match.allInclusiveValue;
+          //     // flt.type = match.type;
+          //   }
+          // });
+
+          // projectResp.markModified("flatList");
+          // await projectResp.save();
+          // await RedisService.delMultipleKeys(["projects"]);
+          //
+          return res.send({
+            message: "Flat list updated successfully",
+            updatedCount: dataToPush,
+          });
+        })
+        .on("error", (err) => {
+          return res.status(500).send({ error: err.message });
+        });
+    } catch (err) {
+      return res
+        .status(500)
+        .send({ error: "Something went wrong", details: err.message });
+    }
+  },
+);
 
 // ourProjectRouter.post("/bulk-add-flats-9vtc/:id", async (req, res) => {
 //   const { id } = req.params;
@@ -763,8 +905,6 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
 //     if (!project) return errorRes2(res, 404, "No project found");
 
 //     const flatsToAdd = [];
-
-   
 
 //     // for (let floor = 8; floor <= 42; floor++) {
 //     //   const flatCount = [8, 13, 17].includes(floor) ? 37 : 39;
@@ -809,8 +949,6 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
 //     return res.send(errorRes(500, "Server error"));
 //   }
 // });
-
-
 
 // ourProjectRouter.post("/bulk-add-offices/:id", async (req, res) => {
 //   const { id } = req.params;
@@ -878,14 +1016,9 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
 //   }
 // });
 
-
-
-
-
-
 ourProjectRouter.get("/flats-3rd-series-c", async (req, res) => {
   const project = await ourProjectModel.findById(
-    "project-ev-capitol-9-vashi-2025"
+    "project-ev-capitol-9-vashi-2025",
   );
 
   project.flatList.forEach((ele) => {
@@ -968,10 +1101,7 @@ ourProjectRouter.get("/flats-3rd-series-c", async (req, res) => {
   });
 });
 
-
-
-
-ourProjectRouter.get("/update-carpet-area/:id",updatCarpetArea);
+ourProjectRouter.get("/update-carpet-area/:id", updatCarpetArea);
 
 // TODO: not used
 // ourProjectRouter.post("/project-updates-list-details", async (req, res) => {
@@ -1027,8 +1157,6 @@ ourProjectRouter.get("/update-carpet-area/:id",updatCarpetArea);
 //     });
 // });
 
-
-
 ourProjectRouter.put("/project/updateAllInclusive", async (req, res) => {
   try {
     const { projectId, flatNo, allInclusiveValue } = req.body;
@@ -1045,7 +1173,9 @@ ourProjectRouter.put("/project/updateAllInclusive", async (req, res) => {
 
     const flat = project.flatList.find((item) => item.flatNo === flatNo);
     if (!flat) {
-      return res.status(404).json({ message: "Flat not found in this project" });
+      return res
+        .status(404)
+        .json({ message: "Flat not found in this project" });
     }
 
     flat.allInclusiveValue = allInclusiveValue;
@@ -1058,12 +1188,10 @@ ourProjectRouter.put("/project/updateAllInclusive", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: "Server error", error: err.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
   }
 });
-
-
-
-
 
 export default ourProjectRouter;

@@ -1851,7 +1851,7 @@ export const employeeShiftInfoPopulateOptions = [
   },
   {
     path: "faceId",
-    // select: "-preLoadedFace",
+    select: "-preLoadedFace",
     populate: [
       {
         path: "userId",
@@ -2759,6 +2759,7 @@ export const postSalePopulateOptionsv2 = [
 ];
 
 export const eoiConfirmationPopulations = [
+  
   {
     path: "eoi.generatedBy",
     select: "firstName lastName",
@@ -2793,6 +2794,14 @@ export const eoiConfirmationPopulations = [
       },
     ],
   },
+  // {
+  //   path: "eoiList.generatedBy",
+  //   select: "firstName lastName",
+  // },
+  // {
+  //   path: "confirmationList.generatedBy",
+  //   select: "firstName lastName",
+  // },
 ];
 
 export const eoiExhibitionPopulations = [
@@ -2819,5 +2828,24 @@ export const onBoardExhibPopulations = [
   {
     path: "closingManager",
     select: "firstName lastName",
+  },
+];
+
+export const designTaskPopulateOptions = [
+  {
+    path: "assignBy",
+    select: "firstName lastName email",
+  },
+  {
+    path: "assignTo",
+    select: "firstName lastName email",
+  },
+  {
+    path: "pendency.approveBy",
+    select: "firstName lastName email",
+  },
+  {
+    path: "approval.approveBy",
+    select: "firstName lastName email",
   },
 ];

@@ -26,12 +26,15 @@ import {
   getDataAnalyzers,
   sendAddLeaveNotification,
   getEmployeesForAttendance,
+  getEmployeeByCustomRole,
 } from "../../controller/employee.controller.js";
 import { validateEmployeeFields } from "../../middleware/employee.middleware.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
 import employeeModel from "../../model/employee.model.js";
 import shiftInfoModel from "../../model/attendance/shift/employeeShiftInfo.js";
+import moment from "moment-timezone";
+import { employeePopulateOptions } from "../../utils/constant.js";
 
 const employeeRouter = Router();
 
@@ -85,6 +88,12 @@ employeeRouter.get(
   "/employee-by-designation/:id",
   authenticateToken,
   getEmployeeByDesignation
+);
+
+employeeRouter.get(
+  "/employees-by-custom-role",
+  // authenticateToken,
+  getEmployeeByCustomRole
 );
 
 employeeRouter.get("/employee-team-leader", authenticateToken, getTeamLeaders);
@@ -171,6 +180,29 @@ employeeRouter.post("/employee-logout", async (req, res) => {
   }
 });
 
+employeeRouter.post("/make-inactive/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const resp = await employeeModel
+      .findByIdAndUpdate(
+        id,
+
+        { status: "inactive" },
+
+        { new: true }
+      )
+      .select("-password -refreshToken")
+      .populate(employeePopulateOptions);
+
+    const dataResp = await employeeModel.findById(resp._id);
+
+    return successRes2(res, 200, "Inactive", { data: resp });
+  } catch (e) {
+    return errorRes2(res, 500, error);
+  }
+});
+
 // employeeRouter.put('/update-experience-status', async (req, res) => {
 //   try {
 //     const designations = [
@@ -224,6 +256,35 @@ employeeRouter.post("/emp-attach-shift", async (req, res) => {
       })
     );
     res.send("ok");
+  } catch (error) {
+    //
+    res.send(error);
+  }
+});
+
+employeeRouter.get("/emp-list-bd", async (req, res) => {
+  try {
+    //
+    const eList = [];
+
+    const emps = await employeeModel.find({
+      status: "active",
+      $or: [
+        { division: "div-vashi-sector-9" },
+        { division: "div-vashi-sector-10" },
+      ],
+    });
+
+    emps.map((ele) => {
+      eList.push({
+        name: `${ele.firstName} ${ele.lastName}`,
+        dob: moment(ele.dateOfBirth).isValid()
+          ? `${moment(ele.dateOfBirth).tz("Asia/Kolkata").format("DD-MM-YYYY")}`
+          : "",
+      });
+    });
+
+    res.send(eList);
   } catch (error) {
     //
     res.send(error);

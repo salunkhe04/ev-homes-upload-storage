@@ -1,39 +1,52 @@
-FROM node:24-alpine
+FROM node:20-bookworm
 
-# Install tzdata first
-RUN apk add --no-cache tzdata \
-    && cp /usr/share/zoneinfo/Asia/Kolkata /etc/localtime \
+# ----------------------------
+# Timezone (Linux + Node)
+# ----------------------------
+ENV TZ=Asia/Kolkata
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends tzdata \
+    && ln -snf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime \
     && echo "Asia/Kolkata" > /etc/timezone \
-    && apk del tzdata
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-
-# Create non-root user
-RUN addgroup -S app && adduser -S app -G app
+# ----------------------------
+# Non-root user
+# ----------------------------
+RUN groupadd -r app && useradd -r -g app app
 
 WORKDIR /app
 
-# Copy package files first
+# ----------------------------
+# Dependencies
+# ----------------------------
 COPY package*.json ./
+RUN npm ci --only=production
 
-# Install build tools, install dependencies, rebuild bcrypt, then remove build tools
-RUN apk add --no-cache \
-      make gcc g++ python3 python3-dev musl-dev linux-headers \
-    && npm install \
-    && npm rebuild bcrypt --build-from-source \
-    && apk del make gcc g++ python3-dev musl-dev linux-headers
-
-# Copy the rest of the app
+# ----------------------------
+# App source
+# ----------------------------
 COPY . .
 
-# Make storage folder writable
-RUN mkdir -p /app/storage && chown -R app:app /app/storage
+# ----------------------------
+# Storage
+# ----------------------------
+RUN mkdir -p /app/storage \
+    && chown -R app:app /app
 
-# Set Node.js timezone
-ENV TZ=Asia/Kolkata
+# ----------------------------
+# Runtime limits
+# ----------------------------
+ENV NODE_OPTIONS="--max-old-space-size=2500"
 
-# Switch to non-root user
 USER app
 
-EXPOSE 8084
+EXPOSE 8082
 
-CMD ["npm", "start"]
+# ----------------------------
+# Start Node directly
+# ----------------------------
+# CMD ["node", "src/server.js"]
+CMD ["node", "--cpu-prof", "src/server.js"]

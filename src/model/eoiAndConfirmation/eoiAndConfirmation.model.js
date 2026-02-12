@@ -1,10 +1,100 @@
 import mongoose from "mongoose";
 
+const eoiSchem = new mongoose.Schema({
+  id: {
+    type: String,
+    default: null,
+  },
+
+  generatedBy: {
+    type: String,
+    ref: "employees",
+    default: null,
+  },
+  paymentType: {
+    type: String,
+    default: null,
+  },
+  document: {
+    type: String,
+    default: null,
+  },
+
+  handOver: {
+    type: Boolean,
+    default: false,
+  },
+  handOverDate: {
+    type: Date,
+    default: null,
+  },
+
+  date: {
+    type: Date,
+    default: null,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+  handOverBy: {
+    type: String,
+    ref: "employees",
+    default: null,
+    // required: true,
+  },
+});
+
+const confSchem = new mongoose.Schema({
+  id: {
+    type: String,
+    default: null,
+  },
+  generatedBy: {
+    type: String,
+    ref: "employees",
+    default: null,
+    // required: true,
+  },
+  paymentType: {
+    type: String,
+    default: null,
+  },
+
+  document: {
+    type: String,
+    default: null,
+  },
+  date: {
+    type: Date,
+    default: null,
+  },
+  handOver: {
+    type: Boolean,
+    default: false,
+  },
+  handOverDate: {
+    type: Date,
+    default: null,
+  },
+  handOverBy: {
+    type: String,
+    ref: "employees",
+    default: null,
+    // required: true,
+  },
+
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 export const eoiConfSchema = new mongoose.Schema(
   {
     id: {
       type: String,
-      default: null, //id of  (tl-with-estId)
+      default: null, //id of  (EOI/DD-MM-YY/001)
     },
     lead: {
       type: mongoose.Schema.Types.ObjectId,
@@ -42,75 +132,21 @@ export const eoiConfSchema = new mongoose.Schema(
       default: null,
     },
     // eoi
-    eoi: {
-      generatedBy: {
-        type: String,
-        ref: "employees",
-        default: null,
-      },
-      paymentType: {
-        type: String,
-        default: null,
-      },
-      document: {
-        type: String,
-        default: null,
-      },
-
-      handOver: {
-        type: Boolean,
-        default: false,
-      },
-      handOverDate: {
-        type: Date,
-        default: null,
-      },
-
-      date: {
-        type: Date,
-        default: null,
-      },
-    },
+    eoi: eoiSchem,
     // confirmation
-    confirmation: {
-      generatedBy: {
-        type: String,
-        ref: "employees",
-        default: null,
-        // required: true,
-      },
-      paymentType: {
-        type: String,
-        default: null,
-      },
-
-      document: {
-        type: String,
-        default: null,
-      },
-      date: {
-        type: Date,
-        default: null,
-      },
-      handOver: {
-        type: Boolean,
-        default: false,
-      },
-      handOverDate: {
-        type: Date,
-        default: null,
-      },
-    },
+    confirmation: confSchem,
     //
+    eoiList: [eoiSchem],
+    confirmationList: [confSchem],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Create the model
 const eoiConfModel = mongoose.model(
   "eoiAndConfirmation",
   eoiConfSchema,
-  "eoiAndConfirmation"
+  "eoiAndConfirmation",
 );
 export default eoiConfModel;
 

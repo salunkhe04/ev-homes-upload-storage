@@ -29,7 +29,7 @@ incentiveRouter.get("/incentive", authenticateToken, async (req, res) => {
 incentiveRouter.get(
   "/incentive-by-userId/:id",
   authenticateToken,
-  getIncetiveByUserId
+  getIncetiveByUserId,
 );
 
 incentiveRouter.get(
@@ -45,7 +45,7 @@ incentiveRouter.get(
           await employeeModel.findByIdAndUpdate(ele.userId, {
             incentive: ele._id,
           });
-        })
+        }),
       );
 
       if (!foundIncentives) return errorRes2(res, 404, "No incentive found");
@@ -57,7 +57,7 @@ incentiveRouter.get(
       //
       return errorRes2(res, 500, "Internal Server error");
     }
-  }
+  },
 );
 
 incentiveRouter.post(
@@ -107,7 +107,7 @@ incentiveRouter.post(
       console.log(error);
       return errorRes2(res, 500, "Internal Server error");
     }
-  }
+  },
 );
 
 incentiveRouter.post(
@@ -140,14 +140,18 @@ incentiveRouter.post(
       console.log(error);
       return errorRes2(res, 500, "Internal Server error");
     }
-  }
+  },
 );
 
 incentiveRouter.get(
   "/get-top-3-incentive",
   // authenticateToken,
   async (req, res) => {
-    const ids = ["ev15-deepak-karki", "ev69-vicky-mane", "ev70-jaspreet-arora"];
+    const ids = [
+      "ev15-deepak-karki",
+      "ev54-ranjna-gupta",
+      "ev70-jaspreet-arora",
+    ];
 
     const startOfMonth = moment().tz("Asia/Kolkata").startOf("month").toDate();
     const endOfMonth = moment().tz("Asia/Kolkata").endOf("month").toDate();
@@ -197,7 +201,7 @@ incentiveRouter.get(
       const sortedIncentives = top3
         .map(({ id, count }) => {
           let resp = incentives.find(
-            (incentive) => incentive.userId?._id === id
+            (incentive) => incentive.userId?._id === id,
           );
           if (resp) {
             const { bookings, ...withOutB } = resp;
@@ -214,7 +218,7 @@ incentiveRouter.get(
       console.error(error);
       return errorRes2(res, 500, "Server error");
     }
-  }
+  },
 );
 
 incentiveRouter.post(
@@ -316,7 +320,7 @@ incentiveRouter.post(
             //
             console.log(error);
           }
-        })
+        }),
       );
 
       //
@@ -327,7 +331,7 @@ incentiveRouter.post(
       console.log(error);
       return errorRes2(res, 500, "Internal Server error");
     }
-  }
+  },
 );
 export const addPotential = (booking, userId) => {};
 
@@ -383,7 +387,7 @@ incentiveRouter.post(
       console.log(error);
       return errorRes2(res, 500, "Internal Server error");
     }
-  }
+  },
 );
 // get transaction by user id
 incentiveRouter.get(
@@ -408,7 +412,7 @@ incentiveRouter.get(
       //
       return errorRes2(res, 500, "Internal Server error");
     }
-  }
+  },
 );
 
 export default incentiveRouter;

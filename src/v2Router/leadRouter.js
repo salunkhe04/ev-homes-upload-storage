@@ -60,7 +60,7 @@ leadRouterV2.post(
               },
             },
           },
-          { new: true }
+          { new: true },
         )
         .populate(leadPopulateOptions);
 
@@ -69,7 +69,7 @@ leadRouterV2.post(
       //
       res.json(error);
     }
-  }
+  },
 );
 
 leadRouterV2.post(
@@ -120,7 +120,7 @@ leadRouterV2.post(
               },
             },
           },
-          { new: true }
+          { new: true },
         )
         .populate(leadPopulateOptions);
 
@@ -130,7 +130,7 @@ leadRouterV2.post(
       // console.log(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
 );
 
 leadRouterV2.post("/add-cp-to-queue-list", async (req, res) => {
@@ -391,6 +391,7 @@ leadRouterV2.get(
         bookingWalkIn: 0,
         cpNotePendingCount: 0,
         internalLeadCount: 0,
+        exhibition2025: 0,
       },
       task: {
         total: 0,
@@ -596,6 +597,15 @@ leadRouterV2.get(
               },
               { $count: "count" },
             ],
+
+            exhibition2025: [
+              {
+                $match: {
+                  leadFrom: "exhibition-2025",
+                },
+              },
+              { $count: "count" },
+            ],
           },
         },
         {
@@ -622,6 +632,9 @@ leadRouterV2.get(
             internalLeadCount: {
               $arrayElemAt: ["$internalLeadCount.count", 0],
             },
+            exhibition2025: {
+              $arrayElemAt: ["$exhibition2025.count", 0],
+            },
           },
         },
         {
@@ -640,6 +653,7 @@ leadRouterV2.get(
             cpNotePendingCount: 1,
             bulkCount: 1,
             internalLeadCount: 1,
+            exhibition2025: 1,
 
             // Include only the fields you need
           },
@@ -663,7 +677,7 @@ leadRouterV2.get(
         cpNotePendingCount = 0,
         bulkCount = 0,
         internalLeadCount = 0,
-
+        exhibition2025 = 0,
         // Add other counts as required
       } = counts[0] || {};
 
@@ -681,6 +695,7 @@ leadRouterV2.get(
       allCounts.lead.cpNotePendingCount = cpNotePendingCount;
       allCounts.lead.bulkCount = bulkCount;
       allCounts.lead.internalLeadCount = internalLeadCount;
+      allCounts.lead.exhibition2025 = exhibition2025;
 
       // console.log({
       //   assignTo: id,
@@ -746,7 +761,7 @@ leadRouterV2.get(
       // console.log(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
 );
 
 leadRouterV2.get(
@@ -819,6 +834,7 @@ leadRouterV2.get(
         cpNotePendingCount: 0,
         internalLeadCount: 0,
         bulkCount: 0,
+        exhibition2025: 0,
       },
       task: {
         total: 0,
@@ -846,7 +862,7 @@ leadRouterV2.get(
           ...dateFilter,
         };
       }
-      console.log(filter);
+      // console.log(filter);
       const counts = await leadModelV2.aggregate([
         filter,
         {
@@ -1029,6 +1045,14 @@ leadRouterV2.get(
               },
               { $count: "count" },
             ],
+            exhibition2025: [
+              {
+                $match: {
+                  leadFrom: "exhibition-2025",
+                },
+              },
+              { $count: "count" },
+            ],
           },
         },
         {
@@ -1057,6 +1081,9 @@ leadRouterV2.get(
             internalLeadCount: {
               $arrayElemAt: ["$internalLeadCount.count", 0],
             },
+            exhibition2025: {
+              $arrayElemAt: ["$exhibition2025.count", 0],
+            },
 
             // Add other fields similarly as required
           },
@@ -1077,6 +1104,7 @@ leadRouterV2.get(
             cpNotePendingCount: 1,
             bulkCount: 1,
             internalLeadCount: 1,
+            exhibition2025: 1,
 
             // Include only the fields you need
           },
@@ -1100,7 +1128,7 @@ leadRouterV2.get(
         cpNotePendingCount = 0,
         bulkCount = 0,
         internalLeadCount = 0,
-
+        exhibition2025 = 0,
         // Add other counts as required
       } = counts[0] || {};
 
@@ -1118,6 +1146,7 @@ leadRouterV2.get(
       allCounts.lead.cpNotePendingCount = cpNotePendingCount;
       allCounts.lead.bulkCount = bulkCount;
       allCounts.lead.internalLeadCount = internalLeadCount;
+      allCounts.lead.exhibition2025 = exhibition2025;
 
       // console.log({
       //   assignTo: id,
@@ -1184,7 +1213,7 @@ leadRouterV2.get(
       console.log(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
 );
 
 //list of employees count with filter
@@ -1238,7 +1267,7 @@ leadRouterV2.get(
     const employees = await employeeModel
       .find(filter)
       .select(
-        "firstName lastName profilePic designation employeeId email phoneNumber"
+        "firstName lastName profilePic designation employeeId email phoneNumber",
       )
       .populate({
         path: "designation",
@@ -1352,7 +1381,7 @@ leadRouterV2.get(
       console.log(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
 );
 
 //individual count with filter
@@ -1391,7 +1420,7 @@ leadRouterV2.get(
       const emp = await employeeModel
         .findById(id)
         .select(
-          "firstName lastName profilePic designation employeeId email phoneNumber reportingTo"
+          "firstName lastName profilePic designation employeeId email phoneNumber reportingTo",
         )
         .populate({
           path: "designation",
@@ -1516,12 +1545,12 @@ leadRouterV2.get(
             : {}),
           deadline: { $gte: new Date() },
         },
-        { _id: 1, lead: 1, phoneNumber: 1, type: 1 }
+        { _id: 1, lead: 1, phoneNumber: 1, type: 1 },
       );
       let assignedTaskIds = taskIds.map((task) => task.phoneNumber);
       let liveLeadTask = taskIds.filter((task) => task.type == "live-lead");
       let transferLeadTask = taskIds.filter(
-        (task) => task.type == "transfer-lead"
+        (task) => task.type == "transfer-lead",
       );
 
       // console.log(assignedTaskIds);
@@ -1711,7 +1740,385 @@ leadRouterV2.get(
       console.error(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
-  }
+  },
+);
+
+leadRouterV2.get(
+  "/sourcing-manager-dashboard-count",
+  // authenticateToken,
+  async (req, res) => {
+    let { startDate, endDate, interval } = req.query;
+    const now = new Date();
+    if (interval === "monthly") {
+      startDate = moment().startOf("month").toDate();
+      endDate = moment().endOf("month").toDate();
+    } else if (interval === "quarterly") {
+      startDate = moment().startOf("quarter").toDate();
+      endDate = moment().endOf("quarter").toDate();
+    } else if (interval === "semi-annually") {
+      const month = moment().month();
+      const year = moment().year();
+      const isFirstHalf = month < 6;
+
+      startDate = moment([year, isFirstHalf ? 0 : 6])
+        .startOf("month")
+        .toDate();
+      endDate = moment([year, isFirstHalf ? 5 : 11])
+        .endOf("month")
+        .toDate();
+    } else if (interval === "annually") {
+      startDate = moment().startOf("year").toDate();
+      endDate = moment().endOf("year").toDate();
+    }
+    // console.log(interval);
+    // console.log(startDate);
+    // console.log(endDate);
+
+    const dateFilter =
+      startDate && endDate
+        ? {
+            startDate: {
+              $gte: startDate,
+              $lte: endDate,
+            },
+          }
+        : null;
+
+    // console.log(dateFilter);
+    const allCounts = {
+      name: null,
+      designation: null,
+      date: now,
+      startDate: startDate,
+      endDate: endDate,
+      lead: {
+        total: 0,
+        visit1: 0,
+        visit2: 0,
+        revisit: 0,
+        booking: 0,
+        pending: 0,
+        assigned: 0,
+        notAssigned: 0,
+        lineup: 0,
+        bookingCp: 0,
+        bookingWalkIn: 0,
+        cpNotePendingCount: 0,
+        internalLeadCount: 0,
+        bulkCount: 0,
+        exhibition2025: 0,
+      },
+      task: {
+        total: 0,
+        pending: 0,
+        completed: 0,
+      },
+    };
+
+    try {
+      const today = moment().tz("Asia/Kolkata");
+      let filter = {
+        $match: {},
+      };
+      if (dateFilter != null) {
+        filter.$match = {
+          ...filter.$match,
+          ...dateFilter,
+        };
+      }
+      // console.log(filter);
+      const counts = await leadModelV2.aggregate([
+        filter,
+        {
+          $facet: {
+            totalItems: [
+              {
+                $match: {
+                  disabled: false,
+                },
+              },
+              { $count: "count" },
+            ],
+            pendingCount: [
+              {
+                $match: {
+                  disabled: false,
+                  $or: [
+                    // { visitRef: { $ne: null } },
+                    // { revisitRef: { $ne: null } },
+                    {
+                      visitStatus: "pending",
+                      bookingStatus: { $ne: "booked" },
+                    },
+                    {
+                      revisitStatus: "pending",
+                      bookingStatus: { $ne: "booked" },
+                    },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            assignedCount: [
+              { $match: { disabled: false, taskRef: { $ne: null } } },
+              { $count: "count" },
+            ],
+            notAssignedCount: [
+              { $match: { disabled: false, taskRef: { $eq: null } } },
+              { $count: "count" },
+            ],
+            visitCount: [
+              {
+                $match: {
+                  disabled: false,
+                  stage: { $ne: "approval" },
+                  stage: { $ne: "booking" },
+                  $and: [
+                    {
+                      visitStatus: { $ne: null },
+                    },
+                    {
+                      visitStatus: { $ne: "pending" },
+                    },
+                    { leadType: { $eq: "cp" } },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            revisitCount: [
+              {
+                $match: {
+                  disabled: false,
+                  stage: "booking",
+                  $and: [
+                    {
+                      revisitStatus: { $ne: null },
+                    },
+                    {
+                      revisitStatus: { $ne: "pending" },
+                    },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            visit2Count: [
+              {
+                $match: {
+                  disabled: false,
+                  visitStatus: { $ne: "pending" },
+
+                  $or: [
+                    {
+                      leadType: { $eq: "walk-in" },
+                    },
+                    {
+                      leadType: { $eq: "internal-lead" },
+                    },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            bookingCount: [
+              {
+                $match: {
+                  stage: "booking",
+                  // bookingStatus: { $ne: "pending" },
+                  $and: [
+                    {
+                      bookingStatus: { $eq: "booked" },
+                    },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            lineUpCount: [
+              {
+                $match: {
+                  disabled: false,
+                  $and: [
+                    { siteVisitInterested: { $eq: true } },
+                    // { siteVisitInterestedDate: { $gte: new Date() } },
+                    { siteVisitInterestedDate: { $gte: today.toDate() } }, // only today & future
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            bookingWalkinCount: [
+              {
+                $match: {
+                  stage: "booking",
+                  $and: [
+                    { bookingStatus: { $eq: "booked" } },
+                    {
+                      $or: [
+                        { leadType: "walk-in" },
+                        { leadType: "internal-lead" },
+                      ],
+                    },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            bookingCpCount: [
+              {
+                $match: {
+                  stage: "booking",
+                  $and: [
+                    { bookingStatus: { $eq: "booked" } },
+                    { leadType: "cp" },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+
+            bulkCount: [
+              {
+                $match: {
+                  disabled: false,
+                  isBulkLead: true,
+                },
+              },
+              { $count: "count" },
+            ],
+            cpNotePendingCount: [
+              {
+                $match: {
+                  $and: [
+                    { cpNoteResolved: false },
+                    { "callHistory.notes": { $exists: true } },
+                    // { "callHistory.notes": { $ne: [] } },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+
+            internalLeadCount: [
+              {
+                $match: {
+                  disabled: false,
+                  $and: [{ leadType: { $eq: "internal-lead" } }],
+                },
+              },
+              { $count: "count" },
+            ],
+            exhibition2025: [
+              {
+                $match: {
+                  leadFrom: "exhibition-2025",
+                },
+              },
+              { $count: "count" },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            totalItems: { $arrayElemAt: ["$totalItems.count", 0] },
+            pendingCount: { $arrayElemAt: ["$pendingCount.count", 0] },
+            assignedCount: { $arrayElemAt: ["$assignedCount.count", 0] },
+            notAssignedCount: { $arrayElemAt: ["$notAssignedCount.count", 0] },
+            visitCount: { $arrayElemAt: ["$visitCount.count", 0] },
+            revisitCount: { $arrayElemAt: ["$revisitCount.count", 0] },
+            visit2Count: { $arrayElemAt: ["$visit2Count.count", 0] },
+            bookingCount: { $arrayElemAt: ["$bookingCount.count", 0] },
+            lineUpCount: { $arrayElemAt: ["$lineUpCount.count", 0] },
+            bookingWalkinCount: {
+              $arrayElemAt: ["$bookingWalkinCount.count", 0],
+            },
+            bookingCpCount: { $arrayElemAt: ["$bookingCpCount.count", 0] },
+
+            cpNotePendingCount: {
+              $arrayElemAt: ["$cpNotePendingCount.count", 0],
+            },
+            bulkCount: {
+              $arrayElemAt: ["$bulkCount.count", 0],
+            },
+
+            internalLeadCount: {
+              $arrayElemAt: ["$internalLeadCount.count", 0],
+            },
+            exhibition2025: {
+              $arrayElemAt: ["$exhibition2025.count", 0],
+            },
+
+            // Add other fields similarly as required
+          },
+        },
+        {
+          $project: {
+            totalItems: 1,
+            pendingCount: 1,
+            assignedCount: 1,
+            visitCount: 1,
+            revisitCount: 1,
+            visit2Count: 1,
+            bookingCount: 1,
+            lineUpCount: 1,
+            notAssignedCount: 1,
+            bookingWalkinCount: 1,
+            bookingCpCount: 1,
+            cpNotePendingCount: 1,
+            bulkCount: 1,
+            internalLeadCount: 1,
+            exhibition2025: 1,
+
+            // Include only the fields you need
+          },
+        },
+      ]);
+
+      const {
+        totalItems = 0,
+        pendingCount = 0,
+        // contactedCount = 0,
+        // followUpCount = 0,
+        assignedCount = 0,
+        visitCount = 0,
+        revisitCount = 0,
+        visit2Count = 0,
+        bookingCount = 0,
+        lineUpCount = 0,
+        notAssignedCount = 0,
+        bookingWalkinCount = 0,
+        bookingCpCount = 0,
+        cpNotePendingCount = 0,
+        bulkCount = 0,
+        internalLeadCount = 0,
+        exhibition2025 = 0,
+        // Add other counts as required
+      } = counts[0] || {};
+
+      allCounts.lead.total = totalItems;
+      allCounts.lead.pending = pendingCount;
+      allCounts.lead.visit1 = visitCount;
+      allCounts.lead.visit2 = visit2Count;
+      allCounts.lead.revisit = revisitCount;
+      allCounts.lead.assigned = assignedCount;
+      allCounts.lead.lineup = lineUpCount;
+      allCounts.lead.notAssigned = notAssignedCount;
+      allCounts.lead.booking = bookingCount;
+      allCounts.lead.bookingCp = bookingCpCount;
+      allCounts.lead.bookingWalkIn = bookingWalkinCount;
+      allCounts.lead.cpNotePendingCount = cpNotePendingCount;
+      allCounts.lead.bulkCount = bulkCount;
+      allCounts.lead.internalLeadCount = internalLeadCount;
+      allCounts.lead.exhibition2025 = exhibition2025;
+
+      return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
+    } catch (error) {
+      //
+      console.log(error);
+      return errorRes2(res, 500, "Internal Server Error");
+    }
+  },
 );
 
 leadRouterV2.get("/leads-team-leader/:id", getLeadsTeamLeaderV2);
@@ -1769,8 +2176,8 @@ function generateDummyData(count) {
     const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
     const phoneNumber = parseInt(
       `${Math.floor(Math.random() * 900 + 100)}${Math.floor(
-        Math.random() * 900 + 100
-      )}${Math.floor(Math.random() * 9000 + 1000)}`
+        Math.random() * 900 + 100,
+      )}${Math.floor(Math.random() * 9000 + 1000)}`,
     );
 
     data.push({ firstName, lastName, phoneNumber, leadType: "cp" });
@@ -1805,10 +2212,10 @@ leadRouterV2.get(
           //
           console.log(error);
         }
-      })
+      }),
     );
     res.send(resp);
-  }
+  },
 );
 
 leadRouterV2.get("/leads-visit-stimate", async (req, res) => {
@@ -1840,7 +2247,7 @@ leadRouterV2.get("/leads-visit-stimate", async (req, res) => {
         } catch (error) {
           //
         }
-      })
+      }),
     );
     res.send(results);
   } catch (error) {
@@ -1915,14 +2322,14 @@ leadRouterV2.get("/internal-leads-trigger-date-fix", async (req, res) => {
 });
 
 leadRouterV2.get("/last-weeek-rj-lead", async (req, res) => {
-  console.log("okay");
+  // console.log("okay");
 
   const format = [];
   try {
     const todayDate = moment().tz("Asia/kolkata");
     const curDate = moment().tz("Asia/kolkata").subtract(2, "weeks");
 
-    console.log(curDate);
+    // console.log(curDate);
     const lead = await leadModelV2
       .find({
         approvalDate: {
@@ -1958,7 +2365,7 @@ leadRouterV2.get("/last-weeek-rj-lead", async (req, res) => {
               assignTo: `${e.taskRef?.assignTo?.firstName} ${e.taskRef?.assignTo?.lastName}`,
               assignBy: `${e.taskRef?.assignBy?.firstName} ${e.taskRef?.assignBy?.lastName}`,
               assignDate: moment(e.taskRef?.assignDate).format(
-                "DD/MM/YYYY HH:mm"
+                "DD/MM/YYYY HH:mm",
               ),
               callDate: callDate.format("DD/MM/YYYY HH:mm"),
               callStatus: callHistory?.remark,
@@ -2013,9 +2420,9 @@ leadRouterV2.post("/upload-channel-partner-bulk-leads", async (req, res) => {
           (
             await leadModelV2.find(
               { phoneNumber: { $in: results.map((r) => r.phoneNumber) } },
-              { phoneNumber: 1 }
+              { phoneNumber: 1 },
             )
-          ).map((d) => d.phoneNumber)
+          ).map((d) => d.phoneNumber),
         );
 
         const timeZone = "Asia/Kolkata";
@@ -2039,7 +2446,7 @@ leadRouterV2.post("/upload-channel-partner-bulk-leads", async (req, res) => {
             if (!lead) continue;
             let phoneExits = false;
             if (existingNumbers.has(lead.phoneNumber)) {
-              console.log("Skipping duplicate:", lead.phoneNumber);
+              // console.log("Skipping duplicate:", lead.phoneNumber);
               phoneExits = true;
               continue;
             }

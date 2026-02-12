@@ -71,7 +71,7 @@ estimateGeneratedRouter.post(
   authenticateToken,
   updateHandoverRevoke
 );
-
+// idk what its for
 estimateGeneratedRouter.post("/update-flat/:id", async (req, res) => {
   const projectId = req.params.id;
 
@@ -129,7 +129,7 @@ estimateGeneratedRouter.post("/update-flat/:id", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
+// idk what its for
 estimateGeneratedRouter.post(
   "/project-updates-flat-fix-bldg",
   async (req, res) => {

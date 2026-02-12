@@ -538,11 +538,11 @@ onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
   try {
     const exhibitionPath = path.join(
       __dirname,
-      "fresh_exhibition_leads_datfdsa.csv"
+      "onboard_exhib_leadsds.csv"
     );
 
     if (!fs.existsSync(exhibitionPath)) {
-      return res.status(400).send("Fresh exhibition CSV not found");
+      return res.status(400).send("Exhibition CSV not found");
     }
 
     const timeZone = "Asia/Kolkata";
@@ -550,8 +550,6 @@ onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
 
     const startDate = baseTime.toDate();
     const validTill = moment(baseTime).add(2, "months").toDate();
-    const tlValidTill = moment(baseTime).add(30, "days").toDate();
-
 
     const csvLeads = [];
 
@@ -559,109 +557,94 @@ onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
       fs.createReadStream(exhibitionPath)
         .pipe(csv())
         .on("data", (row) => {
-          if (!row.phoneNumber || !row.assignTo) return;
+          if (!row.phoneNumber) return;
 
           csvLeads.push({
             firstName: row.name || "Exhibition Lead",
             phoneNumber: row.phoneNumber.toString().slice(-10),
-            assignTo: row.assignTo.trim(),
           });
         })
         .on("end", resolve)
         .on("error", reject);
     });
 
-    // ===========================
-    // 🔍 FILTER EXISTING LEADS
-    // ===========================
-    const phoneNumbers = csvLeads.map((l) => l.phoneNumber);
+    if (!csvLeads.length) {
+      return res.status(400).send("No valid leads found in CSV");
+    }
+
+
+    const teamMembers = [
+      "ev15-deepak-karki",
+      "ev54-ranjna-gupta",
+      "ev70-jaspreet-arora",
+    ];
+
+    const preparedLeads = csvLeads.map((item, index) => {
+      const assignedTo = teamMembers[index % teamMembers.length];
+
+      return {
+        firstName: item.firstName,
+        phoneNumber: item.phoneNumber,
+        teamLeader: assignedTo,
+        leadFrom: "exhibition-2025",
+        leadType: "internal-lead",
+        stage: "visit",
+        startDate,
+        validTill,
+        project: [],
+        address: ".",
+        cycle: {
+          stage: "visit",
+          startDate,
+          validTill,
+          teamLeader: assignedTo,
+          currentOrder: 1,
+          currentDays: 29,
+        },
+      };
+    });
+
+
+    const phoneNumbers = preparedLeads.map((l) => l.phoneNumber);
 
     const existingLeads = await leadModelV2.find(
       { phoneNumber: { $in: phoneNumbers } },
       { phoneNumber: 1 }
     );
 
-    const existingPhoneSet = new Set(
+    const existingSet = new Set(
       existingLeads.map((l) => l.phoneNumber.toString())
     );
 
-    const newLeads = csvLeads.filter(
-      (l) => !existingPhoneSet.has(l.phoneNumber)
+    const freshLeads = preparedLeads.filter(
+      (l) => !existingSet.has(l.phoneNumber)
     );
 
-    const assignToIds = [...new Set(newLeads.map((l) => l.assignTo))];
+    if (!freshLeads.length) {
+      return res.status(200).send({
+        message: "No new leads to insert (all already exist)",
+      });
+    }
 
-    const employees = await employeeModel.find(
-      { _id: { $in: assignToIds } },
-      { reportingTo: 1 }
-    );
 
-    const employeeMap = new Map(
-      employees.map((e) => [e._id.toString(), e.reportingTo])
-    );
+    const insertedLeads = await leadModelV2.insertMany(freshLeads, {
+      ordered: false,
+    });
 
-    const created = [];
-
-    // for (const item of newLeads) {
-    //   const teamLeader = employeeMap.get(item.assignTo);
-
-    //   // 🟢 CREATE LEAD
-    //   const lead = await leadModelV2.create({
-    //     firstName: item.firstName,
-    //     phoneNumber: item.phoneNumber,
-    //     assignTo: item.assignTo,
-    //     teamLeader,
-    //     leadFrom: "exhibition-2025",
-    //     leadType: "internal-lead",
-    //     stage: "visit",
-    //     startDate,
-    //     validTill,
-    //     project: [],
-    //     address: ".",
-    //     cycle: {
-    //       stage: "visit",
-    //       startDate,
-    //       validTill: tlValidTill,
-    //       teamLeader,
-    //       currentOrder: 1,
-    //       currentDays: 29,
-    //     },
-    //   });
-
-    //   // 🔵 CREATE TASK
-    //   const task = await taskModel.create({
-    //     assignTo: item.assignTo,
-    //     assignBy: teamLeader,
-    //     type: "live-lead",
-    //     name: "live-lead",
-    //     lead: lead._id,
-    //     assignDate: startDate,
-    //     deadline: moment(startDate).add(15, "days").toDate(),
-    //     firstName: item.firstName,
-    //     phoneNumber: item.phoneNumber,
-    //     completed: false,
-    //     transferDate: null,
-    //   });
-
-    //   await leadModelV2.updateOne(
-    //     { _id: lead._id },
-    //     { $set: { taskRef: task._id } }
-    //   );
-
-    //   created.push({
-    //     leadId: lead._id,
-    //     taskId: task._id,
-    //     phoneNumber: item.phoneNumber,
-    //   });
-    // }
 
     return res.send({
-      message: "Exhibition leads & tasks created successfully",
+      message: "Exhibition leads created successfully",
       counts: {
-        totalInserted: created.length,
-        skipped: csvLeads.length - newLeads.length,
+        csvTotal: csvLeads.length,
+        inserted: insertedLeads.length,
+        skippedExisting: existingSet.size,
+        perMember: teamMembers.reduce((acc, member) => {
+          acc[member] = insertedLeads.filter(
+            (l) => l.teamLeader === member
+          ).length;
+          return acc;
+        }, {}),
       },
-      created,
     });
   } catch (error) {
     console.error("Error creating exhibition leads:", error);
@@ -669,11 +652,12 @@ onbExhibRouter.get("/create-exhibition-leads", async (req, res) => {
   }
 });
 
+
 onbExhibRouter.get("/create-exhibition-leads-dryrun", async (req, res) => {
   try {
     const exhibitionPath = path.join(
       __dirname,
-      "fresh_exhibition_leads_data.csv"
+      "onboard_exhib_leads.csv"
     );
 
     if (!fs.existsSync(exhibitionPath)) {
@@ -685,92 +669,64 @@ onbExhibRouter.get("/create-exhibition-leads-dryrun", async (req, res) => {
 
     const startDate = baseTime.toDate();
     const validTill = moment(baseTime).add(2, "months").toDate();
-    const tlValidTill = moment(baseTime).add(30, "days").toDate();
 
-    // ===========================
-    // 📥 LOAD CSV
-    // ===========================
     const csvLeads = [];
 
     await new Promise((resolve, reject) => {
       fs.createReadStream(exhibitionPath)
         .pipe(csv())
         .on("data", (row) => {
-          if (!row.phoneNumber || !row.assignTo) return;
+          if (!row.phoneNumber) return;
 
           csvLeads.push({
             firstName: row.name || "Exhibition Lead",
             phoneNumber: row.phoneNumber.toString().slice(-10),
-            assignTo: row.assignTo.trim(),
           });
         })
         .on("end", resolve)
         .on("error", reject);
     });
 
-    // ===========================
-    // 👥 FETCH EMPLOYEES (for TL)
-    // ===========================
-    const assignToIds = [...new Set(csvLeads.map((l) => l.assignTo))];
 
-    const employees = await employeeModel.find(
-      { _id: { $in: assignToIds } },
-      { reportingTo: 1 }
-    );
+    const teamMembers = ["ev15-deepak-karki", "ev54-ranjna-gupta", "ev70-jaspreet-arora"];
 
-    const employeeMap = new Map(
-      employees.map((e) => [e._id.toString(), e.reportingTo])
-    );
-
-    // ===========================
-    // 📝 SIMULATE LEADS & TASKS
-    // ===========================
-    const simulatedLeads = csvLeads.map((item) => {
-      const teamLeader = employeeMap.get(item.assignTo);
+    const leadsPayload = csvLeads.map((item, index) => {
+      const assignedTo = teamMembers[index % teamMembers.length];
 
       return {
-        lead: {
-          firstName: item.firstName,
-          phoneNumber: item.phoneNumber,
-          assignTo: item.assignTo,
-          teamLeader,
-          leadFrom: "exhibition-2025",
-          leadType: "internal-lead",
+        firstName: item.firstName,
+        phoneNumber: item.phoneNumber,
+        teamLeader: assignedTo,
+        leadFrom: "exhibition-2025",
+        leadType: "internal-lead",
+        stage: "visit",
+        startDate,
+        validTill,
+        project: [],
+        address: ".",
+        cycle: {
           stage: "visit",
           startDate,
           validTill,
-          project: [],
-          address: ".",
-          cycle: {
-            stage: "visit",
-            startDate,
-            validTill: tlValidTill,
-            teamLeader,
-            currentOrder: 1,
-            currentDays: 29,
-          },
-        },
-        task: {
-          assignTo: item.assignTo,
-          assignBy: teamLeader,
-          type: "live-lead",
-          name: "live-lead",
-          firstName: item.firstName,
-          phoneNumber: item.phoneNumber,
-          assignDate: startDate,
-          deadline: moment(startDate).add(15, "days").toDate(),
-          completed: false,
-          transferDate: null,
+          teamLeader: assignedTo,
+          currentOrder: 1,
+          currentDays: 29,
         },
       };
     });
 
     return res.send({
-      message: "Dry run: simulated leads & tasks",
+      message: "Dry run: leads equally distributed among team members",
       counts: {
-        totalSimulated: simulatedLeads.length,
+        totalLeads: leadsPayload.length,
+        perMember: teamMembers.reduce((acc, member) => {
+          acc[member] = leadsPayload.filter(
+            (l) => l.teamLeader === member
+          ).length;
+          return acc;
+        }, {}),
       },
-      simulatedLeads,
+      leadsPayload,
     });
   } catch (error) {
     console.error("Error during dry run:", error);
@@ -793,98 +749,164 @@ const normalizePhone = (value) => {
 
 
 //download xlsx file
-// onbExhibRouter.get("/matching-exhibition-clients-excel", async (req, res) => {
-//   try {
-//     const exhibitionPath = path.join(
-//       __dirname,
-//       "formatted_exhibition_list.csv"
-//     );
+onbExhibRouter.get("/matching-exhibition-clients-excel", async (req, res) => {
+  try {
+    const filePath = path.join(__dirname, "exhibition-database_lead_list_1.csv");
 
-//     if (!fs.existsSync(exhibitionPath)) {
-//       return res.status(400).send("Exhibition CSV file not found");
-//     }
+    if (!fs.existsSync(filePath)) {
+      return res.status(400).send("CSV file not found");
+    }
 
-//     const exhibitionValid = [];
+    const validTemp = [];
+    const invalidNumbers = [];
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on("data", (row) => {
+          const rawPhone = String(row.phoneNumber || "").trim();
 
-//     await new Promise((resolve, reject) => {
-//       fs.createReadStream(exhibitionPath)
-//         .pipe(csv())
-//         .on("data", (row) => {
-//           const rawPhone = String(row.phoneNumber || "").trim();
+          if (!rawPhone) {
+            invalidNumbers.push({
+              name: row.name || null,
+              phoneNumber: rawPhone,
+              assignTo: row.assignTo || "",
+              reason: "Empty phone number",
+            });
+            return;
+          }
 
-//           if (/[a-zA-Z]/.test(rawPhone)) return; // skip alphanumeric
+          if (/[a-zA-Z]/.test(rawPhone)) {
+            invalidNumbers.push({
+              name: row.name || null,
+              phoneNumber: rawPhone,
+              assignTo: row.assignTo || "",
+              reason: "Alphanumeric value",
+            });
+            return;
+          }
 
-//           const phoneObj = normalizePhone(rawPhone);
-//           if (!phoneObj?.isValid) return; // skip invalid
+          const result = normalizePhoneNumber(rawPhone);
 
-//           exhibitionValid.push({
-//             name: row.name || null,
-//             phoneNumber: phoneObj.normalized,
-//             assignTo: row?.assignTo || "",
-//           });
-//         })
-//         .on("end", resolve)
-//         .on("error", reject);
-//     });
+          if (!result?.phoneNumber) {
+            invalidNumbers.push({
+              name: row.name || null,
+              phoneNumber: rawPhone,
+              assignTo: row.assignTo || "",
+              reason: "Invalid phone length / format",
+            });
+            return;
+          }
 
-//     // 🔹 DEDUPLICATE BY PHONE NUMBER
-//     const uniqueMap = new Map();
-//     exhibitionValid.forEach((item) => {
-//       if (!uniqueMap.has(item.phoneNumber)) {
-//         uniqueMap.set(item.phoneNumber, item);
-//       }
-//     });
-//     const uniqueExhibition = [...uniqueMap.values()];
+          validTemp.push({
+            name: row.name || null,
+            phoneNumber: result.phoneNumber,
+            assignTo: row.assignTo || "",
+          });
+        })
+        .on("end", resolve)
+        .on("error", reject);
+    });
+    const uniqueMap = new Map();
+    const duplicateNumbers = [];
 
-//     // 🔹 FILTER EXISTING LEADS
-//     const phoneNumbers = uniqueExhibition.map((e) => e.phoneNumber);
-//     const existingLeads = await leadModelV2.find(
-//       { phoneNumber: { $in: phoneNumbers } },
-//       { phoneNumber: 1 }
-//     );
-//     const existingLeadSet = new Set(
-//       existingLeads.map((l) => l.phoneNumber.toString())
-//     );
+    validTemp.forEach((item) => {
+      if (!uniqueMap.has(item.phoneNumber)) {
+        uniqueMap.set(item.phoneNumber, item);
+      } else {
+        duplicateNumbers.push(item);
+      }
+    });
 
-//     const freshNumbers = uniqueExhibition.filter(
-//       (e) => !existingLeadSet.has(e.phoneNumber)
-//     );
+    const uniqueValidNumbers = [...uniqueMap.values()];
+    const phoneNumbers = uniqueValidNumbers.map((e) => e.phoneNumber);
+    const existingLeads = await leadModelV2.find(
+      { phoneNumber: { $in: phoneNumbers } },
+      { phoneNumber: 1 }
+    );
 
-//     // ===========================
-//     // 📄 CREATE EXCEL
-//     // ===========================
-//     const workbook = new ExcelJS.Workbook();
-//     const sheet = workbook.addWorksheet("Fresh Numbers");
+    const existingSet = new Set(
+      existingLeads.map((l) => l.phoneNumber.toString())
+    );
 
-//     sheet.columns = [
-//       { header: "Name", key: "name", width: 30 },
-//       { header: "Phone Number", key: "phoneNumber", width: 20 },
-//       { header: "Assign To", key: "assignTo", width: 25 },
-//     ];
+    const freshNumbers = [];
+    const alreadyExists = [];
 
-//     sheet.addRows(freshNumbers);
+    uniqueValidNumbers.forEach((item) => {
+      if (existingSet.has(item.phoneNumber)) {
+        alreadyExists.push(item);
+      } else {
+        freshNumbers.push(item);
+      }
+    });
 
-//     res.setHeader(
-//       "Content-Type",
-//       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-//     );
-//     res.setHeader(
-//       "Content-Disposition",
-//       "attachment; filename=fresh_exhibition_leads.xlsx"
-//     );
+    const workbook = new ExcelJS.Workbook();
+    const freshSheet = workbook.addWorksheet("Fresh Numbers");
+    freshSheet.columns = [
+      { header: "Name", key: "name", width: 30 },
+      { header: "Phone Number", key: "phoneNumber", width: 20 },
+      { header: "Assign To", key: "assignTo", width: 30 },
+    ];
+    freshSheet.addRows(freshNumbers);
 
-//     await workbook.xlsx.write(res);
-//     res.end();
-//   } catch (error) {
-//     console.error("Error processing CSV:", error);
-//     res.status(500).send("Internal server error");
-//   }
-// });
+    const duplicateSheet = workbook.addWorksheet("Duplicates");
+    duplicateSheet.columns = [
+      { header: "Name", key: "name", width: 30 },
+      { header: "Phone Number", key: "phoneNumber", width: 20 },
+      { header: "Assign To", key: "assignTo", width: 30 },
+    ];
+    duplicateSheet.addRows(duplicateNumbers);
 
+    const invalidSheet = workbook.addWorksheet("Invalid Numbers");
+    invalidSheet.columns = [
+      { header: "Name", key: "name", width: 30 },
+      { header: "Phone Number", key: "phoneNumber", width: 25 },
+      { header: "Assign To", key: "assignTo", width: 30 },
+      { header: "Reason", key: "reason", width: 40 },
+    ];
+    invalidSheet.addRows(invalidNumbers);
+    const existsSheet = workbook.addWorksheet("Already Exists");
+    existsSheet.columns = [
+      { header: "Name", key: "name", width: 30 },
+      { header: "Phone Number", key: "phoneNumber", width: 25 },
+      { header: "Assign To", key: "assignTo", width: 30 },
+    ];
+    existsSheet.addRows(alreadyExists);
 
+    const outputPath = path.join(__dirname, "formatted_exhibition.xlsx");
+    await workbook.xlsx.writeFile(outputPath);
 
+    res.download(outputPath, "formatted_exhibition.xlsx", () => {
+      fs.unlinkSync(outputPath);
+    });
+  } catch (error) {
+    console.error("Error processing CSV:", error);
+    res.status(500).send("Internal server error");
+  }
+});
 
+function normalizePhoneNumber(input) {
+  if (!input) return null;
+  let phone = String(input).trim();
+  phone = phone.replace(/[\s\-()]/g, "");
+  if (/[^0-9+]/.test(phone)) return null;
+  if (phone.startsWith("+")) {
+    phone = phone.substring(1);
+  }
+  if (phone.startsWith("91") && phone.length > 10) {
+    phone = phone.substring(phone.length - 10);
+  }
+  if (phone.startsWith("0") && phone.length > 10) {
+    phone = phone.substring(phone.length - 10);
+  }
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    return null;
+  }
 
+  return {
+    phoneNumber: phone,  
+    isValid: true,
+  };
+}
 
 onbExhibRouter.get("/formatting-exhibition-xls", async (req, res) => {
   try {

@@ -109,6 +109,8 @@ export const paymentSchema = new mongoose.Schema(
     chequeReturned: { type: Date, default: null },
     chequeRedeposit: { type: Date, default: null },
     cgst: { type: Number, default: 0 },
+    amountRemark: { type: String, default: null },
+
   },
   { timestamps: true }
 );

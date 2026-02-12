@@ -8,6 +8,7 @@ import moment from "moment-timezone";
 import { normalizeRanking } from "../../utils/helper.js";
 import { rankingTurnPopulate } from "../../utils/constant.js";
 import siteVisitModel from "../../model/siteVisit.model.js";
+import employeeModel from "../../model/employee.model.js";
 
 const rankingTurnRouter = Router();
 
@@ -65,7 +66,7 @@ rankingTurnRouter.get("/turn-ranking", async (req, res) => {
         isCountableBooking: 1,
         visitRef: 1,
         bookingRef: 1,
-      }
+      },
     );
 
     // 3. Calculate score for each team
@@ -79,7 +80,7 @@ rankingTurnRouter.get("/turn-ranking", async (req, res) => {
     // 3. Calculate score for each team
     teams.forEach((tm) => {
       const filteredLeads = leads.filter(
-        (ele) => ele.cycle?.teamLeader === tm.user
+        (ele) => ele.cycle?.teamLeader === tm.user,
       );
 
       // New scoring system
@@ -213,7 +214,7 @@ rankingTurnRouter.get("/turn-ranking", async (req, res) => {
           //
           const user = ele.user;
           const tUser = teams.find((el2) => el2.user === user);
-          if (tUser && tUser.score > ele.score) {
+          if (tUser && (tUser.score < ele.score || tUser.score > ele.score)) {
             ele.score = tUser.score;
             hadChanges = true;
           }
@@ -252,13 +253,12 @@ rankingTurnRouter.get("/leads-rank-sync", async (req, res) => {
       const hasInterested = ele.callHistory.some((call) => {
         const callDate = moment(call.callDate).tz("Asia/Kolkata");
         const within20Min = callDate.isBefore(
-          moment(leadDate).add(20, "minute")
+          moment(leadDate).add(20, "minute"),
         );
         return call.interestedStatus === "interested" && within20Min;
       });
 
-
-console.log(hasInterested);
+      // console.log(hasInterested);
 
       if (hasInterested) {
         countableLeads.push(ele);
@@ -279,7 +279,7 @@ console.log(hasInterested);
         } catch (error) {
           //
         }
-      })
+      }),
     );
 
     return successRes2(res, 200, "s", {
@@ -312,7 +312,7 @@ rankingTurnRouter.get("/leads-rank-sync-for-visit", async (req, res) => {
           //
           countableLeads.push(ele);
         }
-      })
+      }),
     );
 
     await Promise.all(
@@ -328,13 +328,13 @@ rankingTurnRouter.get("/leads-rank-sync-for-visit", async (req, res) => {
             },
             {
               isCountableVisit: true,
-            }
+            },
           );
           // }
         } catch (error) {
           //
         }
-      })
+      }),
     );
 
     return successRes2(res, 200, "s", {
@@ -347,52 +347,151 @@ rankingTurnRouter.get("/leads-rank-sync-for-visit", async (req, res) => {
   }
 });
 
+rankingTurnRouter.get(
+  "/leads-rank-sync-for-visit-testing",
+  async (req, res) => {
+    try {
+      // Step 1: Fetch visits (excluding walk-ins)
+      const visits = await siteVisitModel.find({
+        createdAt: { $gte: new Date("2025-10-09T00:00:00.000+00:00") },
+        source: { $ne: "walk-in" },
+      });
 
+      // console.log("Total visits fetched:", visits.length);
 
-rankingTurnRouter.get("/leads-rank-sync-for-visit-testing", async (req, res) => {
+      let count = 0;
+
+      // Step 2: Check which are first-time visits
+      await Promise.all(
+        visits.map(async (ele) => {
+          const oldVisit = await siteVisitModel.findOne({
+            phoneNumber: ele.phoneNumber,
+            _id: { $ne: ele._id },
+            createdAt: { $lt: ele.createdAt }, // ensure it's an older visit
+          });
+
+          if (!oldVisit) {
+            count++;
+            // console.log("Unique visit found for:", ele.phoneNumber);
+          }
+        }),
+      );
+
+      // Step 3: Just print final count
+      // console.log("Total unique (first-time) visits:", count);
+
+      // Step 4: Return response (no DB changes)
+      return successRes2(res, 200, "Checked successfully", {
+        totalFetched: visits.length,
+        totalUniqueCountable: count,
+      });
+    } catch (error) {
+      console.error("Error while checking visits:", error);
+      return errorRes2(res, 500, error);
+    }
+  },
+);
+
+rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const allCounts = {
+    id: id,
+    name: null,
+    designation: null,
+
+    interestedClient: 0,
+    firstVisit: 0,
+    booking: 0,
+  };
+
   try {
-    // Step 1: Fetch visits (excluding walk-ins)
-    const visits = await siteVisitModel.find({
-      createdAt: { $gte: new Date("2025-10-09T00:00:00.000+00:00") },
-      source: { $ne: "walk-in" },
-    });
+    const empResp = await employeeModel
+      .findById(id)
+      .select("firstName lastName reportingTo designation");
+    //
+    allCounts.name = `${empResp.firstName} ${empResp.lastName}`;
+    allCounts.designation = empResp.designation;
 
-    console.log("Total visits fetched:", visits.length);
+    let filter = {
+      $match: {
+        teamLeader: id,
+      },
+    };
 
-    let count = 0;
+    // console.log(filter);
+    const counts = await leadModelV2.aggregate([
+      filter,
+      {
+        $facet: {
+          interestedClient: [
+            {
+              $match: {
+                disabled: false,
+                isCountable: true,
+              },
+            },
+            { $count: "count" },
+          ],
+          firstVisit: [
+            {
+              $match: {
+                disabled: false,
 
-    // Step 2: Check which are first-time visits
-    await Promise.all(
-      visits.map(async (ele) => {
-        const oldVisit = await siteVisitModel.findOne({
-          phoneNumber: ele.phoneNumber,
-          _id: { $ne: ele._id },
-          createdAt: { $lt: ele.createdAt }, // ensure it's an older visit
-        });
+                isCountableVisit: true,
+              },
+            },
+            { $count: "count" },
+          ],
+          booking: [
+            { $match: { disabled: false, isCountableBooking: true } },
+            { $count: "count" },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          interestedClientCount: {
+            $arrayElemAt: ["$interestedClient.count", 0],
+          },
+          firstVisitCount: { $arrayElemAt: ["$firstVisit.count", 0] },
+          bookingCount: { $arrayElemAt: ["$booking.count", 0] },
+        },
+      },
+      {
+        $project: {
+          interestedClientCount: 1,
+          firstVisitCount: 1,
+          bookingCount: 1,
+        },
+      },
+    ]);
 
-        if (!oldVisit) {
-          count++;
-          console.log("Unique visit found for:", ele.phoneNumber);
-        }
-      })
-    );
+    const {
+      interestedClientCount = 0,
+      firstVisitCount = 0,
+      bookingCount = 0,
 
-    // Step 3: Just print final count
-    console.log("Total unique (first-time) visits:", count);
+      // Add other counts as required
+    } = counts[0] || {};
 
-    // Step 4: Return response (no DB changes)
-    return successRes2(res, 200, "Checked successfully", {
-      totalFetched: visits.length,
-      totalUniqueCountable: count,
-    });
+    allCounts.interestedClient = interestedClientCount;
+    allCounts.firstVisit = firstVisitCount;
+    allCounts.booking = bookingCount;
+
+    // console.log({
+    //   assignTo: id,
+    //   // teamLeader: empResp.reportingTo,
+    //   deadline: { $gte: now },
+    // });
+
+    return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
   } catch (error) {
-    console.error("Error while checking visits:", error);
-    return errorRes2(res, 500, error);
+    //
+    console.log(error);
+    return errorRes2(res, 500, "Internal Server Error");
   }
 });
-
-
-
 
 export const getCurrentRanks = async () => {
   // 1. Static team list
@@ -443,7 +542,7 @@ export const getCurrentRanks = async () => {
       isCountableBooking: 1,
       visitRef: 1,
       bookingRef: 1,
-    }
+    },
   );
 
   // 3. Calculate score for each team
@@ -456,7 +555,7 @@ export const getCurrentRanks = async () => {
   // });
   teams.forEach((tm) => {
     const filteredLeads = leads.filter(
-      (ele) => ele.cycle?.teamLeader === tm.user
+      (ele) => ele.cycle?.teamLeader === tm.user,
     );
 
     // New scoring system
@@ -584,7 +683,7 @@ export const getCurrentRanks = async () => {
         //
         const user = ele.user;
         const tUser = teams.find((el2) => el2.user === user);
-        if (tUser && tUser.score > ele.score) {
+        if (tUser && (tUser.score < ele.score || tUser.score > ele.score)) {
           ele.score = tUser.score;
           hadChanges = true;
         }

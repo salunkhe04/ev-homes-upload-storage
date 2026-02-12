@@ -1,6 +1,11 @@
 import { RedisService } from "../app/redis.js";
 import ourProjectModel from "../model/ourProjects.model.js";
-import { errorRes, errorRes2, successRes, successRes2 } from "../model/response.js";
+import {
+  errorRes,
+  errorRes2,
+  successRes,
+  successRes2,
+} from "../model/response.js";
 
 //GET BY ALL
 export const getOurProjects = async (req, res) => {
@@ -13,17 +18,20 @@ export const getOurProjects = async (req, res) => {
       return res.send(
         successRes(200, "Get projects - cached", {
           data: cached,
-        })
+        }),
       );
     }
 
-    const respPro = await ourProjectModel.find();
+    const respPro = await ourProjectModel.find(
+      {},
+      { flatList: 0, parkingList: 0 },
+    );
     const cacheNew = await RedisService.set("projects", respPro, 86400); // 24 hr cache
 
     return res.send(
       successRes(200, "Get our projects", {
         data: respPro,
-      })
+      }),
     );
   } catch (error) {
     return res.json({
@@ -88,7 +96,7 @@ export const getFlatListByProject = async (req, res) => {
       return res.send(
         successRes(200, "Get projects - cached", {
           data: cached,
-        })
+        }),
       );
     }
 
@@ -173,7 +181,7 @@ export const addProjects = async (req, res) => {
     return res.send(
       successRes(200, `Project added successfully: ${(name, locationName)}`, {
         newProject,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -223,7 +231,7 @@ export const updateProjects = async (req, res) => {
     const updatedProject = await ourProjectModel.findByIdAndUpdate(
       id, // Find by project ID
       { ...body },
-      { new: true } // Return the updated document
+      { new: true }, // Return the updated document
     );
 
     if (!updatedProject)
@@ -235,7 +243,7 @@ export const updateProjects = async (req, res) => {
     return res.send(
       successRes(200, `Project updated successfully: ${name}`, {
         updatedProject,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -256,7 +264,7 @@ export const updateFlatInProject = async (req, res) => {
         (ele.buildingNo == buildingNo &&
           ele.floor === floor &&
           ele.number === number) ||
-        ele._id === flatId
+        ele._id === flatId,
     );
     // add new flat if dont exist
     if (!foundFlat) {
@@ -270,14 +278,14 @@ export const updateFlatInProject = async (req, res) => {
             },
           },
         },
-        { new: true }
+        { new: true },
       );
       const updateProj = await ourProjectModel.findById(id);
 
       return res.send(
         successRes(200, "Flat Added successfully", {
           data: updateProj,
-        })
+        }),
       );
     }
     const updateFields = {};
@@ -292,7 +300,7 @@ export const updateFlatInProject = async (req, res) => {
         "flatList._id": flatId,
       },
       { $set: updateFields },
-      { new: true }
+      { new: true },
     );
     const updateProj = await ourProjectModel.findById(id);
 
@@ -301,7 +309,7 @@ export const updateFlatInProject = async (req, res) => {
     return res.send(
       successRes(200, "Flat updated successfully", {
         data: updateProj,
-      })
+      }),
     );
   } catch (err) {
     console.log(err);
@@ -318,7 +326,7 @@ export const deleteFlatInProject = async (req, res) => {
     if (!resp) return errorRes2(res, 404, "no project found");
 
     const foundFlat = resp.flatList.find(
-      (ele) => ele._id?.toString() === flatId
+      (ele) => ele._id?.toString() === flatId,
     );
 
     // add new flat if dont exist
@@ -340,7 +348,7 @@ export const deleteFlatInProject = async (req, res) => {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
 
     const updateProj = await ourProjectModel.findById(id);
@@ -349,7 +357,7 @@ export const deleteFlatInProject = async (req, res) => {
     return res.send(
       successRes(200, "Flat updated successfully", {
         data: updateProj,
-      })
+      }),
     );
   } catch (err) {
     console.log(err);
@@ -372,7 +380,7 @@ export const deleteProject = async (req, res) => {
     return res.send(
       successRes(200, `Project deleted successfully: ${deletedProject.name}`, {
         deletedProject,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -413,7 +421,7 @@ export const searchProjects = async (req, res, next) => {
         totalPages,
         totalItems,
         items: respProject,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -442,7 +450,7 @@ export const updateFlatDetails = async (req, res) => {
     const resp = await ourProjectModel.updateOne(
       { _id: projectId, "flatList.flatNo": flatNo }, // Match project and specific flat
       { $set: updateFields }, // Dynamically update fields
-      { upsert: true }
+      { upsert: true },
     );
 
     const cached = await RedisService.del("projects");
@@ -450,7 +458,7 @@ export const updateFlatDetails = async (req, res) => {
     return res.send(
       successRes(200, "Flat updated successfully", {
         data: resp,
-      })
+      }),
     );
   } catch (err) {
     return res.send(errorRes(500, "Server error"));
@@ -482,10 +490,10 @@ export const updateFlatInfoByIdFlatNo = async ({
             "elem.number": number,
           },
         ],
-      }
+      },
     );
 
-    console.log(resp); // check matchedCount and modifiedCount
+    // console.log(resp); // check matchedCount and modifiedCount
 
     if (resp.modifiedCount === 0) {
       return false; // no documents updated
@@ -500,13 +508,10 @@ export const updateFlatInfoByIdFlatNo = async ({
 };
 
 export const getShortsForClient = async (req, res, next) => {
-  const id =req.params.id;
+  const id = req.params.id;
   try {
     //
-    const resp= await ourProjectModel.findById(id);
-
-
-
+    const resp = await ourProjectModel.findById(id);
   } catch (error) {
     //
   }
@@ -537,7 +542,8 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
 
     rows.forEach((row) => {
       const flat = project.flatList.find(
-        (ele) => ele.number?.toString().trim() === row.flatNo?.toString().trim()
+        (ele) =>
+          ele.number?.toString().trim() === row.flatNo?.toString().trim(),
       );
       if (flat) {
         flat.allInclusiveValue = Number(row.allInclusiveValue);
@@ -546,25 +552,18 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
     });
 
     await project.save();
- 
 
     return res.send(
       successRes(200, "All-Inclusive values updated successfully", {
         totalRows: rows.length,
         totalUpdated: countUpdated,
-      })
+      }),
     );
   } catch (err) {
     console.log(err);
     return res.send(errorRes(500, "Server error"));
   }
 };
-
-
-
-
-
-
 
 // TODO:old
 // export const updateFlatInfoByIdFlatNo = async ({
@@ -609,11 +608,8 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
 //   }
 // };
 
-
-
-
 export const updatCarpetArea = async (req, res) => {
-  console.log("passed 1");
+  // console.log("passed 1");
   const id = req.params.id;
 
   if (!id) return errorRes2(res, 400, "id is required");
@@ -625,8 +621,8 @@ export const updatCarpetArea = async (req, res) => {
 
     // Update each flat's sellableCarpetArea
     project.flatList = project.flatList.map((flat) => {
-      const original = Number(flat.sellableCarpetArea) ;
-      flat.carpetArea = original / 2;   // update value
+      const original = Number(flat.sellableCarpetArea);
+      flat.carpetArea = original / 2; // update value
       return flat;
     });
 
@@ -636,7 +632,6 @@ export const updatCarpetArea = async (req, res) => {
     return successRes2(res, 200, "carpet area updated successfully", {
       data: project.flatList,
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -645,4 +640,3 @@ export const updatCarpetArea = async (req, res) => {
     });
   }
 };
-

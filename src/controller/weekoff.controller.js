@@ -206,7 +206,10 @@ export const getMyWeekOffs = async (req, res, next) => {
       .find({
         applyBy: id,
       })
-      .populate(weekOffRequestPopulateOptions);
+      .populate(weekOffRequestPopulateOptions)
+      .sort({
+        appliedOn: -1,
+      });
 
     if (weekoffs.length === 0) {
       return res.send(errorRes(404, "No Week Off records found"));

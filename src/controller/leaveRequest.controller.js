@@ -13,6 +13,7 @@ import {
 } from "./oneSignal.controller.js";
 import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
 import approvalStepModel from "../model/approvalStep.model.js";
+import leaveHistoryModel from "../model/attendance/leave/leavehistory.model.js";
 
 export const getLeave = async (req, res, next) => {
   const { applicant, reportingTo, leaveStatus } = req.query;
@@ -65,7 +66,7 @@ export const getApplyLeave = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error retrieving leave requests:", error);
@@ -96,7 +97,7 @@ export const getMyLeave = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error retrieving leave requests:", error);
@@ -116,6 +117,7 @@ export const addLeave = async (req, res, next) => {
     applicant,
   } = req.body;
   const user = req.user;
+  let newLeaveRequest = null;
   try {
     if (!startDate) return res.send(errorRes(401, "Start Date is required"));
     if (!endDate) return res.send(errorRes(401, "End Date is required"));
@@ -149,7 +151,7 @@ export const addLeave = async (req, res, next) => {
 
     if (totalPendingLeaves >= leaves) {
       return res.send(
-        errorRes(401, "you cant apply more request than available leaves")
+        errorRes(401, "you cant apply more request than available leaves"),
       );
     }
 
@@ -189,12 +191,54 @@ export const addLeave = async (req, res, next) => {
       }
     });
 
-    const newLeaveRequest = await leaveRequestModel.create({
-      ...req.body,
-      appliedOn: new Date(),
-      approvalSteps,
-      currentLevel: 0,
-    });
+    //leave cut
+    try {
+      const info = await shiftInfoModel.findOne({ userId: applicant });
+
+      if (!info) {
+        return res.send(errorRes(404, "Shift info not found"));
+      }
+
+      let updateLeave = {};
+      let lastLeaveCount = 0;
+
+      if (leaveType === "on-paid-leave") {
+        lastLeaveCount = info.paidLeave;
+        updateLeave = { paidLeave: info.paidLeave - numberOfDays };
+      } else if (leaveType === "on-casual-leave") {
+        lastLeaveCount = info.casualLeave;
+        updateLeave = { casualLeave: info.casualLeave - numberOfDays };
+      } else if (leaveType === "on-compensation-off-leave") {
+        lastLeaveCount = info.compensatoryoff;
+        updateLeave = {
+          compensatoryoff: info.compensatoryoff - numberOfDays,
+        };
+      }
+
+      await shiftInfoModel.findByIdAndUpdate(info._id, {
+        $set: updateLeave,
+      });
+      newLeaveRequest = await leaveRequestModel.create({
+        ...req.body,
+        appliedOn: new Date(),
+        approvalSteps,
+        currentLevel: 0,
+      });
+
+      const resp = await createLeaveHistoryFunc({
+        date: new Date(),
+        description: leaveReason,
+        count: numberOfDays,
+        userId: applicant,
+        type: "used",
+        leaveType: leaveType,
+        leave: newLeaveRequest._id,
+        howManyBefore: lastLeaveCount,
+      });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).send(errorRes(500, "Internal Server Error"));
+    }
 
     const dta = await oneSignalModel.find({
       $or: [
@@ -227,7 +271,7 @@ export const addLeave = async (req, res, next) => {
     return res.send(
       successRes(200, "Leave Request added", {
         data: updateLeaveRequest,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error in addLeave:", error);
@@ -329,7 +373,7 @@ export const updateLeaveStatus = async (req, res) => {
     }
 
     return res.send(
-      successRes(200, "Leave Status updated successfully", { data: leave })
+      successRes(200, "Leave Status updated successfully", { data: leave }),
     );
   } catch (error) {
     console.error("Error updating Leave Status :", error);
@@ -355,7 +399,7 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
 
     // Find the current step that is pending for this admin
     const step = leaveResp.approvalSteps.find(
-      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending"
+      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending",
     );
     // console.log(step);
 
@@ -374,7 +418,7 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
       // console.log("status is approved");
 
       let nextStep = leaveResp.approvalSteps.find(
-        (s) => s.level === step.level + 1
+        (s) => s.level === step.level + 1,
       );
       // console.log(nextStep);
       // Auto-approve if next step has the same admin
@@ -388,13 +432,13 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
         leaveResp.currentLevel = nextStep.level;
         // console.log(nextStep);
         nextStep = leaveResp.approvalSteps.find(
-          (s) => s.level === leaveResp.currentLevel + 1
+          (s) => s.level === leaveResp.currentLevel + 1,
         );
         // console.log("update next step");
         // console.log(nextStep);
       }
       const allStepsApproved = leaveResp.approvalSteps.every(
-        (step) => step.status?.toLowerCase() === "approved"
+        (step) => step.status?.toLowerCase() === "approved",
       );
       // console.log(`all step approved ? ${allStepsApproved}`);
       let lastLeaveCount;
@@ -445,9 +489,9 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
                 },
                 {
                   upsert: true,
-                }
+                },
               );
-            })
+            }),
           );
           // await attendanceModel.insertMany(dates, { ordered: false });
         } catch (error) {
@@ -458,38 +502,38 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
           }
           console.log(error);
         }
-        try {
-          const info = await shiftInfoModel.findOne({
-            userId: leaveResp.applicant?._id,
-          });
-          let whatToUpdate = {};
-          if (leaveResp.leaveType?._id === "on-compensation-off-leave") {
-            lastLeaveCount = info.compensatoryoff;
-            whatToUpdate = {
-              compensatoryoff: info.compensatoryoff - leaveResp.numberOfDays,
-            };
-          } else if (leaveResp.leaveType?._id === "on-paid-leave") {
-            lastLeaveCount = info.paidLeave;
+        // try {
+        //   const info = await shiftInfoModel.findOne({
+        //     userId: leaveResp.applicant?._id,
+        //   });
+        //   let whatToUpdate = {};
+        //   if (leaveResp.leaveType?._id === "on-compensation-off-leave") {
+        //     lastLeaveCount = info.compensatoryoff;
+        //     whatToUpdate = {
+        //       compensatoryoff: info.compensatoryoff - leaveResp.numberOfDays,
+        //     };
+        //   } else if (leaveResp.leaveType?._id === "on-paid-leave") {
+        //     lastLeaveCount = info.paidLeave;
 
-            whatToUpdate = {
-              paidLeave: info.paidLeave - leaveResp.numberOfDays,
-            };
-          } else if (leaveResp.leaveType?._id === "on-casual-leave") {
-            lastLeaveCount = info.casualLeave;
+        //     whatToUpdate = {
+        //       paidLeave: info.paidLeave - leaveResp.numberOfDays,
+        //     };
+        //   } else if (leaveResp.leaveType?._id === "on-casual-leave") {
+        //     lastLeaveCount = info.casualLeave;
 
-            whatToUpdate = {
-              casualLeave: info.casualLeave - leaveResp.numberOfDays,
-            };
-          }
-          // console.log(whatToUpdate);
-          await shiftInfoModel.findByIdAndUpdate(info._id, {
-            $set: {
-              ...whatToUpdate,
-            },
-          });
-        } catch (error) {
-          //
-        }
+        //     whatToUpdate = {
+        //       casualLeave: info.casualLeave - leaveResp.numberOfDays,
+        //     };
+        //   }
+        //   // console.log(whatToUpdate);
+        //   await shiftInfoModel.findByIdAndUpdate(info._id, {
+        //     $set: {
+        //       ...whatToUpdate,
+        //     },
+        //   });
+        // } catch (error) {
+        //   //
+        // }
 
         const dta = await oneSignalModel.find({
           $or: [{ docId: leaveResp.applicant?._id }],
@@ -520,19 +564,67 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
         leaveResp.leaveStatus = "approved";
         leaveResp.approveReason = reason;
 
-        const resp = await createLeaveHistoryFunc({
-          date: new Date(),
-          description: leaveResp.leaveReason,
-          count: leaveResp.numberOfDays,
-          userId: leaveResp.applicant,
-          type: "used",
-          leaveType: leaveResp.leaveType,
-          leave: leaveResp._id,
-          howManyBefore: lastLeaveCount,
-        });
+        //   // const resp = await createLeaveHistoryFunc({
+        //   //   date: new Date(),
+        //   //   description: leaveResp.leaveReason,
+        //   //   count: leaveResp.numberOfDays,
+        //   //   userId: leaveResp.applicant,
+        //   //   type: "used",
+        //   //   leaveType: leaveResp.leaveType,
+        //   //   leave: leaveResp._id,
+        //   //   howManyBefore: lastLeaveCount,
+        //   // });
       }
     } else {
-      leaveResp.leaveStatus = "rejected"; // If rejected, stop process
+      //reverse leave when rejected
+      if (status === "rejected") {
+        leaveResp.leaveStatus = "rejected";
+        const leaveFrom = moment(leaveResp.startDate).format("DD MMM YYYY");
+        const leaveTo = moment(leaveResp.endDate).format("DD MMM YYYY");
+        const description = `Auto-reverse leave for rejection (${leaveFrom} - ${leaveTo})`;
+
+        const info = await shiftInfoModel.findOne({
+          userId: leaveResp.applicant?._id,
+        });
+
+        if (info) {
+          let reverseUpdate = {};
+
+          if (leaveResp.leaveType?._id === "on-paid-leave") {
+            reverseUpdate = {
+              paidLeave: info.paidLeave + leaveResp.numberOfDays,
+            };
+          } else if (leaveResp.leaveType?._id === "on-casual-leave") {
+            reverseUpdate = {
+              casualLeave: info.casualLeave + leaveResp.numberOfDays,
+            };
+          } else if (leaveResp.leaveType?._id === "on-compensation-off-leave") {
+            reverseUpdate = {
+              compensatoryoff: info.compensatoryoff + leaveResp.numberOfDays,
+            };
+          }
+
+          await shiftInfoModel.findByIdAndUpdate(info._id, {
+            $set: reverseUpdate,
+          });
+        }
+
+        await leaveHistoryModel.findOneAndDelete({
+          leave: leaveResp._id,
+          userId: leaveResp.applicant?._id,
+          type: "used",
+        });
+
+        await createLeaveHistoryFunc({
+          date: new Date(),
+          description: description,
+          count: leaveResp.numberOfDays,
+          userId: leaveResp.applicant,
+          type: "deposit",
+          leaveType: leaveResp.leaveType,
+          leave: leaveResp._id,
+        });
+      }
     }
 
     await leaveResp.save();
@@ -547,13 +639,59 @@ export const deleteLeaveRequest = async (req, res) => {
 
   try {
     if (!id) return res.send(errorRes(403, "Leave Request ID is required"));
-    const deleteLeaveRequest = await leaveRequestModel.findByIdAndDelete(id);
-    if (!deleteLeaveRequest)
+
+    const leaveReq = await leaveRequestModel.findById(id);
+    const leaveFrom = moment(leaveReq.startDate).format("DD MMM YYYY");
+    const leaveTo = moment(leaveReq.endDate).format("DD MMM YYYY");
+
+    const description = `Auto-reverse leave for withdrawal (${leaveFrom} - ${leaveTo})`;
+
+    if (!leaveReq)
       return res.send(errorRes(404, `Leave Request not found with ID: ${id}`));
+
+    if (leaveReq.leaveStatus === "approved") {
+      return res.send(errorRes(403, "Approved leave cannot be deleted"));
+    }
+
+    const info = await shiftInfoModel.findOne({
+      userId: leaveReq.applicant,
+    });
+
+    if (info) {
+      let reverseUpdate = {};
+
+      if (leaveReq.leaveType === "on-paid-leave") {
+        reverseUpdate = {
+          paidLeave: info.paidLeave + leaveReq.numberOfDays,
+        };
+      } else if (leaveReq.leaveType === "on-casual-leave") {
+        reverseUpdate = {
+          casualLeave: info.casualLeave + leaveReq.numberOfDays,
+        };
+      } else if (leaveReq.leaveType === "on-compensation-off-leave") {
+        reverseUpdate = {
+          compensatoryoff: info.compensatoryoff + leaveReq.numberOfDays,
+        };
+      }
+
+      await shiftInfoModel.findByIdAndUpdate(info._id, {
+        $set: reverseUpdate,
+      });
+    }
+
+    await leaveRequestModel.findByIdAndDelete(id);
+    await createLeaveHistoryFunc({
+      date: new Date(),
+      description: description,
+      count: leaveReq.numberOfDays,
+      userId: leaveReq.applicant,
+      type: "deposit",
+      leaveType: leaveReq.leaveType,
+      leave: leaveReq._id,
+    });
+
     return res.send(
-      successRes(200, `Leave Request deleted successfully`, {
-        deleteLeaveRequest,
-      })
+      successRes(200, "Leave Request deleted and leave reversed successfully"),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));

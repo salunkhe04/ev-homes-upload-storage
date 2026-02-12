@@ -56,10 +56,12 @@ export const updateDesgEmp = async (req, res, next) => {
 
 export const getEmployees = async (req, res, next) => {
   try {
+    let { status } = req.query;
+
+    status = status || "active";
+    let query = { status };
     const respCP = await employeeModel
-      .find({
-        status: "active",
-      })
+      .find(query)
       // .select(
       //   "firstName lastName email designation phoneNumber division department employeeId"
       // )
@@ -265,6 +267,31 @@ export const getEmployeeByDesignation = async (req, res, next) => {
         },
       };
     }
+
+    // console.log(desgId);
+    const respCP = await employeeModel
+      .find({
+        ...filter,
+        status: "active",
+      })
+      .select("-password -refreshToken")
+      .populate(employeePopulateOptions);
+
+    return res.send(
+      successRes(200, "get Employees", {
+        data: respCP,
+      })
+    );
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getEmployeeByCustomRole = async (req, res, next) => {
+  try {
+    const desgId = req.query.role;
+    if (!desgId) return res.send(errorRes(200, "id is required"));
+    let filter = { permissions: desgId };
 
     // console.log(desgId);
     const respCP = await employeeModel
