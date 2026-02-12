@@ -1652,7 +1652,7 @@ export const cancelBooking = async (req, res, next) => {
     try {
       //
       await FlatOccupancyChange({
-        project: project,
+        project: lead.project,
         floor,
         buildingNo,
         number,

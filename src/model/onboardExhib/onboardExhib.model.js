@@ -44,11 +44,28 @@ const callHistorySchema = new mongoose.Schema({
   },
 });
 
+const attendedSchema = new mongoose.Schema({
+  attendedBy: {
+    type: String,
+    ref: "employees",
+    // required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+
+  feedback: {
+    type: String,
+    default: null,
+  },
+});
+
 export const onboardSchemaIndex = new mongoose.Schema(
   {
     id: { type: Number, default: null },
     name: { type: String, required: true },
-    phoneNumber: { type: Number, default: null },
+    phoneNumber: { type: Number, default: null, unique: true },
     altPhoneNumber: { type: Number, default: null },
     email: { type: String, default: null },
     address: { type: String, default: null },
@@ -62,8 +79,9 @@ export const onboardSchemaIndex = new mongoose.Schema(
     projects: [{ type: String, ref: "ourProjects", default: null }],
     requirements: [{ type: String, default: null }],
     callHistory: [callHistorySchema],
+    attendedHistory: [attendedSchema],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const onboarExhibModel = mongoose.model("onboardExhib", onboardSchemaIndex);

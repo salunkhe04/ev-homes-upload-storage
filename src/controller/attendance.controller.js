@@ -1682,6 +1682,9 @@ export const updateAttendanceById = async (req, res) => {
       updates.status = "present";
     } else if (body?.status === "absent") {
       updates.status = "absent";
+      updates.checkInTime = null;
+      updates.checkOutTime = null;
+
     } else if (body?.status === "weekoff") {
       updates.status = "weekoff";
     } else if (body?.status === "half-day") {
@@ -1734,13 +1737,16 @@ export const updateAttendanceById = async (req, res) => {
       updates.wlStatus = "on-compensation-off-leave";
     }
 
-    if (body.checkInTime) {
+    if (body.checkInTime && body.status !== "absent") {
       updates.checkInTime = new Date(body.checkInTime);
     }
 
-    if (body.checkOutTime) {
+    if (body.checkOutTime && body.status !== "absent") {
       updates.checkOutTime = new Date(body.checkOutTime);
     }
+    // console.log(JSON.stringify(body, null, 2));
+
+    // console.log(JSON.stringify(updates, null, 2));
 
     const updatedRecord = await attendanceModel
       .findByIdAndUpdate(
@@ -1801,7 +1807,7 @@ export const updateAttendanceById = async (req, res) => {
         leaveType: "on-compensation-off-leave",
         deposittype: body.status,
         adminId: body.updatedBy,
-        howManyBefore: eShiftInfo?.compensatoryoff,
+        howManyBefore: eShiftInfo?.compensatoryoff - 1,
       });
     } else if (body.deductType != null) {
       const attresp = await createLeaveHistoryFunc({
@@ -1812,7 +1818,7 @@ export const updateAttendanceById = async (req, res) => {
         type: "used",
         leaveType: body.deductType,
         adminId: body.updatedBy,
-        howManyBefore: eShiftInfo?.compensatoryoff,
+        howManyBefore: eShiftInfo?.compensatoryoff + 1,
       });
     }
 
@@ -2840,10 +2846,10 @@ export const calculateHoursDifferenceWithTZ = (passedDate) => {
 export const insertMonthlyAttendance = async () => {
   try {
     // const formattedDate = new Date();
-    const today = moment({ day: 1, month: 8, year: 2025 })
+    const today = moment({ day: 1, month: 0, year: 2026 })
       .tz("Asia/Kolkata")
       .startOf("day");
-    const end = moment({ day: 30, month: 8, year: 2025 })
+    const end = moment({ day: 31, month: 0, year: 2026 })
       .tz("Asia/Kolkata")
       .startOf("day");
 
@@ -2861,7 +2867,7 @@ export const insertMonthlyAttendance = async () => {
 
     // console.log(dateArray);
     const employees = await employeeModel.find(
-      { _id: "EV288-sangita-hinge", status: "active" },
+      { _id: "ev68-kashibai-mangoda", status: "active" },
       "_id",
     );
 
@@ -2884,13 +2890,14 @@ export const insertMonthlyAttendance = async () => {
                     day: dateEle.getDate(),
                     month: dateEle.getMonth() + 1,
                     year: dateEle.getFullYear(),
-                    status: "present",
-                    checkInTime: moment(dateEle)
-                      .set({ hour: 11, minute: 0 })
-                      .toDate(),
-                    checkOutTime: moment(dateEle)
-                      .set({ hour: 20, minute: 0 })
-                      .toDate(),
+                    status: "absent",
+                    // status: "present",
+                    // checkInTime: moment(dateEle)
+                    //   .set({ hour: 11, minute: 0 })
+                    //   .toDate(),
+                    // checkOutTime: moment(dateEle)
+                    //   .set({ hour: 20, minute: 0 })
+                    //   .toDate(),
                     // Add other default fields if needed
                   },
                 },
@@ -2966,6 +2973,7 @@ export const getAttendanceOverviewFunc = async ({ id, date }) => {
     const attendanceList = await attendanceModel.find({
       userId: id,
       month: currentDate.month() + 1,
+      year: currentDate.year(),
     });
 
     attendanceList.forEach((att) => {
