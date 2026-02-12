@@ -27,6 +27,7 @@ import {
   successRes2,
 } from "../../model/response.js";
 import { RedisService } from "../../app/redis.js";
+import flatModel from "../../model/flat.model.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -765,6 +766,136 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
     return res.send(errorRes(500, "Server error"));
   }
 });
+
+// actuallly working flat list updates
+ourProjectRouter.post(
+  "/project-updates-flat-list-new",
+  // authenticateToken,
+  async (req, res) => {
+    const results = [];
+    const dataToPush = [];
+
+    const csvFilePath = path.join(__dirname, "aspire2.csv");
+
+    try {
+      const projectResp = await ourProjectModel.findOne({
+        _id: "project-solaris-rohinjan-2025",
+      });
+
+      if (!projectResp) {
+        return res.status(404).send("Project not found");
+      }
+      const flatList = projectResp.flatList;
+      if (!fs.existsSync(csvFilePath)) {
+        return res.status(400).send("CSV file not found");
+      }
+
+      fs.createReadStream(csvFilePath)
+        .pipe(csv())
+        .on("data", (data) => results.push(data))
+        .on("end", async () => {
+          // Collect only the required fields from CSV
+          for (const row of results) {
+            const {
+              flatNo,
+              Configuration,
+              Type,
+              "Rera area": reraArea,
+              usableCarpetArea,
+              "TOTAL SALE AREA": totalSaleArea,
+              "All Inlusive": allInclusive,
+              Status,
+              floor,
+            } = row;
+
+            let number = parseInt(flatNo) % 100;
+            dataToPush.push({
+              flatNo,
+              floor: parseInt(floor),
+              number: number,
+              buildingNo: 2,
+              configuration: Configuration?.replaceAll(" ", ""),
+              type: Type,
+              reraArea: reraArea,
+              usableCarpetArea: usableCarpetArea,
+              carpetArea: usableCarpetArea,
+              allInclusiveValue: allInclusive,
+              sellableCarpetArea: totalSaleArea,
+              occupied: Status.toLowerCase() === "sold" ? true : false,
+            });
+          }
+
+          await Promise.all(
+            dataToPush.map(async (ele) => {
+              //
+              try {
+                //
+                await flatModel.findOneAndUpdate(
+                  {
+                    project: "project-solaris-rohinjan-2025",
+                    flatNo: ele.flatNo,
+                    // number: ele.number,
+                    buildingNo: ele.buildingNo,
+                  },
+                  {
+                    ...ele,
+                  },
+                  { upsert: true },
+                );
+              } catch (error) {
+                //
+                console.log(error);
+              }
+            }),
+          );
+
+          // Update matching flats
+          // projectResp.flatList.forEach((flt) => {
+          //   const match = dataToPush.find(
+          //     (item) =>
+          //       item.flatNo?.toString() === flt.flatNo?.toString() &&
+          //       flt.buildingNo == 1,
+          //   );
+
+          //   if (match) {
+          //     // Object.keys(match).forEach((key) => {
+          //     //   if (match[key] !== undefined && match[key] !== null) {
+          //     //     flt[key] = match[key]; // will create field if not exist
+          //     //   }
+          //     // });
+
+          //     // flt.floor = match.floor;
+          //     // flt.occupied = match.occupied;
+          //     // flt.reraArea = match.carpetArea;
+          //     // flt.balconyArea = match.balconyArea;
+          //     // flt.ssArea = match.ssArea;
+          //     // flt.configuration = match.configuration;
+          //     // flt.carpetArea = match.carpetArea;
+          //     // flt.sellableCarpetArea = match.sellableCarpetArea;
+          //     // flt.allInclusiveValue = match.allInclusiveValue;
+          //     // flt.type = match.type;
+          //   }
+          // });
+
+          // projectResp.markModified("flatList");
+          // await projectResp.save();
+          // await RedisService.delMultipleKeys(["projects"]);
+          //
+          return res.send({
+            message: "Flat list updated successfully",
+            updatedCount: dataToPush,
+          });
+        })
+        .on("error", (err) => {
+          return res.status(500).send({ error: err.message });
+        });
+    } catch (err) {
+      return res
+        .status(500)
+        .send({ error: "Something went wrong", details: err.message });
+    }
+  },
+);
 
 // ourProjectRouter.post("/bulk-add-flats-9vtc/:id", async (req, res) => {
 //   const { id } = req.params;
