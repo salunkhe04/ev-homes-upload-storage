@@ -32,14 +32,14 @@ export const updateDesgEmp = async (req, res, next) => {
       return res.send(
         successRes(200, "No employees found with this designation", {
           data: [],
-        })
+        }),
       );
     }
 
     // Update all matched documents by their designation
     const updateResponse = await employeeModel.updateMany(
       { _id: { $in: respCP.map((ele) => ele._id) } },
-      { designation: "desg-pre-sales-head" }
+      { designation: "desg-pre-sales-head" },
     );
 
     // Send the updated data as response
@@ -47,7 +47,7 @@ export const updateDesgEmp = async (req, res, next) => {
       successRes(200, "Updated Designation", {
         matchedCount: updateResponse.matchedCount,
         modifiedCount: updateResponse.modifiedCount,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -56,22 +56,22 @@ export const updateDesgEmp = async (req, res, next) => {
 
 export const getEmployees = async (req, res, next) => {
   try {
-    let { status } = req.query;
+    const { status, desg } = req.query;
 
-    status = status || "active";
-    let query = { status };
+    let query = {
+      ...(status ? { status: status } : {}),
+      ...(desg ? { designation: desg } : {}),
+    };
+
     const respCP = await employeeModel
       .find(query)
-      // .select(
-      //   "firstName lastName email designation phoneNumber division department employeeId"
-      // )
       .select("-password -refreshToken")
       .populate(employeePopulateOptions);
 
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -91,7 +91,7 @@ export const getEmployeesForAttendance = async (req, res, next) => {
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -131,7 +131,7 @@ export const getVisitEntryAllowedStaff = async (req, res, next) => {
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -154,7 +154,7 @@ export const getTeamLeaderCSM = async (req, res, next) => {
     return res.send(
       successRes(200, "get TeamLeaders", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -187,7 +187,7 @@ export const getSalesManagers = async (req, res, next) => {
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -218,7 +218,7 @@ export const getSeniorClosingManagers = async (req, res, next) => {
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -238,7 +238,7 @@ export const getPostSaleExecutives = async (req, res, next) => {
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -280,7 +280,7 @@ export const getEmployeeByDesignation = async (req, res, next) => {
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -305,7 +305,7 @@ export const getEmployeeByCustomRole = async (req, res, next) => {
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -329,7 +329,7 @@ export const getTeamLeaders = async (req, res, next) => {
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -352,14 +352,14 @@ export const getDataAnalyzers = async (req, res, next) => {
           firstName: 1,
           lastName: 1,
           designation: 1,
-        }
+        },
       )
       .populate(employeePopulateOptions);
 
     return res.send(
       successRes(200, "get Employees", {
         data: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -382,7 +382,7 @@ export const getPreSalesExecutive = async (req, res, next) => {
     return res.send(
       successRes(200, "get Pre Sales Executive", {
         data: respPreSaleEx,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -406,7 +406,7 @@ export const getEmployeeById = async (req, res, next) => {
     return res.send(
       successRes(200, `get Employee by id ${id}`, {
         data: respEmployee,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -430,8 +430,8 @@ export const getEmployeeReAuth = async (req, res, next) => {
       return res.send(
         errorRes(
           401,
-          "Your session has expired. Please log in again to continue."
-        )
+          "Your session has expired. Please log in again to continue.",
+        ),
       );
     }
 
@@ -448,7 +448,7 @@ export const getEmployeeReAuth = async (req, res, next) => {
       if (!user) {
         res.setHeader("x-force-logout", `force-logout`);
         return res.send(
-          errorRes(401, "Session Expired, Please log in again to continue.")
+          errorRes(401, "Session Expired, Please log in again to continue."),
         );
       }
 
@@ -465,14 +465,14 @@ export const getEmployeeReAuth = async (req, res, next) => {
         if (!refreshToken) {
           res.setHeader("x-force-logout", `force-logout`);
           return res.send(
-            errorRes(401, "Session Expired, Please log in again to continue.")
+            errorRes(401, "Session Expired, Please log in again to continue."),
           );
         }
 
         try {
           const decoded = verifyJwtToken(
             refreshToken,
-            config.SECRET_REFRESH_KEY
+            config.SECRET_REFRESH_KEY,
           );
           const user = await employeeModel
             .findById(decoded.data._id)
@@ -483,7 +483,10 @@ export const getEmployeeReAuth = async (req, res, next) => {
           if (!user) {
             res.setHeader("x-force-logout", `force-logout`);
             return res.send(
-              errorRes(401, "Session Expired, Please log in again to continue.")
+              errorRes(
+                401,
+                "Session Expired, Please log in again to continue.",
+              ),
             );
           }
 
@@ -497,13 +500,13 @@ export const getEmployeeReAuth = async (req, res, next) => {
           const newAccessToken = createJwtToken(
             dataToken,
             config.SECRET_ACCESS_KEY,
-            "15m"
+            "15m",
           );
 
           // Check if refresh token is about to expire (e.g., less than 1 day)
           const refreshDecoded = verifyJwtToken(
             refreshToken,
-            config.SECRET_REFRESH_KEY
+            config.SECRET_REFRESH_KEY,
           );
           // console.log(refreshDecoded);
           const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
@@ -515,7 +518,7 @@ export const getEmployeeReAuth = async (req, res, next) => {
             newRefreshToken = createJwtToken(
               dataToken,
               config.SECRET_REFRESH_KEY,
-              "7d"
+              "7d",
             ); // Generate a new refresh token
             res.setHeader("x-new-refresh-token", newRefreshToken); // Send new refresh token in response header
             if (clientIsWeb === "web") {
@@ -546,20 +549,20 @@ export const getEmployeeReAuth = async (req, res, next) => {
               data: user,
               newRefreshToken:
                 timeLeft < 24 * 60 * 60 ? newRefreshToken : undefined, // Include new token if generated
-            })
+            }),
           );
         } catch (refreshError) {
           // console.log(refreshError);
           res.setHeader("x-force-logout", `force-logout`);
           return res.send(
-            errorRes(401, "Session Expired, Please log in again to continue.")
+            errorRes(401, "Session Expired, Please log in again to continue."),
           );
         }
       }
       res.setHeader("x-force-logout", `force-logout`);
 
       return res.send(
-        errorRes(401, "Session Expired, Please log in again to continue.")
+        errorRes(401, "Session Expired, Please log in again to continue."),
       );
     }
   } catch (error) {
@@ -594,7 +597,7 @@ export const editEmployeeById = async (req, res, next) => {
     return res.send(
       successRes(200, errorMessage.EMP_INFO_UPDATED, {
         data: respEmployee,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -647,7 +650,7 @@ export const getReportingTo = async (req, res, next) => {
     return res.send(
       successRes(200, "Employees reporting to the specified ID", {
         data: employees,
-      })
+      }),
     );
   } catch (error) {
     next(error); // Pass the error to the global error handler
@@ -669,7 +672,7 @@ export const deleteEmployeeById = async (req, res, next) => {
     return res.send(
       successRes(200, errorMessage.EMP_DELETED, {
         data: deletedResp.acknowledged,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -702,7 +705,7 @@ export const registerMpin = async (req, res, next) => {
     return res.send(
       successRes(200, errorMessage.EMP_REGISTER_SUCCESS, {
         data: userWithoutPassword,
-      })
+      }),
     );
   } catch (error) {
     if (error.code === 11000) {
@@ -781,12 +784,12 @@ export const registerEmployee = async (req, res, next) => {
     const accessToken = createJwtToken(
       dataToken,
       config.SECRET_ACCESS_KEY,
-      "15m"
+      "15m",
     );
     const refreshToken = createJwtToken(
       dataToken,
       config.SECRET_REFRESH_KEY,
-      "7d"
+      "7d",
     );
     updatedEmp.refreshToken = refreshToken;
     // console.log(savedEmployee);
@@ -797,7 +800,7 @@ export const registerEmployee = async (req, res, next) => {
         data: userWithoutPassword,
         accessToken,
         refreshToken,
-      })
+      }),
     );
   } catch (error) {
     if (error.code === 11000) {
@@ -844,7 +847,7 @@ export const validateMpin = async (req, res, next) => {
     return res.send(
       successRes(200, errorMessage.EMP_LOGIN_SUCCESS, {
         data: userWithoutPassword,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -891,18 +894,18 @@ export const loginEmployee = async (req, res, next) => {
     const accessToken = createJwtToken(
       dataToken,
       config.SECRET_ACCESS_KEY,
-      "15m"
+      "15m",
     );
     const refreshToken = createJwtToken(
       dataToken,
       config.SECRET_REFRESH_KEY,
-      "7d"
+      "7d",
     );
     await employeeDb.updateOne(
       {
         refreshToken: refreshToken,
       },
-      { new: true }
+      { new: true },
     );
     const clientIsWeb = req.headers["x-platform"];
 
@@ -926,7 +929,7 @@ export const loginEmployee = async (req, res, next) => {
         data: userWithoutPassword,
         accessToken,
         refreshToken,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -960,7 +963,7 @@ export const reAuthEmployee = async (req, res, next) => {
     return res.send(
       successRes(200, "You have been successfully authenticated", {
         data: true,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -981,7 +984,7 @@ export const forgotPasswordEmployee = async (req, res, next) => {
 
     if (!employeeDb) {
       return res.send(
-        errorRes(400, `No Employee found with given email: ${email}`)
+        errorRes(400, `No Employee found with given email: ${email}`),
       );
     }
 
@@ -994,14 +997,14 @@ export const forgotPasswordEmployee = async (req, res, next) => {
         forgotPasswordTemplete(
           `${employeeDb.firstName} ${employeeDb.lastName}`,
           oldOtp.otp,
-          "https://evhomes.tech/"
+          "https://evhomes.tech/",
         ),
-        []
+        [],
       );
       return res.send(
         successRes(200, `Your OTP has been re-sent to ${email}`, {
           data: oldOtp,
-        })
+        }),
       );
     }
 
@@ -1022,15 +1025,15 @@ export const forgotPasswordEmployee = async (req, res, next) => {
       forgotPasswordTemplete(
         `${employeeDb.firstName} ${employeeDb.lastName}`,
         savedOtp.otp,
-        "https://evhomes.tech/"
+        "https://evhomes.tech/",
       ),
-      []
+      [],
     );
 
     return res.send(
       successRes(200, `Your OTP has been sent to ${email}`, {
         data: savedOtp._doc,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1070,7 +1073,7 @@ export const resetPasswordEmployee = async (req, res, next) => {
       {
         password: hashPassword,
       },
-      { new: true }
+      { new: true },
     );
     // const updatedPassChannelPartner = await employeeModel.updateOne(
     //   {
@@ -1086,7 +1089,7 @@ export const resetPasswordEmployee = async (req, res, next) => {
     return res.send(
       successRes(200, `Reset password sucessfully for: ${otpDbResp.email}`, {
         data: employeeDb,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1135,7 +1138,7 @@ export const searchEmployee = async (req, res, next) => {
         totalPages,
         totalItems,
         items: respEmp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1179,7 +1182,7 @@ export const newPassword = async (req, res, next) => {
     // console.log("pass 4");
 
     return res.send(
-      successRes(200, "Password updated successfully", { data: respAdmin })
+      successRes(200, "Password updated successfully", { data: respAdmin }),
     );
   } catch (error) {
     return next(error);
@@ -1214,7 +1217,7 @@ export const sendAddLeaveNotification = async (req, res, next) => {
       ) {
         const empName = `${emp.firstName} ${emp.lastName}`;
         const message = `Employee ${empName} is completing 3 months on ${leaveEligibilityDate.format(
-          "DD-MM-YYYY"
+          "DD-MM-YYYY",
         )}. Please add leave details.`;
 
         // Collect list for frontend
@@ -1253,7 +1256,7 @@ export const sendAddLeaveNotification = async (req, res, next) => {
       successRes(200, "Notifications sent", {
         count: upcomingLeaveEmployees.length,
         employees: upcomingLeaveEmployees,
-      })
+      }),
     );
   } catch (e) {
     console.error("Error in sendAddLeaveNoti:", e);
