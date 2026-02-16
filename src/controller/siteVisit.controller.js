@@ -63,7 +63,7 @@ export const getSiteVisits = async (req, res) => {
     return res.send(
       successRes(200, "Get Site Visit", {
         data: respSite,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `server error:${error?.message}`));
@@ -83,12 +83,12 @@ export const getSiteVisitsById = async (req, res) => {
       return res.send(
         successRes(404, `Site visit not found with id:${id}`, {
           data: respSite,
-        })
+        }),
       );
     return res.send(
       successRes(200, "lead by id", {
         data: respSite,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `server error:${error?.message}`));
@@ -108,12 +108,12 @@ export const getSiteVisitByPhoneNumber = async (req, res) => {
       return res.send(
         successRes(404, `Site vist not found with id:${phoneNumber}`, {
           data: respSite,
-        })
+        }),
       );
     return res.send(
       successRes(200, "lead by id", {
         data: respSite,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `server error:${error?.message}`));
@@ -134,12 +134,12 @@ export const getSiteVisitHistoryByPhone = async (req, res) => {
       return res.send(
         successRes(404, `Site vist not found with id:${phoneNumber}`, {
           data: respSite,
-        })
+        }),
       );
     return res.send(
       successRes(200, "lead by id", {
         data: respSite,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `server error:${error?.message}`));
@@ -607,7 +607,7 @@ export const searchSiteVisits = async (req, res, next) => {
         virtualMeeting,
         // internalLead,
         data: respSite,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -692,7 +692,7 @@ export const getClosingManagerSiteVisitById = async (req, res, next) => {
         totalItems,
         totalPages,
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -877,7 +877,7 @@ export const getTeamMemberSiteVisitById = async (req, res, next) => {
         totalItems,
         totalPages,
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -988,7 +988,7 @@ export const getSiteVisitByPermission = async (req, res, next) => {
         totalItems,
         totalPages,
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -1312,14 +1312,14 @@ export const addSiteVisits = async (req, res) => {
           foundLead.cycle.currentDays = 29;
           foundLead.cycle.validTill = new Date().addDays(30);
           const totalRemainingDays = Math.floor(
-            (new Date(foundLead.validTill) - today) / (1000 * 60 * 60 * 24)
+            (new Date(foundLead.validTill) - today) / (1000 * 60 * 60 * 24),
           );
           if (!taggingOver) {
             if (totalRemainingDays <= 29) {
               const availableDays = 30 - totalRemainingDays;
               // Logic for leads with 29 or fewer remaining days
               foundLead.validTill = new Date(foundLead.validTill).addDays(
-                availableDays
+                availableDays,
               );
             }
           }
@@ -1369,14 +1369,14 @@ export const addSiteVisits = async (req, res) => {
           foundLead.cycle.validTill = new Date().addDays(30);
           foundLead.virtualMeetingDoc = virtualMeetingDoc;
           const totalRemainingDays = Math.floor(
-            (new Date(foundLead.validTill) - today) / (1000 * 60 * 60 * 24)
+            (new Date(foundLead.validTill) - today) / (1000 * 60 * 60 * 24),
           );
           if (!taggingOver) {
             if (totalRemainingDays <= 29) {
               const availableDays = 30 - totalRemainingDays;
               // Logic for leads with 29 or fewer remaining days
               foundLead.validTill = new Date(foundLead.validTill).addDays(
-                availableDays
+                availableDays,
               );
             }
           }
@@ -1490,14 +1490,14 @@ export const addSiteVisits = async (req, res) => {
           foundLead.cycle.currentDays = 29;
           foundLead.cycle.validTill = new Date().addDays(30);
           const totalRemainingDays = Math.floor(
-            (new Date(foundLead.validTill) - today) / (1000 * 60 * 60 * 24)
+            (new Date(foundLead.validTill) - today) / (1000 * 60 * 60 * 24),
           );
           if (!taggingOver) {
             if (totalRemainingDays <= 29) {
               const availableDays = 30 - totalRemainingDays;
               // Logic for leads with 29 or fewer remaining days
               foundLead.validTill = new Date(foundLead.validTill).addDays(
-                availableDays
+                availableDays,
               );
             }
           }
@@ -1549,14 +1549,14 @@ export const addSiteVisits = async (req, res) => {
           foundLead.virtualMeetingDoc = virtualMeetingDoc;
           foundLead.cycle.currentDays = 29;
           const totalRemainingDays = Math.floor(
-            (new Date(foundLead.validTill) - today) / (1000 * 60 * 60 * 24)
+            (new Date(foundLead.validTill) - today) / (1000 * 60 * 60 * 24),
           );
           if (!taggingOver) {
             if (totalRemainingDays <= 29) {
               const availableDays = 30 - totalRemainingDays;
               // Logic for leads with 29 or fewer remaining days
               foundLead.validTill = new Date(foundLead.validTill).addDays(
-                availableDays
+                availableDays,
               );
             }
           }
@@ -1773,10 +1773,10 @@ export const addSiteVisits = async (req, res) => {
           `${populateNewSiteVisit.closingManager?.firstName ?? " "} ${
             populateNewSiteVisit.closingManager?.lastName ?? " "
           }`,
-          populateNewSiteVisit.visitType
+          populateNewSiteVisit.visitType,
         ),
         [],
-        ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"]
+        ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"],
       );
     } catch (error) {
       // console.log(error);
@@ -1785,7 +1785,7 @@ export const addSiteVisits = async (req, res) => {
     return res.send(
       successRes(200, `Client added successfully: ${firstName} ${lastName}`, {
         data: populateNewSiteVisit,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);
@@ -1876,11 +1876,13 @@ export const generateSiteVisitOtp = async (req, res, next) => {
 
     if (findOldOtp) {
       url = `${baseUrl}?phoneNumber=${encodeURIComponent(
-        `+91${phoneNumber}`
+        `+91${phoneNumber}`,
       )}&name=${firstName} ${lastName}&project=${project}&closingManager=${
         user?.firstName
       } ${user?.lastName}&otp=${findOldOtp.otp}`;
-      const resp = await axios.post(url);
+      console.log(url);
+      try {
+              const resp = await axios.post(url);
       if (email && email != "noemailprovided2026625@gmail.com") {
         try {
           await sendMultipleEmail(
@@ -1892,7 +1894,7 @@ export const generateSiteVisitOtp = async (req, res, next) => {
               location: getProjectWebhook?.name,
               imageUrl: getProjectWebhook?.showCaseImage,
             }),
-            []
+            [],
           );
           try {
             //ninesq= 13/ 10mb = 5/
@@ -1926,15 +1928,22 @@ export const generateSiteVisitOtp = async (req, res, next) => {
             }
           } catch (error) {
             //
-            // console.log(error);
+            console.log(error);
           }
-        } catch (error) {}
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      } catch (error) {
+        // 
+        console.log(error);
       }
       // console.log(resp);
       return res.send(
         successRes(200, "otp Sent to Client", {
           data: findOldOtp,
-        })
+        }),
       );
     }
 
@@ -1950,11 +1959,13 @@ export const generateSiteVisitOtp = async (req, res, next) => {
 
     const savedOtp = await newOtpModel.save();
     url = `${baseUrl}?phoneNumber=${encodeURIComponent(
-      `+91${phoneNumber}`
+      `+91${phoneNumber}`,
     )}&name=${firstName} ${lastName}&project=${project}&closingManager=${
       user?.firstName
     } ${user?.lastName}&otp=${newOtp}`;
-    const resp = await axios.post(url);
+
+    try {
+          const resp = await axios.post(url);
     // console.log(resp);
     if (email && email != "noemailprovided2026625@gmail.com") {
       try {
@@ -1967,18 +1978,25 @@ export const generateSiteVisitOtp = async (req, res, next) => {
             location: getProjectWebhook?.name,
             imageUrl: getProjectWebhook?.showCaseImage,
           }),
-          []
+          [],
         );
-      } catch (error) {}
+      } catch (error) {
+        console.log(error);
+      }
     }
+
+    } catch (error) {
+      console.log(error);
+    }
+
 
     return res.send(
       successRes(200, "otp Sent to Client", {
         data: savedOtp,
-      })
+      }),
     );
   } catch (error) {
-    return next(error);
+    return errorRes2(res, 500, `${error}`);
   }
 };
 
@@ -2001,7 +2019,7 @@ export const verifySiteVisitOtp = async (req, res, next) => {
     return res.send(
       successRes(200, "otp Verified Successfully", {
         data: true,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -2023,7 +2041,7 @@ export const updateSiteVisits = async (req, res) => {
         {
           ...body,
         },
-        { new: true }
+        { new: true },
       )
       .populate(siteVisitPopulateOptions);
 
@@ -2033,7 +2051,7 @@ export const updateSiteVisits = async (req, res) => {
     return res.send(
       successRes(200, `Site Visit updated successfully`, {
         data: updatedSite,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -2054,7 +2072,7 @@ export const deleteSiteVisits = async (req, res) => {
     return res.send(
       successRes(200, `Site deleted successfully with ID: ${id}`, {
         data: deletedSite,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -3133,7 +3151,7 @@ export const getTodayVisitSummary = async () => {
 
     // Filter only CPs with the highest visit count
     const highestCpVisits = maxCpVisits.filter(
-      (cp) => cp.totalVisits === highestVisitCount
+      (cp) => cp.totalVisits === highestVisitCount,
     );
     // console.log(highestCpVisits);
     // Populate CP details from cpModel
@@ -3225,7 +3243,7 @@ export const getTodayVisitSummary = async () => {
         maxVisitCpName: datas.maxCpVisitsBy,
       }),
       [],
-      ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"]
+      ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"],
     );
 
     return datas;
@@ -3273,9 +3291,9 @@ export const addSiteVisitV2 = async (req, res) => {
     lead,
   } = body;
   const user = req.user; //user onl
-  // console.log(user);
+  console.log(user);
 
-  // console.log(body);
+  console.log(body);
 
   try {
     if (!body) {
@@ -3353,7 +3371,7 @@ export const addSiteVisitV2 = async (req, res) => {
     return res.send(
       successRes(200, `Visit sent for Verification to Sourcing Manager`, {
         data: populateNewSiteVisit,
-      })
+      }),
     );
   } catch (error) {
     // console.log(error);
@@ -3598,7 +3616,7 @@ export const searchSiteVisitDTA = async (req, res, next) => {
         pendingCount,
         rejectedCount,
         data: respSite,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -3880,7 +3898,7 @@ export const siteVisitApproval = async (req, res, next) => {
           imageUrl: updatedVisit.location?.showCaseImage,
         }),
         attachment,
-        ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"]
+        ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"],
       );
 
       try {
@@ -3951,7 +3969,7 @@ export const getCpFeedbackPendingVisits = async () => {
     for (const visit of visits) {
       try {
         const closingManager = await employeeModel.findById(
-          visit.closingManager
+          visit.closingManager,
         );
 
         const channelPartnerFirm = await cpModel.findById(visit.channelPartner);
@@ -3960,7 +3978,7 @@ export const getCpFeedbackPendingVisits = async () => {
         let firmName = "";
         if (visit.channelPartner) {
           const channelPartnerFirm = await cpModel.findById(
-            visit.channelPartner
+            visit.channelPartner,
           );
           firmName = channelPartnerFirm?.firmName || "";
           // console.log("Firm Name:", firmName);
@@ -3978,10 +3996,10 @@ export const getCpFeedbackPendingVisits = async () => {
             visit.phoneNumber,
             visit.email,
             firmName,
-            moment(visit.date).tz("Asia/Kolkata").format("DD-MM-YYYY hh:mm A")
+            moment(visit.date).tz("Asia/Kolkata").format("DD-MM-YYYY hh:mm A"),
           ),
           [],
-          ["evhomes.operations@evgroup.co.in"]
+          ["evhomes.operations@evgroup.co.in"],
         );
 
         updateOps.push({
