@@ -45,64 +45,68 @@ siteVisitRouter.get("/siteVisit/:id", getSiteVisitsById);
 siteVisitRouter.get(
   "/siteVisit-phoneNumber/:phoneNumber",
   authenticateToken,
-  getSiteVisitByPhoneNumber
+  getSiteVisitByPhoneNumber,
 );
 siteVisitRouter.post(
   "/site-visits-by-phone",
   authenticateToken,
-  getSiteVisitHistoryByPhone
+  getSiteVisitHistoryByPhone,
 );
 
 siteVisitRouter.post("/siteVisits-add", authenticateToken, addSiteVisits);
-siteVisitRouter.post("/site-visit-add-v2", authenticateToken, addSiteVisitV2);
+siteVisitRouter.post(
+  "/site-visit-add-v2",
+  // authenticateToken,
+  addSiteVisitV2,
+);
 //ok
 siteVisitRouter.post(
   "/site-visit-add-int/:id",
   authenticateToken,
-  addLeadFromSiteVisit
+  addLeadFromSiteVisit,
 );
 
 //visible to closing managers
 siteVisitRouter.get(
   "/site-visit-closing-manager/:id",
   authenticateToken,
-  getClosingManagerSiteVisitById
+  getClosingManagerSiteVisitById,
 );
 
 //visibile to team members only
 siteVisitRouter.get(
   "/site-visit-team-member/:id",
   authenticateToken,
-  getTeamMemberSiteVisitById
+  getTeamMemberSiteVisitById,
 );
 
 siteVisitRouter.post(
   "/site-visit-generate-otp",
-  authenticateToken,
-  generateSiteVisitOtp
+  // authenticateToken,
+  generateSiteVisitOtp,
 );
 siteVisitRouter.post(
   "/site-visit-otp-verify",
   authenticateToken,
-  verifySiteVisitOtp
+  verifySiteVisitOtp,
 );
 
 siteVisitRouter.post(
   "/siteVisit-update/:id",
   authenticateToken,
-  updateSiteVisits
+  updateSiteVisits,
 );
 siteVisitRouter.delete("/siteVisit/:id", authenticateToken, deleteSiteVisits);
 siteVisitRouter.get("/siteVisits-search", authenticateToken, searchSiteVisits);
 siteVisitRouter.get(
   "/site-visit-search-dta",
   authenticateToken,
-  searchSiteVisitDTA
+  searchSiteVisitDTA,
 );
 siteVisitRouter.post(
   "/site-visit-approval/:id",
   // authenticateToken,
-  siteVisitApproval
+  siteVisitApproval,
 );
 
 siteVisitRouter.get("/site-visit-permission/:id", getSiteVisitByPermission);
@@ -156,13 +160,13 @@ siteVisitRouter.get("/site-visit-past-15day", async (req, res) => {
               },
             ],
           },
-          update
+          update,
         );
       } catch (error) {
         //
         console.log(error);
       }
-    })
+    }),
   );
 
   return res.send(resp);

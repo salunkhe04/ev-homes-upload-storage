@@ -775,11 +775,11 @@ ourProjectRouter.post(
     const results = [];
     const dataToPush = [];
 
-    const csvFilePath = path.join(__dirname, "aspire2.csv");
+    const csvFilePath = path.join(__dirname, "9hq.csv");
 
     try {
       const projectResp = await ourProjectModel.findOne({
-        _id: "project-solaris-rohinjan-2025",
+        _id: "project-ev-9hq-vashi-2026",
       });
 
       if (!projectResp) {
@@ -798,13 +798,9 @@ ourProjectRouter.post(
           for (const row of results) {
             const {
               flatNo,
-              Configuration,
-              Type,
-              "Rera area": reraArea,
-              usableCarpetArea,
-              "TOTAL SALE AREA": totalSaleArea,
-              "All Inlusive": allInclusive,
-              Status,
+              carpetArea,
+              saleArea,
+              flatCost,
               floor,
             } = row;
 
@@ -813,15 +809,11 @@ ourProjectRouter.post(
               flatNo,
               floor: parseInt(floor),
               number: number,
-              buildingNo: 2,
-              configuration: Configuration?.replaceAll(" ", ""),
-              type: Type,
-              reraArea: reraArea,
-              usableCarpetArea: usableCarpetArea,
-              carpetArea: usableCarpetArea,
-              allInclusiveValue: allInclusive,
-              sellableCarpetArea: totalSaleArea,
-              occupied: Status.toLowerCase() === "sold" ? true : false,
+              type: "office",
+              usableCarpetArea: carpetArea,
+              allInclusiveValue: flatCost,
+              sellableCarpetArea: saleArea,
+              occupied:  false,
             });
           }
 
@@ -832,13 +824,13 @@ ourProjectRouter.post(
                 //
                 await flatModel.findOneAndUpdate(
                   {
-                    project: "project-solaris-rohinjan-2025",
+                    project: "project-ev-9hq-vashi-2026",
                     flatNo: ele.flatNo,
                     // number: ele.number,
-                    buildingNo: ele.buildingNo,
                   },
                   {
                     ...ele,
+                    project: "project-ev-9hq-vashi-2026",
                   },
                   { upsert: true },
                 );
@@ -849,38 +841,6 @@ ourProjectRouter.post(
             }),
           );
 
-          // Update matching flats
-          // projectResp.flatList.forEach((flt) => {
-          //   const match = dataToPush.find(
-          //     (item) =>
-          //       item.flatNo?.toString() === flt.flatNo?.toString() &&
-          //       flt.buildingNo == 1,
-          //   );
-
-          //   if (match) {
-          //     // Object.keys(match).forEach((key) => {
-          //     //   if (match[key] !== undefined && match[key] !== null) {
-          //     //     flt[key] = match[key]; // will create field if not exist
-          //     //   }
-          //     // });
-
-          //     // flt.floor = match.floor;
-          //     // flt.occupied = match.occupied;
-          //     // flt.reraArea = match.carpetArea;
-          //     // flt.balconyArea = match.balconyArea;
-          //     // flt.ssArea = match.ssArea;
-          //     // flt.configuration = match.configuration;
-          //     // flt.carpetArea = match.carpetArea;
-          //     // flt.sellableCarpetArea = match.sellableCarpetArea;
-          //     // flt.allInclusiveValue = match.allInclusiveValue;
-          //     // flt.type = match.type;
-          //   }
-          // });
-
-          // projectResp.markModified("flatList");
-          // await projectResp.save();
-          // await RedisService.delMultipleKeys(["projects"]);
-          //
           return res.send({
             message: "Flat list updated successfully",
             updatedCount: dataToPush,
