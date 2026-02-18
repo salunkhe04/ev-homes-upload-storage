@@ -6,7 +6,7 @@ const callRouter = Router();
 
 callRouter.get(
   "/get-call-count/:caller",
-  authenticateToken,
+  // authenticateToken,
   async (req, res) => {
     //
     // console.log("entered");
@@ -35,12 +35,12 @@ callRouter.get(
       console.log(error);
       return errorRes2(res, 500, `${error?.message || error}`);
     }
-  }
+  },
 );
 
 callRouter.get(
   "/get-last-sync/:caller",
-  authenticateToken,
+  // authenticateToken,
   async (req, res) => {
     //
     // console.log("entered");
@@ -69,10 +69,10 @@ callRouter.get(
       return errorRes2(
         res,
         error?.response?.data?.code || 500,
-        `${error?.response?.data?.message || error?.message || error}`
+        `${error?.response?.data?.message || error?.message || error}`,
       );
     }
-  }
+  },
 );
 
 export default callRouter;
