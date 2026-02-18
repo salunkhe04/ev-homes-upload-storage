@@ -2759,7 +2759,6 @@ export const postSalePopulateOptionsv2 = [
 ];
 
 export const eoiConfirmationPopulations = [
-  
   {
     path: "eoi.generatedBy",
     select: "firstName lastName",
@@ -2847,5 +2846,9 @@ export const designTaskPopulateOptions = [
   {
     path: "approval.approveBy",
     select: "firstName lastName email",
+  },
+  {
+    path: "transferTaskFrom",
+    select: "firstName lastName",
   },
 ];

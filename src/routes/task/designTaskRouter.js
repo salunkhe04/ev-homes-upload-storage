@@ -975,5 +975,75 @@ designTaskRouter.post(
     //
   },
 );
+
+//
+designTaskRouter.post(
+  "/design-transfer-task-tl/:id",
+  async (req, res, next) => {
+    //
+    const { id } = req.params;
+    const { assignTo, reason, deadline } = req.body;
+    const user = req.user;
+
+    if (!id) {
+      return errorRes2(res, 401, `task id required`);
+    }
+
+    try {
+      const task = await designTaskModel.findById(id);
+      if (!task) {
+        return errorRes2(res, 401, `task not found`);
+      }
+      task.transferTaskFrom = task.assignTo;
+      task.assignDate = new Date();
+      task.deadline = moment(deadline).tz("Asia/Kolkata").toDate();
+
+      const oldTimeline = task.timeline;
+      oldTimeline.push({
+        type: "transferred-task",
+        reason: reason,
+        date: new Date(),
+        user: task.assignTo,
+        assignBy: task.assignTo,
+        assignTo: assignTo,
+      });
+      task.timeline = oldTimeline;
+
+      const updatedTask = await task.save();
+
+      const populatedTask = await designTaskModel
+        .findByIdAndUpdate(updatedTask._id, {
+          assignTo: assignTo,
+        })
+        .populate(designTaskPopulateOptions);
+
+      // find user device id
+      const foundTLPlayerId = await oneSignalModel.findOne({
+        docId: task.assignTo,
+        role: "employee",
+      });
+      //
+      if (foundTLPlayerId.playerId != null) {
+        // notify user
+        await sendNotificationWithInfo({
+          playerIds: [foundTLPlayerId.playerId],
+          title: "Transferred Task",
+          message: `The task has been transferred`,
+          data: {
+            type: "designTeamTask",
+          },
+        });
+      }
+
+      return successRes2(res, 200, `Task transferred successfully `, {
+        data: populatedTask,
+      });
+    } catch (error) {
+      // console.error("Error transferring task:", error); // Debugging: Log the error
+      return errorRes2(res, 500, `server error`);
+    }
+  },
+);
+
 //
 export default designTaskRouter;
