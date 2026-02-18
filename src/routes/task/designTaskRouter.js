@@ -995,6 +995,7 @@ designTaskRouter.post(
         return errorRes2(res, 401, `task not found`);
       }
       task.transferTaskFrom = task.assignTo;
+      task.assignTo = assignTo;
       task.assignDate = new Date();
       task.deadline = moment(deadline).tz("Asia/Kolkata").toDate();
 
@@ -1012,14 +1013,12 @@ designTaskRouter.post(
       const updatedTask = await task.save();
 
       const populatedTask = await designTaskModel
-        .findByIdAndUpdate(updatedTask._id, {
-          assignTo: assignTo,
-        })
+        .findById(updatedTask._id)
         .populate(designTaskPopulateOptions);
 
       // find user device id
       const foundTLPlayerId = await oneSignalModel.findOne({
-        docId: task.assignTo,
+        docId: task.transferTaskFrom,
         role: "employee",
       });
       //
