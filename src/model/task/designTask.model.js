@@ -74,13 +74,19 @@ const designTaskSchema = new mongoose.Schema(
     reminderDescription: { type: String, default: null },
     // for when what happen in this
     timeline: [{ type: mongoose.Schema.Types.Mixed, default: null }],
+
+    transferTaskFrom: {
+      type: String,
+
+      ref: "employees",
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const designTaskModel = mongoose.model(
   "designTasks",
   designTaskSchema,
-  "designTasks"
+  "designTasks",
 );
 export default designTaskModel;
