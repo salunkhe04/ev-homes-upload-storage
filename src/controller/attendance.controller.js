@@ -1684,7 +1684,6 @@ export const updateAttendanceById = async (req, res) => {
       updates.status = "absent";
       updates.checkInTime = null;
       updates.checkOutTime = null;
-
     } else if (body?.status === "weekoff") {
       updates.status = "weekoff";
     } else if (body?.status === "half-day") {
@@ -3963,7 +3962,8 @@ export const generateCompensatoryOff = async (req, res) => {
     res.status(500).json({ message: "Server error." });
   }
 };
-//not using
+
+//using now
 export const generateCompensatoryOffLatest = async (req, res) => {
   const { date } = req.query;
   const list = [];
@@ -3984,7 +3984,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
     // ---------- Attendance Month ----------
     const atts = await attendanceModel
       .find({
-        userId: "EV295-suvidhya-kadam",
+       
         month: currentMonth + 1,
         year: currentYear,
       })
@@ -3995,7 +3995,9 @@ export const generateCompensatoryOffLatest = async (req, res) => {
       return res.json({ message: "No attendance records found." });
 
     const shiftInfoList = await shiftInfoModel
-      .find({ userId: "EV295-suvidhya-kadam" })
+      .find({
+       
+      })
       .populate(employeeShiftInfoPopulateOptions)
       .lean();
 
@@ -4108,7 +4110,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
           const presentOnWeekoff = attList.filter(
             (aEle) => aEle.status === "present" && aEle.wlStatus === "weekoff",
           );
-          const missingWeekoffs = 4 - weekoffDays;
+          let missingWeekoffs = 4 - weekoffDays;
           // console.log(weekoffDays);
           // console.log(missingWeekoffs);
 
@@ -4117,7 +4119,8 @@ export const generateCompensatoryOffLatest = async (req, res) => {
 
           await Promise.all(
             presentOnWeekoff.map(async (dayRecord) => {
-              const dt = moment(dayRecord.date);
+              // console.log(dayRecord)
+              const dt = moment(dayRecord.date).tz("Asia/Kolkata");
               const query = {
                 userId: shiftInfo?.userId?._id,
                 type: "deposit",
@@ -4126,16 +4129,18 @@ export const generateCompensatoryOffLatest = async (req, res) => {
                   $lte: dt.endOf("day").toDate(),
                 },
               };
-              // console.log(query);
+              console.log(query);
               const existingHistory = await leaveHistoryModel.findOne(query);
-              // console.log(existingHistory);
+              console.log(existingHistory);
 
               if (!existingHistory) {
                 shouldGenerateCO = true; // mark once
+              }else{
+                missingWeekoffs-=1;
               }
             }),
           );
-          // console.log(shouldGenerateCO);
+          console.log(shouldGenerateCO);
 
           if (shouldGenerateCO && missingWeekoffs > 0) {
             const updated = await shiftInfoModel.findByIdAndUpdate(
@@ -4161,33 +4166,33 @@ export const generateCompensatoryOffLatest = async (req, res) => {
         }
 
         // ---------- Overtime Comp Off for IT Dept ----------
-        // if (shiftInfo.userId?.department?._id === "dept-it") {
-        //   const ots = distributeHours(
-        //     attOverview.activeHours - attOverview.requiredHours
-        //   );
-        //   console.log(ots);
-        //   for (const ele of ots) {
-        //     totalComps += ele.day;
-        //     // const updated = await shiftInfoModel.findByIdAndUpdate(
-        //     //   shiftInfo._id,
-        //     //   { $inc: { compensatoryoff: ele.day } },
-        //     //   { new: true }
-        //     // );
+        if (shiftInfo.userId?.department?._id === "dept-it") {
+          const ots = distributeHours(
+            attOverview.activeHours - attOverview.requiredHours
+          );
+          console.log(ots);
+          for (const ele of ots) {
+            totalComps += ele.day;
+            const updated = await shiftInfoModel.findByIdAndUpdate(
+              shiftInfo._id,
+              { $inc: { compensatoryoff: ele.day } },
+              { new: true }
+            );
 
-        //     // await createLeaveHistoryFunc({
-        //     //   userId: shiftInfo?.userId?._id,
-        //     //   date: currentDate.toDate(),
-        //     //   description: `Auto-generated from Overtime hours ${(
-        //     //     attOverview.activeHours - attOverview.requiredHours
-        //     //   ).toFixed(1)}hr`,
-        //     //   count: ele.day,
-        //     //   type: "deposit",
-        //     //   leaveType: "on-compensation-off-leave",
-        //     //   deposittype: "auto-generated",
-        //     //   howManyBefore:(updated.compensatoryoff ?? 0) - 1,
-        //     // });
-        //   }
-        // }
+            await createLeaveHistoryFunc({
+              userId: shiftInfo?.userId?._id,
+              date: currentDate.toDate(),
+              description: `Auto-generated from Overtime hours ${(
+                attOverview.activeHours - attOverview.requiredHours
+              ).toFixed(1)}hr`,
+              count: ele.day,
+              type: "deposit",
+              leaveType: "on-compensation-off-leave",
+              deposittype: "auto-generated",
+              howManyBefore:(updated.compensatoryoff ?? 0) - 1,
+            });
+          }
+        }
 
         // ---------- Final push ----------
         list.push({
