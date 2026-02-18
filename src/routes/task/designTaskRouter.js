@@ -1018,7 +1018,7 @@ designTaskRouter.post(
 
       // find user device id
       const foundTLPlayerId = await oneSignalModel.findOne({
-        docId: task.transferTaskFrom,
+        docId: task.assignTo,
         role: "employee",
       });
       //
