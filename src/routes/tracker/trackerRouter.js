@@ -84,6 +84,54 @@ trackerRouter.post("/agent/sync-activity", async (req, res) => {
 // DEV: user timeline
 // -----------------------------
 
+trackerRouter.get("/user/:userId/timeline-activity", async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  const timeZone = "Asia/Kolkata";
+  const start = moment(startDate).isValid()
+    ? moment(startDate).tz(timeZone).startOf("day")
+    : moment().tz(timeZone).startOf("day");
+  const end = moment(endDate).isValid()
+    ? moment(endDate).tz(timeZone).endOf("day")
+    : moment().tz(timeZone).endOf("day");
+
+  let statusToFInd = {
+    userId: req.params.userId,
+    date: { $gte: start.toDate(), $lte: end.toDate() },
+    $or: [
+      {
+        webcamUrl: { $ne: "" },
+      },
+      {
+        screenshotUrl: { $ne: "" },
+      },
+    ],
+  };
+
+  // console.log(statusToFInd);
+  const rows = await timeTrackerActivityModel
+    .find(statusToFInd)
+    .sort({ start: 1 })
+    .lean();
+
+  return successRes2(res, 200, "acitvity", {
+    total: rows.length,
+    data: rows,
+  });
+  // res.json(rows);
+});
+
+trackerRouter.get("/timeline-config", async (req, res) => {
+  // console.log(statusToFInd);
+  const rows = await timeTrackerConfModel.find().lean();
+
+  return successRes2(res, 200, "acitvity", {
+    total: rows.length,
+    data: rows,
+  });
+  // res.json(rows);
+});
+
 trackerRouter.get("/user/:userId/timeline", async (req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -139,16 +187,89 @@ trackerRouter.post("/timeline-approve/:uid", async (req, res) => {
 });
 
 trackerRouter.get("/timeline/pending/:userId", async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  const timeZone = "Asia/Kolkata";
+  const start = moment(startDate).isValid()
+    ? moment(startDate).tz(timeZone).startOf("day")
+    : moment().tz(timeZone).startOf("day");
+  const end = moment(endDate).isValid()
+    ? moment(endDate).tz(timeZone).endOf("day")
+    : moment().tz(timeZone).endOf("day");
+
+  let statusToFInd = {
+    userId: req.params.userId,
+    start: { $gte: start.toDate() },
+    end: { $lte: end.toDate() },
+    approved: { $ne: "approved" },
+    state: { $ne: "WORK" },
+  };
+
   const rows = await timelineTracker
-    .find({
-      userId: req.params.userId,
-      approved: "pending",
-    })
+    .find(statusToFInd)
     .sort({ start: 1 })
     .lean();
 
-  res.json(rows);
+  return successRes2(res, 200, "pending list", {
+    total: rows.length,
+    data: rows,
+  });
+  // res.json(rows);
 });
+
+trackerRouter.get("/timeline/work-duration/:userId", async (req, res) => {
+  const { startDate, endDate } = req.query;
+  const timeZone = "Asia/Kolkata";
+
+  const start = moment(startDate).isValid()
+    ? moment(startDate).tz(timeZone).startOf("day").toDate()
+    : moment().tz(timeZone).startOf("day").toDate();
+
+  const end = moment(endDate).isValid()
+    ? moment(endDate).tz(timeZone).endOf("day").toDate()
+    : moment().tz(timeZone).endOf("day").toDate();
+
+  const userId = req.params.userId;
+
+  const aggregation = await timelineTracker.aggregate([
+    {
+      $match: {
+        userId: userId,
+        start: { $gte: start },
+        end: { $lte: end },
+      },
+    },
+    {
+      $group: {
+        _id: "$state",
+        totalDuration: { $sum: "$duration" },
+      },
+    },
+  ]);
+
+  // ✅ Always return these 5 states
+  const defaultStates = {
+    WORK: 0,
+    MEETING: 0,
+    IDLE: 0,
+    MISSING: 0,
+    BREAK: 0,
+  };
+
+  // Override with actual values
+  aggregation.forEach((item) => {
+    if (defaultStates.hasOwnProperty(item._id)) {
+      defaultStates[item._id] = item.totalDuration;
+    }
+  });
+
+  return successRes2(res, 200, "state duration summary", {
+    data:{
+      ...defaultStates,
+    }
+  });
+});
+
 
 trackerRouter.get("/get-time-tracker-config/:id", async (req, res) => {
   const id = req.params.id;
@@ -251,7 +372,7 @@ trackerRouter.get("/agent/:userId/approvals", async (req, res) => {
       approved: "approved",
       // approvalSync: false
     },
-    { blockUid: 1,approved:1 },
+    { blockUid: 1, approved: 1 },
   );
 
   // const blockId = timeLines.map((e) => e.blockUid);
@@ -281,7 +402,7 @@ trackerRouter.post("/agent/timeline-approval-sync/:uid", async (req, res) => {
   res.json({
     ok: true,
     uid,
-    row
+    row,
   });
 });
 
