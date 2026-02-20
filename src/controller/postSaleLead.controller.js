@@ -36,6 +36,7 @@ import { sendNotificationWithImage } from "./oneSignal.controller.js";
 import oneSignalModel from "../model/oneSignal.model.js";
 import { FlatOccupancyChange } from "../routes/ourProject/flatRouter.js";
 import { ParkingOccupancyChange } from "../routes/ourProject/parkingRouter.js";
+import flatModel from "../model/flat.model.js";
 
 export const getPostSaleLeads = async (req, res, next) => {
   try {
@@ -1077,18 +1078,20 @@ export const addPostSaleLead = async (req, res, next) => {
     const findProject = await ourProjectModel.findById(project);
 
     if (findProject) {
-      // const findExisintFlat = findProject.flatList.find(
-      //   (ele) =>
-      //     ele.floor === floor &&
-      //     ele.number === number &&
-      //     ele.buildingNo === buildingNo &&
-      //     ele.occupied === true,
-      // );
-      // if (findExisintFlat) {
-      //   return res.send(
-      //     errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`),
-      //   );
-      // }
+      const foundExFlat = await flatModel.findOne({
+        project: project,
+        floor: floor,
+        number: number,
+        buildingNo: buildingNo,
+        occupied: true,
+      });
+      if (foundExFlat) {
+        return errorRes2(
+          res,
+          401,
+          `Flat ${foundExFlat.flatNo} is Already Booked`,
+        );
+      }
     }
 
     // const resp = await postSaleLeadModel.find();
@@ -1260,17 +1263,17 @@ export const addPostSaleLead = async (req, res, next) => {
     }
 
     //uppdate at lead
-          const foundLead = await leadModelV2
-        .findOne({
-          $or: [
-            { _id: lead },
-            {
-              teamLeader: resp?.closingManager,
-              phoneNumber: phoneNumber,
-            },
-          ],
-        })
-        .populate(leadPopulateOptions);
+    const foundLead = await leadModelV2
+      .findOne({
+        $or: [
+          { _id: lead },
+          {
+            teamLeader: resp?.closingManager,
+            phoneNumber: phoneNumber,
+          },
+        ],
+      })
+      .populate(leadPopulateOptions);
 
     try {
       try {
