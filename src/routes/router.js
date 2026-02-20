@@ -148,6 +148,15 @@ router.get("/ping", async (req, res) => {
   res.json({ code: 200, message: "ok" });
 });
 
+router.get("/status", async (req, res) => {
+  res.json({
+    code: 200,
+    message: "ok",
+    date: new Date(),
+    dateStr: new Date().toString(),
+  });
+});
+
 router.get("/test-tesp", async (req, res) => {
   const resp = await getTodayVisitLineUp();
 
@@ -155,18 +164,17 @@ router.get("/test-tesp", async (req, res) => {
 });
 
 router.get("/test-phone-num", async (req, res) => {
-  const {phoneNumber}=req.query;
+  const { phoneNumber } = req.query;
   try {
-      const resp = await axios.get(`https://api.event.knocknok.co/api/exhibitor/visitors?eventId=3570b053-d910-4b5a-a963-2432288384eb&contactNumber=${phoneNumber}`);
+    const resp = await axios.get(
+      `https://api.event.knocknok.co/api/exhibitor/visitors?eventId=3570b053-d910-4b5a-a963-2432288384eb&contactNumber=${phoneNumber}`,
+    );
 
-  res.json({ code: 200, message: "ok", data: resp?.data });
-
+    res.json({ code: 200, message: "ok", data: resp?.data });
   } catch (error) {
-      res.json({ code: 200, message: `${error}`, });
-
+    res.json({ code: 200, message: `${error}` });
   }
 });
-
 
 router.post("/test-easylu-leads", async (req, res) => {
   // console.log(req.body);
