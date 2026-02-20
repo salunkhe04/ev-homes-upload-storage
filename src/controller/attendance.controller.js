@@ -1084,7 +1084,7 @@ export const getCheckInByUserId = async (req, res) => {
 };
 
 export const getCheckInByDate = async (req, res) => {
-  const { date, filter, startDate, endDate } = req.query;
+  const { date, filter, startDate, endDate, department } = req.query;
   try {
     let filterToUse = {};
     let now = new Date();
@@ -1100,7 +1100,7 @@ export const getCheckInByDate = async (req, res) => {
     };
 
     const cached = await RedisService.get("daily_attendance_list", true);
-    if (cached != null && !filter) {
+    if (cached != null && !filter && !department) {
       //
       return res.send(
         successRes(200, "Attendance List -cached", {
@@ -1158,7 +1158,20 @@ export const getCheckInByDate = async (req, res) => {
       };
     }
 
-    // console.log(filterToUse);
+    if (department) {
+      //
+      const emps = await employeeModel.find(
+        { department: department, status: "active" },
+        { _id: 1 },
+      );
+      const ids = emps.map((ele) => ele._id);
+      filterToUse = {
+        ...filterToUse,
+        userId: { $in: ids },
+      };
+    }
+
+    // console.log(JSON.stringify(filterToUse, null, 2));
 
     const existingAttendance = await attendanceModel
       .find(filterToUse)
@@ -1241,7 +1254,7 @@ export const getCheckInByDate = async (req, res) => {
 
       return false;
     });
-    if (!filter) {
+    if (!filter || !department) {
       const cached = await RedisService.set(
         "daily_attendance_list",
         {
@@ -1265,28 +1278,26 @@ export const getCheckInByDate = async (req, res) => {
       );
     }
 
-    return res.send(
-      successRes(200, "Attendance List", {
-        presentCount: presentList.length,
-        absentCount: absentList.length,
-        weekOffCount: weekOffList.length,
-        onLeaveCount: onLeaveList.length,
-        lateComersCount: lateComersList.length,
-        earlyLeaversCount: earlyLeaversList.length,
-        halfDayCount: halfDayList.length,
-        data: existingAttendance,
-        halfDayList,
-        presentList,
-        absentList,
-        weekOffList,
-        onLeaveList,
-        lateComersList,
-        earlyLeaversList,
-      }),
-    );
+    return successRes2(res, 200, "Attendance List", {
+      presentCount: presentList.length,
+      absentCount: absentList.length,
+      weekOffCount: weekOffList.length,
+      onLeaveCount: onLeaveList.length,
+      lateComersCount: lateComersList.length,
+      earlyLeaversCount: earlyLeaversList.length,
+      halfDayCount: halfDayList.length,
+      data: existingAttendance,
+      halfDayList,
+      presentList,
+      absentList,
+      weekOffList,
+      onLeaveList,
+      lateComersList,
+      earlyLeaversList,
+    });
   } catch (error) {
     console.error(error);
-    return res.send(errorRes(500, "Internal Server Error"));
+    return errorRes2(res, 500, "Internal Server Error");
   }
 };
 
@@ -3984,7 +3995,6 @@ export const generateCompensatoryOffLatest = async (req, res) => {
     // ---------- Attendance Month ----------
     const atts = await attendanceModel
       .find({
-       
         month: currentMonth + 1,
         year: currentYear,
       })
@@ -3995,9 +4005,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
       return res.json({ message: "No attendance records found." });
 
     const shiftInfoList = await shiftInfoModel
-      .find({
-       
-      })
+      .find({})
       .populate(employeeShiftInfoPopulateOptions)
       .lean();
 
@@ -4135,8 +4143,8 @@ export const generateCompensatoryOffLatest = async (req, res) => {
 
               if (!existingHistory) {
                 shouldGenerateCO = true; // mark once
-              }else{
-                missingWeekoffs-=1;
+              } else {
+                missingWeekoffs -= 1;
               }
             }),
           );
@@ -4168,7 +4176,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
         // ---------- Overtime Comp Off for IT Dept ----------
         if (shiftInfo.userId?.department?._id === "dept-it") {
           const ots = distributeHours(
-            attOverview.activeHours - attOverview.requiredHours
+            attOverview.activeHours - attOverview.requiredHours,
           );
           console.log(ots);
           for (const ele of ots) {
@@ -4176,7 +4184,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
             const updated = await shiftInfoModel.findByIdAndUpdate(
               shiftInfo._id,
               { $inc: { compensatoryoff: ele.day } },
-              { new: true }
+              { new: true },
             );
 
             await createLeaveHistoryFunc({
@@ -4189,7 +4197,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
               type: "deposit",
               leaveType: "on-compensation-off-leave",
               deposittype: "auto-generated",
-              howManyBefore:(updated.compensatoryoff ?? 0) - 1,
+              howManyBefore: (updated.compensatoryoff ?? 0) - 1,
             });
           }
         }
