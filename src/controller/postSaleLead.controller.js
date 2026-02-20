@@ -1077,18 +1077,18 @@ export const addPostSaleLead = async (req, res, next) => {
     const findProject = await ourProjectModel.findById(project);
 
     if (findProject) {
-      const findExisintFlat = findProject.flatList.find(
-        (ele) =>
-          ele.floor === floor &&
-          ele.number === number &&
-          ele.buildingNo === buildingNo &&
-          ele.occupied === true,
-      );
-      if (findExisintFlat) {
-        return res.send(
-          errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`),
-        );
-      }
+      // const findExisintFlat = findProject.flatList.find(
+      //   (ele) =>
+      //     ele.floor === floor &&
+      //     ele.number === number &&
+      //     ele.buildingNo === buildingNo &&
+      //     ele.occupied === true,
+      // );
+      // if (findExisintFlat) {
+      //   return res.send(
+      //     errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`),
+      //   );
+      // }
     }
 
     // const resp = await postSaleLeadModel.find();
@@ -1121,6 +1121,7 @@ export const addPostSaleLead = async (req, res, next) => {
 
         await findTarget.save();
       } catch (error) {
+        console.log(error);
         //
       }
     }
@@ -1212,6 +1213,7 @@ export const addPostSaleLead = async (req, res, next) => {
         },
       });
     } catch (error) {
+      console.log(error);
       //
     }
 
@@ -1226,6 +1228,7 @@ export const addPostSaleLead = async (req, res, next) => {
         occupied: true,
       });
     } catch (error) {
+      console.log(error);
       //
     }
 
@@ -1245,18 +1248,19 @@ export const addPostSaleLead = async (req, res, next) => {
                 });
               }
             } catch (error) {
+              console.log(error);
               //
             }
           }),
         );
       }
     } catch (error) {
+      console.log(error);
       //
     }
 
     //uppdate at lead
-    try {
-      const foundLead = await leadModelV2
+          const foundLead = await leadModelV2
         .findOne({
           $or: [
             { _id: lead },
@@ -1267,6 +1271,8 @@ export const addPostSaleLead = async (req, res, next) => {
           ],
         })
         .populate(leadPopulateOptions);
+
+    try {
       try {
         await leadModelV2.findByIdAndUpdate(foundLead?._id, {
           $set: {
@@ -1278,9 +1284,11 @@ export const addPostSaleLead = async (req, res, next) => {
           },
         });
       } catch (error) {
+        console.log(error);
         //
       }
     } catch (error) {
+      console.log(error);
       //
     }
     // TODO: email commented for testing
@@ -1336,6 +1344,7 @@ export const addPostSaleLead = async (req, res, next) => {
       );
       // await sendEmail("aktarul.evgroup@gmail.com","Congratulations there has been a new booking in Nine Square by Deepak Karki.","");
     } catch (error) {
+      console.log(error);
       //
     }
 
@@ -1345,6 +1354,7 @@ export const addPostSaleLead = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    console.log(error);
     return next(error);
   }
 };

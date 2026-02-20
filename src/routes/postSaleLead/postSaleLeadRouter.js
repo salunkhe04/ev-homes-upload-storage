@@ -40,7 +40,11 @@ postSaleRouter.get(
   authenticateToken,
   getPostSaleLeadByBookingId,
 );
-postSaleRouter.post("/post-sale-lead-add", authenticateToken, addPostSaleLead);
+postSaleRouter.post(
+  "/post-sale-lead-add",
+  //  authenticateToken,
+  addPostSaleLead,
+);
 postSaleRouter.post(
   "/post-sale-lead-update/:id",
   authenticateToken,
