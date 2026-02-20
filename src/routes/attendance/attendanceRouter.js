@@ -67,7 +67,7 @@ attendanceRouter.get(
 // Check-In Endpoint
 attendanceRouter.get(
   "/get-check-in-by-date",
-  authenticateToken,
+  // authenticateToken,
   getCheckInByDate,
 );
 
