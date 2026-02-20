@@ -36,6 +36,7 @@ import { sendNotificationWithImage } from "./oneSignal.controller.js";
 import oneSignalModel from "../model/oneSignal.model.js";
 import { FlatOccupancyChange } from "../routes/ourProject/flatRouter.js";
 import { ParkingOccupancyChange } from "../routes/ourProject/parkingRouter.js";
+import flatModel from "../model/flat.model.js";
 
 export const getPostSaleLeads = async (req, res, next) => {
   try {
@@ -1077,16 +1078,18 @@ export const addPostSaleLead = async (req, res, next) => {
     const findProject = await ourProjectModel.findById(project);
 
     if (findProject) {
-      const findExisintFlat = findProject.flatList.find(
-        (ele) =>
-          ele.floor === floor &&
-          ele.number === number &&
-          ele.buildingNo === buildingNo &&
-          ele.occupied === true,
-      );
-      if (findExisintFlat) {
-        return res.send(
-          errorRes(401, `Flat ${findExisintFlat.flatNo} is Already Booked`),
+      const foundExFlat = await flatModel.findOne({
+        project: project,
+        floor: floor,
+        number: number,
+        buildingNo: buildingNo,
+        occupied: true,
+      });
+      if (foundExFlat) {
+        return errorRes2(
+          res,
+          401,
+          `Flat ${foundExFlat.flatNo} is Already Booked`,
         );
       }
     }
@@ -1121,6 +1124,7 @@ export const addPostSaleLead = async (req, res, next) => {
 
         await findTarget.save();
       } catch (error) {
+        console.log(error);
         //
       }
     }
@@ -1212,6 +1216,7 @@ export const addPostSaleLead = async (req, res, next) => {
         },
       });
     } catch (error) {
+      console.log(error);
       //
     }
 
@@ -1226,6 +1231,7 @@ export const addPostSaleLead = async (req, res, next) => {
         occupied: true,
       });
     } catch (error) {
+      console.log(error);
       //
     }
 
@@ -1245,28 +1251,31 @@ export const addPostSaleLead = async (req, res, next) => {
                 });
               }
             } catch (error) {
+              console.log(error);
               //
             }
           }),
         );
       }
     } catch (error) {
+      console.log(error);
       //
     }
 
     //uppdate at lead
+    const foundLead = await leadModelV2
+      .findOne({
+        $or: [
+          { _id: lead },
+          {
+            teamLeader: resp?.closingManager,
+            phoneNumber: phoneNumber,
+          },
+        ],
+      })
+      .populate(leadPopulateOptions);
+
     try {
-      const foundLead = await leadModelV2
-        .findOne({
-          $or: [
-            { _id: lead },
-            {
-              teamLeader: resp?.closingManager,
-              phoneNumber: phoneNumber,
-            },
-          ],
-        })
-        .populate(leadPopulateOptions);
       try {
         await leadModelV2.findByIdAndUpdate(foundLead?._id, {
           $set: {
@@ -1278,9 +1287,11 @@ export const addPostSaleLead = async (req, res, next) => {
           },
         });
       } catch (error) {
+        console.log(error);
         //
       }
     } catch (error) {
+      console.log(error);
       //
     }
     // TODO: email commented for testing
@@ -1336,6 +1347,7 @@ export const addPostSaleLead = async (req, res, next) => {
       );
       // await sendEmail("aktarul.evgroup@gmail.com","Congratulations there has been a new booking in Nine Square by Deepak Karki.","");
     } catch (error) {
+      console.log(error);
       //
     }
 
@@ -1345,6 +1357,7 @@ export const addPostSaleLead = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    console.log(error);
     return next(error);
   }
 };
