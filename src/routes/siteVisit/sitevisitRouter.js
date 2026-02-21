@@ -57,7 +57,7 @@ siteVisitRouter.post(
 siteVisitRouter.post("/siteVisits-add", authenticateToken, addSiteVisits);
 siteVisitRouter.post(
   "/site-visit-add-v2",
-  // authenticateToken,
+  authenticateToken,
   addSiteVisitV2,
 );
 //ok
