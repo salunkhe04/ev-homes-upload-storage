@@ -1286,6 +1286,10 @@ export const siteVisitPopulateOptions = [
     path: "approveBy",
     select: "firstName lastName",
   },
+    {
+    path: "entryBy",
+    select: "firstName lastName",
+  },
 ];
 
 export const taskPopulateOptions = [
