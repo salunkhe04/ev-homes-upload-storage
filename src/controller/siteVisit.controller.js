@@ -1882,61 +1882,61 @@ export const generateSiteVisitOtp = async (req, res, next) => {
       } ${user?.lastName}&otp=${findOldOtp.otp}`;
       console.log(url);
       try {
-              const resp = await axios.post(url);
-      if (email && email != "noemailprovided2026625@gmail.com") {
-        try {
-          await sendMultipleEmail(
-            [email],
-            `Welcome to EV Homes – Please Confirm Your Visit`,
-            siteVisitOtpTempleteV3({
-              name: `${firstName} ${lastName}`,
-              otp: findOldOtp.otp,
-              location: getProjectWebhook?.name,
-              imageUrl: getProjectWebhook?.showCaseImage,
-            }),
-            [],
-          );
+        const resp = await axios.post(url);
+        if (email && email != "noemailprovided2026625@gmail.com") {
           try {
-            //ninesq= 13/ 10mb = 5/
-            if (
-              getProjectWebhook?._id === "project-ev-9-square-vashi-sector-9" &&
-              email
-            ) {
-              // console.log("entered 9 square");
-              await addContact({
-                listIds: [13],
-                email: email,
-                firstName: firstName,
-                lastName: lastName,
-                phoneNumber: `+91${phoneNumber}`,
-              });
-            }
-            if (
-              getProjectWebhook?._id ===
-                "project-ev-10-marina-bay-vashi-sector-10" &&
-              email
-            ) {
-              // console.log("entered 10 marina");
+            await sendMultipleEmail(
+              [email],
+              `Welcome to EV Homes – Please Confirm Your Visit`,
+              siteVisitOtpTempleteV3({
+                name: `${firstName} ${lastName}`,
+                otp: findOldOtp.otp,
+                location: getProjectWebhook?.name,
+                imageUrl: getProjectWebhook?.showCaseImage,
+              }),
+              [],
+            );
+            try {
+              //ninesq= 13/ 10mb = 5/
+              if (
+                getProjectWebhook?._id ===
+                  "project-ev-9-square-vashi-sector-9" &&
+                email
+              ) {
+                // console.log("entered 9 square");
+                await addContact({
+                  listIds: [13],
+                  email: email,
+                  firstName: firstName,
+                  lastName: lastName,
+                  phoneNumber: `+91${phoneNumber}`,
+                });
+              }
+              if (
+                getProjectWebhook?._id ===
+                  "project-ev-10-marina-bay-vashi-sector-10" &&
+                email
+              ) {
+                // console.log("entered 10 marina");
 
-              await addContact({
-                listIds: [5],
-                email: email,
-                firstName: firstName,
-                lastName: lastName,
-                phoneNumber: `+91${phoneNumber}`,
-              });
+                await addContact({
+                  listIds: [5],
+                  email: email,
+                  firstName: firstName,
+                  lastName: lastName,
+                  phoneNumber: `+91${phoneNumber}`,
+                });
+              }
+            } catch (error) {
+              //
+              console.log(error);
             }
           } catch (error) {
-            //
             console.log(error);
           }
-        } catch (error) {
-          console.log(error);
         }
-      }
-
       } catch (error) {
-        // 
+        //
         console.log(error);
       }
       // console.log(resp);
@@ -1965,30 +1965,28 @@ export const generateSiteVisitOtp = async (req, res, next) => {
     } ${user?.lastName}&otp=${newOtp}`;
 
     try {
-          const resp = await axios.post(url);
-    // console.log(resp);
-    if (email && email != "noemailprovided2026625@gmail.com") {
-      try {
-        await sendMultipleEmail(
-          [email],
-          `Welcome to EV Homes – Please Confirm Your Visit`,
-          siteVisitOtpTempleteV2({
-            name: `${firstName} ${lastName}`,
-            otp: newOtp,
-            location: getProjectWebhook?.name,
-            imageUrl: getProjectWebhook?.showCaseImage,
-          }),
-          [],
-        );
-      } catch (error) {
-        console.log(error);
+      const resp = await axios.post(url);
+      // console.log(resp);
+      if (email && email != "noemailprovided2026625@gmail.com") {
+        try {
+          await sendMultipleEmail(
+            [email],
+            `Welcome to EV Homes – Please Confirm Your Visit`,
+            siteVisitOtpTempleteV2({
+              name: `${firstName} ${lastName}`,
+              otp: newOtp,
+              location: getProjectWebhook?.name,
+              imageUrl: getProjectWebhook?.showCaseImage,
+            }),
+            [],
+          );
+        } catch (error) {
+          console.log(error);
+        }
       }
-    }
-
     } catch (error) {
       console.log(error);
     }
-
 
     return res.send(
       successRes(200, "otp Sent to Client", {
@@ -4022,6 +4020,56 @@ export const getCpFeedbackPendingVisits = async () => {
   } catch (error) {
     console.error("Error in getCpFeedbackPendingVisits:", error);
     return null;
+  }
+};
+
+export const geSiteVisitStartEndDate = async (req, res) => {
+  const { startDate, endDate, teamLeader, visitType, source, channelPartner } =
+    req.body;
+
+  try {
+    if (!startDate || !endDate)
+      return res.send(errorRes(401, "start & end date required"));
+
+    const start = moment(startDate).tz("Asia/Kolkata").startOf("day");
+    const end = moment(endDate).tz("Asia/Kolkata").endOf("day");
+
+    // Status filter
+    let statusToFind = {};
+
+    if (source) {
+      statusToFind = { ...statusToFind, source: source };
+    }
+
+    if (visitType) {
+      statusToFind = { ...statusToFind, visitType: visitType };
+    }
+
+    // Team leader filter
+    if (teamLeader) {
+      statusToFind = { ...statusToFind, closingManager: teamLeader };
+    }
+
+    if (channelPartner) {
+      statusToFind = { ...statusToFind, channelPartner: channelPartner };
+    }
+
+    const resp = await siteVisitModel
+      .find({
+        ...statusToFind,
+        date: { $gte: start, $lte: end },
+      })
+      .sort({ startDate: -1, _id: 1 })
+      .populate(siteVisitPopulateOptions);
+
+    return res.send(
+      successRes(200, "site visit", {
+        totalItems: resp.length,
+        data: resp,
+      }),
+    );
+  } catch (error) {
+    res.send(error);
   }
 };
 

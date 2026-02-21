@@ -19,6 +19,7 @@ import {
   siteVisitApproval,
   getCpFeedbackPendingVisits,
   getSiteVisitByPermission,
+  geSiteVisitStartEndDate,
   // getCompleteMerged,
   // getSiteVisitSummaryByAttendee,
 } from "../../controller/siteVisit.controller.js";
@@ -171,6 +172,14 @@ siteVisitRouter.get("/site-visit-past-15day", async (req, res) => {
 
   return res.send(resp);
 });
+
+
+
+siteVisitRouter.post(
+  "/site-visit-by-start-end-date",
+  // authenticateToken,
+  geSiteVisitStartEndDate,
+);
 
 // siteVisitRouter.get("/site-visit-date-update-lead", async (req, res) => {
 //   try {
