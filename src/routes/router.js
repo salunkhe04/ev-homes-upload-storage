@@ -150,7 +150,7 @@ router.get("/ping", async (req, res) => {
 });
 
 router.get("/status", async (req, res) => {
-  logger.info(`${ new Date().toString()}`)
+  logger.info(`${new Date().toString()}`);
   res.json({
     code: 200,
     message: "ok",
@@ -174,6 +174,7 @@ router.get("/test-phone-num", async (req, res) => {
 
     res.json({ code: 200, message: "ok", data: resp?.data });
   } catch (error) {
+    logger.error(error);
     res.json({ code: 200, message: `${error}` });
   }
 });
@@ -315,6 +316,7 @@ router.post("/gemini-api-key", async (req, res) => {
 //     // });
 //     //
 //   } catch (error) {
+// logger.error(error);
 //     //
 //     logger.info(error);
 //   }
@@ -452,6 +454,7 @@ router.get("/email", async (req, res, next) => {
     // );
     res.send(resp);
   } catch (error) {
+    logger.error(error);
     next(error);
   }
 });
@@ -473,6 +476,7 @@ router.post("/hashPassword", async (req, res, next) => {
     const resp = await encryptPassword(password);
     res.send(resp);
   } catch (error) {
+    logger.error(error);
     next(error);
   }
 });
@@ -489,6 +493,7 @@ router.post("/test-call", async (req, res, next) => {
     });
     res.send("ok");
   } catch (error) {
+    logger.error(error);
     res.send(error);
   }
 });
@@ -501,6 +506,7 @@ router.get("/app-update", async (req, res, next) => {
     if (!resp) return errorRes2(res, 404, "No App found");
     return successRes2(res, 200, "app found", { data: resp });
   } catch (error) {
+    logger.error(error);
     //
     return errorRes2(res, 500, `${error}`);
   }
@@ -514,6 +520,7 @@ router.post("/app-update", async (req, res, next) => {
     if (!resp) return errorRes2(res, 404, "No App found");
     return successRes2(res, 200, "app found", { data: resp });
   } catch (error) {
+    logger.error(error);
     //
     return errorRes2(res, 500, `${error}`);
   }
@@ -534,6 +541,7 @@ router.post("/add-visit-count-ranking", async (req, res, next) => {
     if (!resp) return errorRes2(res, 404, "No App found");
     return successRes2(res, 200, "app found", { data: resp });
   } catch (error) {
+    logger.error(error);
     //
     return errorRes2(res, 500, `${error}`);
   }
@@ -569,7 +577,7 @@ router.post("/sync-test-easy-leadz", async (req, res, next) => {
         });
         // logger.info(`✅ Called API for ${ele.phoneNumber}`);
       } catch (error) {
-        console.error(`❌ Error for ${ele.phoneNumber}:`, error.message);
+        logger.error(`❌ Error for ${ele.phoneNumber}:`, error.message);
       }
       // to check
       // wait for 5 seconds before the next call
@@ -580,7 +588,7 @@ router.post("/sync-test-easy-leadz", async (req, res, next) => {
       count: resp.length,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return errorRes2(res, 500, `${error}`);
   }
 });
@@ -634,6 +642,7 @@ router.get("/sync-visit-rank", async (req, res, next) => {
       data: avlsVist,
     });
   } catch (error) {
+    logger.error(error);
     //
     return errorRes2(res, 500, `${error?.message || error}`);
   }
@@ -674,6 +683,7 @@ router.get("/find-no-lead-visits", async (req, res, next) => {
       data: leadsNotFound,
     });
   } catch (error) {
+    logger.error(error);
     //
     return errorRes2(res, 200, `${error?.message || error}`);
   }
@@ -797,6 +807,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
       data: needToRemove,
     });
   } catch (error) {
+    logger.error(error);
     return errorRes2(res, 500, `${error}`);
   }
 });
@@ -908,6 +919,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
 //       data: needToRemove,
 //     });
 //   } catch (error) {
+// logger.error(error);
 //     //
 
 //     return errorRes2(res, 500, `${error}`);

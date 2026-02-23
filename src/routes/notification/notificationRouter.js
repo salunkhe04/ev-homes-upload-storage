@@ -55,6 +55,7 @@ notifyRouter.post("/send-notification", async (req, res, next) => {
     }
     return res.send(successRes(200, "Notification sent"));
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 });
@@ -92,6 +93,7 @@ notifyRouter.post("/send-notification-to-cp", async (req, res, next) => {
     }
     return res.send(successRes(200, "Notification sent"));
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 });
@@ -146,6 +148,7 @@ notifyRouter.post("/send-notication-from-cp/:id", async (req, res, next) => {
     }
     return res.send(successRes(200, "Notification sent"));
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 });
@@ -195,6 +198,7 @@ notifyRouter.post("/send-notification-doc-id/:id", async (req, res, next) => {
     }
     return res.send(successRes(200, "Notification sent"));
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 });
@@ -236,64 +240,64 @@ notifyRouter.post(
       }
       return res.send(successRes(200, "Notification sent"));
     } catch (error) {
+      logger.error(error);
       return next(error);
     }
-  }
+  },
 );
 
+notifyRouter.post(
+  "/send-payment-notification-doc-id/:id",
+  async (req, res, next) => {
+    const {
+      title,
+      message = "payment",
+      image,
+      templateName,
+      leadRef,
+      data: bData,
+    } = req.body;
+    const id = req.params.id;
 
-
-
-notifyRouter.post("/send-payment-notification-doc-id/:id", async (req, res, next) => {
-  const {
-    title,
-    message = "payment",
-    image,
-    templateName,
-    leadRef,
-    data: bData,
-  } = req.body;
-  const id = req.params.id;
-
-  try {
-    // logger.info(id);
-    // logger.info(req.body);
-    const foundTLPlayerId = await oneSignalModel.find({
-      docId: { $in: [id] },
-    });
-    // logger.info("passed note 5 ");
-
-    if (foundTLPlayerId.length > 0) {
-      // logger.info(foundTLPlayerId);
-      const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
-
-      // await sendSilentNotification({
-      //   playerIds: getPlayerIds,
-      //   data: {
-      //     type: "silent",
-      //     foo: "bar",
-      //   },
-      // });
-
-      await sendNotificationWithImage({
-        playerIds: getPlayerIds,
-        title: title,
-        imageUrl:
-          image ?? "https://cdn-icons-png.flaticon.com/512/12210/12210154.png",
-        message: message,
-        android_channel_id: "payment_notification",
-        data: {
-          type: "idk",
-        },
+    try {
+      // logger.info(id);
+      // logger.info(req.body);
+      const foundTLPlayerId = await oneSignalModel.find({
+        docId: { $in: [id] },
       });
+      // logger.info("passed note 5 ");
+
+      if (foundTLPlayerId.length > 0) {
+        // logger.info(foundTLPlayerId);
+        const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
+
+        // await sendSilentNotification({
+        //   playerIds: getPlayerIds,
+        //   data: {
+        //     type: "silent",
+        //     foo: "bar",
+        //   },
+        // });
+
+        await sendNotificationWithImage({
+          playerIds: getPlayerIds,
+          title: title,
+          imageUrl:
+            image ??
+            "https://cdn-icons-png.flaticon.com/512/12210/12210154.png",
+          message: message,
+          android_channel_id: "payment_notification",
+          data: {
+            type: "idk",
+          },
+        });
+      }
+      return res.send(successRes(200, "Notification sent"));
+    } catch (error) {
+      logger.error(error);
+      return next(error);
     }
-    return res.send(successRes(200, "Notification sent"));
-  } catch (error) {
-    return next(error);
-  }
-});
-
-
-
+  },
+);
 
 export default notifyRouter;

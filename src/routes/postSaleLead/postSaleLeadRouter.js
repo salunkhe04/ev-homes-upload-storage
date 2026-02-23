@@ -267,6 +267,7 @@ postSaleRouter.get(
         },
       });
     } catch (error) {
+      logger.error(error);
       //
       return errorRes2(res, 500, `${error}`);
     }
@@ -427,6 +428,7 @@ postSaleRouter.get(
         },
       });
     } catch (error) {
+      logger.error(error);
       //
       return errorRes2(res, 500, `${error}`);
     }
@@ -467,7 +469,7 @@ postSaleRouter.get("/postsale-lead-by-unit", async (req, res) => {
       data: client,
     });
   } catch (error) {
-    console.error("Error fetching client by unit:", error);
+    logger.error("Error fetching client by unit:", error);
     return errorRes2(res, 500, `${error}`);
   }
 });
@@ -496,6 +498,7 @@ postSaleRouter.get("/postsale-fix-docs", async (req, res) => {
           });
           await ele.save();
         } catch (error) {
+          logger.error(error);
           //
         }
       }),
@@ -505,7 +508,7 @@ postSaleRouter.get("/postsale-fix-docs", async (req, res) => {
       data: clients,
     });
   } catch (error) {
-    console.error("Error fetching client by unit:", error);
+    logger.error("Error fetching client by unit:", error);
     return errorRes2(res, 500, `${error}`);
   }
 });
@@ -545,7 +548,7 @@ postSaleRouter.get("/postsale-fixed-area", async (req, res) => {
       data: client,
     });
   } catch (error) {
-    console.error("Error fetching client by unit:", error);
+    logger.error("Error fetching client by unit:", error);
     return errorRes2(res, 500, `${error}`);
   }
 });

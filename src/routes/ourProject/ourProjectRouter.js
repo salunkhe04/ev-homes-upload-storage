@@ -136,7 +136,7 @@ ourProjectRouter.get(
         });
       });
     } catch (error) {
-      console.error("Error exporting data:", error);
+      logger.error("Error exporting data:", error);
       res.status(500).send("Error exporting data.");
     }
   },
@@ -187,7 +187,7 @@ ourProjectRouter.get(
         });
       });
     } catch (error) {
-      console.error("Error exporting data:", error);
+      logger.error("Error exporting data:", error);
       res.status(500).send("Error exporting data.");
     }
   },
@@ -266,7 +266,7 @@ ourProjectRouter.post(
         total: updatedFlatsMap.size,
       });
     } catch (error) {
-      console.error("Error updating flat list:", error);
+      logger.error("Error updating flat list:", error);
       res.status(500).send("Internal server error");
     }
   },
@@ -353,7 +353,7 @@ ourProjectRouter.post(
         totalUpdated: updatedCount,
       });
     } catch (error) {
-      console.error("Error updating flat list from CSV:", error);
+      logger.error("Error updating flat list from CSV:", error);
       res.status(500).send("Internal server error");
     }
   },
@@ -382,7 +382,7 @@ ourProjectRouter.post(
 
       res.json({ message: "Building numbers updated", data: resp2 });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       res.status(500).json({ message: "Server error" });
     }
   },
@@ -405,6 +405,7 @@ ourProjectRouter.post("/project-heart-fix-bldg", async (req, res) => {
     await projectResp.save();
     res.send("ok");
   } catch (error) {
+    logger.error(error);
     //
     res.send(error);
   }
@@ -421,6 +422,7 @@ ourProjectRouter.post("/project-updates-flat-list-sort", async (req, res) => {
     await projectResp.save();
     res.send("ok");
   } catch (error) {
+    logger.error(error);
     res.send(error);
     //
   }
@@ -797,13 +799,7 @@ ourProjectRouter.post(
         .on("end", async () => {
           // Collect only the required fields from CSV
           for (const row of results) {
-            const {
-              flatNo,
-              carpetArea,
-              saleArea,
-              flatCost,
-              floor,
-            } = row;
+            const { flatNo, carpetArea, saleArea, flatCost, floor } = row;
 
             let number = parseInt(flatNo) % 100;
             dataToPush.push({
@@ -814,7 +810,7 @@ ourProjectRouter.post(
               usableCarpetArea: carpetArea,
               allInclusiveValue: flatCost,
               sellableCarpetArea: saleArea,
-              occupied:  false,
+              occupied: false,
             });
           }
 
@@ -836,8 +832,8 @@ ourProjectRouter.post(
                   { upsert: true },
                 );
               } catch (error) {
+                logger.error(error);
                 //
-                logger.info(error);
               }
             }),
           );

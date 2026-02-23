@@ -35,13 +35,13 @@ taskRouter.get(
   "/task/:id",
 
   // authenticateToken,
-  getTask
+  getTask,
 );
 taskRouter.get(
   "/task-page/:id",
   // authenticateToken,
 
-  getTaskPage
+  getTaskPage,
 );
 
 taskRouter.get("/task-reminders/:id", authenticateToken, getTaskReminders);
@@ -51,7 +51,7 @@ taskRouter.get("/task-team/:id", authenticateToken, getTaskTeam);
 taskRouter.get(
   "/task-team-pagination/:id",
   authenticateToken,
-  getTaskTeamPagination
+  getTaskTeamPagination,
 );
 
 taskRouter.post("/assign-task/:id", authenticateToken, assignTask);
@@ -60,13 +60,13 @@ taskRouter.post("/transfer-multiple-task/:id", transferMultipleTasks);
 taskRouter.post(
   "/assign-multiple-task/:id",
   authenticateToken,
-  assignMultipleTask
+  assignMultipleTask,
 );
 taskRouter.post("/update-task/:id", authenticateToken, updateTask);
 taskRouter.post(
   "/update-task-reminder/:id",
   authenticateToken,
-  updateTaskReminder
+  updateTaskReminder,
 );
 
 taskRouter.post("/update-feedback", authenticateToken, updateFeedback);
@@ -74,20 +74,20 @@ taskRouter.post("/update-feedback", authenticateToken, updateFeedback);
 taskRouter.post(
   "/update-feedback-v2",
   authenticateToken,
-  updateFeedbackWithTimer
+  updateFeedbackWithTimer,
 );
 
 taskRouter.post(
   "/update-feedback-timer-v2",
   authenticateToken,
-  updateFeedbackWithTimer
+  updateFeedbackWithTimer,
 );
 taskRouter.get(
   "/leads-timer",
 
   authenticateToken,
 
-  getLeadsTimer
+  getLeadsTimer,
 );
 
 taskRouter.post("/dem-task", async (req, res) => {
@@ -97,7 +97,7 @@ taskRouter.post("/dem-task", async (req, res) => {
       .populate(taskReminderPopulateOptions);
 
     const filteredTasks = resp.filter(
-      (ele) => ele._id?.toString() === ele?.lead?.taskRef?.toString()
+      (ele) => ele._id?.toString() === ele?.lead?.taskRef?.toString(),
     );
 
     // await Promise.all(
@@ -112,6 +112,7 @@ taskRouter.post("/dem-task", async (req, res) => {
     //       });
     //       logger.info(`success ${i}`);
     //     } catch (error) {
+    // logger.error(error);
     //       logger.info(error);
     //     }
     //   })
@@ -120,6 +121,7 @@ taskRouter.post("/dem-task", async (req, res) => {
       data: filteredTasks.length,
     });
   } catch (error) {
+    logger.error(error);
     res.send(error);
   }
 });
@@ -147,9 +149,9 @@ taskRouter.get("/task-fixica", async (req, res) => {
             $set: {
               taskRef: null,
             },
-          }
+          },
         );
-      })
+      }),
     );
 
     // await Promise.all(
@@ -177,6 +179,7 @@ taskRouter.get("/task-fixica", async (req, res) => {
     // res.attachment("hemant_tasks.csv");
     return res.send(resp);
   } catch (error) {
+    logger.error(error);
     res.status(500).send(error);
   }
 });
@@ -214,9 +217,10 @@ taskRouter.post("/task-remindeDueFix", async (req, res) => {
           },
         });
       } catch (error) {
+        logger.error(error);
         //
       }
-    })
+    }),
   );
 
   res.send("ok");
@@ -225,12 +229,12 @@ taskRouter.post("/task-remindeDueFix", async (req, res) => {
 taskRouter.get(
   "/task-reminder-all-paginated/:id",
   // authenticateToken,
-  getTaskTeamReminderPaginated
+  getTaskTeamReminderPaginated,
 );
 taskRouter.get(
   "/my-task-reminder-paginated/:id",
   // authenticateToken,
-  getTaskMyReminderPaginated
+  getTaskMyReminderPaginated,
 );
 
 taskRouter.post("/task-mismatch-fix", async (req, res) => {
@@ -273,9 +277,10 @@ taskRouter.post("/task-mismatch-fix", async (req, res) => {
         //   },
         // });
       } catch (error) {
+        logger.error(error);
         //
       }
-    })
+    }),
   );
 
   res.send({

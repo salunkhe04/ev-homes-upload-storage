@@ -54,7 +54,7 @@ flatRouter.get("/get-flats", async (req, res) => {
 
     return successRes2(res, 200, `Flat fetched`, { data: flats });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return errorRes2(res, 500, " server error ");
   }
 });
@@ -84,7 +84,7 @@ flatRouter.post("/flat-update/:id", async (req, res) => {
       }),
     );
   } catch (error) {
-    // logger.info(error);
+    logger.error(error);
     return errorRes2(res, 500, " server error ");
   }
 });
@@ -127,7 +127,7 @@ flatRouter.post("/add-new-flat/:id", async (req, res) => {
       }),
     );
   } catch (error) {
-    // logger.info(error);
+    logger.error(error);
     return errorRes2(res, 500, " server error ");
   }
 });
@@ -170,7 +170,7 @@ flatRouter.get("/project-occupied-count/:id", async (req, res) => {
       totalFlats: project.flatList.length,
     });
   } catch (error) {
-    console.error("Error fetching occupied flats:", error);
+    logger.error("Error fetching occupied flats:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
@@ -204,6 +204,7 @@ export const FlatOccupancyChange = async ({
 
     return updated;
   } catch (error) {
+    logger.error(error);
     //
     return null;
   }
