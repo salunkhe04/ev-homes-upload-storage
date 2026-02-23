@@ -68,7 +68,7 @@ export const leadCycleTriggerV4 = async () => {
       allCycleExpiredLeads.forEach((entry) => {
         // current TL Index
         const lastIndex = teamLeaders.findIndex(
-          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString()
+          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString(),
         );
         const cCycle = { ...entry.cycle };
         const previousCycle = { ...cCycle };
@@ -154,7 +154,7 @@ export const leadCycleTriggerV4 = async () => {
     };
   } catch (error) {
     //
-    console.error("Error updating cycles:", error);
+    logger.error("Error updating cycles:", error);
     throw new Error("Internal Server Error");
   }
 };
@@ -208,7 +208,7 @@ export const internalLeadCycleTrigger = async () => {
       allCycleExpiredLeads.forEach((entry) => {
         // current TL Index
         const lastIndex = teamLeaders.findIndex(
-          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString()
+          (ele) => ele?._id.toString() === entry?.cycle?.teamLeader?.toString(),
         );
         const cCycle = { ...entry.cycle };
         const previousCycle = { ...cCycle };
@@ -234,7 +234,7 @@ export const internalLeadCycleTrigger = async () => {
         cCycle.validTill = validTill;
         cCycle.internalDeadline = moment(cCycle.internalDeadline).add(
           3,
-          "days"
+          "days",
         );
         // final ops
         bulkOperations.push({
@@ -276,7 +276,7 @@ export const internalLeadCycleTrigger = async () => {
     };
   } catch (error) {
     //
-    console.error("Error updating cycles:", error);
+    logger.error("Error updating cycles:", error);
     throw new Error("Internal Server Error");
   }
 };
@@ -374,7 +374,7 @@ export const leadCycleChange_600_from_March_01_2025 = async () => {
             });
           });
         }
-      })
+      }),
     );
     if (bulkOperations.length > 0) {
       const bulkResult = await leadModelV2.bulkWrite(bulkOperations);
@@ -402,7 +402,7 @@ export const leadCycleChange_600_from_March_01_2025 = async () => {
     };
   } catch (error) {
     //
-    console.error("Error updating cycles:", error);
+    logger.error("Error updating cycles:", error);
     throw new Error("Internal Server Error");
   }
 };
@@ -425,6 +425,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
   try {
     await fs.promises.access(csvFilePath, fs.constants.R_OK);
   } catch (err) {
+    logger.error(err);
     throw new Error("CSV file not found");
   }
 
@@ -454,9 +455,9 @@ export const bulk_cp_lead_trigger_35 = async () => {
       (
         await leadModelV2.find(
           { phoneNumber: { $in: allPhones } },
-          { phoneNumber: 1 }
+          { phoneNumber: 1 },
         )
-      ).map((d) => d.phoneNumber)
+      ).map((d) => d.phoneNumber),
     );
 
     const timeZone = "Asia/Kolkata";
@@ -502,7 +503,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
                 data: {},
               });
             } catch (err) {
-              logger.info("sendNotificationWithImage error:", err);
+              logger.error("sendNotificationWithImage error:", err);
             }
           }
         }
@@ -519,7 +520,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
               title: `You've got a new Lead`,
               message: `A lead assigned to your team is waiting. Please check and act.`,
             },
-            { delay: delayMs }
+            { delay: delayMs },
           );
 
           // If you wanted multiple reminders uncomment & adjust below:
@@ -535,7 +536,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
           // }
         }
       } catch (err) {
-        logger.info("per-TL notification error for", tl, err);
+        logger.error("per-TL notification error for", tl, err);
       }
     }
 
@@ -597,7 +598,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
 
     return { dataToPush };
   } catch (err) {
-    console.error("bulk_cp_lead_trigger_35 error:", err);
+    logger.error("bulk_cp_lead_trigger_35 error:", err);
     throw err;
   }
 };

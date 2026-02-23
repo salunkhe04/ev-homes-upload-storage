@@ -7,7 +7,7 @@ export const registerSocketEvents = (io, socket, connectedUsers) => {
     // logger.info("User connected data:", data);
 
     let foundUserIndex = connectedUsers.findIndex(
-      (ele) => ele?.userId === data?.userId
+      (ele) => ele?.userId === data?.userId,
     );
 
     if (foundUserIndex !== -1) {
@@ -70,6 +70,7 @@ export const registerSocketEvents = (io, socket, connectedUsers) => {
       //   ...data,
       // });
     } catch (error) {
+      logger.error(error);
       // console.error("Error processing locationUpdate:", error);
     }
   });
@@ -78,7 +79,7 @@ export const registerSocketEvents = (io, socket, connectedUsers) => {
     // logger.info(`User disconnected: ${socket.id}`);
     let foundUserIndex = connectedUsers.findIndex(
       (ele) =>
-        ele?.phoneSocketId === socket.id || ele?.webSocketId === socket.id
+        ele?.phoneSocketId === socket.id || ele?.webSocketId === socket.id,
     );
 
     if (foundUserIndex !== -1) {
@@ -91,11 +92,11 @@ export const registerSocketEvents = (io, socket, connectedUsers) => {
 
       io.to(connectedUsers[foundUserIndex]?.webSocketId).emit(
         "onChangeUserInfo",
-        connectedUsers[foundUserIndex]
+        connectedUsers[foundUserIndex],
       );
       io.to(connectedUsers[foundUserIndex]?.phoneSocketId).emit(
         "onChangeUserInfo",
-        connectedUsers[foundUserIndex]
+        connectedUsers[foundUserIndex],
       );
     }
 

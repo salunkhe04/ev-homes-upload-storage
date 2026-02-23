@@ -265,12 +265,11 @@ trackerRouter.get("/timeline/work-duration/:userId", async (req, res) => {
   });
 
   return successRes2(res, 200, "state duration summary", {
-    data:{
+    data: {
       ...defaultStates,
-    }
+    },
   });
 });
-
 
 trackerRouter.get("/get-time-tracker-config/:id", async (req, res) => {
   const id = req.params.id;
@@ -293,6 +292,7 @@ trackerRouter.get("/get-time-tracker-config/:id", async (req, res) => {
       data: foundEntry,
     });
   } catch (error) {
+    logger.error(error);
     return errorRes2(res, 500, `${error}`);
   }
 });
@@ -331,6 +331,7 @@ trackerRouter.post("/update-time-tracker-config/:id", async (req, res) => {
       data: foundEntry,
     });
   } catch (error) {
+    logger.error(error);
     return errorRes2(res, 500, `${error}`);
   }
 });
