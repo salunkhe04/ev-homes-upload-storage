@@ -5,6 +5,7 @@ import attendanceModel from "../model/attendance/attendance.model.js";
 import { errorRes, successRes, successRes2 } from "../model/response.js";
 import { reimbursementPopulateOptions } from "../utils/constant.js";
 import moment from "moment";
+import logger from "../utils/logger.js";
 
 export const getReimbursement = async (req, res, next) => {
   const { applyBy, reportingto, reimbursementStatus, type, paidBy } = req.query;
@@ -135,10 +136,10 @@ export const getReimbursement = async (req, res, next) => {
     return res.send(
       successRes(200, "Reimbursement records retrieved", {
         data: reimbursementRecords,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error retrieving Reimbursement:", error);
+    logger.error("Error retrieving Reimbursement:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -223,10 +224,10 @@ export const addReimbursement = async (req, res, next) => {
     return res.send(
       successRes(200, "Reimbursement added", {
         data: newReimbursement,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error adding regularization:", error);
+    logger.error("Error adding regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -248,13 +249,13 @@ export const getMyReimbursement = async (req, res, next) => {
       return res.send(errorRes(404, "No Reimbursement records found"));
     }
     const approvedList = weekoffs.filter(
-      (ele) => ele.reimbursementStatus === "approved"
+      (ele) => ele.reimbursementStatus === "approved",
     );
     const rejectedList = weekoffs.filter(
-      (ele) => ele.reimbursementStatus === "rejected"
+      (ele) => ele.reimbursementStatus === "rejected",
     );
     const pendingList = weekoffs.filter(
-      (ele) => ele.reimbursementStatus === "pending"
+      (ele) => ele.reimbursementStatus === "pending",
     );
 
     return res.send(
@@ -263,10 +264,10 @@ export const getMyReimbursement = async (req, res, next) => {
         approvedList,
         pendingList,
         rejectedList,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error retrieving Reimbursement:", error);
+    logger.error("Error retrieving Reimbursement:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -288,13 +289,13 @@ export const getReportingToReimbursement = async (req, res, next) => {
       return res.send(errorRes(404, "No Reimbursement Off records found"));
     }
     const approvedList = weekoffs.filter(
-      (ele) => ele.reimbursementStatus === "approved"
+      (ele) => ele.reimbursementStatus === "approved",
     );
     const rejectedList = weekoffs.filter(
-      (ele) => ele.reimbursementStatus === "rejected"
+      (ele) => ele.reimbursementStatus === "rejected",
     );
     const pendingList = weekoffs.filter(
-      (ele) => ele.reimbursementStatus === "pending"
+      (ele) => ele.reimbursementStatus === "pending",
     );
 
     return res.send(
@@ -303,10 +304,10 @@ export const getReportingToReimbursement = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error retrieving week offs:", error);
+    logger.error("Error retrieving week offs:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -323,9 +324,11 @@ export const getReimbursementById = async (req, res, next) => {
     return res.send(
       successRes(200, "get Reimbursement", {
         data: weekoff,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -373,10 +376,10 @@ export const updateReimbursementStatus = async (req, res) => {
     return res.send(
       successRes(200, "reimbursement status updated successfully", {
         data: weekoff,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error updating reimbursement status:", error);
+    logger.error("Error updating reimbursement status:", error);
     return res.status(500).send({
       success: false,
       message: "Internal Server Error",
@@ -399,7 +402,7 @@ export const onRejectOrApproveReimbursement = async (req, res, next) => {
 
     // Find the current step that is pending for this admin
     const step = weekoffResp.approvalSteps.find(
-      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending"
+      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending",
     );
 
     if (!step)
@@ -413,7 +416,7 @@ export const onRejectOrApproveReimbursement = async (req, res, next) => {
 
     if (status === "approved") {
       let nextStep = weekoffResp.approvalSteps.find(
-        (s) => s.level === step.level + 1
+        (s) => s.level === step.level + 1,
       );
       // Auto-approve if next step has the same admin
       while (nextStep && nextStep?.adminId?._id.toString() === adminId) {
@@ -423,7 +426,7 @@ export const onRejectOrApproveReimbursement = async (req, res, next) => {
         nextStep.remark = remark;
         weekoffResp.currentLevel = nextStep.level;
         nextStep = weekoffResp.approvalSteps.find(
-          (s) => s.level === weekoffResp.currentLevel + 1
+          (s) => s.level === weekoffResp.currentLevel + 1,
         );
       }
 
@@ -443,6 +446,8 @@ export const onRejectOrApproveReimbursement = async (req, res, next) => {
     // logger.info(weekoffResp);
     return successRes2(res, 200, `Request ${status}`, { data: weekoffResp });
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `${error.message}`));
   }
 };
@@ -458,9 +463,11 @@ export const deleteReimbursement = async (req, res) => {
     return res.send(
       successRes(200, `Reimbursement deleted successfully`, {
         deleteReimbursement,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };

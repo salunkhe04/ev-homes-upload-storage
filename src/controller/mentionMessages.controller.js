@@ -18,7 +18,8 @@ export const createMessage = async (leadId, message, taggedEmployees) => {
 
     return { success: true, message: "Message created." };
   } catch (error) {
-    console.error("Error creating message:", error);
+    logger.error(error);
+
     throw new Error("Failed to create message.");
   }
 };
@@ -33,7 +34,8 @@ export const getMessagesForLead = async (leadId) => {
 
     return messages;
   } catch (error) {
-    console.error("Error retrieving messages:", error);
+    logger.error(error);
+
     throw new Error("Failed to retrieve messages.");
   }
 };
@@ -52,7 +54,8 @@ export const markMessageAsSeenFunc = async (messageId, employeeId) => {
     await foundMessage.save();
     return { success: true, message: "Message marked as seen." };
   } catch (error) {
-    console.error("Error marking message as seen:", error);
+    logger.error(error);
+
     throw new Error("Failed to mark message as seen.");
   }
 };
@@ -74,6 +77,8 @@ export const getMentionedMessages = async (req, res) => {
       data: resp,
     });
   } catch (error) {
+    logger.error(error);
+
     //
     return errorRes2(500, "server error");
   }
@@ -140,11 +145,15 @@ export const createNewMessage = async (req, res) => {
 
       //
     } catch (error) {
+    logger.error(error);
+
       //
     }
 
     return successRes2(res, 200, "new message added", { data: updatedMessage });
   } catch (error) {
+    logger.error(error);
+
     // logger.info(error);
     //
     return errorRes2(res, 500, "server error");
@@ -187,6 +196,8 @@ export const markMessageAsSeen = async (req, res) => {
 
     return res.send(successRes(200, "ok", { data: updatedDoc }));
   } catch (error) {
+    logger.error(error);
+
     return errorRes2(res, 500, "server error");
   }
 };
@@ -253,7 +264,8 @@ export const markAllMessagesAsSeen = async (req, res) => {
       data: updatedList,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
+
     return errorRes2(res, 500, "Server error");
   }
 };
