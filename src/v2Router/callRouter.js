@@ -67,6 +67,8 @@ callRouter.get(
       return successRes2(res, 200, "count", resp.data);
     } catch (error) {
       //
+      logger.error(error);
+
       return errorRes2(
         res,
         error?.response?.data?.code || 500,

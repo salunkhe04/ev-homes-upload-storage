@@ -52,6 +52,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
         });
         await siteVisitModel.findByIdAndDelete(id);
       } catch (error) {
+        logger.error(error);
         //
       }
       return successRes2(res, 200, "Visit Rejected", { data: updatedVisit });
@@ -146,8 +147,8 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
             await foundLead.save();
           }
         } catch (error) {
-          //
           logger.error(error);
+          //
         }
       }
     } else if (updatedVisit.visitType === "virtual-meeting") {
@@ -252,6 +253,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
           });
         }
       } catch (error) {
+        logger.error(error);
         //
       }
 
@@ -354,7 +356,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
           imageUrl: updatedVisit.location?.showCaseImage,
         }),
         attachment,
-        ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"]
+        ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"],
       );
 
       try {
@@ -388,11 +390,11 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
           });
         }
       } catch (error) {
+        logger.error(error);
         //
-        // logger.info(error);
       }
     } catch (error) {
-      logger.info(error);
+      logger.error(error);
     }
 
     return successRes2(res, 200, "", { data: "ok" });
@@ -423,13 +425,14 @@ visitRouterV2.post("/site-visit-cycle-fix", async (req, res) => {
           //   }
           // );
         } catch (error) {
+          logger.error(error);
           //
-          print(error);
         }
-      })
+      }),
     );
     res.send({ total: existVisit.length, data: existVisit });
   } catch (error) {
+    logger.error(error);
     //
     res.send({ data: error });
   }
