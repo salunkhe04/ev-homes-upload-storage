@@ -37,6 +37,7 @@ import { start } from "repl";
 import taskModel from "../model/task.model.js";
 import path from "path";
 import leadModelV2 from "../model/lead/leadV2Model.js";
+import logger from "../utils/logger.js";
 
 Date.prototype.addDays = function (days) {
   const date = new Date(this); // Copy the current date
@@ -148,7 +149,7 @@ export const getSiteVisitHistoryByPhone = async (req, res) => {
 
 // export const searchSiteVisits = async (req, res, next) => {
 //   try {
-//     console.log("entered");
+//     logger.info("entered");
 //     let query = req.query.query || "";
 //     let page = parseInt(req.query.page) || 1;
 //     let limit = parseInt(req.query.limit) || 10;
@@ -158,9 +159,9 @@ export const getSiteVisitHistoryByPhone = async (req, res) => {
 //     let date = req.query.date; // New date parameter
 
 //     let skip = (page - 1) * limit;
-//     console.log(startDate);
-//     console.log(endDate);
-//     console.log(date); // Log the date parameter
+//     logger.info(startDate);
+//     logger.info(endDate);
+//     logger.info(date); // Log the date parameter
 
 //     const isNumberQuery = !isNaN(query);
 //     let visitType = null;
@@ -175,7 +176,7 @@ export const getSiteVisitHistoryByPhone = async (req, res) => {
 //       end.setUTCHours(23, 59, 59, 999);
 
 //       dateFilter = { date: { $gte: start, $lte: end } };
-//       console.log("Applying Date Filter:", dateFilter);
+//       logger.info("Applying Date Filter:", dateFilter);
 //     }
 
 //     // New date filtering logic using if statements
@@ -204,14 +205,14 @@ export const getSiteVisitHistoryByPhone = async (req, res) => {
 //         end.setUTCHours(23, 59, 59, 999);
 //         dateFilter = { date: { $gte: start, $lte: end } };
 //       } else {
-//         console.log("Invalid date filter provided");
+//         logger.info("Invalid date filter provided");
 //       }
-//       console.log(start);
-//       console.log(end);
+//       logger.info(start);
+//       logger.info(end);
 
 //     }
 
-//     // console.log(dateFilter);
+//     // logger.info(dateFilter);
 //     if (status === "visit") {
 //       visitType = { visitType: "visit" };
 //     } else if (status === "revisit") {
@@ -269,8 +270,8 @@ export const getSiteVisitHistoryByPhone = async (req, res) => {
 //   ]
 // });
 
-//     // console.log(startOfToday);
-//     // console.log(endOfToday);
+//     // logger.info(startOfToday);
+//     // logger.info(endOfToday);
 
 //     const visit= await siteVisitModel.countDocuments({
 //       ...dateFilter,
@@ -327,7 +328,7 @@ export const getSiteVisitHistoryByPhone = async (req, res) => {
 
 export const searchSiteVisits = async (req, res, next) => {
   try {
-    // console.log("entered");
+    // logger.info("entered");
     let query = req.query.query || "";
     let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
@@ -337,9 +338,9 @@ export const searchSiteVisits = async (req, res, next) => {
     let date = req.query.date; // New date parameter
 
     let skip = (page - 1) * limit;
-    // console.log(startDate);
-    // console.log(endDate);
-    // console.log(req.query); // Log the date parameter
+    // logger.info(startDate);
+    // logger.info(endDate);
+    // logger.info(req.query); // Log the date parameter
 
     const isNumberQuery = !isNaN(query);
     let visitType = null;
@@ -377,7 +378,7 @@ export const searchSiteVisits = async (req, res, next) => {
         $gte: moment(startDate).startOf("day").toDate(),
         $lte: moment(endDate).endOf("day").toDate(),
       };
-      // console.log(JSON.stringify(dateFilter));
+      // logger.info(JSON.stringify(dateFilter));
     }
 
     // Set visitType based on status
@@ -463,8 +464,8 @@ export const searchSiteVisits = async (req, res, next) => {
         { approvalStatus: null }, // this matches actual null values
       ],
     });
-    // console.log(start);
-    // console.log(end);
+    // logger.info(start);
+    // logger.info(end);
     const cpRevisit = await siteVisitModel.countDocuments({
       ...dateFilter,
 
@@ -727,9 +728,9 @@ export const getClosingManagerSiteVisitById = async (req, res, next) => {
 
 //       dateFilter = { date: { $gte: start, $lte: end } };
 
-//       console.log("Applying Date Filter:", dateFilter.toString);
+//       logger.info("Applying Date Filter:", dateFilter.toString);
 //     }
-//     console.log(dateFilter);
+//     logger.info(dateFilter);
 
 //     if (status == "visit") {
 //       visitType = { visitType: "visit" };
@@ -935,8 +936,8 @@ export const getSiteVisitByPermission = async (req, res, next) => {
       closingManagerId = employee.reportingTo._id;
     }
 
-    //     console.log(closingManagerId);
-    // console.log(designation);
+    //     logger.info(closingManagerId);
+    // logger.info(designation);
     // Filters
 
     if (status == "visit") {
@@ -1231,7 +1232,7 @@ export const addSiteVisits = async (req, res) => {
     virtualMeetingDoc,
     location,
   } = body;
-  // console.log(body);
+  // logger.info(body);
 
   try {
     if (!body) return res.send(errorRes(403, "Data is required"));
@@ -1246,8 +1247,8 @@ export const addSiteVisits = async (req, res) => {
     if (!choiceApt)
       return res.send(errorRes(403, "Choice of Apartment is required"));
 
-    // console.log(body.date);
-    // console.log(new Date().toISOString());
+    // logger.info(body.date);
+    // logger.info(new Date().toISOString());
     // body.date = null;
     const today = new Date();
 
@@ -1278,7 +1279,7 @@ export const addSiteVisits = async (req, res) => {
         });
         await newClient.save();
       } catch (error) {
-        // console.log(error);
+        // logger.info(error);
       }
     }
     //  if (!id) return res.send(errorRes(403, "id is required"));
@@ -1287,7 +1288,7 @@ export const addSiteVisits = async (req, res) => {
       .populate(siteVisitPopulateOptions);
     // if lead id provided
     if (lead != null) {
-      // console.log("lead id is not null");
+      // logger.info("lead id is not null");
 
       const foundLead = await leadModelV2.findById(lead);
 
@@ -1302,7 +1303,7 @@ export const addSiteVisits = async (req, res) => {
         //   foundLead.bookingRef = bookingRef;
         //   await foundLead.save();
         // }
-        // console.log("lead is not null");
+        // logger.info("lead is not null");
 
         if (visitType === "visit") {
           foundLead.visitStatus = "visited";
@@ -1339,7 +1340,7 @@ export const addSiteVisits = async (req, res) => {
               // role: teamLeaderResp?.role,
             });
             let ids = dta.map((ele) => ele.playerId);
-            // console.log(foundTLPlayerId);
+            // logger.info(foundTLPlayerId);
             if (!taggingOver) {
               ids.push(foundTLPlayerId?.playerId);
             }
@@ -1356,7 +1357,7 @@ export const addSiteVisits = async (req, res) => {
                 role: "channel-partner",
               },
             });
-            // console.log("pass sent notification");
+            // logger.info("pass sent notification");
           }
         }
 
@@ -1397,7 +1398,7 @@ export const addSiteVisits = async (req, res) => {
               // role: teamLeaderResp?.role,
             });
             let ids = dta.map((ele) => ele.playerId);
-            // console.log(foundTLPlayerId);
+            // logger.info(foundTLPlayerId);
             if (!taggingOver) {
               ids.push(foundTLPlayerId?.playerId);
             }
@@ -1414,7 +1415,7 @@ export const addSiteVisits = async (req, res) => {
                 role: "channel-partner",
               },
             });
-            // console.log("pass sent notification");
+            // logger.info("pass sent notification");
           }
         }
 
@@ -1442,7 +1443,7 @@ export const addSiteVisits = async (req, res) => {
               // role: teamLeaderResp?.role,
             });
             let ids = dta.map((ele) => ele.playerId);
-            // console.log(foundTLPlayerId);
+            // logger.info(foundTLPlayerId);
             if (!taggingOver) {
               ids.push(foundTLPlayerId?.playerId);
             }
@@ -1460,7 +1461,7 @@ export const addSiteVisits = async (req, res) => {
                 role: "channel-partner",
               },
             });
-            // console.log("pass sent notification");
+            // logger.info("pass sent notification");
           }
         }
         // if (visitType === "called") {
@@ -1471,7 +1472,7 @@ export const addSiteVisits = async (req, res) => {
       }
     } else {
       // if lead id is there but not found then check by phone number
-      // console.log("lead is null");
+      // logger.info("lead is null");
 
       const foundLead = await leadModelV2.findOne({
         phoneNumber: phoneNumber,
@@ -1518,7 +1519,7 @@ export const addSiteVisits = async (req, res) => {
               // role: teamLeaderResp?.role,
             });
             let ids = dta.map((ele) => ele.playerId);
-            // console.log(foundTLPlayerId);
+            // logger.info(foundTLPlayerId);
             if (!taggingOver) {
               ids.push(foundTLPlayerId?.playerId);
             }
@@ -1536,7 +1537,7 @@ export const addSiteVisits = async (req, res) => {
                 role: "channel-partner",
               },
             });
-            // console.log("pass sent notification");
+            // logger.info("pass sent notification");
           }
         }
 
@@ -1577,7 +1578,7 @@ export const addSiteVisits = async (req, res) => {
               // role: teamLeaderResp?.role,
             });
             let ids = dta.map((ele) => ele.playerId);
-            // console.log(foundTLPlayerId);
+            // logger.info(foundTLPlayerId);
             if (!taggingOver) {
               ids.push(foundTLPlayerId?.playerId);
             }
@@ -1595,7 +1596,7 @@ export const addSiteVisits = async (req, res) => {
                 role: "channel-partner",
               },
             });
-            // console.log("pass sent notification");
+            // logger.info("pass sent notification");
           }
         }
 
@@ -1623,7 +1624,7 @@ export const addSiteVisits = async (req, res) => {
               // role: teamLeaderResp?.role,
             });
             let ids = dta.map((ele) => ele.playerId);
-            // console.log(foundTLPlayerId);
+            // logger.info(foundTLPlayerId);
             if (!taggingOver) {
               ids.push(foundTLPlayerId?.playerId);
             }
@@ -1641,7 +1642,7 @@ export const addSiteVisits = async (req, res) => {
                 role: "channel-partner",
               },
             });
-            // console.log("pass sent notification");
+            // logger.info("pass sent notification");
           }
         }
         // if (visitType === "called") {
@@ -1653,7 +1654,7 @@ export const addSiteVisits = async (req, res) => {
     }
     // if not lead id provided && lead type is not cp
     if (!lead) {
-      // console.log("lead is null");
+      // logger.info("lead is null");
 
       const startDate = new Date();
       const validTill = new Date(startDate);
@@ -1705,13 +1706,13 @@ export const addSiteVisits = async (req, res) => {
         });
 
         if (foundTLPlayerId) {
-          // console.log(foundTLPlayerId);
+          // logger.info(foundTLPlayerId);
           const dta = await oneSignalModel.find({
             $or: [{ docId: "ev89-narayan-jha" }, { docId: "ev88-pavan-ale" }],
             // role: teamLeaderResp?.role,
           });
           let ids = dta.map((ele) => ele.playerId);
-          // console.log(foundTLPlayerId);
+          // logger.info(foundTLPlayerId);
 
           await sendNotificationWithImage({
             playerIds: [foundTLPlayerId?.playerId, ...ids],
@@ -1725,7 +1726,7 @@ export const addSiteVisits = async (req, res) => {
               designation: "desg-sales-executive",
             },
           });
-          // console.log("pass sent notification");
+          // logger.info("pass sent notification");
         }
       }
     }
@@ -1779,7 +1780,7 @@ export const addSiteVisits = async (req, res) => {
         ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"],
       );
     } catch (error) {
-      // console.log(error);
+      // logger.info(error);
     }
 
     return res.send(
@@ -1788,7 +1789,7 @@ export const addSiteVisits = async (req, res) => {
       }),
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -1798,7 +1799,7 @@ export const addLeadFromSiteVisit = async (req, res) => {
   try {
     if (!id) return res.send(errorRes(401, "id required"));
 
-    // console.log("lead is null");
+    // logger.info("lead is null");
 
     const respId = await siteVisitModel.findById(id);
 
@@ -1880,7 +1881,7 @@ export const generateSiteVisitOtp = async (req, res, next) => {
       )}&name=${firstName} ${lastName}&project=${project}&closingManager=${
         user?.firstName
       } ${user?.lastName}&otp=${findOldOtp.otp}`;
-      console.log(url);
+      logger.info(url);
       try {
         const resp = await axios.post(url);
         if (email && email != "noemailprovided2026625@gmail.com") {
@@ -1903,7 +1904,7 @@ export const generateSiteVisitOtp = async (req, res, next) => {
                   "project-ev-9-square-vashi-sector-9" &&
                 email
               ) {
-                // console.log("entered 9 square");
+                // logger.info("entered 9 square");
                 await addContact({
                   listIds: [13],
                   email: email,
@@ -1917,7 +1918,7 @@ export const generateSiteVisitOtp = async (req, res, next) => {
                   "project-ev-10-marina-bay-vashi-sector-10" &&
                 email
               ) {
-                // console.log("entered 10 marina");
+                // logger.info("entered 10 marina");
 
                 await addContact({
                   listIds: [5],
@@ -1929,17 +1930,17 @@ export const generateSiteVisitOtp = async (req, res, next) => {
               }
             } catch (error) {
               //
-              console.log(error);
+              logger.info(error);
             }
           } catch (error) {
-            console.log(error);
+            logger.info(error);
           }
         }
       } catch (error) {
         //
-        console.log(error);
+        logger.info(error);
       }
-      // console.log(resp);
+      // logger.info(resp);
       return res.send(
         successRes(200, "otp Sent to Client", {
           data: findOldOtp,
@@ -1966,7 +1967,7 @@ export const generateSiteVisitOtp = async (req, res, next) => {
 
     try {
       const resp = await axios.post(url);
-      // console.log(resp);
+      // logger.info(resp);
       if (email && email != "noemailprovided2026625@gmail.com") {
         try {
           await sendMultipleEmail(
@@ -1981,11 +1982,11 @@ export const generateSiteVisitOtp = async (req, res, next) => {
             [],
           );
         } catch (error) {
-          console.log(error);
+          logger.info(error);
         }
       }
     } catch (error) {
-      console.log(error);
+      logger.info(error);
     }
 
     return res.send(
@@ -2026,7 +2027,7 @@ export const verifySiteVisitOtp = async (req, res, next) => {
 export const updateSiteVisits = async (req, res) => {
   const body = req.body;
   const id = req.params.id;
-  // console.log(body);
+  // logger.info(body);
   try {
     if (!id) return res.send(errorRes(403, "ID is required"));
     if (!body) return res.send(errorRes(403, "Data is required"));
@@ -2098,7 +2099,7 @@ export const addSiteVisitsManual = async (data) => {
   } = body;
 
   try {
-    // console.log("pass 1");
+    // logger.info("pass 1");
     const newSiteVisit = await siteVisitModel.create({
       ...body,
     });
@@ -2256,7 +2257,7 @@ export const addSiteVisitsManual = async (data) => {
     //   });
 
     //   if (foundTLPlayerId) {
-    //     // console.log(foundTLPlayerId);
+    //     // logger.info(foundTLPlayerId);
 
     //     await sendNotificationWithImage({
     //       playerIds: [foundTLPlayerId.playerId],
@@ -2265,13 +2266,13 @@ export const addSiteVisitsManual = async (data) => {
     //       imageUrl:
     //         visitNotificationImage,
     //     });
-    //     // console.log("pass sent notification");
+    //     // logger.info("pass sent notification");
     //   }
     // }
 
     return "ok";
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return error;
   }
 };
@@ -3151,14 +3152,14 @@ export const getTodayVisitSummary = async () => {
     const highestCpVisits = maxCpVisits.filter(
       (cp) => cp.totalVisits === highestVisitCount,
     );
-    // console.log(highestCpVisits);
+    // logger.info(highestCpVisits);
     // Populate CP details from cpModel
     const populatedCpVisits = await cpModel
       .find({
         _id: { $in: highestCpVisits.map((cp) => cp?._id) },
       })
       .select("firmName"); // Only fetch firmName
-    // console.log(populatedCpVisits);
+    // logger.info(populatedCpVisits);
 
     // Merge firmName into the result
     const cpNamesList =
@@ -3289,9 +3290,9 @@ export const addSiteVisitV2 = async (req, res) => {
     lead,
   } = body;
   const user = req.user; //user onl
-  console.log(user);
+  logger.info(user);
 
-  console.log(body);
+  logger.info(body);
 
   try {
     if (!body) {
@@ -3346,10 +3347,10 @@ export const addSiteVisitV2 = async (req, res) => {
       },
       // role: teamLeaderResp?.role,
     });
-    // console.log(foundPlayers);
+    // logger.info(foundPlayers);
     if (foundPlayers.length > 0) {
       let ids = foundPlayers.map((ele) => ele.playerId);
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
 
       await sendNotificationWithImage({
         playerIds: ids,
@@ -3372,14 +3373,14 @@ export const addSiteVisitV2 = async (req, res) => {
       }),
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
 
 export const searchSiteVisitDTA = async (req, res, next) => {
   try {
-    // console.log("entered");
+    // logger.info("entered");
     let query = req.query.query || "";
     let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
@@ -3389,9 +3390,9 @@ export const searchSiteVisitDTA = async (req, res, next) => {
     let date = req.query.date; // New date parameter
 
     let skip = (page - 1) * limit;
-    // console.log(startDate);
-    // console.log(endDate);
-    // console.log(date); // Log the date parameter
+    // logger.info(startDate);
+    // logger.info(endDate);
+    // logger.info(date); // Log the date parameter
 
     const isNumberQuery = !isNaN(query);
     let statusToFind = {};
@@ -3429,10 +3430,10 @@ export const searchSiteVisitDTA = async (req, res, next) => {
         start.setUTCHours(0, 0, 0, 0);
         end.setUTCHours(23, 59, 59, 999);
       } else {
-        // console.log("Invalid date filter provided");
+        // logger.info("Invalid date filter provided");
       }
       // dateFilter;
-      // console.log("Applying Date Filter:", dateFilter);
+      // logger.info("Applying Date Filter:", dateFilter);
     } else if (startDate && endDate) {
       const start = new Date(startDate);
       start.setUTCHours(0, 0, 0, 0);
@@ -3441,7 +3442,7 @@ export const searchSiteVisitDTA = async (req, res, next) => {
       end.setUTCHours(23, 59, 59, 999);
 
       dateFilter;
-      // console.log("Applying Date Filter:", dateFilter);
+      // logger.info("Applying Date Filter:", dateFilter);
     }
 
     // Set visitType based on status
@@ -3626,8 +3627,8 @@ export const siteVisitApproval = async (req, res, next) => {
   const id = req.params.id;
   const { remark, status, userId } = req.body;
   const user = req.user;
-  // console.log(req.body);
-  // console.log(user);
+  // logger.info(req.body);
+  // logger.info(user);
 
   try {
     const resp = await siteVisitModel.findById(id);
@@ -3655,7 +3656,7 @@ export const siteVisitApproval = async (req, res, next) => {
         { phoneNumber: updatedVisit.phoneNumber },
       ],
     });
-    // console.log(foundLead);
+    // logger.info(foundLead);
     try {
       if (!foundLead && updatedVisit.source?.toLowerCase() != "cp") {
         let updates = {
@@ -3689,7 +3690,7 @@ export const siteVisitApproval = async (req, res, next) => {
       }
     } catch (error) {
       //error upating/creating lead
-      console.log(error);
+      logger.info(error);
     }
     // checking tagging
     const taggingOver = moment(foundLead.validTill)
@@ -3759,7 +3760,7 @@ export const siteVisitApproval = async (req, res, next) => {
       await foundLead.save();
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
     }
 
     // check if first visit & update score- ranking
@@ -3775,7 +3776,7 @@ export const siteVisitApproval = async (req, res, next) => {
       }
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
     }
     //
 
@@ -3814,10 +3815,10 @@ export const siteVisitApproval = async (req, res, next) => {
         },
       });
 
-      // console.log("pass sent notification");
+      // logger.info("pass sent notification");
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
     }
     //email
     try {
@@ -3905,7 +3906,7 @@ export const siteVisitApproval = async (req, res, next) => {
           updatedVisit.location?._id === "project-ev-9-square-vashi-sector-9" &&
           updatedVisit.email
         ) {
-          // console.log("entered 9 square");
+          // logger.info("entered 9 square");
           await addContact({
             listIds: [13],
             email: updatedVisit.email,
@@ -3919,7 +3920,7 @@ export const siteVisitApproval = async (req, res, next) => {
             "project-ev-10-marina-bay-vashi-sector-10" &&
           updatedVisit.email
         ) {
-          // console.log("entered 10 marina");
+          // logger.info("entered 10 marina");
 
           await addContact({
             listIds: [5],
@@ -3931,14 +3932,14 @@ export const siteVisitApproval = async (req, res, next) => {
         }
       } catch (error) {
         //
-        console.log(error);
+        logger.info(error);
       }
     } catch (error) {
-      console.log(error);
+      logger.info(error);
     }
     return successRes2(res, 200, "ok", { data: updatedVisit });
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 };
@@ -3946,7 +3947,7 @@ export const siteVisitApproval = async (req, res, next) => {
 export const getCpFeedbackPendingVisits = async () => {
   try {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    // console.log(oneHourAgo);
+    // logger.info(oneHourAgo);
     const visits = await siteVisitModel
       .find({
         date: { $lte: oneHourAgo },
@@ -3961,7 +3962,7 @@ export const getCpFeedbackPendingVisits = async () => {
       .populate(siteVisitPopulateOptions);
     // .limit(1);
 
-    // console.log(visits);
+    // logger.info(visits);
     const updateOps = [];
 
     for (const visit of visits) {
@@ -3971,7 +3972,7 @@ export const getCpFeedbackPendingVisits = async () => {
         );
 
         const channelPartnerFirm = await cpModel.findById(visit.channelPartner);
-        // console.log(channelPartnerFirm?.firmName);
+        // logger.info(channelPartnerFirm?.firmName);
 
         let firmName = "";
         if (visit.channelPartner) {
@@ -3979,12 +3980,12 @@ export const getCpFeedbackPendingVisits = async () => {
             visit.channelPartner,
           );
           firmName = channelPartnerFirm?.firmName || "";
-          // console.log("Firm Name:", firmName);
+          // logger.info("Firm Name:", firmName);
         }
 
         if (!closingManager) continue;
         const closingManagerEmail = closingManager.email;
-        // console.log(closingManagerEmail);
+        // logger.info(closingManagerEmail);
 
         await sendMultipleEmail(
           [closingManagerEmail],
@@ -4015,7 +4016,7 @@ export const getCpFeedbackPendingVisits = async () => {
       await siteVisitModel.bulkWrite(updateOps);
     }
 
-    // console.log(`CP Feedback emails sent for ${updateOps.length} visits.`);
+    // logger.info(`CP Feedback emails sent for ${updateOps.length} visits.`);
     return visits;
   } catch (error) {
     console.error("Error in getCpFeedbackPendingVisits:", error);
@@ -4086,12 +4087,12 @@ export const geSiteVisitStartEndDate = async (req, res) => {
 //       // Step 2: For each task, fetch the related lead
 //       const lead = await leadModel.findById(task.lead); // Adjust based on your task schema
 
-//       // console.log(lead);
+//       // logger.info(lead);
 //       // if (!lead || !Array.isArray(lead.callHistory) || lead.callHistory.length === 0)
 
 //       const lastCall = lead.callHistory[lead.callHistory.length - 1];
 
-// // console.log(lastCall?.caller === id);
+// // logger.info(lastCall?.caller === id);
 //       // Step 3: Check if last call was done by the same ID
 //       if (lead.callHistory && lead.callHistory.length > 0) {
 //         const lastCall = lead.callHistory[lead.callHistory.length - 1];
@@ -4104,7 +4105,7 @@ export const geSiteVisitStartEndDate = async (req, res) => {
 //           validSiteVisits.push(...siteVisits);
 //         }
 //       } else {
-//         console.log(`No call history for lead: ${lead._id}`);
+//         logger.info(`No call history for lead: ${lead._id}`);
 //       }
 
 //     }

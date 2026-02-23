@@ -4,6 +4,7 @@ import leadModelV2 from "../model/lead/leadV2Model.js";
 import meetingModel from "../model/meetingSummary.model.js";
 import { errorRes, successRes } from "../model/response.js";
 import { meetingPopulateOptions } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 
 //GET BY ALL
 export const getMeetingSummary = async (req, res) => {
@@ -13,9 +14,11 @@ export const getMeetingSummary = async (req, res) => {
     return res.send(
       successRes(200, "Get Meeting Summary", {
         data: respMe,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, error));
   }
 };
@@ -38,9 +41,11 @@ export const getClientMeetingById = async (req, res) => {
     return res.send(
       successRes(200, "get meeting scheduled by client id", {
         data: respMe,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, error));
   }
 };
@@ -72,12 +77,14 @@ export const scheduleMeetingByClient = async (req, res) => {
     return res.send(
       successRes(200, `Request sent!`, {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     // console.error(error);
     return res.send(
-      errorRes(500, "An error occurred while adding the meeting summary")
+      errorRes(500, "An error occurred while adding the meeting summary"),
     );
   }
 };
@@ -98,19 +105,19 @@ export const addMeetingSummary = async (req, res) => {
   } = body;
 
   try {
-    // console.log("pass1");
+    // logger.info("pass1");
     // Check for required fields
     if (!date || !project || !purpose) {
       return res.send(errorRes(403, "All fields are required"));
     }
     const leadResp = await leadModelV2.findById(lead);
-    // console.log("passed note 1 ");
+    // logger.info("passed note 1 ");
 
     if (!leadResp) {
       return res.send(errorRes("Meeting scheduled"));
     }
-    // console.log("passed note 2 ");
-    // console.log(leadResp);
+    // logger.info("passed note 2 ");
+    // logger.info(leadResp);
     const customerResp = await clientModel.findOne({
       phoneNumber: leadResp.phoneNumber,
     });
@@ -118,7 +125,7 @@ export const addMeetingSummary = async (req, res) => {
     if (!customerResp) {
       return res.send(errorRes("Customer not registered with us yet"));
     }
-    // console.log("passed note 3 ");
+    // logger.info("passed note 3 ");
 
     const newMeeting = await meetingModel.create({
       ...body,
@@ -131,12 +138,13 @@ export const addMeetingSummary = async (req, res) => {
     return res.send(
       successRes(200, `Request sent!`, {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
+
     return res.send(
-      errorRes(500, "An error occurred while adding the meeting summary")
+      errorRes(500, "An error occurred while adding the meeting summary"),
     );
   }
 };

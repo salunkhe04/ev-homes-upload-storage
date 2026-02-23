@@ -22,12 +22,10 @@ export const addCoupon = async (req, res) => {
 
   const { codeName, codeValue, disPercentage, startDate, validTill } = body;
 
-  // console.log("Received Data:", body);
 
   try {
     if (!codeName) return res.send(errorRes(403, "Code name is required"));
     //  if(!codeValue || !disPercentage)return res.send(errorRes(403, 'Atleast one is required'));
-    //  console.log(   disPercentage);
     const newCoupon = await couponModel.create(body);
 
     return res.send(

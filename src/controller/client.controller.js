@@ -28,6 +28,7 @@ import postSaleLeadModel from "../model/postSaleLead.model.js";
 import Demand from "../model/demand.model.js";
 import { sendMultipleEmail } from "../utils/brevo.js";
 import { forgotPasswordTemplete } from "../templates/html_template.js";
+import logger from "../utils/logger.js";
 
 //GET BY ALL
 export const getClients = async (req, res) => {
@@ -37,7 +38,7 @@ export const getClients = async (req, res) => {
     return res.send(
       successRes(200, "Get Clients", {
         data: respClient,
-      })
+      }),
     );
   } catch (error) {
     return res.json({
@@ -85,7 +86,7 @@ export const searchClients = async (req, res, next) => {
         totalPages,
         totalItems,
         items: respCP,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -105,13 +106,13 @@ export const getClientById = async (req, res) => {
       return res.send(
         successRes(404, `Client not found`, {
           data: respDes,
-        })
+        }),
       );
 
     return res.send(
       successRes(200, `Client Details found`, {
         data: respDes,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -143,7 +144,7 @@ export const registerClient = async (req, res, next) => {
 
     if (password.length < 6) {
       return res.send(
-        errorRes(400, "Password should be at least 6 character long.")
+        errorRes(400, "Password should be at least 6 character long."),
       );
     }
     const validateFields = validateRegisterClientFields(body, res);
@@ -159,7 +160,7 @@ export const registerClient = async (req, res, next) => {
 
     if (oldUser) {
       return res.send(
-        errorRes(400, "Client already exist with this credential")
+        errorRes(400, "Client already exist with this credential"),
       );
     }
 
@@ -175,12 +176,12 @@ export const registerClient = async (req, res, next) => {
     const accessToken = createJwtToken(
       userWithoutPassword,
       config.SECRET_ACCESS_KEY,
-      "15m"
+      "15m",
     );
     const refreshToken = createJwtToken(
       userWithoutPassword,
       config.SECRET_REFRESH_KEY,
-      "7d"
+      "7d",
     );
     savedClient.refreshToken = refreshToken;
     await savedClient.save();
@@ -190,7 +191,7 @@ export const registerClient = async (req, res, next) => {
         ...userWithoutPassword,
         accessToken,
         refreshToken,
-      })
+      }),
     );
   } catch (error) {
     if (error.code === 11000) {
@@ -239,12 +240,12 @@ export const loginClient = async (req, res, next) => {
     const accessToken = createJwtToken(
       dataToken,
       config.SECRET_ACCESS_KEY,
-      "15m"
+      "15m",
     );
     const refreshToken = createJwtToken(
       dataToken,
       config.SECRET_REFRESH_KEY,
-      "7d"
+      "7d",
     );
     await clientDb.updateOne({ refreshToken: refreshToken }, { new: true });
     // await clientModel.updateOne(
@@ -259,7 +260,7 @@ export const loginClient = async (req, res, next) => {
         data: userWithoutPassword,
         accessToken,
         refreshToken,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -287,7 +288,7 @@ export const generateClientOtp = async (req, res, next) => {
       //   project?.toLowerCase() === "project-ev-10-marina-bay-vashi-sector-10"
       // ) {
       url = `https://hooks.zapier.com/hooks/catch/9993809/25xnarr?phoneNumber=${encodeURIComponent(
-        `+91${phoneNumber}`
+        `+91${phoneNumber}`,
       )}&name=${clientResp?.firstName} ${
         clientResp?.lastName
       }&project=EV&closingManager=EV&otp=${findOldOtp.otp}`;
@@ -299,11 +300,11 @@ export const generateClientOtp = async (req, res, next) => {
       //   }&project=${project}&closingManager= &otp=${findOldOtp.otp}`;
       // }
       const resp = await axios.post(url);
-      // console.log(resp);
+      // logger.info(resp);
       return res.send(
         successRes(200, "otp Sent to Client", {
           data: findOldOtp,
-        })
+        }),
       );
     }
 
@@ -318,7 +319,7 @@ export const generateClientOtp = async (req, res, next) => {
 
     const savedOtp = await newOtpModel.save();
     url = `https://hooks.zapier.com/hooks/catch/9993809/25xnarr?phoneNumber=${encodeURIComponent(
-      `+91${phoneNumber}`
+      `+91${phoneNumber}`,
     )}&name=${clientResp?.firstName} ${
       clientResp?.lastName
     }&project=EV&closingManager=EV&otp=${newOtp}`;
@@ -334,12 +335,12 @@ export const generateClientOtp = async (req, res, next) => {
     // }
 
     const resp = await axios.post(url);
-    // console.log(resp);
+    // logger.info(resp);
 
     return res.send(
       successRes(200, "otp Sent to Client", {
         data: savedOtp,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -375,7 +376,7 @@ export const loginPhone = async (req, res, next) => {
 
     if (!clientDb) {
       return res.send(
-        errorRes(400, "Client not found with given phone Number")
+        errorRes(400, "Client not found with given phone Number"),
       );
     }
 
@@ -389,12 +390,12 @@ export const loginPhone = async (req, res, next) => {
     const accessToken = createJwtToken(
       dataToken,
       config.SECRET_ACCESS_KEY,
-      "15m"
+      "15m",
     );
     const refreshToken = createJwtToken(
       dataToken,
       config.SECRET_REFRESH_KEY,
-      "7d"
+      "7d",
     );
 
     await clientDb.updateOne({ refreshToken: refreshToken }, { new: true });
@@ -406,7 +407,7 @@ export const loginPhone = async (req, res, next) => {
         data: userWithoutPhone,
         accessToken,
         refreshToken,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -421,9 +422,9 @@ export const newPasswordClient = async (req, res, next) => {
     if (!id) {
       return res.send(errorRes(403, "ID is required"));
     }
-    // console.log(id);
-    // console.log(password);
-    // console.log(newPassword);
+    // logger.info(id);
+    // logger.info(password);
+    // logger.info(newPassword);
     if (!password || !newPassword) {
       return res.send(errorRes(403, "Old and new passwords are required"));
     }
@@ -435,7 +436,7 @@ export const newPasswordClient = async (req, res, next) => {
     if (!respClient) {
       return res.send(errorRes(404, `Client not found with id: ${id}`));
     }
-    // console.log(respClient.password);
+    // logger.info(respClient.password);
 
     const isMatch = await comparePassword(password, respClient.password);
 
@@ -448,7 +449,7 @@ export const newPasswordClient = async (req, res, next) => {
     await respClient.save();
 
     return res.send(
-      successRes(200, "Password updated successfully", { data: respClient })
+      successRes(200, "Password updated successfully", { data: respClient }),
     );
   } catch (error) {
     return next(error);
@@ -485,7 +486,7 @@ export const reAuthClient = async (req, res, next) => {
     return res.send(
       successRes(200, "Client is registered", {
         data: true,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -513,9 +514,9 @@ export const forgotPasswordClient = async (req, res, next) => {
         forgotPasswordTemplete(
           `${clientDb?.firstName ?? ""} ${clientDb?.lastName ?? ""}`,
           oldOtp.otp,
-          "https://evhomes.tech/"
+          "https://evhomes.tech/",
         ),
-        []
+        [],
       );
 
       return res.send(successRes(200, `otp re-sent to ${email}`, oldOtp));
@@ -542,9 +543,9 @@ export const forgotPasswordClient = async (req, res, next) => {
       forgotPasswordTemplete(
         `${clientDb?.firstName ?? ""} ${clientDb?.lastName ?? ""}`,
         savedOtp.otp,
-        "https://evhomes.tech/"
+        "https://evhomes.tech/",
       ),
-      []
+      [],
     );
 
     return res.send(successRes(200, `otp sent to ${email}`, savedOtp._doc));
@@ -585,14 +586,14 @@ export const resetPasswordClient = async (req, res, next) => {
       },
       {
         password: hashPassword,
-      }
+      },
     );
     await otpModel.deleteOne({ _id: otpDbResp._id });
 
     return res.send(
       successRes(200, `Reset password sucessfully for: ${otpDbResp.email}`, {
         data: updatedClient.acknowledged,
-      })
+      }),
     );
   } catch (error) {
     return next(error);
@@ -614,7 +615,7 @@ export const updateClient = async (req, res) => {
         {
           ...body,
         },
-        { new: true }
+        { new: true },
       )
       .populate(clientPopulateOptions);
 
@@ -623,7 +624,7 @@ export const updateClient = async (req, res) => {
     return res.send(
       successRes(200, `Client updated successfully`, {
         data: updatedClient,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -642,7 +643,7 @@ export const deleteClient = async (req, res) => {
     return res.send(
       successRes(200, `Client deleted successfully with ID: ${id}`, {
         deletedClient,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -677,12 +678,12 @@ export const duplicateClients = async (req, res) => {
     //   });
     // }
 
-    // console.log("Duplicates removed successfully!");
+    // logger.info("Duplicates removed successfully!");
 
     return res.send(
       successRes(200, `Client duplicates`, {
         duplicates,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -693,16 +694,16 @@ export const getClientReAuth = async (req, res, next) => {
   try {
     const accessToken = req.headers["authorization"]?.split(" ")[1];
     const refreshToken = req.headers["x-refresh-token"]?.split(" ")[1];
-    // console.log(accessToken);
-    // console.log(refreshToken);
+    // logger.info(accessToken);
+    // logger.info(refreshToken);
     if (!accessToken) {
       res.setHeader("x-force-logout", `force-logout`);
 
       return res.send(
         errorRes(
           401,
-          "Your session has expired. Please log in again to continue."
-        )
+          "Your session has expired. Please log in again to continue.",
+        ),
       );
     }
 
@@ -719,7 +720,7 @@ export const getClientReAuth = async (req, res, next) => {
       if (!user) {
         res.setHeader("x-force-logout", `force-logout`);
         return res.send(
-          errorRes(401, "Session Expired, Please log in again to continue.")
+          errorRes(401, "Session Expired, Please log in again to continue."),
         );
       }
 
@@ -736,14 +737,14 @@ export const getClientReAuth = async (req, res, next) => {
         if (!refreshToken) {
           res.setHeader("x-force-logout", `force-logout`);
           return res.send(
-            errorRes(401, "Session Expired, Please log in again to continue.")
+            errorRes(401, "Session Expired, Please log in again to continue."),
           );
         }
 
         try {
           const decoded = verifyJwtToken(
             refreshToken,
-            config.SECRET_REFRESH_KEY
+            config.SECRET_REFRESH_KEY,
           );
           const user = await clientModel
             .findById(decoded.data._id)
@@ -755,7 +756,10 @@ export const getClientReAuth = async (req, res, next) => {
           if (!user) {
             res.setHeader("x-force-logout", `force-logout`);
             return res.send(
-              errorRes(401, "Session Expired, Please log in again to continue.")
+              errorRes(
+                401,
+                "Session Expired, Please log in again to continue.",
+              ),
             );
           }
 
@@ -769,15 +773,15 @@ export const getClientReAuth = async (req, res, next) => {
           const newAccessToken = createJwtToken(
             dataToken,
             config.SECRET_ACCESS_KEY,
-            "15m"
+            "15m",
           );
 
           // Check if refresh token is about to expire (e.g., less than 1 day)
           const refreshDecoded = verifyJwtToken(
             refreshToken,
-            config.SECRET_REFRESH_KEY
+            config.SECRET_REFRESH_KEY,
           );
-          // console.log(refreshDecoded);
+          // logger.info(refreshDecoded);
           const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
           const timeLeft = refreshDecoded.exp - currentTime;
 
@@ -787,7 +791,7 @@ export const getClientReAuth = async (req, res, next) => {
             newRefreshToken = createJwtToken(
               dataToken,
               config.SECRET_REFRESH_KEY,
-              "7d"
+              "7d",
             ); // Generate a new refresh token
             res.setHeader("x-new-refresh-token", newRefreshToken); // Send new refresh token in response header
           }
@@ -800,25 +804,25 @@ export const getClientReAuth = async (req, res, next) => {
               data: user,
               newRefreshToken:
                 timeLeft < 24 * 60 * 60 ? newRefreshToken : undefined, // Include new token if generated
-            })
+            }),
           );
         } catch (refreshError) {
-          // console.log(refreshError);
+          logger.error(refreshError);
           res.setHeader("x-force-logout", `force-logout`);
           return res.send(
-            errorRes(401, "Session Expired, Please log in again to continue.")
+            errorRes(401, "Session Expired, Please log in again to continue."),
           );
         }
       }
       res.setHeader("x-force-logout", `force-logout`);
 
       return res.send(
-        errorRes(401, "Session Expired, Please log in again to continue.")
+        errorRes(401, "Session Expired, Please log in again to continue."),
       );
     }
   } catch (error) {
     res.setHeader("x-force-logout", `force-logout`);
-    console.error("Error during re-authentication:", error);
+    logger.error("Error during re-authentication:", error);
     return res.send(errorRes(500, "Internal server error"));
   }
 };
@@ -831,13 +835,15 @@ export const getBookingForClient = async (req, res, next) => {
       .populate(postSalePopulateOptionsv2);
     if (!resp) errorRes2(res, 400, "Booking not found");
 
-    // console.log(resp);
+    // logger.info(resp);
     return successRes2(res, 200, "Booking details for client", {
       data: resp,
     });
     //
   } catch (error) {
     //
+    logger.error(error);
+
     return res.send(errorRes(500, "Internal server error"));
   }
 };
@@ -863,7 +869,7 @@ export const getClientDemand = async (req, res, next) => {
       data: demand,
     });
   } catch (error) {
-    console.error("Error in getClientDemand:", error);
+    logger.error("Error in getClientDemand:", error);
     return res.status(500).json(errorRes(500, "Internal server error"));
   }
 };

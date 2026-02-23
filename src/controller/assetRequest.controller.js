@@ -323,7 +323,6 @@ export const onRejectOrApproveassetRequest = async (req, res, next) => {
     }
 
     await weekoffResp.save();
-    // console.log(weekoffResp);
     return successRes2(res, 200, `Request ${status}`, { data: weekoffResp });
   } catch (error) {
     return res.send(errorRes(500, `${error.message}`));

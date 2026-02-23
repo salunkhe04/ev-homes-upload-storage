@@ -104,7 +104,7 @@ export const getTeamReportingTo = async (req, res) => {
 
       const totalTasks = leads.length;
 
-      // console.log(totalTasks);
+      // logger.info(totalTasks);
 
       // await teamInsightModel.findByIdAndUpdate(team._id, { totalTasks });
       team.totalTasks = totalTasks;
@@ -166,7 +166,7 @@ export const getMyTeam = async (req, res) => {
 
     //   const totalTasks = leads.length;
 
-    //   // console.log(totalTasks);
+    //   // logger.info(totalTasks);
 
     //   // await teamInsightModel.findByIdAndUpdate(team._id, { totalTasks });
     //   team.totalTasks = totalTasks;
@@ -220,15 +220,15 @@ export const updateCrew = async (req, res) => {
     if (!team) return res.send(errorRes(404, "team not found"));
 
     const existingIds = team.crew.map((c) => c.teamMember.toString());
-    // console.log(existingIds);
+    // logger.info(existingIds);
 
     const newIds = crew.map((c) => c.teamMember.toString());
 
-    // console.log(newIds);
+    // logger.info(newIds);
     const alreadyExists = newIds.find((teamMember) =>
       existingIds.includes(teamMember),
     );
-    // console.log(alreadyExists);
+    // logger.info(alreadyExists);
     if (alreadyExists) {
       return res.send(errorRes(401, `These team members already exist`));
     }
@@ -289,7 +289,7 @@ export const validateInsight = async (id) => {
 
       const totalTasks = leads.length;
 
-      // console.log(totalTasks);
+      // logger.info(totalTasks);
 
       // await teamInsightModel.findByIdAndUpdate(team._id, { totalTasks });
       team.totalTasks = totalTasks;

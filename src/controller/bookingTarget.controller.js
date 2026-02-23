@@ -12,7 +12,6 @@ const zone = "Asia/Kolkata";
 export const getQuarterWiseTarget = async (req, res) => {
   const id = req.params.id;
   const { date, year: qYear, quarter: qQuarter } = req.query;
-  // console.log(req.query);
 
   let now = moment(date).isValid() ? moment(date).tz(zone) : moment().tz(zone);
 
@@ -41,16 +40,6 @@ export const getQuarterWiseTarget = async (req, res) => {
       year,
     };
 
-    // if (year && qQuarter) {
-    //   statusToFind = {
-    //     //
-    //     staffId: emp._id,
-    //     ...(year && qQuarter ? { quarter: qQuarter } : {}),
-    //     year: qYear,
-    //   };
-    // }
-
-    // console.log(JSON.stringify(statusToFind, null, 2));
 
     let targetData = await revisedTargetModel
       .findOne(statusToFind)

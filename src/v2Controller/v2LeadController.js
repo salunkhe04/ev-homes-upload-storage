@@ -9,6 +9,7 @@ import path from "path";
 import { notificationQueue } from "../app/workers/notificationWorker.js";
 import employeeModel from "../model/employee.model.js";
 import oneSignalModel from "../model/oneSignal.model.js";
+import logger from "../utils/logger.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -309,7 +310,7 @@ export const leadCycleChange_600_from_March_01_2025 = async () => {
           isBulkLead: null,
           channelPartner: { $ne: "my-firm-name-last" },
         };
-        // console.log(actualTriggerQuery);
+        // logger.info(actualTriggerQuery);
         // get the leads
         const allCycleExpiredLeads = await leadModelV2
           .find({
@@ -501,7 +502,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
                 data: {},
               });
             } catch (err) {
-              console.log("sendNotificationWithImage error:", err);
+              logger.info("sendNotificationWithImage error:", err);
             }
           }
         }
@@ -534,7 +535,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
           // }
         }
       } catch (err) {
-        console.log("per-TL notification error for", tl, err);
+        logger.info("per-TL notification error for", tl, err);
       }
     }
 
@@ -549,11 +550,11 @@ export const bulk_cp_lead_trigger_35 = async () => {
 
         // skip duplicates
         if (!lead.phoneNumber) {
-          console.log("Skipping row with missing phoneNumber for TL:", tl);
+          logger.info("Skipping row with missing phoneNumber for TL:", tl);
           continue;
         }
         if (existingNumbers.has(lead.phoneNumber)) {
-          console.log("Skipping duplicate:", lead.phoneNumber);
+          logger.info("Skipping duplicate:", lead.phoneNumber);
           continue;
         }
 

@@ -37,6 +37,7 @@ import oneSignalModel from "../model/oneSignal.model.js";
 import { FlatOccupancyChange } from "../routes/ourProject/flatRouter.js";
 import { ParkingOccupancyChange } from "../routes/ourProject/parkingRouter.js";
 import flatModel from "../model/flat.model.js";
+import logger from "../utils/logger.js";
 
 export const getPostSaleLeads = async (req, res, next) => {
   try {
@@ -62,7 +63,7 @@ export const getPostSaleLeads = async (req, res, next) => {
     }
 
     if (closingManager) {
-      // console.log("entered member");
+      // logger.info("entered member");
       const test = await postSaleLeadModel
         .find({ closingManager: closingManager })
         .select("_id");
@@ -70,7 +71,7 @@ export const getPostSaleLeads = async (req, res, next) => {
         ids.push(ele._id.toString());
       });
 
-      // console.log(ids);
+      // logger.info(ids);
     }
 
     if (date) {
@@ -110,8 +111,8 @@ export const getPostSaleLeads = async (req, res, next) => {
             $lte: endof7days,
           },
         };
-        // console.log(starof7days);
-        // console.log(endof7days);
+        // logger.info(starof7days);
+        // logger.info(endof7days);
       } else if (date === "last-30-days") {
         const startOfMonth = moment()
           .subtract(30, "days")
@@ -124,8 +125,8 @@ export const getPostSaleLeads = async (req, res, next) => {
             $lte: endOfMonth,
           },
         };
-        // console.log(startOfMonth);
-        // console.log(endOfMonth);
+        // logger.info(startOfMonth);
+        // logger.info(endOfMonth);
       }
     }
 
@@ -136,10 +137,10 @@ export const getPostSaleLeads = async (req, res, next) => {
           $lte: moment(endDate).endOf("day").toISOString(),
         },
       };
-      // console.log(startDate);
-      // console.log(endDate);
+      // logger.info(startDate);
+      // logger.info(endDate);
 
-      // console.log(dateFilter);
+      // logger.info(dateFilter);
     }
 
     if (status === "registrationDone" || status === "registration-done") {
@@ -212,7 +213,7 @@ export const getPostSaleLeads = async (req, res, next) => {
       ...(closingManager ? { closingManager: closingManager } : {}),
       ...dateFilter,
     };
-    // console.log({
+    // logger.info({
     //   ...searchFilter,
     //   ...(statusToFind != null ? statusToFind : null),
     //   ...dateFilter,
@@ -252,7 +253,7 @@ export const getPostSaleLeads = async (req, res, next) => {
       "bookingStatus.type": "Cancelled",
       ...(project ? { project: project } : {}),
     });
-    // console.log(cancelled);
+    // logger.info(cancelled);
     const report = await postSaleLeadModel.countDocuments({});
     const totalPages = Math.ceil(totalItems / limit);
 
@@ -315,9 +316,9 @@ export const getpostSaleCountsRegGraph = async (req, res, next) => {
     let endDate = req.query.endDate;
     let dateRange = {};
     const currentDate = new Date();
-    // console.log(interval);
-    // console.log(startDate);
-    // console.log(endDate);
+    // logger.info(interval);
+    // logger.info(startDate);
+    // logger.info(endDate);
 
     if (interval === "weekly") {
       startDate = new Date(
@@ -389,9 +390,9 @@ export const getpostSaleCountsRegGraph = async (req, res, next) => {
       ].filter(Boolean),
       ...(project ? { project: project } : {}),
     };
-    // console.log(searchFilter);
-    // console.log("Start Date:", startDate);
-    // console.log("End Date:", endDate);
+    // logger.info(searchFilter);
+    // logger.info("Start Date:", startDate);
+    // logger.info("End Date:", endDate);
 
     // Count the total items matching the filter
     const totalItems = await postSaleLeadModel.countDocuments(searchFilter); // Count with the same filter
@@ -465,9 +466,9 @@ export const getpostSaleCountsRegGraph = async (req, res, next) => {
 //     let endDate = req.query.endDate;
 //     let dateRange = {};
 //     const currentDate = new Date();
-//     console.log(interval);
-//     console.log(startDate);
-//     console.log(endDate);
+//     logger.info(interval);
+//     logger.info(startDate);
+//     logger.info(endDate);
 
 //     if (interval === "weekly") {
 //       startDate = new Date(
@@ -540,8 +541,8 @@ export const getpostSaleCountsRegGraph = async (req, res, next) => {
 //       ...(project ? { project: project } : {}),
 
 //     };
-//     console.log("Start Date:", startDate);
-//     console.log("End Date:", endDate);
+//     logger.info("Start Date:", startDate);
+//     logger.info("End Date:", endDate);
 
 //     const resp = await postSaleLeadModel
 //       .find({
@@ -619,7 +620,7 @@ export const getPostSaleLeadById = async (req, res, next) => {
       .populate(postSalePopulateOptions);
 
     // Count the total items matching the filter
-    // console.log("data Sent");
+    // logger.info("data Sent");
     return res.send(
       successRes(200, "get post sale lead by id", {
         data: resp,
@@ -650,15 +651,15 @@ export const getPostSaleLeadsForExecutive = async (req, res, next) => {
     let statusToFind = null;
     let ids = [];
     let skip = (page - 1) * limit;
-    // console.log(project);
-    // console.log(status);
+    // logger.info(project);
+    // logger.info(status);
 
     if (project === "null") {
       project = null;
     }
 
     if (closingManager) {
-      // console.log("entered member");
+      // logger.info("entered member");
       const test = await postSaleLeadModel
         .find({ closingManager: closingManager })
         .select("_id");
@@ -666,7 +667,7 @@ export const getPostSaleLeadsForExecutive = async (req, res, next) => {
         ids.push(ele._id.toString());
       });
 
-      // console.log(ids);
+      // logger.info(ids);
     }
 
     if (date) {
@@ -679,8 +680,8 @@ export const getPostSaleLeadsForExecutive = async (req, res, next) => {
             $lte: endOfDay,
           },
         };
-        // console.log(startOfDay);
-        // console.log(endOfDay);
+        // logger.info(startOfDay);
+        // logger.info(endOfDay);
       } else if (date === "yesterday") {
         const startOfYesterday = moment()
           .subtract(1, "days")
@@ -708,8 +709,8 @@ export const getPostSaleLeadsForExecutive = async (req, res, next) => {
             $lte: endof7days,
           },
         };
-        // console.log(starof7days);
-        // console.log(endof7days);
+        // logger.info(starof7days);
+        // logger.info(endof7days);
       } else if (date === "last-30-days") {
         const startOfMonth = moment()
           .subtract(30, "days")
@@ -722,8 +723,8 @@ export const getPostSaleLeadsForExecutive = async (req, res, next) => {
             $lte: endOfMonth,
           },
         };
-        // console.log(startOfMonth);
-        // console.log(endOfMonth);
+        // logger.info(startOfMonth);
+        // logger.info(endOfMonth);
       }
     }
 
@@ -734,10 +735,10 @@ export const getPostSaleLeadsForExecutive = async (req, res, next) => {
           $lte: moment(endDate).endOf("day").toISOString(),
         },
       };
-      // console.log(startDate);
-      // console.log(endDate);
+      // logger.info(startDate);
+      // logger.info(endDate);
 
-      // console.log(dateFilter);
+      // logger.info(dateFilter);
     }
 
     if (status === "registrationDone" || status === "registration-done") {
@@ -1074,7 +1075,7 @@ export const addPostSaleLead = async (req, res, next) => {
     if (body.applicants == null || body.applicants?.length <= 0) {
       return res.send(errorRes(401, "Aplicant cant be empty"));
     }
-    // console.log(body);
+    logger.info(body);
     const findProject = await ourProjectModel.findById(project);
 
     if (findProject) {
@@ -1124,7 +1125,7 @@ export const addPostSaleLead = async (req, res, next) => {
 
         await findTarget.save();
       } catch (error) {
-        console.log(error);
+        logger.info(error);
         //
       }
     }
@@ -1172,7 +1173,7 @@ export const addPostSaleLead = async (req, res, next) => {
 
         await revisedTarget.save();
       } catch (e) {
-        console.log(e);
+        logger.info(e);
       }
     } else {
       try {
@@ -1202,7 +1203,7 @@ export const addPostSaleLead = async (req, res, next) => {
 
         await revisedTarget.save();
       } catch (e) {
-        console.log(e);
+        logger.info(e);
       }
     }
     try {
@@ -1216,7 +1217,7 @@ export const addPostSaleLead = async (req, res, next) => {
         },
       });
     } catch (error) {
-      console.log(error);
+      logger.info(error);
       //
     }
 
@@ -1231,7 +1232,7 @@ export const addPostSaleLead = async (req, res, next) => {
         occupied: true,
       });
     } catch (error) {
-      console.log(error);
+      logger.info(error);
       //
     }
 
@@ -1251,14 +1252,14 @@ export const addPostSaleLead = async (req, res, next) => {
                 });
               }
             } catch (error) {
-              console.log(error);
+              logger.info(error);
               //
             }
           }),
         );
       }
     } catch (error) {
-      console.log(error);
+      logger.info(error);
       //
     }
 
@@ -1287,11 +1288,11 @@ export const addPostSaleLead = async (req, res, next) => {
           },
         });
       } catch (error) {
-        console.log(error);
+        logger.info(error);
         //
       }
     } catch (error) {
-      console.log(error);
+      logger.info(error);
       //
     }
     // TODO: email commented for testing
@@ -1347,7 +1348,7 @@ export const addPostSaleLead = async (req, res, next) => {
       );
       // await sendEmail("aktarul.evgroup@gmail.com","Congratulations there has been a new booking in Nine Square by Deepak Karki.","");
     } catch (error) {
-      console.log(error);
+      logger.info(error);
       //
     }
 
@@ -1357,7 +1358,7 @@ export const addPostSaleLead = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -1366,12 +1367,12 @@ export const updatePostSaleLeadById = async (req, res, next) => {
   const body = req.body;
   const id = req.params.id;
   try {
-    // console.log("entered");
+    // logger.info("entered");
     if (!body) return res.send(errorRes(401, "No Data Provided"));
 
     const foundLead = await postSaleLeadModel.findById(id);
 
-    // console.log("entered 1");
+    // logger.info("entered 1");
 
     if (!foundLead) return res.send(errorRes(404, "No lead found"));
 
@@ -1390,8 +1391,8 @@ export const updatePostSaleLeadById = async (req, res, next) => {
 
       body.paymentFourAmt = 0;
     }
-    // console.log("entered 2");
-    // console.log(body);
+    // logger.info("entered 2");
+    // logger.info(body);
     await foundLead.updateOne({ $set: body }, { new: true });
     const updatedLead = await postSaleLeadModel
       .findById(id)
@@ -1457,18 +1458,18 @@ export const getPostSaleLeadByFlat = async (req, res) => {
   try {
     const unitNo = req.query.unitNo;
     const project = req.query.project;
-    // console.log(unitNo);
-    // console.log(project);
+    // logger.info(unitNo);
+    // logger.info(project);
     const filter = {
       unitNo: parseInt(unitNo),
       project,
     };
-    // console.log(filter);
+    // logger.info(filter);
 
     const respPayment = await postSaleLeadModel
       .findOne(filter)
       .populate(postSalePopulateOptions);
-    // console.log(respPayment);
+    // logger.info(respPayment);
     return res.send(
       successRes(200, "Get Post Lead payment", {
         data: respPayment,
@@ -1623,8 +1624,8 @@ export const cancelBooking = async (req, res, next) => {
 
     if (!lead) return res.send(errorRes(404, "Lead not found"));
 
-    // console.log("Lead found:", lead);
-    // console.log("Unit No to update:", lead.unitNo);
+    // logger.info("Lead found:", lead);
+    // logger.info("Unit No to update:", lead.unitNo);
 
     const updatedLead = await postSaleLeadModel.findByIdAndUpdate(
       id,
@@ -1658,7 +1659,7 @@ export const cancelBooking = async (req, res, next) => {
         },
       });
     } catch (error) {
-      // console.log(error);
+      // logger.info(error);
     }
 
     // new flat update
@@ -1704,11 +1705,11 @@ export const cancelBooking = async (req, res, next) => {
         { bookingStatus: "cancelled", isCountableBooking: false },
       );
     } catch (error) {
-      // console.log(error);
+      // logger.info(error);
     }
 
     // if (!flatUpdateSuccess) {
-    //   console.log("Failed to update flat status.");
+    //   logger.info("Failed to update flat status.");
     //   return res
     //     .status(500)
     //     .send(errorRes(500, "Failed to update flat status"));
@@ -1869,7 +1870,7 @@ export const notificationForPaymentDue = async (req, res, next) => {
           },
         });
 
-        // console.log(
+        // logger.info(
         //   `Sent ${p.label} reminder (${when}) for ${lead.firstName} ${lead.lastName}`
         // );
       }
@@ -1965,7 +1966,7 @@ export const sendPaymentDueEmail = async (req, res) => {
           manager: manager,
         });
 
-        // console.log(manager.email);
+        // logger.info(manager.email);
         await sendMultipleEmail(
           [manager.email],
           `Payment Due Reminder`,
@@ -2002,12 +2003,12 @@ export const sendPaymentDueEmail = async (req, res) => {
 //     const id = req.params.id;
 //     const { paymentId, update } = req.body;
 
-//     console.log("lead", id);
-//     console.log("pay", paymentId);
+//     logger.info("lead", id);
+//     logger.info("pay", paymentId);
 
-// console.log("update",update);
+// logger.info("update",update);
 
-//     console.log(req.body);
+//     logger.info(req.body);
 
 //     const updatedLead = await postSaleLeadModel.findOneAndUpdate(
 //       { _id: id, "paymentDetailSchema._id": paymentId },
@@ -2024,7 +2025,7 @@ export const sendPaymentDueEmail = async (req, res) => {
 //       },
 //       { new: true }
 //     );
-//     console.log(updatedLead);
+//     logger.info(updatedLead);
 
 //     if (!updatedLead) {
 //       return errorRes2(res, 400, "Lead or payment detail not found");
@@ -2048,7 +2049,7 @@ export const updatePaymentDetailsAmtStatus = async (req, res) => {
     const leadId = req.params.id;
     const { paymentId, update } = req.body;
 
-    // console.log("Update body:", update);
+    // logger.info("Update body:", update);
 
     const lead = await leadModel.findOne({ bookingRef: leadId });
 
@@ -2462,7 +2463,7 @@ export const getPaymentReport = async (req, res) => {
 
 // backup -notification, triggers notification for all cm
 // export const notificationForPaymentDue = async (req, res, next) => {
-//   // console.log("Running payment reminder cron job...");
+//   // logger.info("Running payment reminder cron job...");
 
 //   try {
 //     const today = moment().tz("Asia/Kolkata").startOf("day");
@@ -2510,10 +2511,10 @@ export const getPaymentReport = async (req, res) => {
 //       ],
 //     });
 
-//     // console.log(leads);
+//     // logger.info(leads);
 
 //     if (leads.length === 0) {
-//       console.log("No leads with payment due today or tomorrow.");
+//       logger.info("No leads with payment due today or tomorrow.");
 //       return errorRes2(400, "No due payments today or tomorrow.");
 //     }
 
@@ -2529,11 +2530,11 @@ export const getPaymentReport = async (req, res) => {
 //       status: "active",
 //     });
 
-//     // console.log(`closingManagers ${closingManagers}`);
+//     // logger.info(`closingManagers ${closingManagers}`);
 
 //     const allIds = [...closingManagers.map((m) => m._id.toString())];
 
-//     console.log(allIds);
+//     logger.info(allIds);
 
 //     const foundPlayers = await oneSignalModel.find({
 //       docId: { $in: allIds },
@@ -2544,7 +2545,7 @@ export const getPaymentReport = async (req, res) => {
 //       .filter((id) => id && id.trim() !== "");
 
 //     if (playerIds.length === 0) {
-//       console.log("No OneSignal player IDs found for closing managers.");
+//       logger.info("No OneSignal player IDs found for closing managers.");
 //       return errorRes2(400, "No player IDs found.");
 //     }
 
@@ -2582,14 +2583,14 @@ export const getPaymentReport = async (req, res) => {
 //             },
 //           });
 
-//           // console.log(
+//           // logger.info(
 //           //   ` Sent ${p.name} reminder (${when}) for ${lead.firstName} ${lead.lastName}`
 //           // );
 //         }
 //       }
 //     }
 
-//     // console.log("complete");
+//     // logger.info("complete");
 
 //     return res.send(
 //       successRes(200, "Notification sent", {
@@ -2597,7 +2598,7 @@ export const getPaymentReport = async (req, res) => {
 //       })
 //     );
 //   } catch (e) {
-//     console.log(e);
+//     logger.info(e);
 //     return errorRes2(500, `Internal Server error ${e}`);
 
 //     // console.error("Payment reminder cron error:", err);

@@ -26,6 +26,7 @@ import { errorRes2, successRes, successRes2 } from "../../model/response.js";
 import employeeModel from "../../model/employee.model.js";
 import ourProjectModel from "../../model/ourProjects.model.js";
 import { postSalePopulateOptionsv2 } from "../../utils/constant.js";
+import logger from "../../utils/logger.js";
 
 const postSaleRouter = Router();
 postSaleRouter.get(
@@ -119,7 +120,7 @@ postSaleRouter.get("/post-sale-list/:id", async (req, res) => {
 
     res.send({ total: update.length, data: update });
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     res.send(e);
   }
 });
@@ -442,7 +443,7 @@ postSaleRouter.get("/postsale-booking-payment-report", getPaymentReport);
 postSaleRouter.get("/postsale-lead-by-unit", async (req, res) => {
   try {
     const { project, unitNo, buildingNo } = req.query;
-    // console.log(req.query);
+    // logger.info(req.query);
 
     if (!project) {
       return errorRes2(res, 400, `Project is required`);
@@ -461,7 +462,7 @@ postSaleRouter.get("/postsale-lead-by-unit", async (req, res) => {
       return errorRes2(res, 401, `No booking found`);
     }
 
-    // console.log(client);
+    // logger.info(client);
     return successRes2(res, 200, "Booking details for client", {
       data: client,
     });
@@ -499,7 +500,7 @@ postSaleRouter.get("/postsale-fix-docs", async (req, res) => {
         }
       }),
     );
-    // console.log(client);
+    // logger.info(client);
     return successRes2(res, 200, "Booking details for client", {
       data: clients,
     });
@@ -539,7 +540,7 @@ postSaleRouter.get("/postsale-fixed-area", async (req, res) => {
       }),
     );
 
-    // console.log(client);
+    // logger.info(client);
     return successRes2(res, 200, "Booking details for client", {
       data: client,
     });

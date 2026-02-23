@@ -98,8 +98,8 @@ export const addRegularization = async (req, res, next) => {
       // role: teamLeaderResp?.role,
     });
     let ids = dta.map((ele) => ele.playerId);
-    // console.log(dta);
-    // console.log("Player IDs for Notification:", ids);
+    // logger.info(dta);
+    // logger.info("Player IDs for Notification:", ids);
 
     await sendNotificationWithImage({
       playerIds: [...ids],
@@ -376,7 +376,7 @@ export async function updateRegularizationApproval(req, res) {
           ],
         });
 
-        // console.log(dta);
+        // logger.info(dta);
 
         const ids = dta.map((ele) => ele.playerId);
 
@@ -412,7 +412,7 @@ export async function updateRegularizationApproval(req, res) {
             `employee_shift_info_${regularization.applyBy?._id}`,
           ]);
         } catch (error) {
-          // console.log(error);
+          // logger.info(error);
         }
       }
     } else {
@@ -427,7 +427,7 @@ export async function updateRegularizationApproval(req, res) {
     );
     // res.json({ message: `Request ${status}`, data: regularization });
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     res.status(500).json({ error: error.message });
   }
 }

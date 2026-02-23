@@ -78,10 +78,10 @@ export const getReimbursement = async (req, res, next) => {
           $lte: moment(endDate).endOf("day").toISOString(),
         },
       };
-      // console.log(startDate);
-      // console.log(endDate);
+      // logger.info(startDate);
+      // logger.info(endDate);
 
-      // console.log(dateFilter);
+      // logger.info(dateFilter);
     }
 
     // Add other query filters
@@ -91,7 +91,7 @@ export const getReimbursement = async (req, res, next) => {
     if (type) query.type = type;
     if (paidBy) query.paidBy = paidBy;
 
-    // console.log("Final Query:", { ...query, ...dateFilter });
+    // logger.info("Final Query:", { ...query, ...dateFilter });
 
     if (applyBy) {
       query.applyBy = applyBy;
@@ -112,7 +112,7 @@ export const getReimbursement = async (req, res, next) => {
     if (paidBy) {
       query.paidBy = paidBy;
     }
-    // console.log(query);
+    // logger.info(query);
 
     // Fetch Data
     const reimbursementRecords = await reimbursementModel
@@ -365,8 +365,8 @@ export const updateReimbursementStatus = async (req, res) => {
     //         userId: weekoff.applyBy,
     //       });
     //     } catch (error) {
-    //       console.log(error);
-    //       console.log("failed to insert regularization");
+    //       logger.info(error);
+    //       logger.info("failed to insert regularization");
     //     }
     //   }
 
@@ -440,7 +440,7 @@ export const onRejectOrApproveReimbursement = async (req, res, next) => {
     }
 
     await weekoffResp.save();
-    // console.log(weekoffResp);
+    // logger.info(weekoffResp);
     return successRes2(res, 200, `Request ${status}`, { data: weekoffResp });
   } catch (error) {
     return res.send(errorRes(500, `${error.message}`));

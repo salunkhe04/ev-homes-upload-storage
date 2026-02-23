@@ -35,6 +35,7 @@ import employeeModel from "../../model/employee.model.js";
 import shiftInfoModel from "../../model/attendance/shift/employeeShiftInfo.js";
 import moment from "moment-timezone";
 import { employeePopulateOptions } from "../../utils/constant.js";
+import logger from "../../utils/logger.js";
 
 const employeeRouter = Router();
 
@@ -251,7 +252,7 @@ employeeRouter.post("/emp-attach-shift", async (req, res) => {
           }
         } catch (error) {
           //
-          console.log(error);
+          logger.error(error);
         }
       })
     );

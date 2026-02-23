@@ -15,6 +15,7 @@ import leadModelV2 from "../../model/lead/leadV2Model.js";
 import moment from "moment-timezone";
 import eoiConfCountModel from "../../model/eoiAndConfirmation/eoi-conf-count.model.js";
 import postSaleLeadModel from "../../model/postSaleLead.model.js";
+import logger from "../../utils/logger.js";
 
 const eoiConfRouter = Router();
 // to get unqiue id incremented
@@ -74,7 +75,7 @@ eoiConfRouter.get("/eoi-confirmations", async (req, res) => {
 
     return successRes2(res, 200, "ok", { data: oldDoc });
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });
@@ -131,9 +132,9 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
     buildingNo,
     generatedBy,
   } = req.body;
-  // console.log(req.body);
+  // logger.info(req.body);
   if (!type) return errorRes2(res, 401, "type is required");
-  // console.log(req.body);
+  // logger.info(req.body);
   const filteredBody = filterNullValue(req.body);
   try {
     const oldDoc = await eoiConfModel.findOne({
@@ -245,7 +246,7 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
     return successRes2(res, 200, "ok", { data: newDoc });
   } catch (error) {
     //
-    console.log(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });
@@ -276,7 +277,7 @@ eoiConfRouter.post("/eoi-confirmation-handover/:id", async (req, res) => {
   if (!id) return errorRes2(res, 500, "id require");
 
   try {
-    // console.log(req.body);
+    // logger.info(req.body);
     const oldDoc = await eoiConfModel.findById(id);
     if (!oldDoc) return errorRes2(res, 500, "no Eoi or conf found");
     if (index) {
@@ -291,7 +292,7 @@ eoiConfRouter.post("/eoi-confirmation-handover/:id", async (req, res) => {
             el.handOverBy = handOverBy;
           }
         });
-        // console.log(oldDoc.eoiList);
+        // logger.info(oldDoc.eoiList);
       } else if (type === "confirmation") {
         //
         oldDoc.confirmationList.forEach((el, i) => {

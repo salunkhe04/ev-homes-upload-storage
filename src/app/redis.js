@@ -1,5 +1,6 @@
 import Redis from "ioredis";
 import config from "../config/config.js";
+import logger from "../utils/logger.js";
 export let isRedisConnected = false;
 export const redis = new Redis({
   // host: "host.docker.internal",
@@ -13,7 +14,7 @@ export const redis = new Redis({
 
 redis.on("connect", () => {
   isRedisConnected = true;
-  console.log("Connected to Redis!");
+  logger.info("Connected to Redis!");
 });
 redis.on("error", (err) => console.error("Redis Error:", err));
 

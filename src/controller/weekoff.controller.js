@@ -12,6 +12,7 @@ import moment from "moment-timezone";
 import { weekOffRequestPopulateOptions } from "../utils/constant.js";
 import oneSignalModel from "../model/oneSignal.model.js";
 import { sendNotificationWithImage } from "./oneSignal.controller.js";
+import logger from "../utils/logger.js";
 const timeZone = "Asia/Kolkata";
 
 export const addweekoff = async (req, res, next) => {
@@ -24,25 +25,25 @@ export const addweekoff = async (req, res, next) => {
     reportingTo,
     applyBy,
   } = req.body;
-  // console.log(req.body);
+  // logger.info(req.body);
   try {
     if (!weekoffDate) {
       return res.send(errorRes(401, "Week Off Date is required"));
     }
-    // console.log("pass 1");
+    // logger.info("pass 1");
 
     const applybyEmployee = await employeeModel.findById(applyBy);
-    // console.log("pass 2");
+    // logger.info("pass 2");
     if (!applybyEmployee) {
       return res.send(errorRes(404, "Apply By employee not found"));
     }
-    // console.log("pass 3");
+    // logger.info("pass 3");
 
     const reportingToEmployee = await employeeModel.findById(reportingTo);
     if (!reportingToEmployee) {
       return res.send(errorRes(404, "Reporting To employee not found"));
     }
-    // console.log("pass 4");
+    // logger.info("pass 4");
 
     const startOfWeek = moment(weekoffDate)
       .tz(timeZone)
@@ -55,7 +56,7 @@ export const addweekoff = async (req, res, next) => {
     });
 
     if (exisitingWeekOff) {
-      // console.log("exisiting weekoff");
+      // logger.info("exisiting weekoff");
       return (
         res
           //
@@ -68,7 +69,7 @@ export const addweekoff = async (req, res, next) => {
       );
     }
 
-    // console.log("pass 5");
+    // logger.info("pass 5");
 
     const configs = await approvalStepModel.findOne({
       requestType: "weekoff",
@@ -91,7 +92,7 @@ export const addweekoff = async (req, res, next) => {
       }
     });
 
-    // console.log("pass 6");
+    // logger.info("pass 6");
 
     const newWeekOff = await weekoffModel.create({
       ...req.body,
@@ -113,8 +114,8 @@ export const addweekoff = async (req, res, next) => {
       // role: teamLeaderResp?.role,
     });
     let ids = dta.map((ele) => ele.playerId);
-    // console.log(dta);
-    // console.log("Player IDs for Notification:", ids);
+    // logger.info(dta);
+    // logger.info("Player IDs for Notification:", ids);
 
     await sendNotificationWithImage({
       playerIds: [...ids],
@@ -130,13 +131,13 @@ export const addweekoff = async (req, res, next) => {
         // role: "channel-partner",
       },
     });
-    // console.log("pass 7");
+    // logger.info("pass 7");
 
     const createdWeekOff = await weekoffModel
       .findById(newWeekOff._id)
       .populate(weekOffRequestPopulateOptions);
 
-    // console.log("pass 8");
+    // logger.info("pass 8");
 
     return res.send(
       successRes(200, "Week Off added", {
@@ -144,7 +145,7 @@ export const addweekoff = async (req, res, next) => {
       })
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -380,8 +381,8 @@ export const updateWeekOffStatus = async (req, res) => {
         //   userId: weekoff.applyBy,
         // });
       } catch (error) {
-        // console.log(error);
-        // console.log("failed to insert weekoff");
+        // logger.info(error);
+        // logger.info("failed to insert weekoff");
       }
     }
 
@@ -546,8 +547,8 @@ export const onRejectOrApproveWeekoff = async (req, res, next) => {
             );
           }
         } catch (error) {
-          // console.log(error);
-          // console.log("failed to insert weekoff");
+          // logger.info(error);
+          // logger.info("failed to insert weekoff");
         }
       }
 

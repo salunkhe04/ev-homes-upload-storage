@@ -4,6 +4,7 @@ import timeTrackerConfModel from "../../model/timeline/timeTrackerConfig.model.j
 import { errorRes2, successRes2 } from "../../model/response.js";
 import timeTrackerActivityModel from "../../model/timeline/timelineActivity.model.js";
 import moment from "moment-timezone";
+import logger from "../../utils/logger.js";
 const trackerRouter = Router();
 // -----------------------------
 // POST /agent/sync
@@ -108,7 +109,7 @@ trackerRouter.get("/user/:userId/timeline-activity", async (req, res) => {
     ],
   };
 
-  // console.log(statusToFInd);
+  // logger.info(statusToFInd);
   const rows = await timeTrackerActivityModel
     .find(statusToFInd)
     .sort({ start: 1 })
@@ -122,7 +123,7 @@ trackerRouter.get("/user/:userId/timeline-activity", async (req, res) => {
 });
 
 trackerRouter.get("/timeline-config", async (req, res) => {
-  // console.log(statusToFInd);
+  // logger.info(statusToFInd);
   const rows = await timeTrackerConfModel.find().lean();
 
   return successRes2(res, 200, "acitvity", {
@@ -149,7 +150,7 @@ trackerRouter.get("/user/:userId/timeline", async (req, res) => {
     end: { $lte: end.toDate() },
   };
 
-  console.log(statusToFInd);
+  logger.info(statusToFInd);
   const rows = await timelineTracker
     .find(statusToFInd)
     .sort({ start: 1 })

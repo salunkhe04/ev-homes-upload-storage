@@ -7,6 +7,7 @@ import { errorRes } from "../model/response.js";
 import { createJwtToken, verifyJwtToken } from "../utils/helper.js";
 import os from "os";
 import semver from "semver";
+import logger from "../utils/logger.js";
 const MIN_VERSION = "1.1.105";
 
 export const authenticateToken = async (req, res, next) => {
@@ -22,9 +23,9 @@ export const authenticateToken = async (req, res, next) => {
     const clientVersion = req.headers["x-app-version"];
     const clientIsWeb = req.headers["x-platform"];
 
-    // console.log(`app version: ${clientVersion} `);
-    // console.log(`acces: ${accessToken} `);
-    // console.log(`refresh: ${refreshToken} `);
+    // logger.info(`app version: ${clientVersion} `);
+    // logger.info(`acces: ${accessToken} `);
+    // logger.info(`refresh: ${refreshToken} `);
     if (!accessToken) {
       if (!refreshToken) {
         res.setHeader("x-force-logout", `force-logout`);
@@ -277,7 +278,7 @@ export const authenticateToken = async (req, res, next) => {
     }
   } catch (error) {
     res.setHeader("x-force-logout", `force-logout`);
-    // console.log(error);
+    // logger.info(error);
     return res.send(errorRes(401, "Internal server error"));
   }
 };
@@ -302,7 +303,7 @@ export function versionCheckMiddleware(req, res, next) {
 
 export const logRequest = async (req, res, next) => {
   const accessToken = req.headers["authorization"]?.split(" ")[1];
-  // console.log(req.originalUrl);
+  // logger.info(req.originalUrl);
 
   let decoded;
   try {

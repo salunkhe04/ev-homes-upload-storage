@@ -3,6 +3,7 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 import moment from "moment-timezone";
+import logger from "./logger.js";
 
 export const getVerificationToken = () => {
   var token = crypto.randomBytes(32).toString("hex");
@@ -72,12 +73,12 @@ export const hostnameCheck = (req, res, next) => {
   }
 
   requestHost = requestHost.toLowerCase().trim();
-  // console.log("Request Host:", requestHost);
+  // logger.info("Request Host:", requestHost);
 
   const allowedHosts = config.ALLOWED_HOSTS.split(",").map((host) =>
     host.toLowerCase().trim()
   );
-  // console.log("Allowed Hosts:", allowedHosts);
+  // logger.info("Allowed Hosts:", allowedHosts);
 
   if (allowedHosts.includes(requestHost)) {
     next();

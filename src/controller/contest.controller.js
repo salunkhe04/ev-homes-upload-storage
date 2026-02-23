@@ -19,7 +19,6 @@ export const getContest = async (req, res) => {
     { lastName: { $regex: query, $options: "i" } },
   ].filter(Boolean);
   let filters = { ...statusToFind, $or: searchConditions };
-  // console.log(filters);
   try {
     const respDept = await contestModel
       .find(filters)
@@ -77,7 +76,6 @@ export const addContest = async (req, res) => {
     createId,
   } = body;
 
-  // console.log("Received Data:", body);
 
   try {
     if (!firstName) return res.send(errorRes(403, "First name is required"));

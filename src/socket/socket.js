@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import { server } from "../app/app.js";
 import { registerSocketEvents } from "./handler.js";
+import logger from "../utils/logger.js";
 
 export let connectedUsers = [];
 
@@ -12,6 +13,6 @@ export const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  // console.log(`User connected: ${socket.id}`);
+  // logger.info(`User connected: ${socket.id}`);
   registerSocketEvents(io, socket, connectedUsers);
 });

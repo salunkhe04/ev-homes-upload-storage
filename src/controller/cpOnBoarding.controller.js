@@ -40,7 +40,6 @@ export const onboardCp = async (req, res) => {
   try {
     const body = req.body;
     const { firmName, email, phoneNumber, firstName, lastName } = body;
-    // console.log(body);
     const existingCp = await cpModel
       .findOne({
         $or: [
@@ -136,7 +135,6 @@ export const getMonthlyTarget = async (req, res) => {
     const filter = {
       date: { $gte: nowStartOfMonth, $lte: nowEndOfMonth },
     };
-    // console.log(JSON.stringify(filter, null, 2));
     const resp = await CpOnBoardingModel.find(filter, { _id: 1 });
 
     // const resp = await CpOnBoardingModel.countDocuments(filter);

@@ -6,20 +6,21 @@ import {
   leadPopulateOptions,
 } from "../utils/constant.js";
 import estModel from "../model/estimator.model.js";
+import logger from "../utils/logger.js";
 
 export const getEstimateGenerated = async (req, res, next) => {
   try {
     let query = req.params.query || "";
     let teamLeader = req.query.teamLeader;
 
-    // console.log(teamLeader);
+    // logger.info(teamLeader);
 
     const estimateGenerated = await estimateGeneratedModel
       .find()
       .populate(estimateGeneratedPopulateOptions)
       .sort({ createdAt: -1 });
 
-    // console.log(estimateGenerated);
+    // logger.info(estimateGenerated);
 
     const filteredEstimates = teamLeader
       ? estimateGenerated.filter(
@@ -27,14 +28,14 @@ export const getEstimateGenerated = async (req, res, next) => {
             estimate.lead?.teamLeader?._id?.toString() === teamLeader,
         )
       : estimateGenerated;
-    // console.log(filteredEstimates.length);
+    // logger.info(filteredEstimates.length);
     return res.send(
       successRes(200, "Get Estimate Details", {
         data: filteredEstimates,
       }),
     );
   } catch (error) {
-    console.error("Error fetching estimates:", error);
+    logger.error(error);
     return res.send(errorRes(500, error.message || "Server error"));
   }
 };
@@ -45,7 +46,7 @@ export const addGeneratedEstimate = async (req, res, next) => {
     if (!body) {
       return res.send(errorRes(403, "body is required"));
     }
-    // console.log(body);
+    // logger.info(body);
 
     const newEstimate = new estimateGeneratedModel(body);
 
@@ -58,8 +59,8 @@ export const addGeneratedEstimate = async (req, res, next) => {
       teamLeader: newSaved?.lead?.teamLeader?._id,
     });
 
-    // console.log(body);
-    // console.log(estId);
+    // logger.info(body);
+    // logger.info(estId);
 
     const newResp = await estModel.findByIdAndUpdate(estId._id, {
       count: estId.count + 1,
@@ -71,7 +72,7 @@ export const addGeneratedEstimate = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.error("Error adding estimates:", error);
+    logger.error(error);
     return res.send(errorRes(500, error.message || "Server error"));
   }
 };
@@ -94,6 +95,7 @@ export const getEstimateGeneratedById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -116,6 +118,7 @@ export const getEstimatedById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -138,6 +141,7 @@ export const getEstimateGeneratedByEstId = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -145,7 +149,7 @@ export const getEstimateGeneratedByEstId = async (req, res, next) => {
 export const updateEstimateGeneratedById = async (req, res, next) => {
   const id = req.params.id;
   try {
-    // console.log(req.body);
+    // logger.info(req.body);
 
     const estimateGenerated = await estimateGeneratedModel
       .findByIdAndUpdate(id, { ...req.body }, { new: true })
@@ -157,7 +161,8 @@ export const updateEstimateGeneratedById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    // console.log(error);
+    logger.error(error);
+    // logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -165,7 +170,7 @@ export const updateEstimateGeneratedById = async (req, res, next) => {
 export const updateEstimateGeneratedByIdArray = async (req, res, next) => {
   const id = req.params.id;
   try {
-    // console.log(req.body);
+    // logger.info(req.body);
 
     const existingDoc = await estimateGeneratedModel
       .findById(id)
@@ -176,7 +181,7 @@ export const updateEstimateGeneratedByIdArray = async (req, res, next) => {
 
     const index = (existingDoc.finalDocumentCreated?.length || 0) + 1;
 
-    // console.log(index);
+    // logger.info(index);
     const estimateGenerated = await estimateGeneratedModel
       .findByIdAndUpdate(
         id,
@@ -198,7 +203,8 @@ export const updateEstimateGeneratedByIdArray = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.log(error);
+    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -223,6 +229,7 @@ export const getEstimateGeneratedMultiple = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `server error:${error?.message}`));
   }
 };
@@ -232,7 +239,7 @@ export const updateHandoverRevoke = async (req, res) => {
   const { index, reason, status } = req.body;
   try {
     const now = new Date();
-    // console.log(req.body);
+    // logger.info(req.body);
     // if (!index) return res.send(errorRes(500, "index not found"));
     let resp;
     if (index != null) {
@@ -240,13 +247,13 @@ export const updateHandoverRevoke = async (req, res) => {
       for (const key in req.body) {
         updateFields[`finalDocumentCreated.$.${key}`] = req.body[key];
       }
-      // console.log(updateFields);
+      // logger.info(updateFields);
       // Perform the update
       resp = await estimateGeneratedModel.updateOne(
         { _id: id, "finalDocumentCreated.index": index }, // Match project and specific flat
         { $set: updateFields }, // Dynamically update fields
       );
-      // console.log(req.body);
+      // logger.info(req.body);
     } else {
       const updateFields = {
         status,
@@ -260,8 +267,8 @@ export const updateHandoverRevoke = async (req, res) => {
         { new: true },
       );
     }
-    // console.log(id);
-    // console.log(resp._id);
+    // logger.info(id);
+    // logger.info(resp._id);
     const doc = await estimateGeneratedModel
       .findById(id)
       .populate(estimateGeneratedPopulateOptions);
@@ -271,7 +278,8 @@ export const updateHandoverRevoke = async (req, res) => {
       }),
     );
   } catch (error) {
-    console.log(error);
+    logger.error(error);
+    logger.error(error);
     return res.send(errorRes(500, error.message));
   }
 };

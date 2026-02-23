@@ -6,6 +6,7 @@ import {
   eligibilityAnswerPopulate,
   eligibilityRequestPopulate,
 } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 
 export const getExamResponse = async (req, res, next) => {
   try {
@@ -16,7 +17,7 @@ export const getExamResponse = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -169,19 +170,19 @@ export const addAnswer = async (req, res) => {
 
     const now = new Date();
 
-    // console.log(now);
+    // logger.info(now);
 
     const scheduledDate = new Date(eligibility.examConductedDate);
 
-    // console.log(scheduledDate);
+    // logger.info(scheduledDate);
     const durationMinutes = eligibility.exam?.durationInMinutes || 0;
 
-    // console.log(durationMinutes);
+    // logger.info(durationMinutes);
     const examEndTime = new Date(
       scheduledDate.getTime() + durationMinutes * 60000,
     );
 
-    // console.log(examEndTime);
+    // logger.info(examEndTime);
 
     if (now < scheduledDate) {
       return res.send(
@@ -261,6 +262,8 @@ export const addAnswer = async (req, res) => {
       successRes(200, "Exam submitted successfully", { data: newAnswer }),
     );
   } catch (e) {
+    logger.error(e);
+
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
 };
@@ -271,30 +274,30 @@ export const submitExam = async (req, res) => {
   try {
     const { questions, recording, score, timeTaken } = req.body;
 
-    // console.log(examId);
-    // console.log(req.body);
+    // logger.info(examId);
+    // logger.info(req.body);
 
     if (questions && !Array.isArray(questions)) {
       return res.send(
         errorRes(400, "Selected answers are required and must be an array"),
       );
     }
-    // console.log("pass 1");
+    // logger.info("pass 1");
 
     let totalMarksObtained = 0;
 
     const foundExam = await examAnswerModel.findById(examId);
-    // console.log("pass 2");
+    // logger.info("pass 2");
 
     if (!foundExam) {
       return res.send(errorRes(404, "foundExam request not found"));
     }
-    // console.log("pass 3");
+    // logger.info("pass 3");
 
     const eligibility = await eligibilityModel.findById(
       foundExam?.eligibilityRequest,
     );
-    // console.log("pass 4");
+    // logger.info("pass 4");
 
     const now = new Date();
 
@@ -332,11 +335,11 @@ export const submitExam = async (req, res) => {
       };
     });
 
-    // console.log("pass 5");
+    // logger.info("pass 5");
     const passed = totalMarksObtained >= foundExam.passingMarks;
     const previousAttempts = eligibility.examAttempts.length;
 
-    // console.log("pass 6");
+    // logger.info("pass 6");
     const updatedAnswers = await examAnswerModel.findByIdAndUpdate(
       examId,
       {
@@ -350,7 +353,7 @@ export const submitExam = async (req, res) => {
       { new: true },
     );
 
-    // console.log("pass 7");
+    // logger.info("pass 7");
     const examAttemptEntry = {
       attemptNumber: previousAttempts + 1,
       examAnswer: foundExam?._id,
@@ -358,32 +361,32 @@ export const submitExam = async (req, res) => {
       passed,
     };
 
-    // console.log("pass 8");
+    // logger.info("pass 8");
     const updateData = {
       $push: { examAttempts: examAttemptEntry },
       status: "exam-under-review",
     };
 
-    // console.log("pass 9");
+    // logger.info("pass 9");
     if (eligibility.typeOfAttempt === "mock") {
       updateData.$inc = { mockAttempt: 1, attemptsTaken: 1 };
     } else {
       updateData.$inc = { attemptsTaken: 1 };
     }
-    // console.log("pass 10");
+    // logger.info("pass 10");
 
     await eligibilityModel.findByIdAndUpdate(
       foundExam?.eligibilityRequest,
       updateData,
     );
 
-    // console.log("pass 11");
+    // logger.info("pass 11");
 
     return res.send(
       successRes(200, "Exam submitted successfully", { data: updatedAnswers }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
 
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
@@ -416,7 +419,7 @@ export const addExamTimeLine = async (req, res) => {
       successRes(200, "Exam Timeline added", { data: foundExam }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
 
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
@@ -428,20 +431,20 @@ export const saveAnswer = async (req, res) => {
   try {
     const { questions, recording, score, timeTaken } = req.body;
 
-    // console.log(examId);
-    // console.log(req.body);
+    // logger.info(examId);
+    // logger.info(req.body);
 
     if (questions && !Array.isArray(questions)) {
       return res.send(
         errorRes(400, "Selected answers are required and must be an array"),
       );
     }
-    // console.log("pass 1");
+    // logger.info("pass 1");
 
     let totalMarksObtained = 0;
 
     const foundExam = await examAnswerModel.findById(examId);
-    // console.log("pass 2");
+    // logger.info("pass 2");
 
     if (!foundExam) {
       return res.send(errorRes(404, "foundExam request not found"));
@@ -471,7 +474,7 @@ export const saveAnswer = async (req, res) => {
       };
     });
 
-    // console.log("pass 6");
+    // logger.info("pass 6");
     const updatedAnswers = await examAnswerModel.findByIdAndUpdate(
       examId,
       {
@@ -482,14 +485,14 @@ export const saveAnswer = async (req, res) => {
       { new: true },
     );
 
-    // console.log("pass 7");
-    // console.log("pass 11");
+    // logger.info("pass 7");
+    // logger.info("pass 11");
 
     return res.send(
       successRes(200, "Exam submitted successfully", { data: updatedAnswers }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
 
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }

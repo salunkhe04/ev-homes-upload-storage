@@ -11,21 +11,22 @@ import clientModel from "../../model/client.model.js";
 import employeeModel from "../../model/employee.model.js";
 import leadModelV2 from "../../model/lead/leadV2Model.js";
 import cpModel from "../../model/channelPartner.model.js";
+import logger from "../../utils/logger.js";
 
 const notifyRouter = Router();
 
 notifyRouter.post("/send-notification", async (req, res, next) => {
   const { title, message, image, templateName, leadRef } = req.body;
   try {
-    // console.log(req.body);
-    // console.log("passed note 1 ");
+    // logger.info(req.body);
+    // logger.info("passed note 1 ");
     const leadResp = await leadModelV2.findById(leadRef);
-    // console.log("passed note 2 ");
+    // logger.info("passed note 2 ");
 
     if (!leadResp) {
       return res.send(errorRes("Customer info not found for notification"));
     }
-    // console.log("passed note 3 ");
+    // logger.info("passed note 3 ");
 
     const customerResp = await clientModel.findOne({
       phoneNumber: leadResp.phoneNumber,
@@ -34,15 +35,15 @@ notifyRouter.post("/send-notification", async (req, res, next) => {
     if (!customerResp) {
       return res.send(errorRes("Customer not registered with us yet"));
     }
-    // console.log("passed note 4 ");
+    // logger.info("passed note 4 ");
 
     const foundTLPlayerId = await oneSignalModel.find({
       docId: { $in: [customerResp._id] },
     });
-    // console.log("passed note 5 ");
+    // logger.info("passed note 5 ");
 
     if (foundTLPlayerId.length > 0) {
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
       await sendNotificationWithImage({
@@ -61,25 +62,25 @@ notifyRouter.post("/send-notification", async (req, res, next) => {
 notifyRouter.post("/send-notification-to-cp", async (req, res, next) => {
   const { title, message, image, templateName, leadRef } = req.body;
   try {
-    // console.log(req.body);
-    // console.log("passed note 1 ");
+    // logger.info(req.body);
+    // logger.info("passed note 1 ");
     const leadResp = await leadModelV2.findById(leadRef);
-    // console.log("passed note 2 ");
+    // logger.info("passed note 2 ");
 
     if (!leadResp) {
       return res.send(errorRes("info not found for notification"));
     }
-    // console.log("passed note 3 ");
+    // logger.info("passed note 3 ");
 
-    // console.log("passed note 4 ");
+    // logger.info("passed note 4 ");
 
     const foundTLPlayerId = await oneSignalModel.find({
       docId: { $in: [leadResp.channelPartner] },
     });
-    // console.log("passed note 5 ");
+    // logger.info("passed note 5 ");
 
     if (foundTLPlayerId.length > 0) {
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
       await sendNotificationWithImage({
@@ -104,31 +105,31 @@ notifyRouter.post("/send-notication-from-cp/:id", async (req, res, next) => {
   //  // Use 'message' instead of 'description'
 
   try {
-    // console.log(req.body);
+    // logger.info(req.body);
 
-    // console.log("passed note 1 ");
+    // logger.info("passed note 1 ");
 
     const leadResp = await leadModelV2.findById(id);
 
     const teams = await employeeModel.find({ reportingTo: id }).select("_id");
     const ids = teams.map((ele) => ele._id);
 
-    // console.log("passed note 2 ");
+    // logger.info("passed note 2 ");
 
     if (!leadResp) {
       return res.send(errorRes("info not found for notification"));
     }
-    // console.log("passed note 3 ");
+    // logger.info("passed note 3 ");
 
-    // console.log(ids);
+    // logger.info(ids);
     const foundPlayerIds = await oneSignalModel.find({
       docId: { $in: [leadResp.dataAnalyzer, leadResp.teamLeader, ids] },
     });
 
-    // console.log("passed note 5 ");
+    // logger.info("passed note 5 ");
 
     if (foundPlayerIds.length > 0) {
-      // console.log(foundPlayerIds);
+      // logger.info(foundPlayerIds);
       const getPlayerIds = foundPlayerIds.map((dt) => dt.playerId);
 
       await sendNotificationWithImage({
@@ -161,15 +162,15 @@ notifyRouter.post("/send-notification-doc-id/:id", async (req, res, next) => {
   const id = req.params.id;
 
   try {
-    // console.log(id);
-    // console.log(req.body);
+    // logger.info(id);
+    // logger.info(req.body);
     const foundTLPlayerId = await oneSignalModel.find({
       docId: { $in: [id] },
     });
-    // console.log("passed note 5 ");
+    // logger.info("passed note 5 ");
 
     if (foundTLPlayerId.length > 0) {
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
       // await sendSilentNotification({
@@ -212,15 +213,15 @@ notifyRouter.post(
     const id = req.params.id;
 
     try {
-      // console.log(id);
-      // console.log(req.body);
+      // logger.info(id);
+      // logger.info(req.body);
       const foundTLPlayerId = await oneSignalModel.find({
         docId: { $in: [id] },
       });
-      // console.log("passed note 5 ");
+      // logger.info("passed note 5 ");
 
       if (foundTLPlayerId.length > 0) {
-        // console.log(foundTLPlayerId);
+        // logger.info(foundTLPlayerId);
         const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
         await sendNotificationWithImage({
@@ -255,15 +256,15 @@ notifyRouter.post("/send-payment-notification-doc-id/:id", async (req, res, next
   const id = req.params.id;
 
   try {
-    // console.log(id);
-    // console.log(req.body);
+    // logger.info(id);
+    // logger.info(req.body);
     const foundTLPlayerId = await oneSignalModel.find({
       docId: { $in: [id] },
     });
-    // console.log("passed note 5 ");
+    // logger.info("passed note 5 ");
 
     if (foundTLPlayerId.length > 0) {
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
       // await sendSilentNotification({

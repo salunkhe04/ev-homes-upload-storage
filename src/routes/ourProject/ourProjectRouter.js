@@ -28,6 +28,7 @@ import {
 } from "../../model/response.js";
 import { RedisService } from "../../app/redis.js";
 import flatModel from "../../model/flat.model.js";
+import logger from "../../utils/logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -127,7 +128,7 @@ ourProjectRouter.get(
             console.error("Error sending file:", err);
             res.status(500).send("Failed to download file.");
           } else {
-            // console.log("File sent successfully.");
+            // logger.info("File sent successfully.");
           }
 
           // Cleanup: Remove the file after sending
@@ -164,7 +165,7 @@ ourProjectRouter.get(
       // Write each row of data
       flats.forEach((flat) => {
         const row = headers.map((header) => flat[header] || "").join(",");
-        // console.log(row);
+        // logger.info(row);
         writeStream.write(row + "\n");
       });
 
@@ -178,7 +179,7 @@ ourProjectRouter.get(
             console.error("Error sending file:", err);
             res.status(500).send("Failed to download file.");
           } else {
-            // console.log("File sent successfully.");
+            // logger.info("File sent successfully.");
           }
 
           // Cleanup: Remove the file after sending
@@ -280,7 +281,7 @@ ourProjectRouter.post(
         __dirname,
         "marina_bay_flatlist_latest_changed.csv",
       );
-      // console.log("Looking for CSV at:", filePath);
+      // logger.info("Looking for CSV at:", filePath);
       if (!fs.existsSync(filePath)) {
         return res.status(400).send("CSV file not found");
       }
@@ -743,7 +744,7 @@ ourProjectRouter.post("/bulk-add-flats-p2/:id", async (req, res) => {
     //   }
     // }
 
-    // console.log(flatsToAdd);
+    // logger.info(flatsToAdd);
     // await ourProjectModel.findByIdAndUpdate(
     //   id,
     //   {
@@ -836,7 +837,7 @@ ourProjectRouter.post(
                 );
               } catch (error) {
                 //
-                console.log(error);
+                logger.info(error);
               }
             }),
           );
@@ -886,7 +887,7 @@ ourProjectRouter.post(
 //     //   }
 //     // }
 
-//     console.log(flatsToAdd);
+//     logger.info(flatsToAdd);
 //     // await ourProjectModel.findByIdAndUpdate(
 //     //   id,
 //     //   {
@@ -951,7 +952,7 @@ ourProjectRouter.post(
 //     }
 
 //     // ✅ Log flats for verification
-//     // console.log("Flats to insert:", flatsToAdd);
+//     // logger.info("Flats to insert:", flatsToAdd);
 
 //     // 🟡 Once verified, you can uncomment this to save
 //     // await ourProjectModel.findByIdAndUpdate(
@@ -1104,11 +1105,11 @@ ourProjectRouter.get("/update-carpet-area/:id", updatCarpetArea);
 
 //           // Optionally handle the response or log it
 //           if (!updateResponse) {
-//             console.log(`FlatNo ${flatNo} not found in project.`);
+//             logger.info(`FlatNo ${flatNo} not found in project.`);
 //           }
 //         })
 //       );
-// // console.log(updateResponse);
+// // logger.info(updateResponse);
 //       // Send a success response after processing is done
 //       return res.send({ message: "Project flat list updated successfully.",results:results });
 //     })

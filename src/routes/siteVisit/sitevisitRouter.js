@@ -35,6 +35,7 @@ import { sendMultipleEmail } from "../../utils/brevo.js";
 import { visitSummaryTemplate } from "../../templates/html_template.js";
 import leadModelV2 from "../../model/lead/leadV2Model.js";
 import { successRes2 } from "../../model/response.js";
+import logger from "../../utils/logger.js";
 // import jsonVisits from "./siteVisits_list.json" assert { type: "json" };
 
 const __filename = fileURLToPath(import.meta.url);
@@ -165,7 +166,7 @@ siteVisitRouter.get("/site-visit-past-15day", async (req, res) => {
         );
       } catch (error) {
         //
-        console.log(error);
+        logger.error(error);
       }
     }),
   );
@@ -218,7 +219,7 @@ siteVisitRouter.post(
 //     );
 //     res.send("ok");
 //   } catch (error) {
-//     console.log(error);
+//     logger.info(error);
 //     res.send(error);
 //   }
 // });
@@ -256,6 +257,6 @@ async function insertDataInBatches(data, batchSize = 1000) {
     const batch = data.slice(i, i + batchSize);
     await siteVisitModel.insertMany(batch, { ordered: false });
     insertedCount += batch.length;
-    // console.log(`Inserted ${insertedCount} out of ${totalRecords} records`);
+    // logger.info(`Inserted ${insertedCount} out of ${totalRecords} records`);
   }
 }

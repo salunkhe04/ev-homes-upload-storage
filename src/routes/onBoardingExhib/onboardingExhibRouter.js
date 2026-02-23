@@ -329,9 +329,7 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
     feedback2,
   } = req.body;
 
-  // console.log(req.body);
   const cleanedBody = cleanObject(req.body);
-  // console.log(cleanedBody);
   try {
     // if (!feedback) {
     //   return res.send(errorRes(403, "Remark is required"));
@@ -382,9 +380,7 @@ onbExhibRouter.post("/update-exhib-details/:id", async (req, res) => {
     feedback2,
   } = req.body;
 
-  // console.log(req.body);
   const cleanedBody = cleanObject(req.body);
-  // console.log(cleanedBody);
   try {
     // if (!feedback) {
     //   return res.send(errorRes(403, "Remark is required"));

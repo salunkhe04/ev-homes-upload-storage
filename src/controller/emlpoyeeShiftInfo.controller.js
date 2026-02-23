@@ -6,6 +6,7 @@ import shiftModel from "../model/attendance/shift/shift.model.js";
 import moment from "moment-timezone";
 import employeeModel from "../model/employee.model.js";
 import { RedisService } from "../app/redis.js";
+import logger from "../utils/logger.js";
 
 export const getShiftInfos = async (req, res, next) => {
   try {
@@ -249,7 +250,7 @@ export const updateShift = async (req, res) => {
       })
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, e));
   }
 };
@@ -277,7 +278,7 @@ export const resetGraceAndRegularization = async () => {
             updatedGraceDays: ele?.shift?.graceDays,
           });
         } catch (error) {
-          console.log(error);
+          logger.error(error);
         }
       })
     );
@@ -305,7 +306,7 @@ export const storeOverTime = async (req, res) => {
     // if (!shift) return res.send(errorRes(404, "Shift not found"));
     const shift = shiftInfo.shift;
     const shiftHours = shift.workingHours;
-    // console.log(shiftHours);
+    // logger.info(shiftHours);
 
     const today = new Date();
     const attendance = await attendanceModel.findOne({
@@ -323,14 +324,14 @@ export const storeOverTime = async (req, res) => {
     const timeIn = moment(shift.timeIn, "HH:mm").toDate();
     const timeOut = moment(shift.timeOut, "HH:mm");
 
-    // console.log(timeIn);
+    // logger.info(timeIn);
     let inTime = moment(attendance.checkInTime);
     if (inTime.isBefore(timeIn)) {
       inTime = timeIn;
     }
-    // console.log(inTime);
+    // logger.info(inTime);
     const outTime = moment(attendance.checkOutTime);
-    // console.log(outTime);
+    // logger.info(outTime);
     const actualworkedHours = timeOut.diff(timeIn, "minutes", true);
     const workedHours = outTime.diff(inTime, "minutes", true);
 
@@ -339,12 +340,12 @@ export const storeOverTime = async (req, res) => {
     if (undertime <= 0) {
       undertime = 0;
     }
-    // console.log(` un ${undertime}`);
+    // logger.info(` un ${undertime}`);
 
-    // console.log(`aws ${actualworkedHours}`);
+    // logger.info(`aws ${actualworkedHours}`);
 
-    // console.log(`ws ${workedHours}`);
-    // console.log(`ws ${workedHours - actualworkedHours}`);
+    // logger.info(`ws ${workedHours}`);
+    // logger.info(`ws ${workedHours - actualworkedHours}`);
 
     let overtime = workedHours - actualworkedHours;
     if (shiftInfo.payable === true) {
@@ -375,7 +376,7 @@ export const storeOverTime = async (req, res) => {
       successRes(200, "Overtime stored", { data: { overtime, undertime } })
     );
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
 };
@@ -390,7 +391,7 @@ export const updateOverTimeAndUnderTime = async (shiftInfo1, attendance) => {
 
     const shift = shiftInfo.shift;
     const shiftHours = shift.workingHours;
-    // console.log(shiftHours);
+    // logger.info(shiftHours);
 
     if (!attendance || !attendance?.checkInTime || !attendance?.checkOutTime) {
       return { overtime: 0, undertime: 0 };
@@ -398,7 +399,7 @@ export const updateOverTimeAndUnderTime = async (shiftInfo1, attendance) => {
     const timeIn = moment(shift.timeIn, "HH:mm").toDate();
     const timeOut = moment(shift.timeOut, "HH:mm");
 
-    // console.log(timeIn);
+    // logger.info(timeIn);
     let inTime = moment(attendance.checkInTime);
     if (inTime.isBefore(timeIn)) {
       inTime = timeIn;
@@ -436,7 +437,7 @@ export const updateOverTimeAndUnderTime = async (shiftInfo1, attendance) => {
 
     return { overtime, undertime };
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     return { overtime: 0, undertime: 0 };
   }
 };

@@ -1,4 +1,5 @@
 import axios from "axios";
+import logger from "../utils/logger.js";
 const appId = "d4ba7e76-e911-4cbd-a99a-592df2da7984";
 const apiKey = "OThlMDQ3NDYtNGZhOC00ZjlmLWJjODMtMWYxZDc4NDQxNzlm";
 
@@ -22,15 +23,15 @@ export const sendNotification = async ({ playerIds = [], message }) => {
     },
     android_sound: "notification_2",
   };
-  // console.log(data);
+  // logger.info(data);
   try {
     const response = await axios.post(url, data, { headers });
-    // console.log("Notification sent successfully:", response.data);
+    // logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    // console.error(
-    //   "Error sending notification:",
-    //   error.response?.data || error.message
-    // );
+    logger.error(
+      "Error sending notification:",
+      error.response?.data || error.message
+    );
   }
 };
 
@@ -70,12 +71,12 @@ export const sendNotificationWithInfo = async ({
 
     priority: 10,
   };
-  // console.log(notificationData);
+  // logger.info(notificationData);
   try {
     const response = await axios.post(url, notificationData, { headers });
-    console.log("Notification sent successfully:", response.data);
+    logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    console.error(
+    logger.error(
       "Error sending notification:",
       error.response?.data || error.message
     );
@@ -125,9 +126,9 @@ export const sendNotificationWithImage = async ({
 
   try {
     const response = await axios.post(url, notificationData, { headers });
-    console.log("Notification sent successfully:", response.data);
+    logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    console.error(
+    logger.error(
       "Error sending notification:",
       error.response?.data || error.message
     );
@@ -159,9 +160,9 @@ export const sendSilentNotification = async ({ playerIds, data }) => {
 
   try {
     const response = await axios.post(url, notificationData, { headers });
-    console.log("Notification sent successfully:", response.data);
+    logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    console.error(
+    logger.error(
       "Error sending notification:",
       error.response?.data || error.message
     );

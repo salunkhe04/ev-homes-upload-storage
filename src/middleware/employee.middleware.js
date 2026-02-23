@@ -65,7 +65,6 @@ export const validateRegisterEmployeeFields = (body) => {
     "division",
     "phoneNumber",
   ];
-  // console.log(body);
 
   for (let field of requiredFields) {
     if (!body[field]) {

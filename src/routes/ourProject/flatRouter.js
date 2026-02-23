@@ -4,6 +4,7 @@ import flatModel from "../../model/flat.model.js";
 import parkingModel from "../../model/parking.model.js";
 import { errorRes2, successRes, successRes2 } from "../../model/response.js";
 import { RedisService } from "../../app/redis.js";
+import logger from "../../utils/logger.js";
 const flatRouter = Router();
 
 flatRouter.get("/flat", async (req, res) => {
@@ -62,7 +63,7 @@ flatRouter.get("/get-flats", async (req, res) => {
 flatRouter.post("/flat-update/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    // console.log(req.body);
+    // logger.info(req.body);
 
     const flat = await flatModel.findByIdAndUpdate(
       id,
@@ -83,7 +84,7 @@ flatRouter.post("/flat-update/:id", async (req, res) => {
       }),
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return errorRes2(res, 500, " server error ");
   }
 });
@@ -111,7 +112,7 @@ flatRouter.post("/add-new-flat/:id", async (req, res) => {
 
     await newFlat.save();
 
-    // console.log(req.body);
+    // logger.info(req.body);
 
     const uflat = await flatModel
       .findById(newFlat._id)
@@ -126,7 +127,7 @@ flatRouter.post("/add-new-flat/:id", async (req, res) => {
       }),
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return errorRes2(res, 500, " server error ");
   }
 });

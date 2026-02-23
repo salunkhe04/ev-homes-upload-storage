@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { Router } from "express";
 import { successRes } from "../../model/response.js";
+import logger from "../../utils/logger.js";
 
 const geminiRouter = Router();
 const ai = new GoogleGenAI({
@@ -9,14 +10,14 @@ const ai = new GoogleGenAI({
 
 geminiRouter.post("/gemini-chat", async (req, res) => {
   try {
-    // console.log(req.body);
+    // logger.info(req.body);
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: req.body.text,
       // contents:
       //   'Here is user data: {"name": "Nikhil Rupainwar", "phoneNumber": "+91-8657684467", "linkedIn":"https://www.linkedin.com/in/nikhil-rupainwar-702640136"} based on the linkedIn i provide,can you tell me what is the designation, a?',
     });
-    // console.log(response.text);
+    // logger.info(response.text);
 
     return res.send(
       successRes(200, "oka", {
@@ -26,7 +27,7 @@ geminiRouter.post("/gemini-chat", async (req, res) => {
       }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(
       successRes(200, "oka", {
         data: {
@@ -60,7 +61,7 @@ geminiRouter.post("/gemini-chat", async (req, res) => {
   //   },
   // });
 
-  // console.log(response.text);
+  // logger.info(response.text);
 });
 
 export default geminiRouter;

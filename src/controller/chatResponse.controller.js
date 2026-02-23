@@ -45,7 +45,6 @@ export const getDetails = async (req, res) => {
       // Fetch projects from the database
       let opt = {};
       const projects = await ourProjectModel.find({}, { name: 1, _id: 1 }); // Include _id to get the project ID
-      // console.log(projects);
 
       // Map the projects to include both name and id in the desired format
       const projectOptions = projects.map((project) => ({

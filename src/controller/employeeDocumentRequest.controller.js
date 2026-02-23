@@ -119,7 +119,6 @@ export const getMyEmpRequests = async (req, res, next) => {
       })
       .populate(empDocRequestPopulate);
 
-      // console.log(empDoc.length);
     if (empDoc.length === 0) {
       return res.send(errorRes(404, "No records found"));
     }

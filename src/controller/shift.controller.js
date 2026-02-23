@@ -260,7 +260,6 @@ export const addEmployeesToShift = async (req, res) => {
     });
   }
 
-  // console.log(employeeIds);
 
   try {
     const shift = await shiftModel.findById(shiftId);

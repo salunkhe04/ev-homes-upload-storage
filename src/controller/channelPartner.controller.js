@@ -20,6 +20,7 @@ import {
   verifyJwtToken,
 } from "../utils/helper.js";
 import { sendNotificationWithImage } from "./oneSignal.controller.js";
+import logger from "../utils/logger.js";
 
 export const getChannelPartners = async (req, res, next) => {
   try {
@@ -34,6 +35,8 @@ export const getChannelPartners = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
   }
 };
@@ -63,6 +66,8 @@ export const getChannelPartnerReviewList = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
   }
 };
@@ -111,6 +116,8 @@ export const searchChannelPartners = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
   }
 };
@@ -134,6 +141,8 @@ export const getChannelPartnerById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -180,6 +189,8 @@ export const editChannelPartnerById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -205,6 +216,8 @@ export const deleteChannelPartnerById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -287,6 +300,8 @@ export const registerChannelPartner = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
   }
 };
@@ -358,6 +373,8 @@ export const loginChannelPartner = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
   }
 };
@@ -429,6 +446,8 @@ export const loginChannelPartnerV2 = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
   }
 };
@@ -441,9 +460,9 @@ export const newPassword = async (req, res, next) => {
     if (!id) {
       return res.send(errorRes(403, "ID is required"));
     }
-    // console.log(id);
-    // console.log(password);
-    // console.log(newPassword);
+    // logger.info(id);
+    // logger.info(password);
+    // logger.info(newPassword);
     if (!password || !newPassword) {
       return res.send(errorRes(403, "Old and new passwords are required"));
     }
@@ -455,26 +474,28 @@ export const newPassword = async (req, res, next) => {
         errorRes(404, `Channel Partner not found with id: ${id}`),
       );
     }
-    // console.log("pass 1");
-    // console.log(respCP.password);
+    // logger.info("pass 1");
+    // logger.info(respCP.password);
 
     const isMatch = await comparePassword(password, respCP.password);
-    // console.log("pass 2");
+    // logger.info("pass 2");
 
     if (!isMatch) {
       return res.send(errorRes(400, "Old password is incorrect"));
     }
-    // console.log("pass 3");
+    // logger.info("pass 3");
 
     const hashedNewPassword = await encryptPassword(newPassword);
     respCP.password = hashedNewPassword;
     await respCP.save();
-    // console.log("pass 4");
+    // logger.info("pass 4");
 
     return res.send(
       successRes(200, "Password updated successfully", { data: respCP }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
   }
 };
@@ -509,6 +530,8 @@ export const reAuthChannelPartner = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
   }
 };
@@ -619,6 +642,8 @@ export const forgotPasswordChannelPartner = async (req, res, next) => {
       }),
     );
   } catch (error) {
+        logger.error(error);
+    
     return next(error);
   }
 };
@@ -797,7 +822,7 @@ export const verifyEmailOTP = async (req, res, next) => {
       await otpDbResp.deleteOne();
     } catch (error) {
       //
-      console.log(error);
+      logger.error(error);
     }
 
     return res.send(
@@ -806,7 +831,7 @@ export const verifyEmailOTP = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.log(error);
+    logger.error(error);
 
     return next(error);
   }
@@ -835,7 +860,7 @@ export const verifyRegisterEmailOTP = async (req, res, next) => {
       await otpDbResp.deleteOne();
     } catch (error) {
       //
-      console.log(error);
+      logger.error(error);
     }
 
     return res.send(
@@ -844,7 +869,7 @@ export const verifyRegisterEmailOTP = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.log(error);
+    logger.error(error);
 
     return next(error);
   }
@@ -968,7 +993,7 @@ export const verifyPhoneOTP = async (req, res, next) => {
       await otpDbResp.deleteOne();
     } catch (error) {
       //
-      console.log(error);
+      logger.error(error);
     }
 
     return res.send(
@@ -977,7 +1002,7 @@ export const verifyPhoneOTP = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.log(error);
+    logger.error(error);
 
     return next(error);
   }
@@ -1124,8 +1149,8 @@ export const getCPReAuth = async (req, res, next) => {
   try {
     const accessToken = req.headers["authorization"]?.split(" ")[1];
     const refreshToken = req.headers["x-refresh-token"]?.split(" ")[1];
-    // console.log(accessToken);
-    // console.log(refreshToken);
+    // logger.info(accessToken);
+    // logger.info(refreshToken);
     if (!accessToken) {
       res.setHeader("x-force-logout", `force-logout`);
 
@@ -1209,7 +1234,7 @@ export const getCPReAuth = async (req, res, next) => {
             refreshToken,
             config.SECRET_REFRESH_KEY,
           );
-          // console.log(refreshDecoded);
+          // logger.info(refreshDecoded);
           const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
           const timeLeft = refreshDecoded.exp - currentTime;
 
@@ -1235,7 +1260,7 @@ export const getCPReAuth = async (req, res, next) => {
             }),
           );
         } catch (refreshError) {
-          // console.log(refreshError);
+          // logger.info(refreshError);
           res.setHeader("x-force-logout", `force-logout`);
           return res.send(
             errorRes(401, "Session Expired, Please log in again to continue."),
@@ -1261,7 +1286,7 @@ export const cpOnboardingRegister = async (req, res, next) => {
     req.body;
   try {
     if (!body) return res.send(errorRes(403, "valid data is required"));
-    // console.log(body);
+    // logger.info(body);
     const oldCp = await cpModel.findOne({
       $or: [{ email: email }, { phoneNumber: phoneNumber }],
     });
@@ -1298,10 +1323,10 @@ export const cpOnboardingRegister = async (req, res, next) => {
           ],
         },
       });
-      // console.log("passed note 5 ");
+      // logger.info("passed note 5 ");
 
       if (foundTLPlayerId.length > 0) {
-        // console.log(foundTLPlayerId);
+        // logger.info(foundTLPlayerId);
         const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
         await sendNotificationWithImage({
@@ -1315,7 +1340,7 @@ export const cpOnboardingRegister = async (req, res, next) => {
       }
     } catch (error) {
       //
-      console.log(error);
+      logger.error(error);
     }
 
     //if all ok
@@ -1325,7 +1350,7 @@ export const cpOnboardingRegister = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.log(error);
+    logger.error(error);
 
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -1338,7 +1363,7 @@ export const cpOnboardingUpdate = async (req, res, next) => {
   try {
     if (!id) return res.send(errorRes(403, "id is required"));
     if (!body) return res.send(errorRes(403, "valid data is required"));
-    // console.log(body);
+    // logger.info(body);
     const respCP = await cpModel.findById(id);
 
     //if not found
@@ -1368,10 +1393,10 @@ export const cpOnboardingUpdate = async (req, res, next) => {
           ],
         },
       });
-      // console.log("passed note 5 ");
+      // logger.info("passed note 5 ");
 
       if (foundTLPlayerId.length > 0) {
-        // console.log(foundTLPlayerId);
+        // logger.info(foundTLPlayerId);
         const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
         await sendNotificationWithImage({
@@ -1394,7 +1419,7 @@ export const cpOnboardingUpdate = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -1409,7 +1434,7 @@ export const cpOnboardingApproval = async (req, res, next) => {
     if (!id) return res.send(errorRes(403, "id is required"));
     if (!body) return res.send(errorRes(403, "valid data is required"));
 
-    // console.log(body);
+    // logger.info(body);
     const respCP = await cpModel.findById(id);
     let updatedResp = await cpModel.findById(id);
 
@@ -1466,7 +1491,7 @@ export const cpOnboardingApproval = async (req, res, next) => {
         { headers },
       );
 
-      // console.log("bre list created:", brevoResponse.data);
+      // logger.info("bre list created:", brevoResponse.data);
 
       const brevoListId = brevoResponse?.data?.id;
 
@@ -1480,16 +1505,16 @@ export const cpOnboardingApproval = async (req, res, next) => {
       }
     }
 
-    console.log("pass till here");
+    logger.info("pass till here");
 
     try {
       const foundTLPlayerId = await oneSignalModel.find({
         docId: { $in: [updatedResp?._id] },
       });
-      // console.log("passed note 5 ");
+      // logger.info("passed note 5 ");
 
       if (foundTLPlayerId.length > 0) {
-        // console.log(foundTLPlayerId);
+        // logger.info(foundTLPlayerId);
         const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
         await sendNotificationWithImage({
@@ -1548,14 +1573,14 @@ export const syncCp = async (req, res, next) => {
 
         const brevoListId = brevoResponse?.data?.id;
 
-        // console.log(brevoListId);
+        // logger.info(brevoListId);
 
         if (brevoListId) {
           await cpModel.findByIdAndUpdate(cp._id, { brevoId: brevoListId });
           synced.push({ cp: cp.firmName, brevoId: brevoListId });
         }
       } catch (err) {
-        console.log(
+        logger.info(
           "Brevo sync error for CP:",
           cp.firmName,
           err?.response?.data || err.message,

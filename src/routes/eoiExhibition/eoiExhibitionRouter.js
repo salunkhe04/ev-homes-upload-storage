@@ -62,7 +62,6 @@ eoiExhibitionRouter.post("/add-eoi-exhibition", async (req, res) => {
     });
 
     await newEOI.save();
-    // console.log(phoneNumber);
 
     try {
       const existingClient = await clientModel.findOne({

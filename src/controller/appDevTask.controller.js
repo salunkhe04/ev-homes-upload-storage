@@ -75,7 +75,6 @@ export const addAppDevTask = async (req, res) => {
       assignTo: assignTo,
     };
 
-    // console.log(body);
     const newAppDev = await appDevModel.create({
       ...newData,
     });

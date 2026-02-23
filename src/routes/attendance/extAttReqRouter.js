@@ -40,7 +40,6 @@ extAttReqRouter.post("/ext-att-request", async (req, res) => {
 
     if (!body) return errorRes2(res, "body is required");
 
-    // console.log(body);
     const newAtt = await extAttReqModel.create({
       ...body,
     });

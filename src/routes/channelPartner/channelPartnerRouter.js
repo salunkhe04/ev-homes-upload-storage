@@ -141,7 +141,6 @@ cpRouter.get("/check-cp-email-exist/:email", async (req, res) => {
 cpRouter.get("/check-cp-exist", async (req, res) => {
   const { email, phoneNumber, reraNumber } = req.query;
   try {
-    // console.log(req.query);
     if (!email && !phoneNumber && !reraNumber) {
       return res.send(errorRes(400, "No query provided"));
     }
@@ -169,7 +168,6 @@ cpRouter.get("/check-cp-exist", async (req, res) => {
       });
     }
 
-    // console.log(query);
     //
     const resp = await cpModel
       .findOne(query)

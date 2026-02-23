@@ -12,6 +12,7 @@ import {
   meetingRequestPopulateOptions,
 } from "../utils/constant.js";
 import { encryptPassword } from "../utils/helper.js";
+import logger from "../utils/logger.js";
 
 export const getMeetingRequest = async (req, res) => {
   try {
@@ -23,9 +24,11 @@ export const getMeetingRequest = async (req, res) => {
     return res.send(
       successRes(200, "Get Meeting Summary", {
         data: respMe,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, error));
   }
 };
@@ -39,13 +42,15 @@ export const getMeetinRequestById = async (req, res) => {
       .populate(meetingRequestPopulateOptions)
       .sort({ date: 1 });
 
-    // console.log(respMe);
+    // logger.info(respMe);
     return res.send(
       successRes(200, "Get meeting requests by team leader ID", {
         data: respMe,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, error));
   }
 };
@@ -62,7 +67,7 @@ export const addMeetingRequest = async (req, res) => {
     }
 
     if (!date) return res.send(errorRes(401, "Date is required"));
-    // console.log(phoneNumber);
+    // logger.info(phoneNumber);
     const checkId = await clientModel.findOne({
       phoneNumber: leadResp.phoneNumber,
     });
@@ -94,11 +99,13 @@ export const addMeetingRequest = async (req, res) => {
           // choiceApt,
           password: hashPassword,
         });
-      } catch (error) {}
+      } catch (error) {
+        logger.error(error);
+      }
     } else {
-      // console.log("else part");
+      // logger.info("else part");
     }
-    // console.log("pass 4");
+    // logger.info("pass 4");
 
     // Create the meeting request
     const newMeeting = await meetingRequestModel.create({
@@ -114,29 +121,30 @@ export const addMeetingRequest = async (req, res) => {
       meetingRequestTemplate(
         `${employee.firstName} ${employee.lastName}`,
         leadData.firstName,
-        leadData.lastName
+        leadData.lastName,
       ),
       [],
-      ["evhomes.operations@evgroup.co.in", "shreya.evgroup@gmail.com"]
+      ["evhomes.operations@evgroup.co.in", "shreya.evgroup@gmail.com"],
     );
 
     const resultMeeting = await meetingRequestModel
       .findById(newMeeting._id)
       .populate(meetingRequestPopulateOptions);
 
-    // console.log("last");
-    // console.log(resultMeeting);
+    // logger.info("last");
+    // logger.info(resultMeeting);
 
     // Return the created meeting request
     return res.send(
       successRes(200, `Meeting request added successfully!`, {
         data: resultMeeting,
-      })
+      }),
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
+
     return res.send(
-      errorRes(500, "An error occurred while adding the meeting request")
+      errorRes(500, "An error occurred while adding the meeting request"),
     );
   }
 };

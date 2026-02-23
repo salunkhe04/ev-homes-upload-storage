@@ -6,6 +6,7 @@ import moment from "moment-timezone";
 import shiftModel from "../model/attendance/shift/shift.model.js";
 import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
 import leaveRequestModel from "../model/attendance/leave/leaveRequest.model.js";
+import logger from "../utils/logger.js";
 
 export const getLeaveHistory = async (req, res) => {
   try {
@@ -19,7 +20,7 @@ export const getLeaveHistory = async (req, res) => {
       }),
     );
   } catch (error) {
-    // console.log(error);
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -29,7 +30,7 @@ export const getLeaveHistoryById = async (req, res, next) => {
 
   try {
     const emp = await employeeModel.findById(id);
-    // console.log(emp);
+    // logger.info(emp);
 
     const resp = await leaveHistoryModel
       .find({ userId: emp._id })
@@ -73,6 +74,8 @@ export const createLeaveHistory = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, error));
   }
 };
@@ -127,6 +130,8 @@ export const createLeaveHistoryFunc = async ({
       message: "Leave history created successfully",
     };
   } catch (error) {
+    logger.error(error);
+
     return {
       success: false,
       error,
@@ -152,6 +157,8 @@ export const deleteLeaveHistory = async (req, res) => {
       ),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -164,14 +171,14 @@ export const deleteLeaveHistory = async (req, res) => {
 
 //     // const targetDate = today.subtract(6, "months");
 
-//     console.log(today);
+//     logger.info(today);
 
 //     const startOfDay = today.startOf("day").toDate();
 
 //     const endOfDay = today.endOf("day").toDate();
 
-//     console.log("star", startOfDay);
-//     console.log("endOfDay", endOfDay);
+//     logger.info("star", startOfDay);
+//     logger.info("endOfDay", endOfDay);
 
 //     const expiredCompOffs = await leaveHistoryModel.find({
 //       leaveType: "on-compensation-off-leave",
@@ -203,7 +210,7 @@ export const deleteLeaveHistory = async (req, res) => {
 
 //     //   const shift = await shiftInfoModel.findOne({ userId });
 
-//     //   console.log(shift);
+//     //   logger.info(shift);
 
 //     //   // if (!shift) continue;
 

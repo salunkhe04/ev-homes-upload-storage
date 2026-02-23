@@ -20,6 +20,7 @@ import {
   verifyJwtToken,
 } from "../utils/helper.js";
 import { sendNotificationWithImage } from "./oneSignal.controller.js";
+import logger from "../utils/logger.js";
 
 export const updateDesgEmp = async (req, res, next) => {
   try {
@@ -50,6 +51,10 @@ export const updateDesgEmp = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -74,6 +79,9 @@ export const getEmployees = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
+
     return next(error);
   }
 };
@@ -94,6 +102,9 @@ export const getEmployeesForAttendance = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
+
     return next(error);
   }
 };
@@ -134,6 +145,8 @@ export const getVisitEntryAllowedStaff = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -157,6 +170,8 @@ export const getTeamLeaderCSM = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -190,6 +205,8 @@ export const getSalesManagers = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -221,6 +238,8 @@ export const getSeniorClosingManagers = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -241,6 +260,8 @@ export const getPostSaleExecutives = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -268,7 +289,7 @@ export const getEmployeeByDesignation = async (req, res, next) => {
       };
     }
 
-    // console.log(desgId);
+    // logger.info(desgId);
     const respCP = await employeeModel
       .find({
         ...filter,
@@ -283,6 +304,8 @@ export const getEmployeeByDesignation = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -293,7 +316,7 @@ export const getEmployeeByCustomRole = async (req, res, next) => {
     if (!desgId) return res.send(errorRes(200, "id is required"));
     let filter = { permissions: desgId };
 
-    // console.log(desgId);
+    // logger.info(desgId);
     const respCP = await employeeModel
       .find({
         ...filter,
@@ -308,6 +331,8 @@ export const getEmployeeByCustomRole = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -332,6 +357,8 @@ export const getTeamLeaders = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -362,6 +389,8 @@ export const getDataAnalyzers = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -385,6 +414,8 @@ export const getPreSalesExecutive = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -409,6 +440,8 @@ export const getEmployeeById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -460,6 +493,8 @@ export const getEmployeeReAuth = async (req, res, next) => {
       req.user = user;
       return res.send(successRes(200, "Authenticated", { data: user }));
     } catch (error) {
+      logger.error(error);
+
       if (error.name === "TokenExpiredError") {
         // Access token expired, attempt to refresh
         if (!refreshToken) {
@@ -508,7 +543,7 @@ export const getEmployeeReAuth = async (req, res, next) => {
             refreshToken,
             config.SECRET_REFRESH_KEY,
           );
-          // console.log(refreshDecoded);
+          // logger.info(refreshDecoded);
           const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
           const timeLeft = refreshDecoded.exp - currentTime;
 
@@ -552,7 +587,7 @@ export const getEmployeeReAuth = async (req, res, next) => {
             }),
           );
         } catch (refreshError) {
-          // console.log(refreshError);
+          // logger.info(refreshError);
           res.setHeader("x-force-logout", `force-logout`);
           return res.send(
             errorRes(401, "Session Expired, Please log in again to continue."),
@@ -566,8 +601,9 @@ export const getEmployeeReAuth = async (req, res, next) => {
       );
     }
   } catch (error) {
+
     // res.setHeader("x-force-logout", `force-logout`);
-    console.error("Error during re-authentication:", error);
+    logger.error("Error during re-authentication:", error);
     return res.send(errorRes(500, "Internal server error"));
   }
 };
@@ -578,7 +614,7 @@ export const editEmployeeById = async (req, res, next) => {
   try {
     if (!id) return res.send(errorRes(403, "id is required"));
     if (!body) return res.send(errorRes(403, "valid data is required"));
-    // console.log(body);
+    // logger.info(body);
 
     // return res.send(errorRes(404, `test success`));
     const respEmployee = await employeeModel
@@ -600,6 +636,8 @@ export const editEmployeeById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -653,6 +691,8 @@ export const getReportingTo = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     next(error); // Pass the error to the global error handler
   }
 };
@@ -675,6 +715,8 @@ export const deleteEmployeeById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -708,6 +750,8 @@ export const registerMpin = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     if (error.code === 11000) {
       return res.send(errorRes(400, `${error.keyValue._id} already exists.`));
     }
@@ -720,7 +764,7 @@ export const registerEmployee = async (req, res, next) => {
   const body = req.filteredBody;
   const { email, password, shift } = body;
   try {
-    // console.log(body);
+    // logger.info(body);
     if (!body) return res.send(errorRes(403, "data is required"));
     const validateFields = validateRegisterEmployeeFields(body);
 
@@ -792,7 +836,7 @@ export const registerEmployee = async (req, res, next) => {
       "7d",
     );
     updatedEmp.refreshToken = refreshToken;
-    // console.log(savedEmployee);
+    // logger.info(savedEmployee);
     await updatedEmp.save();
 
     return res.send(
@@ -803,6 +847,8 @@ export const registerEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     if (error.code === 11000) {
       return res.send(errorRes(400, `${error.keyValue._id} already exists.`));
     }
@@ -850,6 +896,8 @@ export const validateMpin = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -932,6 +980,8 @@ export const loginEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -966,6 +1016,8 @@ export const reAuthEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -1036,6 +1088,8 @@ export const forgotPasswordEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -1092,6 +1146,8 @@ export const resetPasswordEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -1141,6 +1197,8 @@ export const searchEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -1153,9 +1211,9 @@ export const newPassword = async (req, res, next) => {
     if (!id) {
       return res.send(errorRes(403, "ID is required"));
     }
-    // console.log(id);
-    // console.log(password);
-    // console.log(newPassword);
+    // logger.info(id);
+    // logger.info(password);
+    // logger.info(newPassword);
     if (!password || !newPassword) {
       return res.send(errorRes(403, "Old and new passwords are required"));
     }
@@ -1165,26 +1223,28 @@ export const newPassword = async (req, res, next) => {
     if (!respAdmin) {
       return res.send(errorRes(404, `Admin not found with id: ${id}`));
     }
-    // console.log("pass 1");
-    // console.log(respAdmin.password);
+    // logger.info("pass 1");
+    // logger.info(respAdmin.password);
 
     const isMatch = await comparePassword(password, respAdmin.password);
-    // console.log("pass 2");
+    // logger.info("pass 2");
 
     if (!isMatch) {
       return res.send(errorRes(400, "Old password is incorrect"));
     }
-    // console.log("pass 3");
+    // logger.info("pass 3");
 
     const hashedNewPassword = await encryptPassword(newPassword);
     respAdmin.password = hashedNewPassword;
     await respAdmin.save();
-    // console.log("pass 4");
+    // logger.info("pass 4");
 
     return res.send(
       successRes(200, "Password updated successfully", { data: respAdmin }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -1194,14 +1254,14 @@ export const sendAddLeaveNotification = async (req, res, next) => {
     const today = moment(); // current date
     const bufferDays = 4;
 
-    // console.log(today);
+    // logger.info(today);
 
     // Employees with joiningDate
     const employees = await employeeModel.find({ joiningDate: { $ne: null } });
 
-    // console.log(employees);
+    // logger.info(employees);
     const upcomingLeaveEmployees = [];
-    // console.log(upcomingLeaveEmployees);
+    // logger.info(upcomingLeaveEmployees);
 
     for (const emp of employees) {
       const joiningDate = moment(emp.joiningDate);
@@ -1259,7 +1319,7 @@ export const sendAddLeaveNotification = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    console.error("Error in sendAddLeaveNoti:", e);
+    logger.error("Error in sendAddLeaveNoti:", e);
     res.status(500).send({ status: "error", message: "Internal server error" });
   }
 };

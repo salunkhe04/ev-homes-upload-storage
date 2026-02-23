@@ -8,6 +8,7 @@ import leadModelV2 from "../../model/lead/leadV2Model.js";
 import moment from "moment-timezone";
 import oneSignalModel from "../../model/oneSignal.model.js";
 import employeeModel from "../../model/employee.model.js";
+import logger from "../../utils/logger.js";
 export let notificationQueue;
 notificationQueue = new Queue("notifications", { connection: redis });
 const worker = new Worker(
@@ -63,7 +64,7 @@ const worker = new Worker(
         approvalRemark,
       } = job.data;
 
-      console.log("lead added xelo start", JSON.stringify(job.data));
+      logger.info("lead added xelo start", JSON.stringify(job.data));
 
       const timeZone = "Asia/Kolkata";
       const baseTime = moment().tz(timeZone);
@@ -96,7 +97,7 @@ const worker = new Worker(
         { ordered: false }
       );
 
-      console.log("lead added xelo end", startDate.toISOString());
+      logger.info("lead added xelo end", startDate.toISOString());
       const myTeamNotify = await employeeModel
         .find({
           permissions: "lead_assign_notify",
@@ -111,13 +112,13 @@ const worker = new Worker(
         docId: { $in: [...getIds2, teamLeader] },
         // role: "employee",
       });
-      // console.log("p11");
+      // logger.info("p11");
 
       if (foundTLPlayerId.length > 0) {
-        // console.log(foundTLPlayerId);
+        // logger.info(foundTLPlayerId);
         const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
         const filteredIds = getPlayerIds.filter((ele) => ele != "");
-        // console.log(filteredIds);
+        // logger.info(filteredIds);
 
         try {
           await sendNotificationWithImage({
@@ -132,7 +133,7 @@ const worker = new Worker(
             data: {},
           });
         } catch (error) {
-          console.log(error);
+          logger.info(error);
         }
       }
       try {
@@ -177,7 +178,7 @@ const worker = new Worker(
         }
       } catch (error) {
         //
-        console.log(error);
+        logger.error(error);
       }
     }
   },
@@ -185,9 +186,9 @@ const worker = new Worker(
 );
 
 worker.on("completed", (job) => {
-  console.log(`✅ Job ${job.id} completed`);
+  logger.info(`✅ Job ${job.id} completed`);
 });
 
 worker.on("failed", (job, err) => {
-  console.error(`❌ Job ${job.id} failed:`, err);
+  logger.error(`❌ Job ${job.id} failed:`, err);
 });

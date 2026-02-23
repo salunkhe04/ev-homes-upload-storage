@@ -14,9 +14,10 @@ import moment from "moment-timezone";
 import incentiveTransactionModel from "../../model/incentive/incentiveTransaction.model.js";
 import { generateTransactionId } from "../../utils/helper.js";
 import { getIncetiveByUserId } from "../../controller/incentive.controller.js";
+import logger from "../../utils/logger.js";
 
 const incentiveRouter = Router();
-// console.log(generateTransactionId());
+// logger.info(generateTransactionId());
 
 incentiveRouter.get("/incentive", authenticateToken, async (req, res) => {
   try {
@@ -104,7 +105,7 @@ incentiveRouter.post(
       });
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
       return errorRes2(res, 500, "Internal Server error");
     }
   },
@@ -137,7 +138,7 @@ incentiveRouter.post(
       });
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
       return errorRes2(res, 500, "Internal Server error");
     }
   },
@@ -167,7 +168,7 @@ incentiveRouter.get(
         "bookingStatus.type": { $ne: "Cancelled" },
         date: { $gte: startOfMonth, $lte: endOfMonth },
       };
-      // console.log(status);
+      // logger.info(status);
       // Step 1: Get all matching bookings
       const bookings = await postSaleLeadModel
         .find({
@@ -231,7 +232,7 @@ incentiveRouter.post(
       //   resp.map(async (ele) => {
       //     try {
       //       //
-      //       console.log(resp.userId);
+            // logger.info(resp.userId);
       //       const bookings = await postSaleLeadModel.find({
       //         closingManager: ele.userId,
       //         "bookingStatus.type": { $ne: "Cancelled" },
@@ -318,7 +319,7 @@ incentiveRouter.post(
             });
           } catch (error) {
             //
-            console.log(error);
+            logger.info(error);
           }
         }),
       );
@@ -328,7 +329,7 @@ incentiveRouter.post(
       return successRes2(res, 200, "incentive created", { data: "ok" });
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
       return errorRes2(res, 500, "Internal Server error");
     }
   },
@@ -384,7 +385,7 @@ incentiveRouter.post(
       });
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
       return errorRes2(res, 500, "Internal Server error");
     }
   },
