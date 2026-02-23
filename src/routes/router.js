@@ -919,7 +919,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
 //       data: needToRemove,
 //     });
 //   } catch (error) {
-logger.error(error);
+// logger.error(error);
 //     //
 
 //     return errorRes2(res, 500, `${error}`);
