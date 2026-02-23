@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export const attendanceLogSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
+  id: { type: String, required: true },
   userId: { type: String, required: true },
 
   action: { type: String, required: true },
