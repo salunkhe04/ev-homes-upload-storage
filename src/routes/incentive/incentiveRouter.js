@@ -23,6 +23,7 @@ incentiveRouter.get("/incentive", authenticateToken, async (req, res) => {
   try {
     //
   } catch (error) {
+    logger.error(error);
     //
   }
 });
@@ -55,6 +56,7 @@ incentiveRouter.get(
         data: foundIncentives,
       });
     } catch (error) {
+      logger.error(error);
       //
       return errorRes2(res, 500, "Internal Server error");
     }
@@ -104,8 +106,8 @@ incentiveRouter.post(
         data: createdRecord,
       });
     } catch (error) {
+      logger.error(error);
       //
-      logger.info(error);
       return errorRes2(res, 500, "Internal Server error");
     }
   },
@@ -137,8 +139,8 @@ incentiveRouter.post(
         data: createdRecord,
       });
     } catch (error) {
+      logger.error(error);
       //
-      logger.info(error);
       return errorRes2(res, 500, "Internal Server error");
     }
   },
@@ -216,7 +218,7 @@ incentiveRouter.get(
         data: sortedIncentives,
       });
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       return errorRes2(res, 500, "Server error");
     }
   },
@@ -232,7 +234,7 @@ incentiveRouter.post(
       //   resp.map(async (ele) => {
       //     try {
       //       //
-            // logger.info(resp.userId);
+      // logger.info(resp.userId);
       //       const bookings = await postSaleLeadModel.find({
       //         closingManager: ele.userId,
       //         "bookingStatus.type": { $ne: "Cancelled" },
@@ -246,6 +248,7 @@ incentiveRouter.post(
       //       // ele.bookings = bookingIds ?? [];
       //       // await ele.save();
       //     } catch (error) {
+      // logger.error(error);
       //       //
       //     }
       //   })
@@ -318,8 +321,8 @@ incentiveRouter.post(
               scale: "t5-scale",
             });
           } catch (error) {
+            logger.error(error);
             //
-            logger.info(error);
           }
         }),
       );
@@ -328,8 +331,8 @@ incentiveRouter.post(
 
       return successRes2(res, 200, "incentive created", { data: "ok" });
     } catch (error) {
+      logger.error(error);
       //
-      logger.info(error);
       return errorRes2(res, 500, "Internal Server error");
     }
   },
@@ -384,8 +387,8 @@ incentiveRouter.post(
         data: newTransaction,
       });
     } catch (error) {
+      logger.error(error);
       //
-      logger.info(error);
       return errorRes2(res, 500, "Internal Server error");
     }
   },
@@ -410,6 +413,7 @@ incentiveRouter.get(
         data: foundIncentives,
       });
     } catch (error) {
+      logger.error(error);
       //
       return errorRes2(res, 500, "Internal Server error");
     }

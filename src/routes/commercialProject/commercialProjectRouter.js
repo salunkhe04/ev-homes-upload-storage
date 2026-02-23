@@ -19,6 +19,7 @@ commercialProjectRouter.get("/commercial-project", async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.json({
       message: `error:${error}`,
     });
@@ -39,6 +40,7 @@ commercialProjectRouter.get("/commercial-projects", async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.json({
       message: `error:${error}`,
     });
@@ -66,6 +68,7 @@ commercialProjectRouter.post("/add-commerical-project", async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 });

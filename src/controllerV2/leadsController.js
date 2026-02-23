@@ -41,7 +41,7 @@ export const getLeadsTeamLeaderV2 = async (req, res, next) => {
     });
   } catch (error) {
     //
-    logger.info(error);
+    logger.error(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 };
@@ -67,7 +67,7 @@ export const getTodayVisitLineUp = async () => {
       tls.map(async (tl) => {
         //
         const filtedLeads = leads.filter(
-          (lead) => lead?.cycle?.teamLeader?._id == tl
+          (lead) => lead?.cycle?.teamLeader?._id == tl,
         );
 
         if (filtedLeads.length <= 0) {
@@ -93,9 +93,9 @@ export const getTodayVisitLineUp = async () => {
             // "aktarul.evgroup@gmail.com", // need to remove after - checking done - 4-5days
             // "aktarul@evgroup.co.in",
             // need to remove after - checking done - 4-5days
-          ]
+          ],
         );
-      })
+      }),
     );
   }
 };
@@ -123,7 +123,7 @@ export const getTodayVisitLineUp = async () => {
 //       throw new Error(`No team leader found for ${currentTL}`);
 //     }
 
-    // logger.info(teamLeaderDoc);
+// logger.info(teamLeaderDoc);
 //     tracker.firstTeamLeader = teamLeaderDoc._id;
 //     tracker.assignedLeads.push(leadId);
 

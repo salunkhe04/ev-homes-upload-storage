@@ -59,7 +59,7 @@ parkingRouter.get("/get-parkings", async (req, res) => {
 
     return successRes2(res, 200, `parking fetched `, { data: flats });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return errorRes2(res, 500, " server error ");
   }
 });
@@ -132,6 +132,7 @@ parkingRouter.post("/parking-update/:id", async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     // logger.info(error);
     return errorRes2(res, 500, " server error ");
   }
@@ -222,6 +223,7 @@ export const ParkingOccupancyChange = async ({
 
     return updated;
   } catch (error) {
+    logger.error(error);
     //
     return null;
   }
