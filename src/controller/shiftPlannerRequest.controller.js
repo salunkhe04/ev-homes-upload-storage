@@ -5,6 +5,7 @@ import { errorRes, successRes } from "../model/response.js";
 import shiftModel from "../model/attendance/shift/shift.model.js";
 import shiftPlannerModel from "../model/attendance/shift/shiftPlannerRequest.model.js";
 import { shiftPlannerRequestPopulateOptions } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 
 export const getShiftPlannerRequests = async (req, res, next) => {
   try {
@@ -22,9 +23,11 @@ export const getShiftPlannerRequests = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (e) {
+    logger.error(e);
+
     return res.send(errorRes(500, `Server error ${e}`));
   }
 };
@@ -53,9 +56,11 @@ export const getPlannerRequestsByAppliedBy = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (e) {
+    logger.error(e);
+
     return res.send(errorRes(500, `Server error ${e}`));
   }
 };
@@ -84,9 +89,11 @@ export const getPlannerRequestsByAppliedByApproved = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (e) {
+    logger.error(e);
+
     return res.send(errorRes(500, `Server error ${e}`));
   }
 };
@@ -135,9 +142,11 @@ export const planShift = async (req, res, next) => {
 
     await newRequest.save();
     return res.send(
-      successRes(200, "Shift Added successfully", { data: newRequest })
+      successRes(200, "Shift Added successfully", { data: newRequest }),
     );
   } catch (e) {
+    logger.error(e);
+
     return res.send(errorRes(500, `Server error ${e}`));
   }
 };
@@ -153,7 +162,7 @@ export const delteShiftPlanner = async (req, res) => {
     return res.send(
       successRes(200, `Shift Planned  deleted successfully`, {
         deleteShift,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -172,7 +181,7 @@ export async function updateShiftPlanApproval(req, res) {
 
     // logger.info(shiftPlanReq);
     const step = shiftPlanReq.approvalSteps.find(
-      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending"
+      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending",
     );
     // logger.info("id:", adminId);
     // logger.info("st:", status);
@@ -188,7 +197,7 @@ export async function updateShiftPlanApproval(req, res) {
     if (status === "approved") {
       // logger.info("yes");
       let nextStep = shiftPlanReq.approvalSteps.find(
-        (s) => s.level === step.level + 1
+        (s) => s.level === step.level + 1,
       );
 
       while (nextStep && nextStep.adminId?._id.toString() === adminId) {
@@ -198,7 +207,7 @@ export async function updateShiftPlanApproval(req, res) {
         nextStep.remark = "Auto-approved (same admin)";
         shiftPlanReq.currentLevel = nextStep.level;
         nextStep = shiftPlanReq.approvalSteps.find(
-          (s) => s.level === shiftPlanReq.currentLevel + 1
+          (s) => s.level === shiftPlanReq.currentLevel + 1,
         );
         // logger.info("update next step");
         // logger.info(nextStep);
@@ -211,20 +220,21 @@ export async function updateShiftPlanApproval(req, res) {
       }
 
       const allStepsApproved = shiftPlanReq.approvalSteps.every(
-        (s) => s.status.toLowerCase() === "approved"
+        (s) => s.status.toLowerCase() === "approved",
       );
 
       if (allStepsApproved) {
         const today = moment().startOf("day");
         const requestedDate = moment(shiftPlanReq.requestedShiftDate).startOf(
-          "day"
+          "day",
         );
 
         if (requestedDate.isSameOrAfter(today)) {
           try {
             // logger.info("shift update");
           } catch (err) {
-            // console.error("Failed shift update:", err);
+            //
+            logger.error("Failed shift update:", err);
             return res.send(errorRes(500, "Shift update failed"));
           }
         } else {
@@ -244,7 +254,8 @@ export async function updateShiftPlanApproval(req, res) {
     await shiftPlanReq.save();
     res.send(successRes(200, `Request ${status}`, { data: shiftPlanReq }));
   } catch (error) {
-    // logger.info(error);
+    //
+    logger.error(error);
     res.status(500).json({ error: error.message });
   }
 }
@@ -266,13 +277,13 @@ export const getReportingToShiftPlanner = async (req, res, next) => {
       return res.send(errorRes(404, "No shift plan records found"));
     }
     const approvedList = shiftPlan.filter(
-      (ele) => ele.requestStatus === "approved"
+      (ele) => ele.requestStatus === "approved",
     );
     const rejectedList = shiftPlan.filter(
-      (ele) => ele.requestStatus === "rejected"
+      (ele) => ele.requestStatus === "rejected",
     );
     const pendingList = shiftPlan.filter(
-      (ele) => ele.requestStatus === "pending"
+      (ele) => ele.requestStatus === "pending",
     );
 
     if (!shiftPlan.length) {
@@ -284,10 +295,10 @@ export const getReportingToShiftPlanner = async (req, res, next) => {
         pendingList,
         approvedList,
         rejectedList,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error retrieving shift plan:", error);
+    logger.error("Error retrieving shift plan:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -319,9 +330,11 @@ export const getShiftPlannerByDate = async (req, res, next) => {
     return res.send(
       successRes(200, "get shift planner", {
         data: resp,
-      })
+      }),
     );
   } catch (e) {
+    logger.error(e);
+
     return res.send(errorRes(500, `Server error ${e}`));
   }
 };
@@ -355,10 +368,10 @@ export const getShiftPByMultiDays = async (req, res) => {
     return res.send(
       successRes(200, "Shift assigned successfully for date range", {
         data: resp,
-      })
+      }),
     );
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };

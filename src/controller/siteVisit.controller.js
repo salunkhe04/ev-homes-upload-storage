@@ -67,6 +67,7 @@ export const getSiteVisits = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `server error:${error?.message}`));
   }
 };
@@ -92,6 +93,7 @@ export const getSiteVisitsById = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `server error:${error?.message}`));
   }
 };
@@ -117,6 +119,7 @@ export const getSiteVisitByPhoneNumber = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `server error:${error?.message}`));
   }
 };
@@ -143,6 +146,7 @@ export const getSiteVisitHistoryByPhone = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `server error:${error?.message}`));
   }
 };
@@ -322,6 +326,7 @@ export const getSiteVisitHistoryByPhone = async (req, res) => {
 //       })
 //     );
 //   } catch (error) {
+// logger.error(error);
 //     return next(error);
 //   }
 // };
@@ -611,6 +616,7 @@ export const searchSiteVisits = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 };
@@ -696,6 +702,7 @@ export const getClosingManagerSiteVisitById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 };
@@ -793,6 +800,7 @@ export const getClosingManagerSiteVisitById = async (req, res, next) => {
 //       })
 //     );
 //   } catch (error) {
+// logger.error(error);
 //     return next(error);
 //   }
 // };
@@ -881,6 +889,7 @@ export const getTeamMemberSiteVisitById = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 };
@@ -992,6 +1001,7 @@ export const getSiteVisitByPermission = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 };
@@ -1209,6 +1219,7 @@ export const getSiteVisitByPermission = async (req, res, next) => {
 //       })
 //     );
 //   } catch (error) {
+// logger.error(error);
 //     return next(error);
 //   }
 // };
@@ -1279,6 +1290,7 @@ export const addSiteVisits = async (req, res) => {
         });
         await newClient.save();
       } catch (error) {
+        logger.error(error);
         // logger.info(error);
       }
     }
@@ -1780,6 +1792,7 @@ export const addSiteVisits = async (req, res) => {
         ["evhomes.operations@evgroup.co.in", "deepak@evgroup.co.in"],
       );
     } catch (error) {
+      logger.error(error);
       // logger.info(error);
     }
 
@@ -1789,6 +1802,7 @@ export const addSiteVisits = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     // logger.info(error);
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -1846,6 +1860,8 @@ export const addLeadFromSiteVisit = async (req, res) => {
     });
     return res.send(successRes(200, "", { data: foundLead }));
   } catch (e) {
+    logger.error(e);
+
     return res.send(errorRes(500, e));
   }
 };
@@ -1929,16 +1945,19 @@ export const generateSiteVisitOtp = async (req, res, next) => {
                 });
               }
             } catch (error) {
+              logger.error(error);
               //
-              logger.info(error);
+            
             }
           } catch (error) {
-            logger.info(error);
+            logger.error(error);
+          
           }
         }
       } catch (error) {
+        logger.error(error);
         //
-        logger.info(error);
+      
       }
       // logger.info(resp);
       return res.send(
@@ -1982,11 +2001,11 @@ export const generateSiteVisitOtp = async (req, res, next) => {
             [],
           );
         } catch (error) {
-          logger.info(error);
+          logger.error(error);
         }
       }
     } catch (error) {
-      logger.info(error);
+      logger.error(error);
     }
 
     return res.send(
@@ -1995,6 +2014,7 @@ export const generateSiteVisitOtp = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return errorRes2(res, 500, `${error}`);
   }
 };
@@ -2021,6 +2041,7 @@ export const verifySiteVisitOtp = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 };
@@ -2053,6 +2074,7 @@ export const updateSiteVisits = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -2074,6 +2096,7 @@ export const deleteSiteVisits = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -2272,6 +2295,7 @@ export const addSiteVisitsManual = async (data) => {
 
     return "ok";
   } catch (error) {
+    logger.error(error);
     // logger.info(error);
     return error;
   }
@@ -3247,7 +3271,8 @@ export const getTodayVisitSummary = async () => {
 
     return datas;
   } catch (error) {
-    // console.error(error);
+    logger.error(error);
+    //
     return { totalVisits: 0, revisits: 0 };
   }
 };
@@ -3274,6 +3299,7 @@ export const getTodayVisitSummary = async () => {
 
 //     return todayVisits;
 //   } catch (error) {
+// logger.error(error);
 //     return [];
 //   }
 // };
@@ -3373,7 +3399,7 @@ export const addSiteVisitV2 = async (req, res) => {
       }),
     );
   } catch (error) {
-    // logger.info(error);
+    logger.error(error);
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -3618,6 +3644,7 @@ export const searchSiteVisitDTA = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 };
@@ -3689,8 +3716,8 @@ export const siteVisitApproval = async (req, res, next) => {
         foundLead = await leadModelV2.create(updates);
       }
     } catch (error) {
+      logger.error(error);
       //error upating/creating lead
-      logger.info(error);
     }
     // checking tagging
     const taggingOver = moment(foundLead.validTill)
@@ -3759,8 +3786,8 @@ export const siteVisitApproval = async (req, res, next) => {
       foundLead.lastName = updatedVisit?.lastName;
       await foundLead.save();
     } catch (error) {
+      logger.error(error);
       //
-      logger.info(error);
     }
 
     // check if first visit & update score- ranking
@@ -3775,8 +3802,8 @@ export const siteVisitApproval = async (req, res, next) => {
         await foundLead.save();
       }
     } catch (error) {
+      logger.error(error);
       //
-      logger.info(error);
     }
     //
 
@@ -3817,8 +3844,10 @@ export const siteVisitApproval = async (req, res, next) => {
 
       // logger.info("pass sent notification");
     } catch (error) {
+      logger.error(error);
       //
-      logger.info(error);
+    
+
     }
     //email
     try {
@@ -3931,15 +3960,21 @@ export const siteVisitApproval = async (req, res, next) => {
           });
         }
       } catch (error) {
+        logger.error(error);
         //
-        logger.info(error);
+      
+
       }
     } catch (error) {
-      logger.info(error);
+      logger.error(error);
+    
+
     }
     return successRes2(res, 200, "ok", { data: updatedVisit });
   } catch (error) {
-    logger.info(error);
+    logger.error(error);
+  
+
     return errorRes2(res, 500, "Internal Server Error");
   }
 };
@@ -4008,7 +4043,7 @@ export const getCpFeedbackPendingVisits = async () => {
           },
         });
       } catch (err) {
-        console.error("Error sending email:", err);
+        logger.error("Error sending email:", err);
       }
     }
 
@@ -4019,7 +4054,7 @@ export const getCpFeedbackPendingVisits = async () => {
     // logger.info(`CP Feedback emails sent for ${updateOps.length} visits.`);
     return visits;
   } catch (error) {
-    console.error("Error in getCpFeedbackPendingVisits:", error);
+    logger.error("Error in getCpFeedbackPendingVisits:", error);
     return null;
   }
 };
@@ -4070,6 +4105,7 @@ export const geSiteVisitStartEndDate = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     res.send(error);
   }
 };

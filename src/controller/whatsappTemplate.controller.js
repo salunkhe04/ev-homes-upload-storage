@@ -33,6 +33,7 @@ export const addWhatsAppTemplate = async (req, res, next) => {
       successRes(200, "Template Added successfully", { data: newResp })
     );
   } catch (e) {
+    // logger.error(e);
     return res.send(errorRes(500, "Server Error"));
   }
 };
@@ -54,6 +55,7 @@ export const addWhatsAppTemplate = async (req, res, next) => {
 //       successRes(200, "Whatsapp template by project", { data: templates })
 //     );
 //   } catch (e) {
+// logger.error(e);
 //     return res.send(errorRes(500, `Server Error ${e}`));
 //   }
 // };
@@ -97,6 +99,7 @@ export const getWhatsAppTemplateByProject = async (req, res, next) => {
       successRes(200, "Whatsapp template by project", { data: templates })
     );
   } catch (e) {
+    logger.error(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };

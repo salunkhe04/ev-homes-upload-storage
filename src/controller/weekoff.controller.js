@@ -63,8 +63,8 @@ export const addweekoff = async (req, res, next) => {
           .send(
             errorRes(
               400,
-              "Cannot apply weekoff, You've already applied weekoff this week."
-            )
+              "Cannot apply weekoff, You've already applied weekoff this week.",
+            ),
           )
       );
     }
@@ -142,10 +142,10 @@ export const addweekoff = async (req, res, next) => {
     return res.send(
       successRes(200, "Week Off added", {
         data: createdWeekOff,
-      })
+      }),
     );
   } catch (error) {
-    // logger.info(error);
+   logger.error(error)
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -176,10 +176,10 @@ export const getWeekOffs = async (req, res, next) => {
     }
 
     return res.send(
-      successRes(200, "Week Off records retrieved", { data: weekoffs })
+      successRes(200, "Week Off records retrieved", { data: weekoffs }),
     );
   } catch (error) {
-    console.error("Error retrieving week offs:", error);
+    logger.error("Error retrieving week offs:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -216,13 +216,13 @@ export const getMyWeekOffs = async (req, res, next) => {
       return res.send(errorRes(404, "No Week Off records found"));
     }
     const approvedList = weekoffs.filter(
-      (ele) => ele.weekoffStatus === "approved"
+      (ele) => ele.weekoffStatus === "approved",
     );
     const rejectedList = weekoffs.filter(
-      (ele) => ele.weekoffStatus === "rejected"
+      (ele) => ele.weekoffStatus === "rejected",
     );
     const pendingList = weekoffs.filter(
-      (ele) => ele.weekoffStatus === "pending"
+      (ele) => ele.weekoffStatus === "pending",
     );
 
     return res.send(
@@ -231,10 +231,10 @@ export const getMyWeekOffs = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error retrieving week offs:", error);
+    logger.error("Error retrieving week offs:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -256,13 +256,13 @@ export const getReportingToWeekOffs = async (req, res, next) => {
       return res.send(errorRes(404, "No Week Off records found"));
     }
     const approvedList = weekoffs.filter(
-      (ele) => ele.weekoffStatus === "approved"
+      (ele) => ele.weekoffStatus === "approved",
     );
     const rejectedList = weekoffs.filter(
-      (ele) => ele.weekoffStatus === "rejected"
+      (ele) => ele.weekoffStatus === "rejected",
     );
     const pendingList = weekoffs.filter(
-      (ele) => ele.weekoffStatus === "pending"
+      (ele) => ele.weekoffStatus === "pending",
     );
 
     return res.send(
@@ -271,10 +271,10 @@ export const getReportingToWeekOffs = async (req, res, next) => {
         approvedList,
         rejectedList,
         pendingList,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error retrieving week offs:", error);
+    logger.error("Error retrieving week offs:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -291,7 +291,7 @@ export const getWeekOffById = async (req, res, next) => {
     return res.send(
       successRes(200, "get weekoff", {
         data: weekoff,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -368,7 +368,7 @@ export const updateWeekOffStatus = async (req, res) => {
             {
               new: true,
               upsert: true, // Create the record if it doesn't exist
-            }
+            },
           );
         }
 
@@ -381,7 +381,7 @@ export const updateWeekOffStatus = async (req, res) => {
         //   userId: weekoff.applyBy,
         // });
       } catch (error) {
-        // logger.info(error);
+       logger.error(error)
         // logger.info("failed to insert weekoff");
       }
     }
@@ -389,10 +389,10 @@ export const updateWeekOffStatus = async (req, res) => {
     return res.send(
       successRes(200, "Week Off status updated successfully", {
         data: weekoff,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error updating Week Off status:", error);
+    logger.error("Error updating Week Off status:", error);
     return res.status(500).send({
       success: false,
       message: "Internal Server Error",
@@ -408,7 +408,7 @@ export async function updateWeekoffApproval(req, res) {
     if (!weekoff) return res.json({ message: "Weekoff request not found" });
     // Find the current step that is pending for this admin
     const step = weekoff.approvalSteps.find(
-      (s) => s.adminId.toString() === adminId && s.status === "Pending"
+      (s) => s.adminId.toString() === adminId && s.status === "Pending",
     );
     if (!step)
       return res
@@ -420,7 +420,7 @@ export async function updateWeekoffApproval(req, res) {
     step.remarks = remarks;
     if (status === "Approved") {
       let nextStep = weekoff.approvalSteps.find(
-        (s) => s.level === step.level + 1
+        (s) => s.level === step.level + 1,
       );
       // Auto-approve if next step has the same admin
       while (nextStep && nextStep.adminId.toString() === adminId) {
@@ -429,7 +429,7 @@ export async function updateWeekoffApproval(req, res) {
         nextStep.remarks = "Auto-approved (same admin)";
         weekoff.currentLevel = nextStep.level;
         nextStep = weekoff.approvalSteps.find(
-          (s) => s.level === weekoff.currentLevel + 1
+          (s) => s.level === weekoff.currentLevel + 1,
         );
       }
       // If no more steps, mark the request as fully Approved
@@ -461,7 +461,7 @@ export const onRejectOrApproveWeekoff = async (req, res, next) => {
 
     // Find the current step that is pending for this admin
     const step = weekoffResp.approvalSteps.find(
-      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending"
+      (s) => s.adminId?._id?.toString() === adminId && s.status === "pending",
     );
 
     if (!step)
@@ -475,7 +475,7 @@ export const onRejectOrApproveWeekoff = async (req, res, next) => {
 
     if (status === "approved") {
       let nextStep = weekoffResp.approvalSteps.find(
-        (s) => s.level === step.level + 1
+        (s) => s.level === step.level + 1,
       );
       // Auto-approve if next step has the same admin
       while (nextStep && nextStep?.adminId?._id.toString() === adminId) {
@@ -485,11 +485,11 @@ export const onRejectOrApproveWeekoff = async (req, res, next) => {
         nextStep.remark = remark;
         weekoffResp.currentLevel = nextStep.level;
         nextStep = weekoffResp.approvalSteps.find(
-          (s) => s.level === weekoffResp.currentLevel + 1
+          (s) => s.level === weekoffResp.currentLevel + 1,
         );
       }
       const allStepsApproved = weekoffResp.approvalSteps.every(
-        (step) => step.status.toLowerCase() === "approved"
+        (step) => step.status.toLowerCase() === "approved",
       );
 
       if (allStepsApproved) {
@@ -543,11 +543,11 @@ export const onRejectOrApproveWeekoff = async (req, res, next) => {
               {
                 new: true,
                 upsert: true, // Create the record if it doesn't exist
-              }
+              },
             );
           }
         } catch (error) {
-          // logger.info(error);
+         logger.error(error)
           // logger.info("failed to insert weekoff");
         }
       }
@@ -581,7 +581,7 @@ export const deleteWeekoff = async (req, res) => {
     return res.send(
       successRes(200, `Weekoff deleted successfully`, {
         deleteWeekoff,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -651,7 +651,8 @@ export const deleteWeekoff = async (req, res) => {
 
 //     return res.send(successRes(200, "Week Off records retrieved", { data: weekoffs }));
 //   } catch (error) {
-//     console.error("Error retrieving week offs:", error);
+//
+// logger.error("Error retrieving week offs:", error);
 //     return res.status(500).send(errorRes(500, "Internal Server Error"));
 //   }
 // };
@@ -707,7 +708,8 @@ export const deleteWeekoff = async (req, res) => {
 //       data: weekoff,
 //     });
 //   } catch (error) {
-//     console.error("Error updating Week Off status:", error);
+//
+// logger.error("Error updating Week Off status:", error);
 //     return res.status(500).send({
 //       success: false,
 //       message: "Internal Server Error",
@@ -730,14 +732,14 @@ export const updateStartOftheWeek = async (req, res, next) => {
         //   startOfWeek: startOfWeek,
         // });
         return ele;
-      })
+      }),
     );
 
     return res.send(
       successRes(200, "get weekoff", {
         total: updatedWeekoff.length,
         data: updatedWeekoff,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
