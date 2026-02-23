@@ -81,7 +81,6 @@ export const getEmployees = async (req, res, next) => {
   } catch (error) {
     logger.error(error);
 
-
     return next(error);
   }
 };
@@ -103,7 +102,6 @@ export const getEmployeesForAttendance = async (req, res, next) => {
     );
   } catch (error) {
     logger.error(error);
-
 
     return next(error);
   }
@@ -493,7 +491,7 @@ export const getEmployeeReAuth = async (req, res, next) => {
       req.user = user;
       return res.send(successRes(200, "Authenticated", { data: user }));
     } catch (error) {
-      logger.error(error);
+      // logger.error(error);
 
       if (error.name === "TokenExpiredError") {
         // Access token expired, attempt to refresh
@@ -601,7 +599,6 @@ export const getEmployeeReAuth = async (req, res, next) => {
       );
     }
   } catch (error) {
-
     // res.setHeader("x-force-logout", `force-logout`);
     logger.error("Error during re-authentication:", error);
     return res.send(errorRes(500, "Internal server error"));
