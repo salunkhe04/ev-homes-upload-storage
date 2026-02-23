@@ -9,6 +9,7 @@ import { sendNotificationWithImage } from "./oneSignal.controller.js";
 import oneSignalModel from "../model/oneSignal.model.js";
 import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
 import { RedisService } from "../app/redis.js";
+import logger from "../utils/logger.js";
 
 export const addRegularization = async (req, res, next) => {
   const {
@@ -32,8 +33,8 @@ export const addRegularization = async (req, res, next) => {
       return res.send(
         errorRes(
           401,
-          "you cant apply more request than available regularization"
-        )
+          "you cant apply more request than available regularization",
+        ),
       );
     }
 
@@ -118,10 +119,10 @@ export const addRegularization = async (req, res, next) => {
     return res.send(
       successRes(200, "Regularization added", {
         data: newRegularization,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error adding regularization:", error);
+    logger.error("Error adding regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -152,10 +153,10 @@ export const getRegularization = async (req, res, next) => {
     }
 
     return res.send(
-      successRes(200, "Regularizationrecords retrieved", { data: weekoffs })
+      successRes(200, "Regularizationrecords retrieved", { data: weekoffs }),
     );
   } catch (error) {
-    console.error("Error retrieving Regularization:", error);
+    logger.error("Error retrieving Regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -177,13 +178,13 @@ export const getMyRegularization = async (req, res, next) => {
       return res.send(errorRes(404, "No Week Off records found"));
     }
     const approvedList = regularizations.filter(
-      (ele) => ele.regularizationStatus === "approved"
+      (ele) => ele.regularizationStatus === "approved",
     );
     const rejectedList = regularizations.filter(
-      (ele) => ele.regularizationStatus === "rejected"
+      (ele) => ele.regularizationStatus === "rejected",
     );
     const pendingList = regularizations.filter(
-      (ele) => ele.regularizationStatus === "pending"
+      (ele) => ele.regularizationStatus === "pending",
     );
 
     return res.send(
@@ -192,10 +193,10 @@ export const getMyRegularization = async (req, res, next) => {
         approvedList,
         pendingList,
         rejectedList,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error retrieving Regularization:", error);
+    logger.error("Error retrieving Regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -217,13 +218,13 @@ export const getReportingToRegularization = async (req, res, next) => {
       return res.send(errorRes(404, "No regularization records found"));
     }
     const approvedList = regularizations.filter(
-      (ele) => ele.regularizationStatus === "approved"
+      (ele) => ele.regularizationStatus === "approved",
     );
     const rejectedList = regularizations.filter(
-      (ele) => ele.regularizationStatus === "rejected"
+      (ele) => ele.regularizationStatus === "rejected",
     );
     const pendingList = regularizations.filter(
-      (ele) => ele.regularizationStatus === "pending"
+      (ele) => ele.regularizationStatus === "pending",
     );
 
     if (!regularizations.length) {
@@ -235,10 +236,10 @@ export const getReportingToRegularization = async (req, res, next) => {
         pendingList,
         approvedList,
         rejectedList,
-      })
+      }),
     );
   } catch (error) {
-    console.error("Error retrieving Regularization:", error);
+    logger.error("Error retrieving Regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -265,9 +266,10 @@ export const getRegularizationById = async (req, res, next) => {
     return res.send(
       successRes(200, "get Regularization", {
         data: weekoff,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -292,7 +294,7 @@ export async function updateRegularizationApproval(req, res) {
       return res.json({ message: "regularization request not found" });
     // Find the current step that is pending for this admin
     const step = regularization.approvalSteps.find(
-      (s) => s.adminId._id.toString() === adminId && s.status === "pending"
+      (s) => s.adminId._id.toString() === adminId && s.status === "pending",
     );
     if (!step)
       return res
@@ -306,7 +308,7 @@ export async function updateRegularizationApproval(req, res) {
 
     if (status === "approved") {
       let nextStep = regularization.approvalSteps.find(
-        (s) => s.level === step.level + 1
+        (s) => s.level === step.level + 1,
       );
 
       // Auto-approve if next step has the same admin
@@ -317,11 +319,11 @@ export async function updateRegularizationApproval(req, res) {
         nextStep.remark = remark;
         regularization.currentLevel = nextStep.level;
         nextStep = regularization.approvalSteps.find(
-          (s) => s.level === regularization.currentLevel + 1
+          (s) => s.level === regularization.currentLevel + 1,
         );
       }
       const allStepsApproved = regularization.approvalSteps.every(
-        (step) => step.status.toLowerCase() === "approved"
+        (step) => step.status.toLowerCase() === "approved",
       );
 
       if (allStepsApproved) {
@@ -356,10 +358,12 @@ export async function updateRegularizationApproval(req, res) {
         try {
           await attendanceModel.findByIdAndUpdate(
             regularization?.attendance?._id,
-            attendanceUpdate
+            attendanceUpdate,
           );
         } catch (error) {
           //
+    logger.error(error);
+
         }
       }
 
@@ -412,7 +416,7 @@ export async function updateRegularizationApproval(req, res) {
             `employee_shift_info_${regularization.applyBy?._id}`,
           ]);
         } catch (error) {
-          // logger.info(error);
+          logger.info(error);
         }
       }
     } else {
@@ -423,11 +427,11 @@ export async function updateRegularizationApproval(req, res) {
     res.send(
       successRes(200, `Request ${status}`, {
         data: regularization,
-      })
+      }),
     );
     // res.json({ message: `Request ${status}`, data: regularization });
   } catch (error) {
-    // logger.info(error);
+    logger.error(error);
     res.status(500).json({ error: error.message });
   }
 }
@@ -437,17 +441,18 @@ export const deleteRegularization = async (req, res) => {
 
   try {
     if (!id) return res.send(errorRes(403, "Regularization ID is required"));
-    const deleteRegularization = await regularizationModel.findByIdAndDelete(
-      id
-    );
+    const deleteRegularization =
+      await regularizationModel.findByIdAndDelete(id);
     if (!deleteRegularization)
       return res.send(errorRes(404, `Regularization not found with ID: ${id}`));
     return res.send(
       successRes(200, `Regularization deleted successfully`, {
         deleteRegularization,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };

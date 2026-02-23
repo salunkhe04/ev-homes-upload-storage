@@ -6,6 +6,7 @@ import {
   estimateGeneratedPopulateOptions,
   passbackEstimatePopulateOptions,
 } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 
 export const getPassbackEstimate = async (req, res) => {
   try {
@@ -15,9 +16,10 @@ export const getPassbackEstimate = async (req, res) => {
     return res.send(
       successRes(200, "Get passback", {
         data: respP,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -33,9 +35,10 @@ export const getPassbackEstimateById = async (req, res) => {
     return res.send(
       successRes(200, "Get passback by id", {
         data: respP,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -52,13 +55,12 @@ export const getPassEstimateByLead = async (req, res) => {
     return res.send(
       successRes(200, "Get passback by Lead", {
         data: respP,
-      })
+      }),
     );
   } catch (e) {
     return res.send(errorRes(500, error));
   }
 };
-
 
 export const addPassbackEstimate = async (req, res) => {
   const body = req.body;
@@ -86,7 +88,6 @@ export const addPassbackEstimate = async (req, res) => {
       requestDate: new Date(),
     });
 
-
     // logger.info(newPassback);
 
     const newResp = await passbackEstimateModel
@@ -98,9 +99,10 @@ export const addPassbackEstimate = async (req, res) => {
     return res.send(
       successRes(200, "Passback request added successfully", {
         data: newResp,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error.message || error));
   }
 };
@@ -116,11 +118,10 @@ export const updatePassbackStatus = async (req, res) => {
     body.requestStatus = requestStatus.toLowerCase();
     body.cpApprovedDate = new Date();
 
-
     const updatedPassback = await passbackEstimateModel.findByIdAndUpdate(
       id,
       { $set: body },
-      { new: true }
+      { new: true },
     );
 
     const resp = await passbackEstimateModel
@@ -131,9 +132,10 @@ export const updatePassbackStatus = async (req, res) => {
     return res.send(
       successRes(200, "Passback status updated successfully", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -150,7 +152,7 @@ export const getByChannelPartner = async (req, res) => {
     return res.send(
       successRes(200, "Get passback by id", {
         data: respP,
-      })
+      }),
     );
   } catch (e) {
     return res.send(errorRes(500, error));

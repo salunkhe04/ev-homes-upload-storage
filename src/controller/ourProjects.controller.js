@@ -35,6 +35,8 @@ export const getOurProjects = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.json({
       message: `error:${error}`,
     });
@@ -51,6 +53,8 @@ export const getOurProjects = async (req, res) => {
 //       })
 //     );
 //   } catch (error) {
+// logger.error(error);
+
 //     return res.json({
 //       message: `Error: ${error.message}`,
 //     });
@@ -83,6 +87,8 @@ export const getProjectsById = async (req, res) => {
 
     return res.send(successRes(200, "project by id", { data: respPro }));
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `server error:${error?.message}`));
   }
 };
@@ -123,6 +129,8 @@ export const getFlatListByProject = async (req, res) => {
       data: respPro.flatList,
     });
   } catch (error) {
+    logger.error(error);
+
     // Handle server errors
     return res.status(500).json({
       success: false,
@@ -185,6 +193,8 @@ export const addProjects = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -247,6 +257,8 @@ export const updateProjects = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -384,6 +396,8 @@ export const deleteProject = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -425,6 +439,8 @@ export const searchProjects = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
+
     return next(error);
   }
 };
@@ -503,7 +519,7 @@ export const updateFlatInfoByIdFlatNo = async ({
     await RedisService.del("projects");
     return true;
   } catch (error) {
-    console.error("Error updating flat info:", error);
+    logger.error("Error updating flat info:", error);
     return false;
   }
 };
@@ -514,6 +530,8 @@ export const getShortsForClient = async (req, res, next) => {
     //
     const resp = await ourProjectModel.findById(id);
   } catch (error) {
+    logger.error(error);
+
     //
   }
 };
@@ -604,6 +622,8 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
 
 //     return true; // Update was successful
 //   } catch (error) {
+// logger.error(error);
+
 //     console.error("Error updating flat info:", error); // Log the error
 //     return false; // Indicate failure
 //   }
@@ -634,7 +654,8 @@ export const updatCarpetArea = async (req, res) => {
       data: project.flatList,
     });
   } catch (error) {
-    logger.info(error);
+    logger.error(error);
+
     return res.status(500).json({
       success: false,
       message: "Server error",

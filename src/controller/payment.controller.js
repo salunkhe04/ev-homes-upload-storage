@@ -22,6 +22,7 @@ export const getPayment = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -55,6 +56,7 @@ export const getPaymentList = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -100,6 +102,7 @@ export const addPayment = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     // logger.info(error);
     return res.send(errorRes(500, error));
   }
@@ -160,10 +163,11 @@ export const addPaymentAtDemand = async (req, res) => {
           );
         }
       } catch (error) {
+        logger.error(error);
         // logger.info(error);
       }
     } catch (error) {
-      print(error);
+      logger.error(error);
     }
     const respP = await paymentModel
       .findById(newPayment._id)
@@ -175,6 +179,7 @@ export const addPaymentAtDemand = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     // logger.info(error);
     return res.send(errorRes(500, error));
   }
@@ -239,9 +244,11 @@ export const updatePaymentAtDemand = async (req, res) => {
           );
         }
       } catch (error) {
+        logger.error(error);
         // logger.info(error);
       }
     } catch (error) {
+      logger.error(error);
       // logger.info(error);
     }
 
@@ -255,6 +262,7 @@ export const updatePaymentAtDemand = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     // logger.info(error);
     return res.send(errorRes(500, error));
   }
@@ -283,6 +291,7 @@ export const deletePaymentAtDemand = async (req, res) => {
       successRes(200, "Payment deleted successfully", { data: finalDemand })
     );
   } catch (error) {
+    logger.error(error);
     // logger.info(error);
     return res.send(errorRes(500, error.message || "Internal Server Error"));
   }
@@ -306,6 +315,7 @@ export const deletePaymentById = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     // logger.info(error);
     return res.send(errorRes(500, error.message || "Internal Server Error"));
   }
@@ -338,6 +348,7 @@ export const deletePaymentById = async (req, res) => {
 //         },
 //       });
 //     } catch (error) {
+// logger.error(error);
 //       logger.info(error);
 //     }
 //     const respP = await paymentModel
@@ -350,6 +361,7 @@ export const deletePaymentById = async (req, res) => {
 //       })
 //     );
 //   } catch (error) {
+// logger.error(error);
 //     logger.info(error);
 //     return res.send(errorRes(500, error));
 //   }
@@ -368,6 +380,7 @@ export const getPaymentbyFlat = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -415,6 +428,7 @@ export const updateCheckDates = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error.message));
   }
 };
@@ -454,6 +468,7 @@ export const updateCheckDates = async (req, res) => {
 //       })
 //     );
 //   } catch (error) {
+// logger.error(error);
 //     return res.send(errorRes(500, error.message));
 //   }
 // };
@@ -476,6 +491,7 @@ export const getPaymentsbyFlatNoAndProject = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -516,6 +532,7 @@ export const updatePaymentTypesForSorting = async (req, res) => {
     );
     res.json(updates);
   } catch (error) {
+    logger.error(error);
     //
     res.send(error);
   }
@@ -541,6 +558,7 @@ export const getPaymentsbyFlatBuildingNoAndProject = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -562,6 +580,7 @@ export const getPaymentsByProj = async (req, res) => {
       })
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
