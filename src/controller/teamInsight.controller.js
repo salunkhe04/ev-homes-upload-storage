@@ -3,6 +3,7 @@ import { errorRes, successRes } from "../model/response.js";
 import taskModel from "../model/task.model.js";
 import teamInsightModel from "../model/teamInsight.model.js";
 import { teamInsightPopulate } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 
 export const getTeam = async (req, res) => {
   try {
@@ -14,6 +15,7 @@ export const getTeam = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -40,6 +42,7 @@ export const getTeamById = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -60,6 +63,7 @@ export const getTeamById = async (req, res) => {
 //       })
 //     );
 //   } catch (error) {
+// logger.error(error);
 //     return res.send(errorRes(500, error.message || error));
 //   }
 // };
@@ -117,6 +121,7 @@ export const getTeamReportingTo = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error.message || error));
   }
 };
@@ -179,6 +184,7 @@ export const getMyTeam = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error.message || error));
   }
 };
@@ -205,6 +211,7 @@ export const addTeamInsight = async (req, res) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -245,6 +252,7 @@ export const updateCrew = async (req, res) => {
       successRes(200, `crew updated successfully`, { data: updateTeam }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, error.message || error));
   }
 };
@@ -295,5 +303,7 @@ export const validateInsight = async (id) => {
       team.totalTasks = totalTasks;
       await team.save();
     }
-  } catch (error) {}
+  } catch (error) {
+    logger.error(error);
+  }
 };

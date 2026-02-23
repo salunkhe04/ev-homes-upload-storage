@@ -3,6 +3,7 @@ import { errorRes, successRes } from "../model/response.js";
 import TransportModel from "../model/transport.model.js";
 import vehicleModel from "../model/vehicle.model.js";
 import { tansportPopulateOptions } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 import { sendNotificationWithInfo } from "./oneSignal.controller.js";
 
 export const getTransports = async (req, res) => {
@@ -45,6 +46,7 @@ export const getTransports = async (req, res) => {
 
     return res.send(successRes(200, "Get Transports", { data: resp }));
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -55,11 +57,12 @@ export const getTransportById = async (req, res) => {
     if (!id) return res.send(errorRes(401, `id is required`));
 
     const resp = await TransportModel.findById(id).populate(
-      tansportPopulateOptions
+      tansportPopulateOptions,
     );
 
     return res.send(successRes(200, "Get Transports", { data: resp }));
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -89,7 +92,7 @@ export const addTransport = async (req, res) => {
     });
     // await vehicleModel.findByIdAndUpdate(vehicle, { status: true });
     const resp2 = await TransportModel.findById(resp._id).populate(
-      tansportPopulateOptions
+      tansportPopulateOptions,
     );
     const allwoed = [
       "ev15-deepak-karki",
@@ -122,6 +125,7 @@ export const addTransport = async (req, res) => {
 
     return res.send(successRes(200, "Added Transport", { data: resp2 }));
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -166,6 +170,7 @@ export const approveTransport = async (req, res) => {
 
     return res.send(successRes(200, "Added Transport", { data: resp2 }));
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -185,6 +190,7 @@ export const completedTransport = async (req, res) => {
 
     return res.send(successRes(200, "Added Transport", { data: resp2 }));
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -207,9 +213,10 @@ export const startJourney = async (req, res) => {
     return res.send(
       successRes(200, "Journey started successfully", {
         data: transport,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
