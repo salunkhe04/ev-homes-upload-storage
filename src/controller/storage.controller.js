@@ -5,6 +5,7 @@ import path from "path";
 import { errorRes, successRes } from "../model/response.js";
 import { uploadsDir } from "../routes/storage/storageRouter.js";
 import fs from "fs";
+import logger from "../utils/logger.js";
 function mapUploadPath(p) {
   const from = "/app/storage";
   const to = "/var/www/storage";
@@ -24,9 +25,9 @@ export const uploadFile = async (req, res) => {
       config.SECRET_STORAGE_KEY
     );
 
-    //   console.log(`Uploaded file: ${req.file}`);
-    //   console.log(req.file);
-    //   console.log(`Token: ${token}`);
+      // logger.info(`Uploaded file: ${req.file}`);
+    //   logger.info(req.file);
+    //   logger.info(`Token: ${token}`);
     let downloadUrl = `${req.protocol}s://${req.get("host")}`;
     if (req.query.path) {
       downloadUrl += `/${req.query.path}`;
@@ -57,7 +58,7 @@ export const uploadFile = async (req, res) => {
     });
 
     await respDb.save();
-    // console.log(downloadUrl);
+    // logger.info(downloadUrl);
     res.json({
       message: "File uploaded successfully!",
       token,
@@ -65,7 +66,7 @@ export const uploadFile = async (req, res) => {
       downloadUrl: downloadUrl,
     });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
 
     res.json({
       message: error,
@@ -134,7 +135,7 @@ export const uploadMultiple = async (req, res) => {
 
   await Promise.all(fileDetails);
 
-  // console.log(uplaodedFiles);
+  // logger.info(uplaodedFiles);
   return res.send(
     successRes(200, "Files uploaded successfully!", { data: uplaodedFiles })
   );

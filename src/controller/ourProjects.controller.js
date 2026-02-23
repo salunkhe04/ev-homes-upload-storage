@@ -6,11 +6,12 @@ import {
   successRes,
   successRes2,
 } from "../model/response.js";
+import logger from "../utils/logger.js";
 
 //GET BY ALL
 export const getOurProjects = async (req, res) => {
   try {
-    // console.log("ok");
+    // logger.info("ok");
     const cached = await RedisService.get("projects", true);
 
     if (cached != null) {
@@ -227,7 +228,7 @@ export const updateProjects = async (req, res) => {
 
     // Perform the update
 
-    // console.log(body);
+    // logger.info(body);
     const updatedProject = await ourProjectModel.findByIdAndUpdate(
       id, // Find by project ID
       { ...body },
@@ -312,7 +313,7 @@ export const updateFlatInProject = async (req, res) => {
       }),
     );
   } catch (err) {
-    console.log(err);
+    logger.info(err);
     return res.send(errorRes(500, "Server error"));
   }
 };
@@ -360,7 +361,7 @@ export const deleteFlatInProject = async (req, res) => {
       }),
     );
   } catch (err) {
-    console.log(err);
+    logger.info(err);
     return res.send(errorRes(500, "Server error"));
   }
 };
@@ -493,7 +494,7 @@ export const updateFlatInfoByIdFlatNo = async ({
       },
     );
 
-    // console.log(resp); // check matchedCount and modifiedCount
+    // logger.info(resp); // check matchedCount and modifiedCount
 
     if (resp.modifiedCount === 0) {
       return false; // no documents updated
@@ -560,7 +561,7 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
       }),
     );
   } catch (err) {
-    console.log(err);
+    logger.info(err);
     return res.send(errorRes(500, "Server error"));
   }
 };
@@ -593,7 +594,7 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
 
 //     // Check if any documents were modified
 //     if (resp.modifiedCount === 0) {
-//       // console.log(
+//       // logger.info(
 //       //   `No flat found with flatNo: ${flatNo} in project: ${projectId}`
 //       // );
 //       return false; // No documents were updated
@@ -609,7 +610,7 @@ export const updateAllInclusiveFromCSV = async (req, res) => {
 // };
 
 export const updatCarpetArea = async (req, res) => {
-  // console.log("passed 1");
+  // logger.info("passed 1");
   const id = req.params.id;
 
   if (!id) return errorRes2(res, 400, "id is required");
@@ -633,7 +634,7 @@ export const updatCarpetArea = async (req, res) => {
       data: project.flatList,
     });
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     return res.status(500).json({
       success: false,
       message: "Server error",

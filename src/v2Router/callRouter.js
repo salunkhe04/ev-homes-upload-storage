@@ -2,6 +2,7 @@ import axios from "axios";
 import { Router } from "express";
 import { errorRes2, successRes2 } from "../model/response.js";
 import { authenticateToken } from "../middleware/auth.middleware.js";
+import logger from "../utils/logger.js";
 const callRouter = Router();
 
 callRouter.get(
@@ -9,7 +10,7 @@ callRouter.get(
   // authenticateToken,
   async (req, res) => {
     //
-    // console.log("entered");
+    // logger.info("entered");
     const { caller } = req.params;
     const { date, start, end } = req.query;
     try {
@@ -27,12 +28,12 @@ callRouter.get(
           "x-api-key": process.env.API_KEY,
         },
       });
-      // console.log(resp?.data);
+      // logger.info(resp?.data);
 
       return successRes2(res, 200, "count", resp.data);
     } catch (error) {
       //
-      console.log(error);
+      logger.error(error);
       return errorRes2(res, 500, `${error?.message || error}`);
     }
   },
@@ -43,7 +44,7 @@ callRouter.get(
   // authenticateToken,
   async (req, res) => {
     //
-    // console.log("entered");
+    // logger.info("entered");
     const { caller } = req.params;
     const { date, start, end } = req.query;
     try {
@@ -61,7 +62,7 @@ callRouter.get(
           "x-api-key": process.env.API_KEY,
         },
       });
-      // console.log(resp?.data);
+      // logger.info(resp?.data);
 
       return successRes2(res, 200, "count", resp.data);
     } catch (error) {

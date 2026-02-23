@@ -1,6 +1,7 @@
 import whatsappTemplateModel from "../model/whatsappTemplate.model.js";
 import { errorRes, successRes } from "../model/response.js";
 import ourProjectModel from "../model/ourProjects.model.js";
+import logger from "../utils/logger.js";
 
 export const getWhatsAppTemplate = async (req, res, next) => {
   try {
@@ -47,7 +48,7 @@ export const addWhatsAppTemplate = async (req, res, next) => {
 //     const templates = await whatsappTemplateModel
 //       .find({ projects: id })
 //       .populate({ path: "projects", select: "name" });
-//     console.log(templates.length);
+//     logger.info(templates.length);
 
 //     return res.send(
 //       successRes(200, "Whatsapp template by project", { data: templates })
@@ -69,15 +70,15 @@ export const getWhatsAppTemplateByProject = async (req, res, next) => {
 
     let query = { projects: id };
 
-    // console.log(query);
+    // logger.info(query);
     if (templateName && templateName !== "/") {
       const cleanedName = templateName.replace(/^\/+/, "");
       query = {
         ...query,
         templateName: { $regex: `^${cleanedName}`, $options: "i" },
       };
-      // console.log("Query:", query);
-      // console.log("Cleaned name:", cleanedName);
+      // logger.info("Query:", query);
+      // logger.info("Cleaned name:", cleanedName);
     }
 
     const templates = await whatsappTemplateModel
@@ -90,7 +91,7 @@ export const getWhatsAppTemplateByProject = async (req, res, next) => {
       );
     }
 
-    // console.log(templates);
+    // logger.info(templates);
 
     return res.send(
       successRes(200, "Whatsapp template by project", { data: templates })

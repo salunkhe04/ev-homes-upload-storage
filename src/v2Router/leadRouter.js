@@ -22,6 +22,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import csv from "csv-parser";
 import path from "path";
+import logger from "../utils/logger.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -79,7 +80,7 @@ leadRouterV2.post(
     const { id } = req.params;
     const { channelPartner, status, remark, startDate, validTill } = req.body;
     const user = req.user;
-    // console.log(req.body);
+    // logger.info(req.body);
     const now = new Date();
     try {
       //
@@ -127,7 +128,7 @@ leadRouterV2.post(
       return successRes2(res, 200, "added to queue", { data: updatedResp });
     } catch (error) {
       //
-      // console.log(error);
+      // logger.info(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
   },
@@ -165,7 +166,7 @@ leadRouterV2.post("/add-cp-to-queue-list", async (req, res) => {
     //       });
     //     } catch (error) {
     //       //
-    //       console.log(error);
+    //       logger.info(error);
     //     }
     //   })
     // );
@@ -193,7 +194,7 @@ leadRouterV2.post("/add-cp-to-queue-list", async (req, res) => {
     res.json(resp);
   } catch (error) {
     //
-    // console.log(error);
+    // logger.info(error);
     res.json(error);
   }
 });
@@ -222,7 +223,7 @@ leadRouterV2.post("/find-same-phone-lead", async (req, res) => {
     res.json({ total: cursor.length, data: cursor });
   } catch (error) {
     //
-    // console.log(error);
+    // logger.info(error);
     res.json(error);
   }
 });
@@ -356,9 +357,9 @@ leadRouterV2.get(
       startDate = moment().startOf("year").toDate();
       endDate = moment().endOf("year").toDate();
     }
-    // console.log(interval);
-    // console.log(startDate);
-    // console.log(endDate);
+    // logger.info(interval);
+    // logger.info(startDate);
+    // logger.info(endDate);
 
     const dateFilter =
       startDate && endDate
@@ -697,7 +698,7 @@ leadRouterV2.get(
       allCounts.lead.internalLeadCount = internalLeadCount;
       allCounts.lead.exhibition2025 = exhibition2025;
 
-      // console.log({
+      // logger.info({
       //   assignTo: id,
       //   // teamLeader: empResp.reportingTo,
       //   deadline: { $gte: now },
@@ -758,7 +759,7 @@ leadRouterV2.get(
       return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
     } catch (error) {
       //
-      // console.log(error);
+      // logger.info(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
   },
@@ -773,8 +774,8 @@ leadRouterV2.get(
     const filterDate = new Date("2024-12-10");
     const now = new Date();
     const currentDate = new Date();
-    // console.log(req.query);
-    // console.log(req.params);
+    // logger.info(req.query);
+    // logger.info(req.params);
 
     if (interval === "monthly") {
       startDate = moment().startOf("month").toDate();
@@ -797,9 +798,9 @@ leadRouterV2.get(
       startDate = moment().startOf("year").toDate();
       endDate = moment().endOf("year").toDate();
     }
-    // console.log(interval);
-    // console.log(startDate);
-    // console.log(endDate);
+    // logger.info(interval);
+    // logger.info(startDate);
+    // logger.info(endDate);
 
     const dateFilter =
       startDate && endDate
@@ -811,7 +812,7 @@ leadRouterV2.get(
           }
         : null;
 
-    // console.log(dateFilter);
+    // logger.info(dateFilter);
     const allCounts = {
       id: id,
       name: null,
@@ -862,7 +863,7 @@ leadRouterV2.get(
           ...dateFilter,
         };
       }
-      // console.log(filter);
+      // logger.info(filter);
       const counts = await leadModelV2.aggregate([
         filter,
         {
@@ -1148,7 +1149,7 @@ leadRouterV2.get(
       allCounts.lead.internalLeadCount = internalLeadCount;
       allCounts.lead.exhibition2025 = exhibition2025;
 
-      // console.log({
+      // logger.info({
       //   assignTo: id,
       //   // teamLeader: empResp.reportingTo,
       //   deadline: { $gte: now },
@@ -1210,7 +1211,7 @@ leadRouterV2.get(
       return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
   },
@@ -1227,22 +1228,22 @@ leadRouterV2.get(
     let startDate = req.query.startDate;
     let endDate = req.query.endDate;
 
-    // console.log(req.query);
+    // logger.info(req.query);
     const today = moment().tz("Asia/Kolkata");
     const now = new Date();
     if (interval === "weekly") {
       startDate = today.startOf("week").toDate();
       endDate = today.endOf("week").toDate();
-      // console.log(startDate);
-      // console.log(endDate);
+      // logger.info(startDate);
+      // logger.info(endDate);
     } else if (interval === "monthly") {
       startDate = today.startOf("month").toDate();
       endDate = today.endOf("month").toDate();
     } else if (interval === "custom" && startDate && endDate) {
       startDate = moment(startDate).tz("Asia/Kolkata").startOf("day").toDate();
       endDate = moment(endDate).tz("Asia/Kolkata").endOf("day").toDate();
-      // console.log(startDate);
-      // console.log(endDate);
+      // logger.info(startDate);
+      // logger.info(endDate);
     }
 
     let filter = {
@@ -1281,7 +1282,7 @@ leadRouterV2.get(
       for (const emp of employees) {
         const empId = emp._id;
 
-        // console.log({
+        // logger.info({
         //   assignTo: id,
         //   // teamLeader: empResp.reportingTo,
         //   deadline: { $gte: now },
@@ -1308,7 +1309,7 @@ leadRouterV2.get(
             : {}),
           deadline: { $gte: new Date() },
         };
-        // console.log(baseFilter);
+        // logger.info(baseFilter);
         const taskCounts = await taskModel.aggregate([
           {
             $match: baseFilter,
@@ -1378,7 +1379,7 @@ leadRouterV2.get(
       });
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
   },
@@ -1402,8 +1403,8 @@ leadRouterV2.get(
       if (interval === "weekly") {
         startDate = today.startOf("week").toDate();
         endDate = today.endOf("week").toDate();
-        // console.log(startDate);
-        // console.log(endDate);
+        // logger.info(startDate);
+        // logger.info(endDate);
       } else if (interval === "monthly") {
         startDate = today.startOf("month").toDate();
         endDate = today.endOf("month").toDate();
@@ -1413,8 +1414,8 @@ leadRouterV2.get(
           .startOf("day")
           .toDate();
         endDate = moment(endDate).tz("Asia/Kolkata").endOf("day").toDate();
-        // console.log(startDate);
-        // console.log(endDate);
+        // logger.info(startDate);
+        // logger.info(endDate);
       }
 
       const emp = await employeeModel
@@ -1430,7 +1431,7 @@ leadRouterV2.get(
       // if (!emp) {
       //   return errorRes2(res, 404, "Employee not found");
       // }
-      // console.log(
+      // logger.info(
       //   JSON.stringify({
       //     ...(startDate && endDate
       //       ? {
@@ -1553,9 +1554,9 @@ leadRouterV2.get(
         (task) => task.type == "transfer-lead",
       );
 
-      // console.log(assignedTaskIds);
+      // logger.info(assignedTaskIds);
       let leadIds = taskIds.map((ele) => ele.lead);
-      // console.log(leadIds);
+      // logger.info(leadIds);
       const leadCounts = await leadModelV2.aggregate([
         {
           $match: {
@@ -1657,7 +1658,7 @@ leadRouterV2.get(
         },
       ]);
 
-      // console.log(
+      // logger.info(
       //   JSON.stringify({
       //     callHistory: {
       //       $elemMatch: {
@@ -1770,9 +1771,9 @@ leadRouterV2.get(
       startDate = moment().startOf("year").toDate();
       endDate = moment().endOf("year").toDate();
     }
-    // console.log(interval);
-    // console.log(startDate);
-    // console.log(endDate);
+    // logger.info(interval);
+    // logger.info(startDate);
+    // logger.info(endDate);
 
     const dateFilter =
       startDate && endDate
@@ -1784,7 +1785,7 @@ leadRouterV2.get(
           }
         : null;
 
-    // console.log(dateFilter);
+    // logger.info(dateFilter);
     const allCounts = {
       name: null,
       designation: null,
@@ -1826,7 +1827,7 @@ leadRouterV2.get(
           ...dateFilter,
         };
       }
-      // console.log(filter);
+      // logger.info(filter);
       const counts = await leadModelV2.aggregate([
         filter,
         {
@@ -2115,7 +2116,7 @@ leadRouterV2.get(
       return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
   },
@@ -2206,11 +2207,11 @@ leadRouterV2.get(
               validTill: new Date("2025-05-31T07:47:08.850+00:00"),
             },
           };
-          // console.log(changes);
+          // logger.info(changes);
           await leadModelV2.create(changes);
         } catch (error) {
           //
-          console.log(error);
+          logger.info(error);
         }
       }),
     );
@@ -2322,14 +2323,14 @@ leadRouterV2.get("/internal-leads-trigger-date-fix", async (req, res) => {
 });
 
 leadRouterV2.get("/last-weeek-rj-lead", async (req, res) => {
-  // console.log("okay");
+  // logger.info("okay");
 
   const format = [];
   try {
     const todayDate = moment().tz("Asia/kolkata");
     const curDate = moment().tz("Asia/kolkata").subtract(2, "weeks");
 
-    // console.log(curDate);
+    // logger.info(curDate);
     const lead = await leadModelV2
       .find({
         approvalDate: {
@@ -2379,7 +2380,7 @@ leadRouterV2.get("/last-weeek-rj-lead", async (req, res) => {
       })
       .filter(Boolean);
 
-    // console.log(lead.length);
+    // logger.info(lead.length);
     return successRes2(res, 200, "ok", {
       length: format.length,
       data: format,
@@ -2446,7 +2447,7 @@ leadRouterV2.post("/upload-channel-partner-bulk-leads", async (req, res) => {
             if (!lead) continue;
             let phoneExits = false;
             if (existingNumbers.has(lead.phoneNumber)) {
-              // console.log("Skipping duplicate:", lead.phoneNumber);
+              // logger.info("Skipping duplicate:", lead.phoneNumber);
               phoneExits = true;
               continue;
             }
@@ -2492,10 +2493,10 @@ leadRouterV2.post("/upload-channel-partner-bulk-leads", async (req, res) => {
 // leadRouterV2.post("/upload-channel-partner-bulk-leads", async (req, res) => {
 //   try {
 //     const resp =  bulk_cp_lead_trigger_35();
-//     console.log(resp);
+//     logger.info(resp);
 //     return successRes2(res, 200, "ok", { data: resp });
 //   } catch (error) {
-//     console.log(error);
+//     logger.info(error);
 
 //     return errorRes2(res, 500, `error ${error}  `);
 //   }

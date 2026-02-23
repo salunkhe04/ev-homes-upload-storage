@@ -14,6 +14,7 @@ import {
 import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
 import approvalStepModel from "../model/approvalStep.model.js";
 import leaveHistoryModel from "../model/attendance/leave/leavehistory.model.js";
+import logger from "../utils/logger.js";
 
 export const getLeave = async (req, res, next) => {
   const { applicant, reportingTo, leaveStatus } = req.query;
@@ -39,7 +40,7 @@ export const getLeave = async (req, res, next) => {
     }
     return res.send(successRes(200, "Leave records retrieved", { data: resp }));
   } catch (error) {
-    console.error("Error retrieving leave requests:", error);
+    logger.error("Error retrieving leave requests:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -69,7 +70,7 @@ export const getApplyLeave = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.error("Error retrieving leave requests:", error);
+    logger.error("Error retrieving leave requests:", error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -100,7 +101,7 @@ export const getMyLeave = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.error("Error retrieving leave requests:", error);
+    logger.error("Error retrieving leave requests:", error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -132,7 +133,7 @@ export const addLeave = async (req, res, next) => {
 
     if (!reportingToEmployee)
       return res.send(errorRes(404, "Reporting To employee not found"));
-    // console.log(applybyEmployee);
+    // logger.info(applybyEmployee);
     const myLeaves = await shiftInfoModel.findOne({ userId: applicant });
 
     const totalPendingLeaves = await leaveRequestModel.countDocuments({
@@ -155,7 +156,7 @@ export const addLeave = async (req, res, next) => {
       );
     }
 
-    // console.log(myLeaves);
+    // logger.info(myLeaves);
 
     if (leaveType === "on-paid-leave" && numberOfDays > myLeaves.paidLeave) {
       return res.send(errorRes(401, "Your Dont Have Enough Paid Leaves"));
@@ -236,7 +237,7 @@ export const addLeave = async (req, res, next) => {
         howManyBefore: lastLeaveCount,
       });
     } catch (e) {
-      console.log(e);
+      logger.error(e);
       return res.status(500).send(errorRes(500, "Internal Server Error"));
     }
 
@@ -248,7 +249,7 @@ export const addLeave = async (req, res, next) => {
       // role: teamLeaderResp?.role,
     });
     let ids = dta.map((ele) => ele.playerId);
-    // console.log(foundTLPlayerId);
+    // logger.info(foundTLPlayerId);
 
     await sendNotificationWithImage({
       playerIds: [...ids],
@@ -274,7 +275,7 @@ export const addLeave = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.error("Error in addLeave:", error);
+    logger.error("Error in addLeave:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -317,23 +318,23 @@ export const updateLeaveStatus = async (req, res) => {
         });
         currentDate.add(1, "days");
       }
-      // console.log(dates);
+      // logger.info(dates);
       try {
         await attendanceModel.insertMany(dates, { ordered: false });
       } catch (error) {
         if (error.writeErrors) {
-          // console.log("Some entries were skipped due to duplicates.");
+          // logger.info("Some entries were skipped due to duplicates.");
         } else {
-          // console.error("Failed to insert leaves:", error);
+          // logger.error("Failed to insert leaves:", error);
         }
-        // console.log("failed to insert leaves");
+        logger.info(error);
       }
       const dta = await oneSignalModel.find({
         $or: [{ docId: leave.applicant?._id }],
         // role: teamLeaderResp?.role,
       });
       let ids = dta.map((ele) => ele.playerId);
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
 
       await sendNotificationWithImage({
         playerIds: [...ids],
@@ -348,14 +349,14 @@ export const updateLeaveStatus = async (req, res) => {
           // role: "channel-partner",
         },
       });
-      // console.log("pass sent notification");
+      // logger.info("pass sent notification");
     } else if (leaveStatus?.toLowerCase() === "rejected") {
       const dta = await oneSignalModel.find({
         $or: [{ docId: leave.applicant?._id }],
         // role: teamLeaderResp?.role,
       });
       let ids = dta.map((ele) => ele.playerId);
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
 
       await sendNotificationWithImage({
         playerIds: [...ids],
@@ -376,7 +377,7 @@ export const updateLeaveStatus = async (req, res) => {
       successRes(200, "Leave Status updated successfully", { data: leave }),
     );
   } catch (error) {
-    console.error("Error updating Leave Status :", error);
+    logger.error("Error updating Leave Status :", error);
     return res.status(500).send({
       success: false,
       message: "Internal Server Error",
@@ -401,7 +402,7 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
     const step = leaveResp.approvalSteps.find(
       (s) => s.adminId?._id?.toString() === adminId && s.status === "pending",
     );
-    // console.log(step);
+    // logger.info(step);
 
     if (!step)
       return res.send(errorRes(403, "No pending approval for this admin"));
@@ -411,36 +412,36 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
     step.approvalDate = new Date();
     step.reason = reason;
     step.remark = remark;
-    // console.log("after update first step");
-    // console.log(step);
+    // logger.info("after update first step");
+    // logger.info(step);
 
     if (status === "approved") {
-      // console.log("status is approved");
+      // logger.info("status is approved");
 
       let nextStep = leaveResp.approvalSteps.find(
         (s) => s.level === step.level + 1,
       );
-      // console.log(nextStep);
+      // logger.info(nextStep);
       // Auto-approve if next step has the same admin
       while (nextStep && nextStep?.adminId?._id.toString() === adminId) {
-        // console.log("same admin");
-        // console.log(nextStep);
+        // logger.info("same admin");
+        // logger.info(nextStep);
         nextStep.status = "approved";
         nextStep.approvalDate = new Date();
         nextStep.reason = "Auto-approved (same admin)";
         nextStep.remark = remark;
         leaveResp.currentLevel = nextStep.level;
-        // console.log(nextStep);
+        // logger.info(nextStep);
         nextStep = leaveResp.approvalSteps.find(
           (s) => s.level === leaveResp.currentLevel + 1,
         );
-        // console.log("update next step");
-        // console.log(nextStep);
+        // logger.info("update next step");
+        // logger.info(nextStep);
       }
       const allStepsApproved = leaveResp.approvalSteps.every(
         (step) => step.status?.toLowerCase() === "approved",
       );
-      // console.log(`all step approved ? ${allStepsApproved}`);
+      // logger.info(`all step approved ? ${allStepsApproved}`);
       let lastLeaveCount;
 
       if (allStepsApproved) {
@@ -459,17 +460,17 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
           });
           currentDate.add(1, "days");
         }
-        // console.log(dates);
+        // logger.info(dates);
         try {
           await Promise.all(
             dates.map(async (att) => {
-              // console.log({
+              // logger.info({
               //   day: att.day,
               //   month: att.month, // Moment months are 0-based, so we add 1
               //   year: att.year,
               //   userId: att.userId,
               // });
-              // console.log({
+              // logger.info({
               //   status: leaveResp.leaveType?._id,
               //   wlStatus: leaveResp.leaveType?._id,
               // });
@@ -496,11 +497,11 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
           // await attendanceModel.insertMany(dates, { ordered: false });
         } catch (error) {
           if (error?.writeErrors) {
-            console.log("Some entries were skipped due to duplicates.");
+            logger.error("Some entries were skipped due to duplicates.");
           } else {
-            console.error("Failed to insert leaves:", error);
+            logger.error("Failed to insert leaves:", error);
           }
-          console.log(error);
+          logger.error(error);
         }
         // try {
         //   const info = await shiftInfoModel.findOne({
@@ -525,7 +526,7 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
         //       casualLeave: info.casualLeave - leaveResp.numberOfDays,
         //     };
         //   }
-        //   // console.log(whatToUpdate);
+        //   // logger.info(whatToUpdate);
         //   await shiftInfoModel.findByIdAndUpdate(info._id, {
         //     $set: {
         //       ...whatToUpdate,
@@ -540,7 +541,7 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
           // role: teamLeaderResp?.role,
         });
         let ids = dta.map((ele) => ele.playerId);
-        // console.log(foundTLPlayerId);
+        // logger.info(foundTLPlayerId);
 
         await sendNotificationWithImage({
           playerIds: [...ids],
@@ -630,6 +631,8 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
     await leaveResp.save();
     return successRes2(res, 200, `Request ${status}`, { data: leaveResp });
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `${error.message}`));
   }
 };
@@ -694,6 +697,8 @@ export const deleteLeaveRequest = async (req, res) => {
       successRes(200, "Leave Request deleted and leave reversed successfully"),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };

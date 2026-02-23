@@ -16,27 +16,28 @@ import {
   sendPaymentDueEmail,
 } from "../controller/postSaleLead.controller.js";
 import leadModelV2 from "../model/lead/leadV2Model.js";
+import logger from "../utils/logger.js";
 
 export const initCronJobs = () => {
-  console.log("cron starting");
+  (logger.info("cron starting"),
+    // Schedule a task to run at 8 AM daily and change cycle
+    cron.schedule("0 8 * * *", async () => {
+      try {
+        // const response = await triggerCycleChangeFunctionFix();
+        const response = await internalLeadCycleTrigger();
 
-  // Schedule a task to run at 8 AM daily and change cycle
-  cron.schedule("0 8 * * *", async () => {
-    try {
-      // const response = await triggerCycleChangeFunctionFix();
-      const response = await internalLeadCycleTrigger();
+        await triggerHistoryModel.create({
+          date: new Date(),
+          changes: response?.changes ?? [],
+          changesString: response?.changesString ?? "",
+          totalTrigger: response?.total ?? 0,
+          message: response?.message ?? "",
+        });
+      } catch (error) {
+        logger.error("Error making API call:", error.message);
 
-      await triggerHistoryModel.create({
-        date: new Date(),
-        changes: response?.changes ?? [],
-        changesString: response?.changesString ?? "",
-        totalTrigger: response?.total ?? 0,
-        message: response?.message ?? "",
-      });
-    } catch (error) {
-      // console.error("Error making API call:", error.message);
-    }
-  });
+      }
+    }));
 
   // Schedule a task to run at 9 AM daily and change cycle
   cron.schedule("0 9 * * *", async () => {
@@ -52,7 +53,7 @@ export const initCronJobs = () => {
         message: response?.message ?? "",
       });
     } catch (error) {
-      // console.error("Error making API call:", error.message);
+      logger.error("Error making API call:", error.message);
     }
   });
 
@@ -62,20 +63,20 @@ export const initCronJobs = () => {
       // const response = await triggerCycleChangeFunctionFix();
       const response = await getTodayVisitLineUp();
     } catch (error) {
-      console.error("Error send visit line-up:", error.message);
+      logger.error("Error send visit line-up:", error.message);
     }
   });
 
   // Schedule the job to run every day at 11:58 PM local time
   cron.schedule("58 23 * * *", async () => {
-    console.log("Running cron job at 11:58 PM local time...");
+    logger.info("Running cron job at 11:58 PM local time...");
     await insertDailyAttendance();
     // Add your task logic here
   });
 
   // Schedule the job to run every day at 10:00 PM local time
   cron.schedule("00 22 * * *", async () => {
-    console.log("Running cron job at 10:00 PM local time...");
+    logger.info("Running cron job at 10:00 PM local time...");
     await getTodayVisitSummary();
     // Add your task logic here
   });
@@ -83,7 +84,7 @@ export const initCronJobs = () => {
   // Schedule the job at 12:01 AM on the 1st of every month
   cron.schedule("1 0 1 * *", async () => {
     await resetGraceAndRegularization();
-    console.log("Running job at 12:01 AM on the 1st of every month");
+    logger.info("Running job at 12:01 AM on the 1st of every month");
   });
 
   // Schedule a task to run at 9 AM daily and check if period is exist & update
@@ -91,7 +92,7 @@ export const initCronJobs = () => {
     try {
       const response = await ensurePeriodsUpToCurrentWeek();
     } catch (error) {
-      console.error("Error updating period:", error.message);
+      logger.error("Error updating period:", error.message);
     }
   });
 
@@ -100,7 +101,7 @@ export const initCronJobs = () => {
     try {
       const response = await notificationForPaymentDue();
     } catch (error) {
-      console.error("Error in payment notification ", error.message);
+      logger.error("Error in payment notification ", error.message);
     }
   });
 
@@ -109,9 +110,9 @@ export const initCronJobs = () => {
     try {
       const response = await sendPaymentDueEmail();
     } catch (error) {
-      console.error("Error in payment email ", error.message);
+      logger.error("Error in payment email ", error.message);
     }
   });
 
-  console.log("cron added");
+  logger.info("cron added");
 };

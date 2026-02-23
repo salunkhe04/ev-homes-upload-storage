@@ -98,11 +98,6 @@ shiftInfoRouter.post("/update-leaves", async (req, res) => {
     })
   );
 });
-// Function to save updated JSON data (optional)
-// const saveUpdatedData = (data) => {
-//   fs.writeFileSync("updated-data.json", JSON.stringify(data, null, 2));
-//   console.log("Updated data saved to updated-data.json");
-// };
 
 shiftInfoRouter.post("/reset-shift-test", async (req, res) => {
   const resp = await resetGraceAndRegularization();

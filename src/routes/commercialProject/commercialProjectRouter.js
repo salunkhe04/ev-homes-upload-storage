@@ -1,6 +1,7 @@
 import { Router } from "express";
 import commercialProjModel from "../../model/commercialProject.model.js";
 import { errorRes, errorRes2, successRes } from "../../model/response.js";
+import logger from "../../utils/logger.js";
 
 const commercialProjectRouter = Router();
 
@@ -75,7 +76,7 @@ commercialProjectRouter.post(
     const { id } = req.params;
     const { id: flatId, floor, number, buildingNo } = req.body;
 
-    // console.log(req.body);
+    // logger.info(req.body);
 
     try {
       let resp = await commercialProjModel.findById(id);
@@ -89,7 +90,7 @@ commercialProjectRouter.post(
             ele.buildingNo == buildingNo) ||
           ele._id === flatId,
       );
-      // console.log(foundFlat);
+      // logger.info(foundFlat);
 
       if (!foundFlat) {
         // add new flat
@@ -138,7 +139,7 @@ commercialProjectRouter.post(
         }),
       );
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       return res.send(errorRes(500, "Server error"));
     }
   },

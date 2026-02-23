@@ -6,6 +6,7 @@ import { sitevisitTodayEmalTemplete } from "../templates/html_template.js";
 import { sendMultipleEmail } from "../utils/brevo.js";
 import { leadPopulateOptions } from "../utils/constant.js";
 import moment from "moment-timezone";
+import logger from "../utils/logger.js";
 
 export const getLeadsTeamLeaderV2 = async (req, res, next) => {
   const id = req.params.id;
@@ -20,7 +21,7 @@ export const getLeadsTeamLeaderV2 = async (req, res, next) => {
 
     if (sort == "Ascending" || sort == "ascending") {
       sortDirection = 1;
-      // console.log("ascending");
+      // logger.info("ascending");
     } else if (sort == "Descending" || sort == "descending") {
       sortDirection = -1;
     }
@@ -40,7 +41,7 @@ export const getLeadsTeamLeaderV2 = async (req, res, next) => {
     });
   } catch (error) {
     //
-    console.log(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 };
@@ -112,7 +113,7 @@ export const getTodayVisitLineUp = async () => {
 //       });
 //     }
 
-//     console.log(tracker);
+//     logger.info(tracker);
 //     const currentIndex = tracker.index;
 //     const currentTL = tls[currentIndex];
 
@@ -122,7 +123,7 @@ export const getTodayVisitLineUp = async () => {
 //       throw new Error(`No team leader found for ${currentTL}`);
 //     }
 
-//     console.log(teamLeaderDoc);
+    // logger.info(teamLeaderDoc);
 //     tracker.firstTeamLeader = teamLeaderDoc._id;
 //     tracker.assignedLeads.push(leadId);
 

@@ -65,7 +65,6 @@ export const addFeedbackEnquiry = async (req, res) => {
       );
     }
 
-    // console.log("Channel Partner ID:", channelPartner);
 
     if (!leadResp) {
       return res.send(errorRes("Info not found for notification"));
@@ -82,13 +81,11 @@ export const addFeedbackEnquiry = async (req, res) => {
     });
     await newEnquiry.save();
 
-    // console.log("Team members IDs:", ids);
 
     const foundPlayerIds = await oneSignalModel.find({
       docId: { $in: [leadResp.dataAnalyzer, leadResp.teamLeader, ids] }, // Spread team IDs into array
     });
 
-    // console.log("Found Player IDs:", foundPlayerIds);
 
     if (foundPlayerIds.length > 0) {
       const getPlayerIds = foundPlayerIds.map((dt) => dt.playerId);
@@ -104,7 +101,6 @@ export const addFeedbackEnquiry = async (req, res) => {
         },
       });
 
-      // console.log("Notification sent");
     }
 
     return res.send(

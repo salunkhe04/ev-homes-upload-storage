@@ -1,5 +1,6 @@
 import examModel from "../model/exam.model.js";
 import { errorRes, successRes } from "../model/response.js";
+import logger from "../utils/logger.js";
 
 export const getExams = async (req, res, next) => {
   try {
@@ -7,10 +8,10 @@ export const getExams = async (req, res, next) => {
     return res.send(
       successRes(200, "Get Exams", {
         data: respMe,
-      })
+      }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -23,10 +24,10 @@ export const getExamsById = async (req, res, next) => {
     return res.send(
       successRes(200, "Exams By ID", {
         data: respMe,
-      })
+      }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -42,10 +43,10 @@ export const addExams = async (req, res, next) => {
     return res.send(
       successRes(200, "Request added", {
         data: newRequest,
-      })
+      }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -61,9 +62,11 @@ export const deleteExam = async (req, res) => {
     return res.send(
       successRes(200, `Deleted successfully`, {
         data: deleteEligibility,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -81,7 +84,7 @@ export const updateExam = async (req, res) => {
     const updateExam = await examModel.findByIdAndUpdate(
       id,
       { $push: { questions: { $each: questions } } },
-      { new: true }
+      { new: true },
     );
 
     if (!updateExam) return res.send(errorRes(404, `Exam not found`));
@@ -89,9 +92,11 @@ export const updateExam = async (req, res) => {
     return res.send(
       successRes(200, `Questions added successfully`, {
         data: updateExam,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };

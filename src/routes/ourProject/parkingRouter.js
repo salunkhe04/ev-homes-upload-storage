@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { errorRes2, successRes, successRes2 } from "../../model/response.js";
 import { RedisService } from "../../app/redis.js";
+import logger from "../../utils/logger.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const parkingRouter = Router();
@@ -87,7 +88,7 @@ parkingRouter.post("/add-new-parking/:id", async (req, res) => {
 
     await newFlat.save();
 
-    // console.log(req.body);
+    // logger.info(req.body);
 
     const uflat = await parkingModel
       .findById(newFlat._id)
@@ -102,7 +103,7 @@ parkingRouter.post("/add-new-parking/:id", async (req, res) => {
       }),
     );
   } catch (error) {
-    // console.log(error);
+    logger.error(error);
     return errorRes2(res, 500, " server error ");
   }
 });
@@ -111,7 +112,7 @@ parkingRouter.post("/add-new-parking/:id", async (req, res) => {
 parkingRouter.post("/parking-update/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    // console.log(req.body);
+    // logger.info(req.body);
 
     const flat = await parkingModel.findByIdAndUpdate(
       id,
@@ -131,7 +132,7 @@ parkingRouter.post("/parking-update/:id", async (req, res) => {
       }),
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return errorRes2(res, 500, " server error ");
   }
 });

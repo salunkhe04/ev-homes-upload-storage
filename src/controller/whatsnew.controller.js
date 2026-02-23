@@ -50,7 +50,6 @@ export const updateWhatsNew = async (req, res) => {
     if (!id) return res.send(errorRes(403, "ID is required"));
     if (!showCaseImage) return res.send(errorRes(403, "Image is required"));
 
-    // console.log(body);
     const updatedWhatsNew = await whatsnewModel.findByIdAndUpdate(
       id, // Find by project ID
       { ...body },

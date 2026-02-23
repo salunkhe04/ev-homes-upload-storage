@@ -3,6 +3,7 @@ import { brokerageModel } from "../../model/brokerageCalculationData.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
 import ourProjectModel from "../../model/ourProjects.model.js";
 import { brokeragePopulate } from "../../utils/constant.js";
+import logger from "../../utils/logger.js";
 const brokrageRouter = Router();
 
 brokrageRouter.get(
@@ -17,7 +18,7 @@ brokrageRouter.get(
       return successRes2(res, 200, "added", { data: resp });
     } catch (error) {
       //
-      console.log(error);
+      logger.error(error);
       return errorRes2(res, 500, "Server Error");
     }
   }
@@ -29,7 +30,7 @@ brokrageRouter.post(
   async (req, res) => {
     const body = req.body;
     //
-    // console.log(body);
+    // logger.info(body);
     try {
       //
       const count = await brokerageModel.countDocuments({
@@ -52,7 +53,7 @@ brokrageRouter.post(
       return successRes2(res, 200, "added", { data: updatedResp });
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
       return errorRes2(res, 500, "Server Error");
     }
   }

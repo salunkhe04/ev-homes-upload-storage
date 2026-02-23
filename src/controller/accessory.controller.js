@@ -1,5 +1,6 @@
 import accessoryModel from "../model/accessory.model.js";
 import { errorRes, successRes } from "../model/response.js";
+import logger from "../utils/logger.js";
 
 export const getAccessory = async (req, res) => {
     try {
@@ -60,7 +61,7 @@ export const addAccessory = async (req, res) => {
         })
       );
     } catch (error) {
-      console.log(error);
+      logger.error(error);
       return res.send(errorRes(500, error));
     }
   };

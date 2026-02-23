@@ -9,6 +9,7 @@ import { normalizeRanking } from "../../utils/helper.js";
 import { rankingTurnPopulate } from "../../utils/constant.js";
 import siteVisitModel from "../../model/siteVisit.model.js";
 import employeeModel from "../../model/employee.model.js";
+import logger from "../../utils/logger.js";
 
 const rankingTurnRouter = Router();
 
@@ -258,7 +259,7 @@ rankingTurnRouter.get("/leads-rank-sync", async (req, res) => {
         return call.interestedStatus === "interested" && within20Min;
       });
 
-      // console.log(hasInterested);
+      // logger.info(hasInterested);
 
       if (hasInterested) {
         countableLeads.push(ele);
@@ -357,7 +358,7 @@ rankingTurnRouter.get(
         source: { $ne: "walk-in" },
       });
 
-      // console.log("Total visits fetched:", visits.length);
+      // logger.info("Total visits fetched:", visits.length);
 
       let count = 0;
 
@@ -372,13 +373,13 @@ rankingTurnRouter.get(
 
           if (!oldVisit) {
             count++;
-            // console.log("Unique visit found for:", ele.phoneNumber);
+            // logger.info("Unique visit found for:", ele.phoneNumber);
           }
         }),
       );
 
       // Step 3: Just print final count
-      // console.log("Total unique (first-time) visits:", count);
+      // logger.info("Total unique (first-time) visits:", count);
 
       // Step 4: Return response (no DB changes)
       return successRes2(res, 200, "Checked successfully", {
@@ -419,7 +420,7 @@ rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
       },
     };
 
-    // console.log(filter);
+    // logger.info(filter);
     const counts = await leadModelV2.aggregate([
       filter,
       {
@@ -479,7 +480,7 @@ rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
     allCounts.firstVisit = firstVisitCount;
     allCounts.booking = bookingCount;
 
-    // console.log({
+    // logger.info({
     //   assignTo: id,
     //   // teamLeader: empResp.reportingTo,
     //   deadline: { $gte: now },
@@ -488,7 +489,7 @@ rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
     return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
   } catch (error) {
     //
-    console.log(error);
+    logger.error(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });

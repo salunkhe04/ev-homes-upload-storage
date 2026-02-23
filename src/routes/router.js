@@ -141,6 +141,7 @@ import exhibitionVideoCountRouter from "./exhibitionVideoCount/exhibtionVideoCou
 import onbExhibRouter from "./onBoardingExhib/onboardingExhibRouter.js";
 import designTaskRouter from "./task/designTaskRouter.js";
 import trackerRouter from "./tracker/trackerRouter.js";
+import logger from "../utils/logger.js";
 
 const router = Router();
 
@@ -149,6 +150,7 @@ router.get("/ping", async (req, res) => {
 });
 
 router.get("/status", async (req, res) => {
+  logger.info(`${ new Date().toString()}`)
   res.json({
     code: 200,
     message: "ok",
@@ -177,8 +179,8 @@ router.get("/test-phone-num", async (req, res) => {
 });
 
 router.post("/test-easylu-leads", async (req, res) => {
-  // console.log(req.body);
-  // console.log(req.query);
+  // logger.info(req.body);
+  // logger.info(req.query);
   let curDate = moment().tz("Asia/Kolkata");
   let endOfDay = moment().tz("Asia/Kolkata").endOf("day");
   let curAft = moment({ hour: 21, minute: 1 }).tz("Asia/Kolkata");
@@ -186,10 +188,10 @@ router.post("/test-easylu-leads", async (req, res) => {
     .add(1, "days")
     .tz("Asia/Kolkata");
 
-  // console.log(curDate);
-  // console.log(endOfDay);
-  // console.log(curAft);
-  // console.log(nextDay);
+  // logger.info(curDate);
+  // logger.info(endOfDay);
+  // logger.info(curAft);
+  // logger.info(nextDay);
 
   if (
     curDate.isBefore(endOfDay) &&
@@ -205,7 +207,7 @@ router.post("/test-easylu-leads", async (req, res) => {
 
 router.post("/test-easylu-leads/:phoneNumber", async (req, res) => {
   const phoneNumber = req.params.phoneNumber;
-  // console.log("Raw body:", req.body);
+  // logger.info("Raw body:", req.body);
 
   let cleanedData = null;
 
@@ -224,7 +226,7 @@ router.post("/test-easylu-leads/:phoneNumber", async (req, res) => {
     console.error("Failed to parse data:", err);
   }
 
-  // console.log("Cleaned Data:", cleanedData);
+  // logger.info("Cleaned Data:", cleanedData);
 
   await linkDintestModel.create({
     phoneNumber,
@@ -282,9 +284,9 @@ router.post("/gemini-api-key", async (req, res) => {
   //     },
   //   },
   // });
-  // console.log(response.text);
+  // logger.info(response.text);
 
-  // console.log(response.text);
+  // logger.info(response.text);
 
   return res.send(successRes(200, "oka", { data: response }));
 });
@@ -305,7 +307,7 @@ router.post("/gemini-api-key", async (req, res) => {
 // const igPost=await ig.fetchPost("https://www.instagram.com/reel/DLec2XfIzC6/?igsh=OTloejY2YWo5c3Bo");
 
 //     // const userData = await getCookie("joker_1233009", "Joker_1233",true);
-//     console.log(igPost);
+//     logger.info(igPost);
 //     // res.json({
 //     //   code: 200,
 //     //   message: "ok",
@@ -314,7 +316,7 @@ router.post("/gemini-api-key", async (req, res) => {
 //     //
 //   } catch (error) {
 //     //
-//     console.log(error);
+//     logger.info(error);
 //   }
 // });
 
@@ -331,7 +333,7 @@ router.post("/chatgpt-api-key", async (req, res) => {
     store: true,
   });
 
-  // response.then((result) => console.log(result.output_text));
+  // response.then((result) => logger.info(result.output_text));
   return res.send(successRes(200, "oka", { data: response }));
 });
 
@@ -565,7 +567,7 @@ router.post("/sync-test-easy-leadz", async (req, res, next) => {
           },
           data: datat2, // use params for GET
         });
-        // console.log(`✅ Called API for ${ele.phoneNumber}`);
+        // logger.info(`✅ Called API for ${ele.phoneNumber}`);
       } catch (error) {
         console.error(`❌ Error for ${ele.phoneNumber}:`, error.message);
       }
@@ -588,7 +590,7 @@ router.get("/sync-visit-rank", async (req, res, next) => {
   try {
     //
     const date = moment().tz("Asia/Kolkata").subtract(1, "day").startOf("day");
-    // console.log(date.toDate().toISOString());
+    // logger.info(date.toDate().toISOString());
     const visits = await siteVisitModel.find({
       date: { $gte: date.toDate() },
       visitType: "visit",
@@ -622,7 +624,7 @@ router.get("/sync-visit-rank", async (req, res, next) => {
             isCountableVisit: true,
           },
         );
-        // console.log(`visit countable for ${ele.phoneNumber}`);
+        // logger.info(`visit countable for ${ele.phoneNumber}`);
         avlsVist.push(ele);
       }),
     );
@@ -665,7 +667,7 @@ router.get("/find-no-lead-visits", async (req, res, next) => {
         //
         leadsNotFound.push(visit);
       }
-      // console.log(`${i}/${allVisits.length} done`);
+      // logger.info(`${i}/${allVisits.length} done`);
     }
     return successRes2(res, 200, "oka", {
       total: leadsNotFound.length,
@@ -757,7 +759,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
     // 2️⃣ Throttled POST calls
     // for (const ele of needToRemove) {
     //   try {
-    //     console.log(
+    //     logger.info(
     //       `Removing from listId ${ele.listId} (contacts: ${ele.ids.length})`
     //     );
 
@@ -779,7 +781,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
     //       }
     //     }
 
-    //     console.log(`Removed from listId ${ele.listId} - done`);
+    //     logger.info(`Removed from listId ${ele.listId} - done`);
     //     // throttle POST
     //     await sleep(200); // ~5 req/sec
     //   } catch (err) {
@@ -829,7 +831,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
 
 //     const brevoFolderId = 21;
 //     const limit = pLimit(10); // max 10 concurrent lookups
-//     console.log("pass 1");
+//     logger.info("pass 1");
 //     await Promise.all(
 //       tOverLeads.map((ele) =>
 //         limit(async () => {
@@ -863,7 +865,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
 //         })
 //       )
 //     );
-//     console.log("pass 2");
+//     logger.info("pass 2");
 
 //     // Convert grouped object to array
 //     const needToRemove = Object.values(groupedByList);
@@ -872,7 +874,7 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
 //       needToRemove.map((ele, index) => {
 //         limit(async () => {
 //           //
-//           console.log(`${index} / ${needToRemove.length} - ${ele?.listId}`);
+//           logger.info(`${index} / ${needToRemove.length} - ${ele?.listId}`);
 //           const brevoResponse = await axios.post(
 //             `https://api.brevo.com/v3/contacts/lists/${ele.listId}/contacts/remove`,
 //             { ids: ele.ids },
@@ -892,12 +894,12 @@ router.get("/brevo-contact-get-bylist", async (req, res, next) => {
 //               );
 //             })
 //           );
-//           console.log(`${index} / ${needToRemove.length} - done`);
+//           logger.info(`${index} / ${needToRemove.length} - done`);
 //         });
 //       })
 //     );
 
-//     // console.log("bre list created:", brevoResponse.data);
+//     // logger.info("bre list created:", brevoResponse.data);
 
 //     return successRes2(res, 200, "sf", {
 //       // data: brevoResponse.data,

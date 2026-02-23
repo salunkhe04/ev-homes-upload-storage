@@ -1,6 +1,7 @@
 import { Router } from "express";
 import shortsModel from "../../model/shorts_model.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
+import logger from "../../utils/logger.js";
 
 const shortsRouter = Router();
 
@@ -104,7 +105,7 @@ shortsRouter.delete("/delete-shorts-shorts-id/:id", async (req, res) => {
       (ele) => ele._id?.toString() === shortId,
     );
 
-    // console.log(foundShort);
+    // logger.info(foundShort);
 
     if (!foundShort) {
       return errorRes2(res, 404, "no short 1 found");
@@ -133,7 +134,7 @@ shortsRouter.delete("/delete-shorts-shorts-id/:id", async (req, res) => {
       data: updateProj,
     });
   } catch (err) {
-    console.log(err);
+    // logger.info(err);
     return errorRes2(res, 500, "Server error");
   }
 });

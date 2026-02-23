@@ -63,7 +63,6 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
       };
     }
 
-    // console.log(JSON.stringify(statusToFind, null, 2));
     const resp = await designTaskModel
       .find(statusToFind)
       .skip(skip)

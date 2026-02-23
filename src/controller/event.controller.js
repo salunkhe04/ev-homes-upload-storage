@@ -30,10 +30,8 @@ export const addEvent = async (req, res) => {
     if (!startDate) return res.send(errorRes(403, "Start Date is required"));
     if (!event) return res.send(errorRes(403, "Event is required"));
     const currentYear = new Date().getFullYear();
-    // console.log(currentYear);
     const newEventId =
       "event-" + event?.replace(/\s+/g, "-").toLowerCase() + "-" + currentYear;
-    // console.log(newEventId);
 
     const newEvent = await eventModel.create({
       _id: newEventId,

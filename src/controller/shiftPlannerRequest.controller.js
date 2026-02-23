@@ -34,7 +34,7 @@ export const getPlannerRequestsByAppliedBy = async (req, res, next) => {
 
   try {
     const emp = await employeeModel.findById(id);
-    // console.log(emp);
+    // logger.info(emp);
 
     const resp = await shiftPlannerModel
       .find({ appliedBy: emp._id })
@@ -65,7 +65,7 @@ export const getPlannerRequestsByAppliedByApproved = async (req, res, next) => {
 
   try {
     const emp = await employeeModel.findById(id);
-    // console.log(emp);
+    // logger.info(emp);
 
     const resp = await shiftPlannerModel
       .find({ appliedBy: emp._id, requestStatus: "approved" })
@@ -170,13 +170,13 @@ export async function updateShiftPlanApproval(req, res) {
 
     if (!shiftPlanReq) return res.send(errorRes(400, "Request not found"));
 
-    // console.log(shiftPlanReq);
+    // logger.info(shiftPlanReq);
     const step = shiftPlanReq.approvalSteps.find(
       (s) => s.adminId?._id?.toString() === adminId && s.status === "pending"
     );
-    // console.log("id:", adminId);
-    // console.log("st:", status);
-    // console.log("pproval Steps:", shiftPlanReq.approvalSteps);
+    // logger.info("id:", adminId);
+    // logger.info("st:", status);
+    // logger.info("pproval Steps:", shiftPlanReq.approvalSteps);
 
     if (!step)
       return res.send(errorRes(403, "No pending approval for this admin"));
@@ -186,13 +186,13 @@ export async function updateShiftPlanApproval(req, res) {
     step.remark = approvalReason;
 
     if (status === "approved") {
-      // console.log("yes");
+      // logger.info("yes");
       let nextStep = shiftPlanReq.approvalSteps.find(
         (s) => s.level === step.level + 1
       );
 
       while (nextStep && nextStep.adminId?._id.toString() === adminId) {
-        // console.log(nextStep);
+        // logger.info(nextStep);
         nextStep.status = "approved";
         nextStep.approvalDate = new Date();
         nextStep.remark = "Auto-approved (same admin)";
@@ -200,11 +200,11 @@ export async function updateShiftPlanApproval(req, res) {
         nextStep = shiftPlanReq.approvalSteps.find(
           (s) => s.level === shiftPlanReq.currentLevel + 1
         );
-        // console.log("update next step");
-        // console.log(nextStep);
-        // console.log("after while");
+        // logger.info("update next step");
+        // logger.info(nextStep);
+        // logger.info("after while");
       }
-      // console.log(shiftPlanReq.currentLevel);
+      // logger.info(shiftPlanReq.currentLevel);
 
       if (!nextStep) {
         shiftPlanReq.requestStatus = "approved";
@@ -222,13 +222,13 @@ export async function updateShiftPlanApproval(req, res) {
 
         if (requestedDate.isSameOrAfter(today)) {
           try {
-            // console.log("shift update");
+            // logger.info("shift update");
           } catch (err) {
             // console.error("Failed shift update:", err);
             return res.send(errorRes(500, "Shift update failed"));
           }
         } else {
-          // console.log("Requested date is in the past");
+          // logger.info("Requested date is in the past");
         }
 
         shiftPlanReq.requestStatus = "approved";
@@ -244,7 +244,7 @@ export async function updateShiftPlanApproval(req, res) {
     await shiftPlanReq.save();
     res.send(successRes(200, `Request ${status}`, { data: shiftPlanReq }));
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     res.status(500).json({ error: error.message });
   }
 }
@@ -300,8 +300,8 @@ export const getShiftPlannerByDate = async (req, res, next) => {
     let startOfDay = moment().tz("Asia/Kolkata").startOf("day").toDate();
     let endOfDay = moment().tz("Asia/Kolkata").endOf("day").toDate();
 
-    // console.log(startOfDay);
-    // console.log(endOfDay);
+    // logger.info(startOfDay);
+    // logger.info(endOfDay);
 
     const resp = await shiftPlannerModel
       .findOne({
@@ -312,9 +312,9 @@ export const getShiftPlannerByDate = async (req, res, next) => {
       .populate(shiftPlannerRequestPopulateOptions);
 
     //
-    // console.log(resp.requestedShiftDate);
+    // logger.info(resp.requestedShiftDate);
 
-    // console.log(resp);
+    // logger.info(resp);
 
     return res.send(
       successRes(200, "get shift planner", {

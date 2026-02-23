@@ -5,6 +5,7 @@ import {
   employeePopulateOptions,
   teamSectionPopulateOptions,
 } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 
 //GET BY ALL
 export const getTeamSections = async (req, res) => {
@@ -90,7 +91,6 @@ export const getTeamSectionById = async (req, res) => {
         .select("firstName lastName designation reportingTo")
         .lean();
 
-      // console.log(findEmployees);
       members = findEmployees;
       // respSections.members = findEmployees;
     }
@@ -102,7 +102,7 @@ export const getTeamSectionById = async (req, res) => {
       })
     );
   } catch (error) {
-    // console.log(error);
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };

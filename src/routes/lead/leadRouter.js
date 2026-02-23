@@ -80,6 +80,7 @@ import leadModelV2 from "../../model/lead/leadV2Model.js";
 import postSaleLeadModel from "../../model/postSaleLead.model.js";
 import taskModel from "../../model/task.model.js";
 import { notificationQueue } from "../../app/workers/notificationWorker.js";
+import logger from "../../utils/logger.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -176,48 +177,48 @@ leadRouter.get(
       let curreCycle = leadResp.cycle;
 
       for (let i = 0; i < 5; i++) {
-        // console.log(`${i} ok`);
+        // logger.info(`${i} ok`);
         var currTimeline = timeline[i];
-        // console.log(`${typeof currTimeline}`);
+        // logger.info(`${typeof currTimeline}`);
         if (!currTimeline) {
-          // console.log(`${i} pass 1`);
+          // logger.info(`${i} pass 1`);
           const lastIndex = teamLeaders.findIndex(
             (ele) =>
               ele?._id.toString() === curreCycle?.teamLeader?._id?.toString() ||
               ele?._id.toString() === curreCycle?.teamLeader?.toString(),
           );
-          // console.log(`${i} pass 2- ${lastIndex}`);
+          // logger.info(`${i} pass 2- ${lastIndex}`);
 
           const totalTeamLeader = teamLeaders.length;
           let cCycle = { ...curreCycle };
           // if (i > 1) {
-          // console.log(newTimeLine2[i]);
+          // logger.info(newTimeLine2[i]);
           //   cCycle = newTimeLine2[i];
           // }
 
-          // console.log(`${i} pass 3`);
+          // logger.info(`${i} pass 3`);
 
           const previousCycle = { ...cCycle };
-          // console.log(`${i} pass 4`);
+          // logger.info(`${i} pass 4`);
 
           const firstTeamLeader =
             leadResp.currentOrder <= 1
               ? leadResp.cycle.teamLeader
               : timeline[0]?.teamLeader;
-          // console.log(`${i} pass 5`);
+          // logger.info(`${i} pass 5`);
 
           const lastTeamLeaderNext = sortedTeamLeaders[0];
-          // console.log(`${i} pass 6`);
+          // logger.info(`${i} pass 6`);
 
           const startDate = new Date(curreCycle.validTill.addDays(1));
           const startDate2 = new Date(curreCycle.validTill);
-          // console.log(`${i} pass 7`);
+          // logger.info(`${i} pass 7`);
 
           const validTill = new Date(startDate);
-          // console.log(`${i} pass 8`);
+          // logger.info(`${i} pass 8`);
 
           if (lastIndex !== -1) {
-            // console.log(`${i} pass 9 lastIndex not null`);
+            // logger.info(`${i} pass 9 lastIndex not null`);
 
             //TOFO:visit
             if (cCycle?.stage === "visit") {
@@ -283,7 +284,7 @@ leadRouter.get(
             // Explicitly handle year rollover
             const adjustedYear = validTill.getFullYear();
             if (adjustedYear > startDate.getFullYear()) {
-              // console.log(
+              // logger.info(
               //   `Year adjusted: ${startDate.getFullYear()} -> ${adjustedYear}`
               // );
               validTill.setFullYear(adjustedYear);
@@ -291,8 +292,8 @@ leadRouter.get(
 
             cCycle.startDate = startDate;
             cCycle.validTill = validTill;
-            // console.log(`${i} - done`);
-            // console.log(cCycle);
+            // logger.info(`${i} - done`);
+            // logger.info(cCycle);
 
             newTimeLine2.push(cCycle);
             curreCycle = cCycle;
@@ -302,7 +303,7 @@ leadRouter.get(
         }
       }
       let newTimeLine = timeline.map((ele) => {
-        // console.log(ele.validTill);
+        // logger.info(ele.validTill);
         ele.validTillFormated = moment(ele.validTill)
           .tz("Asia/Kolkata")
           .format("DD-MM-YYYY HH:mm");
@@ -320,7 +321,7 @@ leadRouter.get(
         }),
       );
     } catch (error) {
-      // console.log(error);
+      // logger.info(error);
       return res.send(errorRes(500, "Internal Server Error"));
     }
   },
@@ -546,7 +547,7 @@ leadRouter.get("/lead-trigger-cycle--test", async (req, res) => {
   }
 });
 const calculateDaysDifference2 = (startDate, endDate) => {
-  // console.log(startDate, endDate);
+  // logger.info(startDate, endDate);
   const start = moment(startDate).tz("UTC"); // Convert to UTC or your timezone
   const end = moment(endDate).tz("UTC");
 
@@ -578,7 +579,7 @@ leadRouter.get("/lead-current-days-fix", async (req, res) => {
     lastCycleResp.map(async (ele) => {
       const startDate = ele.cycle?.startDate;
       const endDate = ele.cycle?.validTill;
-      // console.log(startDate, endDate);
+      // logger.info(startDate, endDate);
 
       const diff =
         startDate && endDate
@@ -963,7 +964,7 @@ leadRouter.get("/lead-cycleHistory", async (req, res) => {
 leadRouter.get("/all-leads", async (req, res) => {
   try {
     const filterDate = new Date("2024-12-10");
-    // console.log(filterDate);
+    // logger.info(filterDate);
     const allLeads = await leadModelV2.find({
       startDate: { $gte: filterDate },
       bookingStatus: { $ne: "booked" },
@@ -992,7 +993,7 @@ leadRouter.get("/all-leads", async (req, res) => {
 leadRouter.get("/removed-assigned", async (req, res) => {
   try {
     const filterDate = new Date("2024-12-10");
-    // console.log(filterDate);
+    // logger.info(filterDate);
     const allLeads = await leadModelV2
       .find({
         startDate: { $gte: filterDate },
@@ -1077,7 +1078,7 @@ leadRouter.post("/lead-updates", async (req, res) => {
           ?.split(",");
         let projs = [];
         Project.split(",").map((ojk) => {
-          // console.log(ojk);
+          // logger.info(ojk);
 
           let projects = projectsResp.find((proj) => {
             if (proj.name.toLowerCase().includes(ojk.split(" ")[0])) {
@@ -1218,7 +1219,7 @@ leadRouter.post("/lead-check-exist", async (req, res) => {
           ?.split(",");
         let projs = [];
         Project.split(",").map((ojk) => {
-          // console.log(ojk);
+          // logger.info(ojk);
 
           let projects = projectsResp.find((proj) => {
             if (proj.name.toLowerCase().includes(ojk.split(" ")[0])) {
@@ -1358,7 +1359,7 @@ leadRouter.get("/lead-fix-date-22", async (req, res) => {
   //           .tz(timeZone)
   //           .subtract(8, "day")
   //           .toDate();
-  //         // console.log(`${ele.cycle.validTill} - ${yesterdayDate}`);
+  //         // logger.info(`${ele.cycle.validTill} - ${yesterdayDate}`);
   //         await leadModel.findByIdAndUpdate(ele._id, {
   //           "cycle.validTill": yesterdayDate,
   //         });
@@ -1426,26 +1427,26 @@ leadRouter.get(
 
       timeline.push(...leadResp.cycleHistory, leadResp.cycle);
       let curreCycle = leadResp.cycle;
-      // console.log(timeline);
+      // logger.info(timeline);
 
       for (let i = 0; i < 6; i++) {
-        // console.log(`${i} ok`);
+        // logger.info(`${i} ok`);
         var currTimeline = timeline[i];
-        // console.log(`${typeof currTimeline}`);
+        // logger.info(`${typeof currTimeline}`);
         if (!currTimeline) {
-          // console.log(`${i} pass 1`);
+          // logger.info(`${i} pass 1`);
           const lastIndex = sortedTeamLeaders.findIndex(
             (ele) =>
               ele?._id.toString() === curreCycle?.teamLeader?._id?.toString() ||
               ele?._id.toString() === curreCycle?.teamLeader?.toString(),
           );
-          // console.log(`${i} pass 2- ${lastIndex}`);
+          // logger.info(`${i} pass 2- ${lastIndex}`);
 
           let cCycle = { ...curreCycle };
 
           const startDate = new Date(curreCycle.validTill.addDays(1));
           const validTill = new Date(startDate);
-          // console.log(`${i} pass 8`);
+          // logger.info(`${i} pass 8`);
 
           if (lastIndex === -1) {
             timeline.push(currTimeline);
@@ -1453,7 +1454,7 @@ leadRouter.get(
             return res.send(errorRes(404, "Team Leader not found"));
           }
           if (leadResp.stage === "visit") {
-            // console.log(`${i} pass 9 lastIndex not null`);
+            // logger.info(`${i} pass 9 lastIndex not null`);
             cCycle.currentOrder += 1;
             cCycle.lastIndex = lastIndex;
             cCycle.teamLeader =
@@ -1465,7 +1466,7 @@ leadRouter.get(
             // Explicitly handle year rollover
             const adjustedYear = validTill.getFullYear();
             if (adjustedYear > startDate.getFullYear()) {
-              // console.log(
+              // logger.info(
               //   `Year adjusted: ${startDate.getFullYear()} -> ${adjustedYear}`
               // );
               validTill.setFullYear(adjustedYear);
@@ -1473,14 +1474,14 @@ leadRouter.get(
 
             cCycle.startDate = startDate;
             cCycle.validTill = validTill;
-            // console.log(`${i} - done`);
-            // console.log(cCycle);
+            // logger.info(`${i} - done`);
+            // logger.info(cCycle);
 
             timeline.push(cCycle);
             // newTimeLine2.push(cCycle);
             curreCycle = cCycle;
           } else if (leadResp.stage === "revisit") {
-            // console.log(`${i} pass 9 lastIndex not null`);
+            // logger.info(`${i} pass 9 lastIndex not null`);
             cCycle.currentOrder += 1;
             cCycle.lastIndex = lastIndex;
             cCycle.teamLeader =
@@ -1493,7 +1494,7 @@ leadRouter.get(
             // Explicitly handle year rollover
             const adjustedYear = validTill.getFullYear();
             if (adjustedYear > startDate.getFullYear()) {
-              // console.log(
+              // logger.info(
               //   `Year adjusted: ${startDate.getFullYear()} -> ${adjustedYear}`
               // );
               validTill.setFullYear(adjustedYear);
@@ -1501,8 +1502,8 @@ leadRouter.get(
 
             cCycle.startDate = startDate;
             cCycle.validTill = validTill;
-            // console.log(`${i} - done`);
-            // console.log(cCycle);
+            // logger.info(`${i} - done`);
+            // logger.info(cCycle);
 
             timeline.push(cCycle);
             // newTimeLine2.push(cCycle);
@@ -1511,7 +1512,7 @@ leadRouter.get(
         }
       }
       let newTimeLine = timeline.map((ele) => {
-        // console.log(ele.validTill);
+        // logger.info(ele.validTill);
         ele.validTillFormated = moment(ele.validTill)
           .tz("Asia/Kolkata")
           .format("DD-MM-YYYY HH:mm");
@@ -1529,7 +1530,7 @@ leadRouter.get(
         }),
       );
     } catch (error) {
-      // console.log(error);
+      // logger.info(error);
       return res.send(errorRes(500, "Internal Server Error"));
     }
   },
@@ -1744,7 +1745,7 @@ leadRouter.post("/lead-ranjna-transfer-2", async (req, res) => {
       //         },
       //       });
       //     } catch (error) {
-      //       console.log(error);
+      //       logger.info(error);
       //     }
       //   })
       // );
@@ -1799,8 +1800,8 @@ leadRouter.get("/lead-teamleader-not-same", async (req, res) => {
 leadRouter.post("/add-note-to-feedback/:id", async (req, res) => {
   const { id } = req.params;
   const { feedbackId, note, channelPartner, date = new Date() } = req.body;
-  // console.log(id);
-  // console.log(req.body);
+  // logger.info(id);
+  // logger.info(req.body);
   try {
     const resp = await leadModelV2
       .findOneAndUpdate(
@@ -2061,7 +2062,7 @@ leadRouter.post("/cross-check-booking-exist-lead", async (req, res) => {
           });
         } catch (error) {
           //
-          console.log(error);
+          logger.info(error);
         }
       }
 
@@ -2090,7 +2091,7 @@ leadRouter.post("/cross-check-booking-exist-lead", async (req, res) => {
       //     });
       //   } catch (error) {
       //     //
-      //     console.log(error);
+      //     logger.info(error);
       //   }
       // }
       result.push({
@@ -2154,7 +2155,7 @@ leadRouter.get("/leads-by-task", async (req, res) => {
 
     const taskIds = tasks.map((task) => task._id);
 
-    // console.log(taskIds);
+    // logger.info(taskIds);
 
     const leads = await leadModel
       .find({
@@ -2271,7 +2272,7 @@ leadRouter.post("/xello-1time-10m", async (req, res) => {
           //
           const delay = ele.delay * 60_000; // convert minutes → ms
 
-          // console.log(ele);
+          // logger.info(ele);
           await notificationQueue.add(
             "assignXelloLead",
             {
@@ -2284,7 +2285,7 @@ leadRouter.post("/xello-1time-10m", async (req, res) => {
             },
             { delay },
           );
-          // console.log("SCHEDULED:", ele.phoneNumber, delay);
+          // logger.info("SCHEDULED:", ele.phoneNumber, delay);
         }),
       );
       //

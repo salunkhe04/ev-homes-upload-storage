@@ -17,6 +17,7 @@ import { sendNotificationWithImage } from "./oneSignal.controller.js";
 import employeeModel from "../model/employee.model.js";
 import moment from "moment-timezone";
 import leadModelV2 from "../model/lead/leadV2Model.js";
+import logger from "../utils/logger.js";
 const zone = "Asia/Kolkata"; // or whatever timezone you're working with
 
 export const getTask = async (req, res, next) => {
@@ -93,16 +94,16 @@ export const getTask = async (req, res, next) => {
       // };
     }
 
-    // console.log(filter);
+    // logger.info(filter);
     const resp = await taskModel
       .find(filter)
       .populate(taskPopulateOptions)
       .sort({ transferDate: -1, assignDate: -1 });
-    // console.log(resp[0]);
+    // logger.info(resp[0]);
 
     const resp2 = resp.filter((ele) => {
       if (!ele?.lead || !ele?.lead?.taskRef || !ele?.lead?.taskRef?._id) {
-        // console.log(`Missing lead/taskRef in task ${ele._id}`);
+        // logger.info(`Missing lead/taskRef in task ${ele._id}`);
         return false;
       }
 
@@ -192,10 +193,10 @@ export const getTaskPage = async (req, res, next) => {
         );
       }
 
-      // console.log(isNumberQuery);
+      // logger.info(isNumberQuery);
       filter.$or = searchConditions;
     }
-    // console.log(JSON.stringify(filter, null, 2));
+    // logger.info(JSON.stringify(filter, null, 2));
     if (dStartDate && dEndDate) {
       const start = moment(dStartDate)
         .tz("Asia/Kolkata")
@@ -203,14 +204,14 @@ export const getTaskPage = async (req, res, next) => {
         .toDate();
       const end = moment(dEndDate).tz("Asia/Kolkata").endOf("day").toDate();
       const test = await taskModel.find(filter).select("_id");
-      // console.log(start);
-      // console.log(end);
-      // console.log(test);
+      // logger.info(start);
+      // logger.info(end);
+      // logger.info(test);
       const tids = [];
       test.map((ele) => {
         tids.push(ele._id.toString());
       });
-      // console.log(tids);
+      // logger.info(tids);
 
       const foundLeads = await leadModelV2
         .find({
@@ -225,7 +226,7 @@ export const getTaskPage = async (req, res, next) => {
       foundLeads.map((ele) => {
         ids.push(ele.taskRef.toString());
       });
-      // console.log(ids);
+      // logger.info(ids);
 
       if (ids.length > 0) {
         filter._id = { $in: ids };
@@ -237,22 +238,22 @@ export const getTaskPage = async (req, res, next) => {
       // };
     }
 
-    // console.log(filter);
+    // logger.info(filter);
     const resp = await taskModel
       .find(filter)
       .skip(skip)
       .limit(limit)
       .populate(taskPopulateOptions)
       .sort({ transferDate: -1, assignDate: -1 });
-    // console.log(resp);
-    // console.log(type);
+    // logger.info(resp);
+    // logger.info(type);
 
     const totalItems = await taskModel.countDocuments(filter);
 
-    // console.log(totalItems);
+    // logger.info(totalItems);
     // const resp2 = resp.filter((ele) => {
     //   if (!ele?.lead || !ele?.lead?.taskRef || !ele?.lead?.taskRef?._id) {
-    //     // console.log(`Missing lead/taskRef in task ${ele._id}`);
+    //     // logger.info(`Missing lead/taskRef in task ${ele._id}`);
     //     return false;
     //   }
 
@@ -267,7 +268,7 @@ export const getTaskPage = async (req, res, next) => {
     );
     const totalPages = Math.ceil(totalItems / limit);
 
-    // console.log("proint");
+    // logger.info("proint");
     return res.send(
       successRes(200, "Get task", {
         page,
@@ -329,7 +330,7 @@ export const getTaskReminders = async (req, res, next) => {
 
       filter.$or = searchConditions;
     }
-    // console.log(filter);
+    // logger.info(filter);
     const resp = await taskModel
       .find(filter)
       .populate(taskPopulateOptions)
@@ -351,7 +352,7 @@ export const getTaskReminders = async (req, res, next) => {
     //     ele.lead?.hideStatus === false
     // );
 
-    // console.log(match);
+    // logger.info(match);
     return res.send(
       successRes(200, "Get task", {
         data: resp,
@@ -425,7 +426,7 @@ export const getReminderToAll = async (req, res, next) => {
     //     ele.lead?.hideStatus === false
     // );
 
-    // console.log(match);
+    // logger.info(match);
     return res.send(
       successRes(200, "Get task", {
         total: resp.length,
@@ -433,7 +434,7 @@ export const getReminderToAll = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return next(error);
   }
 };
@@ -478,7 +479,7 @@ export const getTaskTeam = async (req, res, next) => {
 
       filter = { assignTo: { $in: ids } };
     }
-    // console.log(filter);
+    // logger.info(filter);
 
     if (type) {
       if (type == "completed") {
@@ -489,8 +490,8 @@ export const getTaskTeam = async (req, res, next) => {
         filter.type = type;
       }
     }
-    // console.log(dStartDate);
-    // console.log(dEndDate);
+    // logger.info(dStartDate);
+    // logger.info(dEndDate);
     if (dStartDate && dEndDate) {
       const start = moment(dStartDate)
         .tz("Asia/Kolkata")
@@ -502,7 +503,7 @@ export const getTaskTeam = async (req, res, next) => {
       test.map((ele) => {
         tids.push(ele._id.toString());
       });
-      // console.log(tids);
+      // logger.info(tids);
       const foundLeads = await leadModelV2
         .find({
           taskRef: { $in: tids },
@@ -513,7 +514,7 @@ export const getTaskTeam = async (req, res, next) => {
         })
         .select("_id taskRef");
 
-      // console.log(foundLeads);
+      // logger.info(foundLeads);
       foundLeads.map((ele) => {
         taskIds.push(ele.taskRef.toString());
       });
@@ -544,7 +545,7 @@ export const getTaskTeam = async (req, res, next) => {
 
       filter.$or = searchConditions;
     }
-    // console.log(filter);
+    // logger.info(filter);
     const resp = await taskModel
       .find(filter)
       .populate(taskPopulateOptions)
@@ -556,7 +557,7 @@ export const getTaskTeam = async (req, res, next) => {
         ele.lead?.taskRef?._id?.toString() === ele?._id?.toString() &&
         ele.lead?.hideStatus === false,
     );
-    // console.log(resp2);
+    // logger.info(resp2);
 
     return res.send(
       successRes(200, "Get task", {
@@ -596,7 +597,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
 
       filter = { assignTo: { $in: ids } };
     }
-    // console.log(filter);
+    // logger.info(filter);
 
     if (type) {
       if (type == "completed") {
@@ -607,8 +608,8 @@ export const getTaskTeamPagination = async (req, res, next) => {
         filter.type = type;
       }
     }
-    // console.log(dStartDate);
-    // console.log(dEndDate);
+    // logger.info(dStartDate);
+    // logger.info(dEndDate);
     if (dStartDate && dEndDate) {
       const start = moment(dStartDate)
         .tz("Asia/Kolkata")
@@ -620,7 +621,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
       test.map((ele) => {
         tids.push(ele._id.toString());
       });
-      // console.log(tids);
+      // logger.info(tids);
       const foundLeads = await leadModelV2
         .find({
           taskRef: { $in: tids },
@@ -631,7 +632,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
         })
         .select("_id taskRef");
 
-      // console.log(foundLeads);
+      // logger.info(foundLeads);
       foundLeads.map((ele) => {
         taskIds.push(ele.taskRef.toString());
       });
@@ -681,7 +682,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
 
       filter.$or = searchConditions;
     }
-    // console.log(filter);
+    // logger.info(filter);
     const resp = await taskModel
       .find(filter)
       .skip(skip)
@@ -695,7 +696,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
         ele.lead?.taskRef?._id?.toString() === ele?._id?.toString() &&
         ele.lead?.hideStatus === false,
     );
-    // console.log(resp2);
+    // logger.info(resp2);
     const totalPages = Math.ceil(totalItems / limit);
 
     return res.send(
@@ -754,7 +755,7 @@ export const assignTask = async (req, res, next) => {
     }
 
     if (foundTLPlayerId.length > 0) {
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
       await sendNotificationWithImage({
@@ -785,8 +786,8 @@ export const assignMultipleTask = async (req, res, next) => {
   const assignTo = req.params.id;
 
   const user = req.user;
-  // console.log(leads?.length);
-  // console.log(body);
+  // logger.info(leads?.length);
+  // logger.info(body);
   try {
     if (!Array.isArray(leads))
       return res.send(errorRes(401, "Leads List Required"));
@@ -811,9 +812,9 @@ export const assignMultipleTask = async (req, res, next) => {
       docId: assignTo,
     });
     const uniqueLeads = [...new Set(leads)];
-    // console.log("Total leads:", leads.length); // 228
-    // console.log("Unique leads:", uniqueLeads.length); // 122
-    // console.log("Duplicates:", leads.length - uniqueLeads.length); // 106
+    // logger.info("Total leads:", leads.length); // 228
+    // logger.info("Unique leads:", uniqueLeads.length); // 122
+    // logger.info("Duplicates:", leads.length - uniqueLeads.length); // 106
 
     if (uniqueLeads.length !== leads.length) {
       console.warn("Duplicate lead IDs detected:", leads);
@@ -839,9 +840,9 @@ export const assignMultipleTask = async (req, res, next) => {
             { taskRef: resp?._id },
           );
 
-          // console.log("passed");
+          // logger.info("passed");
           if (foundTLPlayerId.length > 0) {
-            // console.log(foundTLPlayerId);
+            // logger.info(foundTLPlayerId);
             const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
             await sendNotificationWithImage({
@@ -1097,7 +1098,7 @@ export const updateFeedback = async (req, res, next) => {
     siteVisitInterestedDate,
   } = req.body;
   const user = req.user;
-  // console.log(req.body);
+  // logger.info(req.body);
 
   try {
     if (lead == null) return res.send(errorRes(404, "Lead not found"));
@@ -1171,7 +1172,7 @@ export const updateFeedbackV2 = async (req, res, next) => {
     requirement,
   } = req.body;
   const user = req.user;
-  // console.log(req.body);
+  // logger.info(req.body);
 
   try {
     if (lead == null) return res.send(errorRes(404, "Lead not found"));
@@ -1184,7 +1185,7 @@ export const updateFeedbackV2 = async (req, res, next) => {
     });
 
     if (leadStage?.toLowerCase() === "lost") {
-      // console.log(leadInfo);
+      // logger.info(leadInfo);
       lostEntry = {
         employee: leadInfo?.cycle?.teamLeader,
         date: startDate,
@@ -1264,13 +1265,13 @@ export const updateFeedbackV2 = async (req, res, next) => {
       }
     } catch (error) {
       //safe
-      console.log(error);
+      logger.info(error);
     }
     //
 
     if (task != null || taskFound != null) {
       const statusValue = taskCompleted ? taskCompleted.toLowerCase() : "";
-      // console.log({
+      // logger.info({
       //   completed: true,
       //   completedDate: startDate,
       //   reminderDate: reminderDate,
@@ -1299,7 +1300,7 @@ export const updateFeedbackV2 = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    console.log(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1603,7 +1604,7 @@ export const getTaskTeamReminderPaginated = async (req, res, next) => {
     });
   } catch (error) {
     //
-    console.log(error);
+    logger.info(error);
     return errorRes2(res, 500, error);
   }
 };
@@ -1880,7 +1881,7 @@ export const getTaskMyReminderPaginated = async (req, res, next) => {
     });
   } catch (error) {
     //
-    console.log(error);
+    logger.info(error);
     return errorRes2(res, 500, error);
   }
 };
@@ -1941,7 +1942,7 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
     const createdDiff = now.diff(created, "minutes");
     // let validDiff = createdDiff <= 20 || feedbackGraceDiff;
 
-    // console.log(createdDiff);
+    // logger.info(createdDiff);
 
     //first cond: call history is empty
 
@@ -2019,13 +2020,13 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
       }
     } catch (error) {
       //safe
-      console.log(error);
+      logger.info(error);
     }
     //
 
     if (task != null || taskFound != null) {
       const statusValue = taskCompleted ? taskCompleted.toLowerCase() : "";
-      // console.log({
+      // logger.info({
       //   completed: true,
       //   completedDate: startDate,
       //   reminderDate: reminderDate,
@@ -2049,7 +2050,7 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
     }
     return res.send(successRes(200, "Feedback added", { data: true }));
   } catch (error) {
-    console.log(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -2068,9 +2069,9 @@ export const getLeadsTimer = async (req, res, next) => {
     }
     let searchId = employee.reportingTo;
 
-    // console.log(id);
+    // logger.info(id);
 
-    // console.log(employee.designation);
+    // logger.info(employee.designation);
     if (
       employee.designation === "desg-senior-closing-manager" ||
       employee.designation === "desg-site-head" ||
@@ -2078,7 +2079,7 @@ export const getLeadsTimer = async (req, res, next) => {
     ) {
       searchId = id;
     }
-    // console.log(searchId);
+    // logger.info(searchId);
     const twentyMinsAgo = moment().subtract(20, "minutes").toDate();
 
     const leads = await leadModelV2

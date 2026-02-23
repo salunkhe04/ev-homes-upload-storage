@@ -32,6 +32,7 @@ import {
 import oneSignalModel from "../model/oneSignal.model.js";
 import { RedisService } from "../app/redis.js";
 import leaveHistoryModel from "../model/attendance/leave/leavehistory.model.js";
+import logger from "../utils/logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,7 +44,7 @@ const calculateSeconds = (start, end) => {
 export const getPendingCheckout = async (req, res, next) => {
   const id = req.params.id;
   const { status } = req.query; // Get userId from the request params
-  // console.log(status);
+  // logger.info(status);
   try {
     if (!id) return res.send(errorRes(400, "id is required")); // Validate id
     const currentDate = new Date();
@@ -74,7 +75,7 @@ export const getPendingCheckout = async (req, res, next) => {
       date: { $gte: startOfMonth, $lt: endOfMonth, $lt: startOfToday },
       status: { $ne: "weekoff" /*$ne: "reimbursement"*/ }, // Exclude weekoff and reimbursement statuses
     };
-    // console.log(filter);
+    // logger.info(filter);
 
     const allRecords = await attendanceModel
       .find(filter)
@@ -105,7 +106,7 @@ export const getPendingCheckout = async (req, res, next) => {
         .map(Number);
 
       const now = moment(ele.checkInTime);
-      // console.log(now);
+      // logger.info(now);
 
       const timeIn = moment(now).set({
         hour: shiftHour,
@@ -114,14 +115,14 @@ export const getPendingCheckout = async (req, res, next) => {
         millisecond: 0,
       });
 
-      // console.log("yeah");
+      // logger.info("yeah");
       const timeIn1HrAdd = moment(timeIn).add(1, "hours");
 
-      // console.log(timeIn1HrAdd);
+      // logger.info(timeIn1HrAdd);
 
       const diffMinutes = now.diff(timeIn, "minutes");
       const isHeLate = diffMinutes > findShift?.shift.graceTime;
-      // console.log(diffMinutes);
+      // logger.info(diffMinutes);
       if (isHeLate && now.isBefore(timeIn1HrAdd)) {
         filteredCheckouts.push(ele);
 
@@ -142,7 +143,7 @@ export const getPendingCheckout = async (req, res, next) => {
 
       const totalShiftHours = timeOut.diff(timeIn, "hours");
 
-      // console.log(totalShiftHours);
+      // logger.info(totalShiftHours);
       // Find user's shift info
       const findShift = shiftsInfos.find(
         (shift) => shift.userId?._id === ele.userId?._id,
@@ -152,7 +153,7 @@ export const getPendingCheckout = async (req, res, next) => {
 
       const requiredShiftHours = findShift.shift.workingHours;
 
-      // console.log(
+      // logger.info(
       //   `Worked: ${ele.day} ${totalShiftHours} hrs | Required: ${requiredShiftHours} hrs`
       // );
 
@@ -220,6 +221,7 @@ export const getPendingCheckout = async (req, res, next) => {
       }),
     );
   } catch (error) {
+    logger.error(error);
     return next(error);
   }
 };
@@ -273,7 +275,7 @@ export const checkIn = async (req, res) => {
       startDate: { $gte: nowStartOfDay, $lte: nowEndOfDay },
       endDate: { $lte: nowEndOfDay },
     });
-    // console.log(haveHoliday);
+    // logger.info(haveHoliday);
     if (haveHoliday) {
       wlStatusWillBe = "holiday";
     }
@@ -337,7 +339,7 @@ export const checkIn = async (req, res) => {
           // role: teamLeaderResp?.role,
           // });
           // let ids =[]; //dta.map((ele) => ele.playerId);
-          // console.log(foundTLPlayerId);
+          // logger.info(foundTLPlayerId);
           /* await sendNotificationWithImage({
                 playerIds: [...ids],
                 title: "check-in",
@@ -349,6 +351,8 @@ export const checkIn = async (req, res) => {
           */
         } catch (error) {
           //
+    logger.error(error);
+
         }
 
         try {
@@ -359,6 +363,8 @@ export const checkIn = async (req, res) => {
           ]);
         } catch (error) {
           //
+    logger.error(error);
+
         }
 
         return res.send(
@@ -408,7 +414,7 @@ export const checkIn = async (req, res) => {
       // role: teamLeaderResp?.role,
       //  });
       //   let ids = [];//dta.map((ele) => ele.playerId);
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       //  await sendNotificationWithImage({
       // playerIds: [...ids],
       //title: "check-in",
@@ -440,7 +446,7 @@ export const checkIn = async (req, res) => {
       ),
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -502,7 +508,7 @@ export const checkOut = async (req, res) => {
       startDate: { $gte: nowStartOfDay, $lte: nowEndOfDay },
       endDate: { $lte: nowEndOfDay },
     });
-    // console.log(haveHoliday);
+    // logger.info(haveHoliday);
 
     // const haveGraceDays = myLeaves?.totalLateDays <= myLeaves?.shift?.graceDays;
 
@@ -531,18 +537,18 @@ export const checkOut = async (req, res) => {
       attendance.wlStatus = "holiday";
     }
 
-    // console.log(diffInHours);
+    // logger.info(diffInHours);
     if (attendance.status === "half-day" || attendance.status === "absent") {
-      // console.log("skipped");
+      // logger.info("skipped");
       //skip if already absent/half-day
     } else if (diffInHours < absentHours) {
       attendance.status = "absent";
-      // console.log("absent hours");
+      // logger.info("absent hours");
     } else if (diffInHours > absentHours && diffInHours < minWorkHours) {
       attendance.status = "half-day";
-      // console.log("half day hours");
+      // logger.info("half day hours");
     } else if (diffInHours >= minWorkHours) {
-      // console.log("completed min hours");
+      // logger.info("completed min hours");
 
       attendance.status = "present";
       if (
@@ -592,7 +598,7 @@ export const checkOut = async (req, res) => {
         });
       }
     } else {
-      // console.log("else");
+      // logger.info("else");
 
       attendance.status = "half-day";
     }
@@ -601,7 +607,7 @@ export const checkOut = async (req, res) => {
     //   await updateOverTimeAndUnderTime(myLeaves, attendance);
     // } catch (error) {
     //   //
-    //   console.log(error);
+    //   logger.error(error);
     // }
     try {
       //
@@ -611,13 +617,17 @@ export const checkOut = async (req, res) => {
       ]);
     } catch (error) {
       //
+    logger.error(error);
+
     }
 
     return res.send(
       successRes(200, "Check-out successful", { data: attendance }),
     );
   } catch (error) {
-    // console.error(error);
+    logger.error(error);
+
+    // logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -794,7 +804,7 @@ export const checkOutV2 = async (req, res) => {
     // try {
     //   await updateOverTimeAndUnderTime(myLeaves, attendance);
     // } catch (error) {
-    //   console.log(error);
+    //   logger.error(error);
     // }
     try {
       // const dta = await oneSignalModel.find({
@@ -802,7 +812,7 @@ export const checkOutV2 = async (req, res) => {
       // role: teamLeaderResp?.role,
       // });
       // let ids = dta.map((ele) => ele.playerId);
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       //await sendNotificationWithImage({
       // playerIds: [...ids],
       // title: "check-out",
@@ -812,6 +822,8 @@ export const checkOutV2 = async (req, res) => {
       //   imageUrl: "https://cdn.evhomes.tech/bbefe53c-ac69-44d2-a76d-ec9b01a97671-office-software-attendance-management-business-concept-infographics-for-web-banner-calendar-task-list-and-chart-the-user-personal-account-vector.jpg",
       // });
     } catch (error) {
+    logger.error(error);
+
       //
     }
     try {
@@ -822,12 +834,16 @@ export const checkOutV2 = async (req, res) => {
       ]);
     } catch (error) {
       //
+    logger.error(error);
+
     }
 
     return res.send(
       successRes(200, "Check-out successful", { data: attendance }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -994,7 +1010,7 @@ export const revisedCheckOutV2 = async (req, res) => {
     // try {
     //   await updateOverTimeAndUnderTime(myLeaves, attendance);
     // } catch (error) {
-    //   console.log(error);
+    //   logger.error(error);
     // }
     try {
       // const dta = await oneSignalModel.find({
@@ -1002,7 +1018,7 @@ export const revisedCheckOutV2 = async (req, res) => {
       // role: teamLeaderResp?.role,
       // });
       // let ids = dta.map((ele) => ele.playerId);
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       //await sendNotificationWithImage({
       // playerIds: [...ids],
       // title: "check-out",
@@ -1013,6 +1029,8 @@ export const revisedCheckOutV2 = async (req, res) => {
       // });
     } catch (error) {
       //
+    logger.error(error);
+
     }
     try {
       //
@@ -1022,12 +1040,16 @@ export const revisedCheckOutV2 = async (req, res) => {
       ]);
     } catch (error) {
       //
+    logger.error(error);
+
     }
 
     return res.send(
       successRes(200, "Check-out successful", { data: attendance }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, `Internal Server Error ${error}`));
   }
 };
@@ -1053,7 +1075,7 @@ export const getCheckInByUserId = async (req, res) => {
     if (now.hour() < 5) {
       now = now.subtract(1, "day");
     }
-    // console.log({
+    // logger.info({
     //   userId,
     //   day: now.date(),
     //   month: now.month() + 1, // moment month is 0-based
@@ -1078,7 +1100,7 @@ export const getCheckInByUserId = async (req, res) => {
       }),
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1088,7 +1110,7 @@ export const getCheckInByDate = async (req, res) => {
   try {
     let filterToUse = {};
     let now = new Date();
-    // console.log(req.query);
+    // logger.info(req.query);
 
     if (date) {
       now = new Date(date);
@@ -1140,8 +1162,8 @@ export const getCheckInByDate = async (req, res) => {
     } else if (filter === "custom") {
       const startOfDate = moment(startDate).tz("Asia/Kolkata").toDate();
       const endOfDate = moment(endDate).tz("Asia/Kolkata").toDate();
-      // console.log(startOfDate.getDate());
-      // console.log(endOfDate.getDate());
+      // logger.info(startOfDate.getDate());
+      // logger.info(endOfDate.getDate());
       filterToUse = {
         day: { $gte: startOfDate.getDate(), $lte: endOfDate.getDate() },
         month: {
@@ -1171,7 +1193,7 @@ export const getCheckInByDate = async (req, res) => {
       };
     }
 
-    // console.log(JSON.stringify(filterToUse, null, 2));
+    // logger.info(JSON.stringify(filterToUse, null, 2));
 
     const existingAttendance = await attendanceModel
       .find(filterToUse)
@@ -1210,7 +1232,7 @@ export const getCheckInByDate = async (req, res) => {
 
       if (!myLeaves) return true;
 
-      // console.log(myLeaves);
+      // logger.info(myLeaves);
 
       const timeIn = moment(myLeaves?.shift?.timeIn, "HH:mm").toDate();
       const diffMinutes = now2.diff(timeIn, "minutes");
@@ -1296,7 +1318,8 @@ export const getCheckInByDate = async (req, res) => {
       earlyLeaversList,
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
+
     return errorRes2(res, 500, "Internal Server Error");
   }
 };
@@ -1310,7 +1333,7 @@ export const getGraceApplicableRecords = async (req, res) => {
       userId: userId,
     };
     let now = new Date();
-    // console.log(req.query);
+    // logger.info(req.query);
 
     if (date) {
       now = new Date(date);
@@ -1320,7 +1343,7 @@ export const getGraceApplicableRecords = async (req, res) => {
       // .subtract(1, "months")
       .startOf("month")
       .toDate();
-    // console.log(startOfMonth);
+    // logger.info(startOfMonth);
     const shiftInfo = await shiftInfoModel
       .findOne({ userId })
       .populate(employeeShiftInfoPopulateOptions);
@@ -1336,8 +1359,8 @@ export const getGraceApplicableRecords = async (req, res) => {
     if (filter === "custom") {
       const startOfDate = moment(startDate).tz("Asia/Kolkata").toDate();
       const endOfDate = moment(endDate).tz("Asia/Kolkata").toDate();
-      // console.log(startOfDate.getDate());
-      // console.log(endOfDate.getDate());
+      // logger.info(startOfDate.getDate());
+      // logger.info(endOfDate.getDate());
       filterToUse = {
         userId: userId,
 
@@ -1356,7 +1379,7 @@ export const getGraceApplicableRecords = async (req, res) => {
       };
     }
 
-    // console.log(filterToUse);
+    // logger.info(filterToUse);
 
     const existingAttendance = await attendanceModel
       .find(filterToUse)
@@ -1385,7 +1408,7 @@ export const getGraceApplicableRecords = async (req, res) => {
       const timeIn1HrAdd = moment(timeIn).add(1, "hours");
 
       if (checkIn.isAfter(timeIn1HrAdd)) {
-        // console.log(checkIn);
+        // logger.info(checkIn);
         return false;
       }
 
@@ -1397,11 +1420,11 @@ export const getGraceApplicableRecords = async (req, res) => {
 
       const heCompletedWorkHour =
         checkOutDiffHour >= shiftInfo?.shift?.workingHours;
-      // console.log(`${checkIn} ${checkOutDiffHour}`);
-      // console.log(shiftInfo?.shift?.workingHours - 0.6);
-      // console.log(`${checkIn} ${diffMinutes}`);
+      // logger.info(`${checkIn} ${checkOutDiffHour}`);
+      // logger.info(shiftInfo?.shift?.workingHours - 0.6);
+      // logger.info(`${checkIn} ${diffMinutes}`);
       const isHeLate = diffMinutes > shiftInfo?.shift?.graceTime;
-      // console.log(`${checkIn} ${isHeLate}`);
+      // logger.info(`${checkIn} ${isHeLate}`);
       // if (
       //   !heCompletedWorkHour &&
       //   checkOutDiffHour >= shiftInfo?.shift?.workingHours - 0.6 &&
@@ -1409,21 +1432,21 @@ export const getGraceApplicableRecords = async (req, res) => {
       //   att.status != "present" &&
       //   att.status != "absent"
       // ) {
-      //   // console.log(checkIn);
-      //   // console.log(checkOut);
-      //   // console.log(checkOutDiffHour);
-      //   // console.log(heCompletedWorkHour);
-      //   // console.log(shiftInfo?.shift?.workingHours - 0.6);
+      //   // logger.info(checkIn);
+      //   // logger.info(checkOut);
+      //   // logger.info(checkOutDiffHour);
+      //   // logger.info(heCompletedWorkHour);
+      //   // logger.info(shiftInfo?.shift?.workingHours - 0.6);
       //   return true;
       // }
-      // console.log(
+      // logger.info(
       //   `diff: ${checkOut.diff(checkIn, "hours")} / ${
       //     shiftInfo?.shift?.workingHours
       //   }`
       // );
-      // console.log(`diff: ${diffMinutes} / ${shiftInfo?.shift?.graceTime}`);
+      // logger.info(`diff: ${diffMinutes} / ${shiftInfo?.shift?.graceTime}`);
       if (isHeLate && heCompletedWorkHour && att.wlStatus != "grace-time") {
-        // console.log(`${heCompletedWorkHour}`);
+        // logger.info(`${heCompletedWorkHour}`);
         return true;
       }
       return false;
@@ -1435,7 +1458,7 @@ export const getGraceApplicableRecords = async (req, res) => {
       }),
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1487,6 +1510,8 @@ export const applyGraceTime = async (req, res) => {
       ]);
     } catch (error) {
       //
+    logger.error(error);
+
     }
     return res.send(
       successRes(200, "Grace time applied successfully", { data: attendance }),
@@ -1525,7 +1550,7 @@ export const breakStart = async (req, res) => {
       successRes(200, "Break started successfully", { data: attendance }),
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1557,7 +1582,7 @@ export const breakEnd = async (req, res) => {
       successRes(200, "Break ended successfully", { data: attendance }),
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1599,7 +1624,7 @@ export const manualEntry = async (req, res) => {
       successRes(200, "Manual entry added successfully", { data: attendance }),
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1639,7 +1664,7 @@ export const updateTimeLine = async (req, res) => {
       successRes(200, "Timeline updated successfully", { data: attendance }),
     );
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1658,8 +1683,8 @@ export const getMyAttendance = async (req, res) => {
     const endOfMonth = moment(date).tz("Asia/Kolkata").endOf("month").toDate();
     const finalEndDate = today < endOfMonth ? today : endOfMonth;
 
-    // console.log(startOfMonth);
-    // console.log(endOfMonth);
+    // logger.info(startOfMonth);
+    // logger.info(endOfMonth);
 
     const resp = await attendanceModel
       .find({ userId: id, date: { $gte: startOfMonth, $lte: finalEndDate } })
@@ -1683,7 +1708,7 @@ export const updateAttendanceById = async (req, res) => {
   try {
     if (!id) return res.send(errorRes(401, "id is required"));
     if (!body) return res.send(errorRes(401, "updates is required"));
-    // console.log(body);
+    // logger.info(body);
     const resp = await attendanceModel.findById(id);
 
     if (!resp) return res.send(errorRes(404, "Record not found"));
@@ -1711,7 +1736,7 @@ export const updateAttendanceById = async (req, res) => {
           { new: true },
         );
       } catch (error) {
-        console.log(error);
+        logger.error(error);
       }
     } else if (body?.status === "present-on-paid-leave") {
       updates.status = "present";
@@ -1734,7 +1759,7 @@ export const updateAttendanceById = async (req, res) => {
           { new: true },
         );
       } catch (error) {
-        console.log(error);
+        logger.error(error);
       }
     } else if (body?.status === "on-paid-leave") {
       updates.status = "on-paid-leave";
@@ -1754,9 +1779,9 @@ export const updateAttendanceById = async (req, res) => {
     if (body.checkOutTime && body.status !== "absent") {
       updates.checkOutTime = new Date(body.checkOutTime);
     }
-    // console.log(JSON.stringify(body, null, 2));
+    // logger.info(JSON.stringify(body, null, 2));
 
-    // console.log(JSON.stringify(updates, null, 2));
+    // logger.info(JSON.stringify(updates, null, 2));
 
     const updatedRecord = await attendanceModel
       .findByIdAndUpdate(
@@ -1790,11 +1815,11 @@ export const updateAttendanceById = async (req, res) => {
           await shiftInfoModel.findByIdAndUpdate(eShiftInfo?._id, {
             $set: leaveUpdate,
           });
-          // console.log(body);
+          // logger.info(body);
         }
       } catch (error) {
         //
-        // console.log(error);
+        logger.error(error);
       }
     }
     const eShiftInfo = await shiftInfoModel.findOne({
@@ -1842,7 +1867,7 @@ export const updateAttendanceById = async (req, res) => {
       });
     } catch (error) {
       //
-      // console.log(error);
+      logger.error(error);
     }
 
     return res.send(
@@ -1851,7 +1876,7 @@ export const updateAttendanceById = async (req, res) => {
       }),
     );
   } catch (e) {
-    // console.log(e);
+    // logger.error(e);
 
     return res.send(errorRes(500, "Internal Server Error"));
   }
@@ -1885,6 +1910,8 @@ export const getAllMyAttendance = async (req, res) => {
       );
     } catch (error) {
       //
+    logger.error(error);
+
     }
     return res.send(
       successRes(200, "attendance", {
@@ -1910,7 +1937,7 @@ export const triggerMonthlyCompOff = async (req, res) => {
 
     const totalWorkHrs = totalDays * minWorkHours;
 
-    // console.log(totalWorkHrs); // monthly working hrs
+    // logger.info(totalWorkHrs); // monthly working hrs
 
     //1. get total attendance of current month
     const resp = await attendanceModel.find({
@@ -1929,8 +1956,8 @@ export const triggerMonthlyCompOff = async (req, res) => {
       const checkIntime = moment(att.checkInTime).tz("Asia/Kolkata");
       const checkOutTime = moment(att.checkOutTime).tz("Asia/Kolkata");
 
-      // console.log(checkIntime);
-      // console.log(att.checkOutTime);
+      // logger.info(checkIntime);
+      // logger.info(att.checkOutTime);
 
       const diffInHours = checkOutTime.diff(checkIntime, "hour");
       totalActiveHrs += diffInHours;
@@ -1938,17 +1965,17 @@ export const triggerMonthlyCompOff = async (req, res) => {
 
     //
 
-    // console.log(`totalActiveHrs ${totalActiveHrs}`);
-    // console.log(`holidayDays ${holidayDays}`);
+    // logger.info(`totalActiveHrs ${totalActiveHrs}`);
+    // logger.info(`holidayDays ${holidayDays}`);
 
-    // console.log(currentDate.daysInMonth());
+    // logger.info(currentDate.daysInMonth());
 
     return successRes2(res, 200, "Fetched", { data: resp });
 
     //2. subtract leave , holiday  ..5
     //3. check weekoffs taken, > 4 , no comp off , but > total montly working hrs , from subtracting 2nd cond, i.e. 234  add comp off
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1971,12 +1998,12 @@ export const getAttendanceOverview = async (req, res) => {
       .findOne({ userId: id })
       .populate(employeeShiftInfoPopulateOptions);
 
-    // console.log(shiftInfo);
+    // logger.info(shiftInfo);
 
     if (!shiftInfo?.shift) {
       return res.send(errorRes(404, "Shift info not found"));
     }
-    // console.log(shiftInfo);
+    // logger.info(shiftInfo);
     const minWorkHours = shiftInfo?.shift?.workingHours;
     const totalWorkingHrsInMonth = totalDays === 31 ? 243 : 234;
     // weekoff should count
@@ -2024,7 +2051,7 @@ export const getAttendanceOverview = async (req, res) => {
         return;
       }
       const actMinutes = checkOut.diff(checkIn, "hour", true);
-      // console.log(`${att.day}:- ${actMinutes}`);
+      // logger.info(`${att.day}:- ${actMinutes}`);
       const actMinutess = checkOut.diff(checkIn, "minutes");
       if (shiftInfo.department?._id === "dept-marketing") {
         //
@@ -2076,7 +2103,7 @@ export const getAttendanceOverview = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -2223,11 +2250,11 @@ export const exportAtendance = async (req, res) => {
     // Generate Excel file
     const filePath = path.join(__dirname, "detailed_attendance.xlsx");
     XLSX.writeFile(workbook, filePath);
-    // console.log(filePath);
+    // logger.info(filePath);
     // Send file as a response
     res.download(filePath, "detailed_attendance.xlsx", (err) => {
       if (err) {
-        // console.error("File download error:", err);
+        // logger.error("File download error:", err);
         res.status(500).json({ message: "Failed to download file." });
       } else {
         // Delete file after download
@@ -2235,7 +2262,7 @@ export const exportAtendance = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Error exporting detailed attendance:", error);
+    logger.error("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
@@ -2248,7 +2275,7 @@ export const exportAttendance2 = async (req, res) => {
     // const currentMonth = currentDate.getMonth();
     const currentMonth = currentDate.getMonth() + 1;
 
-    // console.log(currentMonth);
+    // logger.info(currentMonth);
     const currentYear = currentDate.getFullYear();
     const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
     const timeZone = "Asia/Kolkata";
@@ -2406,7 +2433,7 @@ export const exportAttendance2 = async (req, res) => {
     //     // const checkInDate = new Date(checkInTime);
     //     // // Ensure checkInDate is valid
     //     // if (isNaN(checkInDate.getTime())) {
-    //     //   console.error(
+    //     //   logger.error(
     //     //     `Invalid check-in time for user ${user._id}: ${checkInTime}`
     //     //   );
     //     //   return;
@@ -2415,7 +2442,7 @@ export const exportAttendance2 = async (req, res) => {
     //     // const lateThreshold = new Date(checkInTime);
     //     // lateThreshold.setHours(11, 20, 0, 0); // Ensure it's on the same day
 
-    //     // console.log(`${user._id} ${checkInDate} - ${lateThreshold}`);
+    //     // logger.info(`${user._id} ${checkInDate} - ${lateThreshold}`);
 
     //     // const isLateComer = checkInDate > lateThreshold;
     //     // if (isLateComer) {
@@ -2426,7 +2453,7 @@ export const exportAttendance2 = async (req, res) => {
     //     // }
 
     //     // const checkInTime = new Date(usersAttendance[user._id].checkInTime);
-    //     // console.log(`${user._id} ${checkInTime}`);
+    //     // logger.info(`${user._id} ${checkInTime}`);
     //     // const lateThreshold = new Date(usersAttendance[user._id].checkInTime);
     //     // lateThreshold.setHours(11, 20, 0); // Set threshold to 11:20 AM
     //     // const isLateComer = checkInTime > lateThreshold;
@@ -2602,7 +2629,7 @@ export const exportAttendance2 = async (req, res) => {
 
       res.download(filePath, fileName, (err) => {
         if (err) {
-          console.error("File download error:", err);
+          logger.error("File download error:", err);
           res.status(500).json({ message: "Failed to download file." });
         } else {
           fs.unlinkSync(filePath);
@@ -2610,7 +2637,7 @@ export const exportAttendance2 = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error exporting detailed attendance:", error);
+    logger.error("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
@@ -2651,7 +2678,7 @@ export const insertDailyAttendance = async () => {
       .add(5, "hours")
       .toDate();
 
-    // console.log(
+    // logger.info(
     //   formattedDate.getDate(),
     //   formattedDate.getMonth() + 1,
     //   formattedDate.getFullYear()
@@ -2708,12 +2735,14 @@ export const insertDailyAttendance = async () => {
           );
           resp2.push(resp3);
         } catch (error) {
-          // console.error("Error updating attendance:", error);
+          // logger.error("Error updating attendance:", error);
         }
       }),
     );
     return resp2;
   } catch (error) {
+    logger.error(error);
+
     return error;
   }
 };
@@ -2739,6 +2768,8 @@ export const markPendingDailyAttendance = async () => {
 
     return pendingresp;
   } catch (error) {
+    logger.error(error);
+
     return error;
   }
 };
@@ -2748,10 +2779,10 @@ export const getPreviousRecord = async (req, res) => {
   try {
     const startOfMonth = moment().startOf("month").toDate();
 
-    // console.log(startOfMonth);
+    // logger.info(startOfMonth);
     // Start of next month (exclusive upper limit)
     const startOfToday = moment().startOf("day").toDate();
-    // console.log(startOfToday);
+    // logger.info(startOfToday);
     const absentRecord = await attendanceModel.find({
       userId: userId,
       date: {
@@ -2761,7 +2792,7 @@ export const getPreviousRecord = async (req, res) => {
       $or: [{ status: "absent" }, { status: "active" }, { status: "half-day" }],
     });
 
-    // console.log(absentRecord);
+    // logger.info(absentRecord);
     if (!absentRecord) return res.send(successRes(200, "", { data: null }));
 
     return res.send(
@@ -2770,7 +2801,7 @@ export const getPreviousRecord = async (req, res) => {
       }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server error: ${e}`));
   }
 };
@@ -2840,7 +2871,7 @@ async function generateStyledExcel() {
   const filePath = path.join(__dirname, "Styled_Attendance_Report.xlsx");
   await workbook.xlsx.writeFile(filePath);
 
-  // console.log(`Excel file generated at: ${filePath}`);
+  // logger.info(`Excel file generated at: ${filePath}`);
 }
 
 export const calculateHoursDifferenceWithTZ = (passedDate) => {
@@ -2875,7 +2906,7 @@ export const insertMonthlyAttendance = async () => {
       currentDate = currentDate.add(1, "day");
     }
 
-    // console.log(dateArray);
+    // logger.info(dateArray);
     const employees = await employeeModel.find(
       { _id: "ev68-kashibai-mangoda", status: "active" },
       "_id",
@@ -2918,7 +2949,7 @@ export const insertMonthlyAttendance = async () => {
               );
               resp2.push(resp3);
             } catch (error) {
-              console.error("Error updating attendance:", error);
+              logger.error("Error updating attendance:", error);
             }
           }),
         );
@@ -2929,7 +2960,7 @@ export const insertMonthlyAttendance = async () => {
     //   .startOf("day")
     //   .add(5, "hours")
     //   .toDate();
-    // console.log(
+    // logger.info(
     //   formattedDate.getDate(),
     //   formattedDate.getMonth() + 1,
     //   formattedDate.getFullYear()
@@ -2937,11 +2968,13 @@ export const insertMonthlyAttendance = async () => {
 
     return resp2;
   } catch (error) {
+    logger.error(error);
+
     return error;
   }
 };
 
-// generateStyledExcel().catch(console.error);
+// generateStyledExcel().catch(logger.error);
 
 //
 
@@ -2965,7 +2998,7 @@ export const getAttendanceOverviewFunc = async ({ id, date }) => {
       throw Error("Shift info not found");
       // return res.send(errorRes(404, "Shift info not found"));
     }
-    // console.log(shiftInfo);
+    // logger.info(shiftInfo);
     const minWorkHours = shiftInfo?.shift?.workingHours;
     const totalWorkingHrsInMonth = totalDays === 31 ? 243 : 234;
     // weekoff should count
@@ -3014,7 +3047,7 @@ export const getAttendanceOverviewFunc = async ({ id, date }) => {
         return;
       }
       const actMinutes = checkOut.diff(checkIn, "hour", true);
-      // console.log(`${att.day}:- ${actMinutes}`);
+      // logger.info(`${att.day}:- ${actMinutes}`);
       const actMinutess = checkOut.diff(checkIn, "minutes");
       if (shiftInfo.department?._id === "dept-marketing") {
         //
@@ -3064,7 +3097,7 @@ export const getAttendanceOverviewFunc = async ({ id, date }) => {
       ot: ot,
     };
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return null;
   }
 };
@@ -3086,13 +3119,13 @@ export const getAttendanceOverviewFuncLocal = ({
 
     // 30-31 days
     const totalDays = currentDate.daysInMonth();
-    // console.log(shiftInfo?.userId?._id);
+    // logger.info(shiftInfo?.userId?._id);
     if (!shiftInfo?.shift) {
       return null;
       throw Error("Shift info not found");
       // return res.send(errorRes(404, "Shift info not found"));
     }
-    // console.log(shiftInfo);
+    // logger.info(shiftInfo);
     const minWorkHours = shiftInfo?.shift?.workingHours;
     const totalWorkingHrsInMonth = totalDays === 31 ? 243 : 234;
     // weekoff should count
@@ -3131,7 +3164,7 @@ export const getAttendanceOverviewFuncLocal = ({
         return;
       }
       const actMinutes = checkOut.diff(checkIn, "hour", true);
-      // console.log(`${att.day}:- ${actMinutes}`);
+      // logger.info(`${att.day}:- ${actMinutes}`);
       const actMinutess = checkOut.diff(checkIn, "minutes");
       if (shiftInfo.department?._id === "dept-marketing") {
         //
@@ -3182,7 +3215,7 @@ export const getAttendanceOverviewFuncLocal = ({
       ot: ot,
     };
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     return null;
   }
 };
@@ -3414,7 +3447,7 @@ export const exportAttendance3 = async (req, res) => {
 
       attList.map((ele, i) => {
         // if (i == 14) {
-        //   console.log(ele);
+        //   logger.info(ele);
         // }
         const date = moment(ele.date);
         const checkIn = moment(ele.checkInTime).tz("Asia/Kolkata");
@@ -3504,7 +3537,7 @@ export const exportAttendance3 = async (req, res) => {
         attOverview.activeHours - attOverview.requiredHours > 0
           ? daysInMonth
           : attOverview.activeHours / shiftInfo.shift.workingHours;
-      // console.log(`${shiftInfo.userId.firstName}`, " ", payableDays);
+      // logger.info(`${shiftInfo.userId.firstName}`, " ", payableDays);
       if (weekoffDays > 0) {
         payableDays += weekoffDays;
       }
@@ -3649,13 +3682,13 @@ export const exportAttendance3 = async (req, res) => {
       );
       res.download(filePath, fileName, (err) => {
         if (err) {
-          console.error("File download error:", err);
+          logger.error("File download error:", err);
           res.status(500).json({ message: "Failed to download file." });
         } else fs.unlinkSync(filePath);
       });
     }
   } catch (error) {
-    console.error("Error exporting detailed attendance:", error);
+    logger.error("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
@@ -3718,7 +3751,7 @@ export const generateCompensatoryOff = async (req, res) => {
 
         attList.map((ele, i) => {
           // if (i == 14) {
-          //   console.log(ele);
+          //   logger.info(ele);
           // }
           const date = moment(ele.date);
           const checkIn = moment(ele.checkInTime).tz("Asia/Kolkata");
@@ -3838,10 +3871,10 @@ export const generateCompensatoryOff = async (req, res) => {
                     $lte: dt.endOf("day").toDate(),
                   },
                 };
-                // console.log(query);
+                // logger.info(query);
                 // find leaveHistory for this record - date;
                 const leaveHist = await leaveHistoryModel.findOne(query);
-                // console.log(leaveHist);
+                // logger.info(leaveHist);
 
                 if (!leaveHist) {
                   // if not found add CO + history
@@ -3873,7 +3906,7 @@ export const generateCompensatoryOff = async (req, res) => {
                 alreadyAddedPWO++;
               } catch (error) {
                 //
-                // console.log(
+                // logger.info(
                 //   `adding leave eror on PWO ${shiftInfo?.userId?._id}`
                 // );
               }
@@ -3969,7 +4002,7 @@ export const generateCompensatoryOff = async (req, res) => {
       data: list,
     });
   } catch (error) {
-    console.error("Error exporting detailed attendance:", error);
+    logger.error("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
@@ -4111,7 +4144,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
         const lastDayOfMonth = moment(currentDate).endOf("month");
 
         // ---------- Comp Off generation if weekoff < 4 ----------
-        // console.log(weekoffDays);
+        // logger.info(weekoffDays);
 
         if (weekoffDays < 4) {
           let alreadyAddedPWO = 0;
@@ -4119,15 +4152,15 @@ export const generateCompensatoryOffLatest = async (req, res) => {
             (aEle) => aEle.status === "present" && aEle.wlStatus === "weekoff",
           );
           let missingWeekoffs = 4 - weekoffDays;
-          // console.log(weekoffDays);
-          // console.log(missingWeekoffs);
+          // logger.info(weekoffDays);
+          // logger.info(missingWeekoffs);
 
           // Check PWO entries and add if not found in leave history
           let shouldGenerateCO = false;
 
           await Promise.all(
             presentOnWeekoff.map(async (dayRecord) => {
-              // console.log(dayRecord)
+              // logger.info(dayRecord)
               const dt = moment(dayRecord.date).tz("Asia/Kolkata");
               const query = {
                 userId: shiftInfo?.userId?._id,
@@ -4137,9 +4170,9 @@ export const generateCompensatoryOffLatest = async (req, res) => {
                   $lte: dt.endOf("day").toDate(),
                 },
               };
-              console.log(query);
+              logger.info(query);
               const existingHistory = await leaveHistoryModel.findOne(query);
-              console.log(existingHistory);
+              logger.info(existingHistory);
 
               if (!existingHistory) {
                 shouldGenerateCO = true; // mark once
@@ -4148,7 +4181,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
               }
             }),
           );
-          console.log(shouldGenerateCO);
+          logger.info(shouldGenerateCO);
 
           if (shouldGenerateCO && missingWeekoffs > 0) {
             const updated = await shiftInfoModel.findByIdAndUpdate(
@@ -4178,7 +4211,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
           const ots = distributeHours(
             attOverview.activeHours - attOverview.requiredHours,
           );
-          console.log(ots);
+          logger.info(ots);
           for (const ele of ots) {
             totalComps += ele.day;
             const updated = await shiftInfoModel.findByIdAndUpdate(
@@ -4229,7 +4262,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
       data: list,
     });
   } catch (error) {
-    console.error("Error generating compensatory offs:", error);
+    logger.error("Error generating compensatory offs:", error);
     return errorRes2(
       res,
       500,
@@ -4474,7 +4507,7 @@ export const exportAttendance3Bak = async (req, res) => {
 
     atts.map((ele, i) => {
       if (i == 14) {
-        // console.log(ele);
+        // logger.info(ele);
       }
       const date = moment(ele.date);
       const checkIn = moment(ele.checkInTime).tz("Asia/Kolkata");
@@ -4727,7 +4760,7 @@ export const exportAttendance3Bak = async (req, res) => {
 
       res.download(filePath, fileName, (err) => {
         if (err) {
-          console.error("File download error:", err);
+          logger.error("File download error:", err);
           res.status(500).json({ message: "Failed to download file." });
         } else {
           fs.unlinkSync(filePath);
@@ -4735,7 +4768,7 @@ export const exportAttendance3Bak = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error exporting detailed attendance:", error);
+    logger.error("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
@@ -4788,7 +4821,7 @@ export const generateCompensatoryOffV2 = async (req, res) => {
         atts.filter((att) => att?.userId === shiftInfo?.userId?._id) || [];
       attList.map((ele, i) => {
         // if (i == 14) {
-        //   console.log(ele);
+        //   logger.info(ele);
         // }
         const date = moment(ele.date);
         const checkIn = moment(ele.checkInTime).tz("Asia/Kolkata");
@@ -4852,7 +4885,7 @@ export const generateCompensatoryOffV2 = async (req, res) => {
         attOverview.activeHours - attOverview.requiredHours > 0
           ? daysInMonth
           : attOverview.activeHours / shiftInfo.shift.workingHours;
-      // console.log(`${shiftInfo.userId.firstName}`, " ", payableDays);
+      // logger.info(`${shiftInfo.userId.firstName}`, " ", payableDays);
       if (weekoffDays > 0) {
         payableDays += weekoffDays;
       }

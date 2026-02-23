@@ -13,6 +13,7 @@ import { visitTemplateV3 } from "../templates/html_template.js";
 import oneSignalModel from "../model/oneSignal.model.js";
 import { sendNotificationWithImage } from "../controller/oneSignal.controller.js";
 import deletedVisitModel from "../model/deletedVisit.model.js";
+import logger from "../utils/logger.js";
 const timeZone = "Asia/Kolkata";
 const zone = "Asia/Kolkata";
 
@@ -146,7 +147,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
           }
         } catch (error) {
           //
-          console.log(error);
+          logger.error(error);
         }
       }
     } else if (updatedVisit.visitType === "virtual-meeting") {
@@ -209,7 +210,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
       await foundLead.save();
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
     }
     //notification
     try {
@@ -271,10 +272,10 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
         },
       });
 
-      // console.log("pass sent notification");
+      // logger.info("pass sent notification");
     } catch (error) {
       //
-      console.log(error);
+      logger.info(error);
     }
     //email
     try {
@@ -362,7 +363,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
           updatedVisit.location?._id === "project-ev-9-square-vashi-sector-9" &&
           updatedVisit.email
         ) {
-          // console.log("entered 9 square");
+          // logger.info("entered 9 square");
           await addContact({
             listIds: [13],
             email: updatedVisit.email,
@@ -376,7 +377,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
             "project-ev-10-marina-bay-vashi-sector-10" &&
           updatedVisit.email
         ) {
-          // console.log("entered 10 marina");
+          // logger.info("entered 10 marina");
 
           await addContact({
             listIds: [5],
@@ -388,16 +389,16 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
         }
       } catch (error) {
         //
-        // console.log(error);
+        // logger.info(error);
       }
     } catch (error) {
-      console.log(error);
+      logger.info(error);
     }
 
     return successRes2(res, 200, "", { data: "ok" });
   } catch (error) {
     //
-    console.log(error);
+    logger.info(error);
 
     return errorRes2(res, 500, `${error}`);
   }

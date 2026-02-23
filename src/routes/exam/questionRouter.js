@@ -1,6 +1,7 @@
 import { Router } from "express";
 // import questionModel from "../../model/exam/question.model.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
+import logger from "../../utils/logger.js";
 
 const questionRouter = Router();
 
@@ -30,7 +31,7 @@ questionRouter.post("/create-questions", async (req, res) => {
     return successRes2(res, 200, "questions", { data: newQues });
   } catch (error) {
     //
-    console.log(error);
+    logger.error(error);
     return errorRes2(res, 500, "Internal server error");
   }
 });
@@ -52,7 +53,7 @@ questionRouter.post("/update-question/:id", async (req, res) => {
     return successRes2(res, 200, "questions", { data: newQues });
   } catch (error) {
     //
-    console.log(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal server error");
   }
 });
@@ -84,7 +85,7 @@ questionRouter.post("/add-questions/:id", async (req, res) => {
     return successRes2(res, 200, "questions", { data: newQues });
   } catch (error) {
     //
-    console.log(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal server error");
   }
 });

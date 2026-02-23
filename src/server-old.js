@@ -51,9 +51,9 @@
 // // });
 
 // // io.on("connection", (socket) => {
-// //   console.log(`User connected: ${socket.id}`);
+// //   logger.info(`User connected: ${socket.id}`);
 // //   socket.on("userConnected", (data) => {
-// //     console.log(data);
+// //     logger.info(data);
 // //     conntectedUser.push({
 // //       socketId: socket.id,
 // //       transport: data["transport"],
@@ -62,7 +62,7 @@
 // //   });
 // //   // Listen for location updates from the driver
 // //   socket.on("locationUpdate", async (data) => {
-// //     console.log("Location Update:", data);
+// //     logger.info("Location Update:", data);
 // //     // Broadcast the updated location to other clients
 // //     socket.emit("updateLocation", data);
 // //     trackHistory.push({
@@ -73,11 +73,11 @@
 // //       socketId: socket.id,
 // //       ...data,
 // //     });
-// //     console.log("Broadcasting updateLocation");
+// //     logger.info("Broadcasting updateLocation");
 // //   });
 
 // //   socket.on("disconnect", () => {
-// //     console.log(`User disconnected: ${socket.id}`);
+// //     logger.info(`User disconnected: ${socket.id}`);
 // //     conntectedUser = conntectedUser.filter(
 // //       (item) => item.socketId !== socket.id
 // //     );
@@ -93,7 +93,7 @@
 //   retryStrategy: (times) => Math.min(times * 50, 2000),
 // });
 
-// redis.on("connect", () => console.log("Connected to Redis!"));
+// redis.on("connect", () => logger.info("Connected to Redis!"));
 // redis.on("error", (err) => console.error("Redis Error:", err));
 
 // export let connectedUsers = [];
@@ -106,7 +106,7 @@
 //         timeline: data,
 //       },
 //     });
-//     console.log("Timeline updated for transport:", data.transport);
+//     logger.info("Timeline updated for transport:", data.transport);
 //   } catch (error) {
 //     console.error("Error updating timeline:", error);
 //   }
@@ -120,10 +120,10 @@
 // });
 
 // io.on("connection", (socket) => {
-//   console.log(`User connected: ${socket.id}`);
+//   logger.info(`User connected: ${socket.id}`);
 
 //   socket.on("userConnected", (data) => {
-//     console.log("User connected data:", data);
+//     logger.info("User connected data:", data);
 
 //     let foundUserIndex = connectedUsers.findIndex(
 //       (ele) => ele?.userId === data?.userId
@@ -151,16 +151,16 @@
 //       });
 //     }
 //     const user = connectedUsers.find((ele) => ele.userId === data?.userId);
-//     console.log("found user:", user);
+//     logger.info("found user:", user);
 //     io.to(user?.webSocketId).emit("onChangeUserInfo", user);
 //     io.to(user?.phoneSocketId).emit("onChangeUserInfo", user);
 
-//     console.log("Connected users:", connectedUsers);
+//     logger.info("Connected users:", connectedUsers);
 //   });
 
 //   socket.on("callCustomerWeb", async (data) => {
-//     console.log("call web trigger");
-//     console.log(data);
+//     logger.info("call web trigger");
+//     logger.info(data);
 //     const user = connectedUsers.find((ele) => ele.userId === data?.userId);
 //     io.to(user?.phoneSocketId).emit("callCustomer", {
 //       lead: data?.lead,
@@ -171,11 +171,11 @@
 //   });
 //   // Listen for location updates from the driver
 //   socket.on("locationUpdate", async (data) => {
-//     console.log("Location Update received:", data);
+//     logger.info("Location Update received:", data);
 //     try {
 //       // Broadcast the updated location to all clients except the sender
 //       socket.broadcast.emit("updateLocation", data);
-//       console.log("Broadcasting updateLocation to all clients except sender");
+//       logger.info("Broadcasting updateLocation to all clients except sender");
 
 //       trackHistory.push({
 //         socketId: socket.id,
@@ -192,7 +192,7 @@
 //   });
 
 //   socket.on("disconnect", () => {
-//     console.log(`User disconnected: ${socket.id}`);
+//     logger.info(`User disconnected: ${socket.id}`);
 //     let foundUserIndex = connectedUsers.findIndex(
 //       (ele) =>
 //         ele?.phoneSocketId === socket.id || ele?.webSocketId === socket.id
@@ -216,18 +216,18 @@
 //       );
 //     }
 
-//     console.log("Remaining connected users:", connectedUsers);
+//     logger.info("Remaining connected users:", connectedUsers);
 //   });
 
 //   // Add ping/pong for connection testing
 //   socket.on("ping", () => {
-//     console.log(`Received ping from ${socket.id}`);
+//     logger.info(`Received ping from ${socket.id}`);
 //     socket.emit("pong");
 //   });
 
 //   // Add test event handler
 //   socket.on("testEvent", (data) => {
-//     console.log(`Received testEvent from ${socket.id}:`, data);
+//     logger.info(`Received testEvent from ${socket.id}:`, data);
 //     socket.emit("testEventResponse", {
 //       message: "Test event received successfully",
 //     });
@@ -298,37 +298,37 @@
 
 // // Schedule the job to run every day at 11:58 PM local time
 // cron.schedule("58 23 * * *", async () => {
-//   console.log("Running cron job at 11:58 PM local time...");
+//   logger.info("Running cron job at 11:58 PM local time...");
 //   await insertDailyAttendance();
 //   // Add your task logic here
 // });
 
 // // Schedule the job to run every day at 11:58 PM local time
 // cron.schedule("00 22 * * *", async () => {
-//   console.log("Running cron job at 10:00 PM local time...");
+//   logger.info("Running cron job at 10:00 PM local time...");
 //   await getTodayVisitSummary();
 //   // Add your task logic here
 // });
 
 // cron.schedule("1 0 1 * *", async () => {
 //   await resetGraceAndRegularization();
-//   console.log("Running job at 12:01 AM on the 1st of every month");
+//   logger.info("Running job at 12:01 AM on the 1st of every month");
 // });
 
 // // // Trigger at 5:30 AM
 // // cron.schedule("30 5 * * *", async () => {
-// //   console.log("Triggered at 5:30 AM local time");
+// //   logger.info("Triggered at 5:30 AM local time");
 // //   await insertDailyAttendance();
 // // });
 
 // // // Trigger at 11:59 PM
 // // cron.schedule("59 23 * * *", async () => {
-// //   console.log("Triggered at 11:59 PM local time");
+// //   logger.info("Triggered at 11:59 PM local time");
 // //   await markPendingDailyAttendance();
 // // });
 
 // server.listen(config.PORT, () =>
-//   console.log("listening on port " + config.PORT)
+//   logger.info("listening on port " + config.PORT)
 // );
 
 // export default app;

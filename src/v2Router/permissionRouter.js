@@ -3,6 +3,7 @@ import permissionModel from "../model/permissions.model.js";
 import { errorRes2, successRes2 } from "../model/response.js";
 import employeeModel from "../model/employee.model.js";
 import { employeePopulateOptions } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 const permissionRouter = Router();
 
 permissionRouter.get("/all-permission", async (req, res) => {
@@ -31,7 +32,7 @@ permissionRouter.post("/add-permission", async (req, res) => {
     });
   } catch (error) {
     //
-    console.log(error);
+    logger.error(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });
@@ -57,7 +58,7 @@ permissionRouter.post("/update-emp-permission/:id", async (req, res) => {
     });
   } catch (error) {
     //
-    console.log(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });

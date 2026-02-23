@@ -19,7 +19,6 @@ const __dirname = path.dirname(__filename);
 
 export const uploadsDir =
   config.STORAGE_ABSOLUTE_PATH ?? path.resolve(__dirname, "../../../uploads");
-// console.log(uploadsDir);
 // Multer setup for file uploads
 // Ensure directory exists or create it
 function ensureDirectoryExists(dirPath) {

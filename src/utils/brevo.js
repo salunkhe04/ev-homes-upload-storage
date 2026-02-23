@@ -5,6 +5,7 @@ import leadModelV2 from "../model/lead/leadV2Model.js";
 import cpModel from "../model/channelPartner.model.js";
 import { errorRes, successRes } from "../model/response.js";
 import moment from "moment-timezone";
+import logger from "./logger.js";
 
 // Function to send an email via Brevo API
 const senderName = "EV Homes";
@@ -36,9 +37,9 @@ export const sendEmail = async (
   try {
     // Make the POST request to send the email
     const response = await axios.post(url, emailData, { headers });
-    console.log("Email sent successfully:", response.data);
+    // logger.info("Email sent successfully:", response.data);
   } catch (error) {
-    console.error(
+    logger.error(
       "Error sending email:",
       error.response ? error.response.data : error.message
     );
@@ -58,7 +59,7 @@ export const sendMultipleEmail = async (
       email: ele,
     };
   });
-  console.log(recipients);
+  // logger.info(recipients);
 
   // Build "attachment" recipients if provided
   let attachmentList = attachment?.length > 0 ? attachment : [];
@@ -87,9 +88,9 @@ export const sendMultipleEmail = async (
   try {
     // Make the POST request to send the email
     const response = await axios.post(url, emailData, { headers });
-    console.log("Email sent successfully:", response.data);
+    // logger.info("Email sent successfully:", response.data);
   } catch (error) {
-    console.error(
+    logger.error(
       "Error sending email:",
       error.response ? error.response.data : error.message
     );
@@ -129,10 +130,10 @@ export const addContact = async ({
         headers: headers,
       }
     );
-    console.log("Contact added:", response.data);
+    // logger.info("Contact added:", response.data);
     return response.data;
   } catch (error) {
-    console.error(
+    logger.error(
       "Error adding contact:",
       error.response?.data || error.message
     );
@@ -161,10 +162,10 @@ export const addChannelPartnerList = async (req, res) => {
       }
     );
 
-    console.log("List created:", response.data);
+    // logger.info("List created:", response.data);
     return res.status(201).json(response.data);
   } catch (error) {
-    console.error(
+    logger.error(
       "Error creating list:",
       error.response?.data || error.message
     );
@@ -217,7 +218,7 @@ export const updateListById = async (req, res) => {
       )
     );
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     return res.send(errorRes(500, `Something went wrong ${e}`));
   }
 };

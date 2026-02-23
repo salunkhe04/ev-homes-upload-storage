@@ -1,8 +1,10 @@
+import logger from "../utils/logger.js";
+
 let trackHistory = []; // Or move to a DB/model if persistent
 
 export const registerSocketEvents = (io, socket, connectedUsers) => {
   socket.on("userConnected", (data) => {
-    // console.log("User connected data:", data);
+    // logger.info("User connected data:", data);
 
     let foundUserIndex = connectedUsers.findIndex(
       (ele) => ele?.userId === data?.userId
@@ -30,16 +32,16 @@ export const registerSocketEvents = (io, socket, connectedUsers) => {
       });
     }
     const user = connectedUsers.find((ele) => ele.userId === data?.userId);
-    // console.log("found user:", user);
+    // logger.info("found user:", user);
     io.to(user?.webSocketId).emit("onChangeUserInfo", user);
     io.to(user?.phoneSocketId).emit("onChangeUserInfo", user);
 
-    // console.log("Connected users:", connectedUsers);
+    // logger.info("Connected users:", connectedUsers);
   });
 
   socket.on("callCustomerWeb", async (data) => {
-    // console.log("call web trigger");
-    // console.log(data);
+    // logger.info("call web trigger");
+    // logger.info(data);
     const user = connectedUsers.find((ele) => ele.userId === data?.userId);
     io.to(user?.phoneSocketId).emit("callCustomer", {
       lead: data?.lead,
@@ -50,11 +52,11 @@ export const registerSocketEvents = (io, socket, connectedUsers) => {
   });
   // Listen for location updates from the driver
   socket.on("locationUpdate", async (data) => {
-    // console.log("Location Update received:", data);
+    // logger.info("Location Update received:", data);
     try {
       // Broadcast the updated location to all clients except the sender
       socket.broadcast.emit("updateLocation", data);
-      // console.log("Broadcasting updateLocation to all clients except sender");
+      // logger.info("Broadcasting updateLocation to all clients except sender");
 
       trackHistory.push({
         socketId: socket.id,
@@ -73,7 +75,7 @@ export const registerSocketEvents = (io, socket, connectedUsers) => {
   });
 
   socket.on("disconnect", () => {
-    // console.log(`User disconnected: ${socket.id}`);
+    // logger.info(`User disconnected: ${socket.id}`);
     let foundUserIndex = connectedUsers.findIndex(
       (ele) =>
         ele?.phoneSocketId === socket.id || ele?.webSocketId === socket.id
@@ -97,18 +99,18 @@ export const registerSocketEvents = (io, socket, connectedUsers) => {
       );
     }
 
-    // console.log("Remaining connected users:", connectedUsers);
+    // logger.info("Remaining connected users:", connectedUsers);
   });
 
   // Add ping/pong for connection testing
   socket.on("ping", () => {
-    // console.log(`Received ping from ${socket.id}`);
+    // logger.info(`Received ping from ${socket.id}`);
     socket.emit("pong");
   });
 
   // Add test event handler
   socket.on("testEvent", (data) => {
-    // console.log(`Received testEvent from ${socket.id}:`, data);
+    // logger.info(`Received testEvent from ${socket.id}:`, data);
     socket.emit("testEventResponse", {
       message: "Test event received successfully",
     });

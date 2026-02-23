@@ -2,6 +2,7 @@ import demandModel from "../model/demand.model.js";
 import postSaleLeadModel from "../model/postSaleLead.model.js";
 import { errorRes, successRes } from "../model/response.js";
 import { demandPopulationOptions } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 
 export const getDemand = async (req, res) => {
   try {
@@ -15,9 +16,11 @@ export const getDemand = async (req, res) => {
     return res.send(
       successRes(200, "Get Demand Details", {
         data: respDemand,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, error));
   }
 };
@@ -25,7 +28,7 @@ export const getDemand = async (req, res) => {
 export const getDemandBybooking = async (req, res) => {
   const booking = req.params.booking;
   try {
-    // console.log(booking);
+    // logger.info(booking);
     const respDemand = await demandModel
       .findOne({ booking: booking })
       .populate(demandPopulationOptions)
@@ -36,16 +39,18 @@ export const getDemandBybooking = async (req, res) => {
     return res.send(
       successRes(200, "Get Demand Details", {
         data: respDemand,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, error));
   }
 };
 export const getDemandBybookings = async (req, res) => {
   const booking = req.params.booking;
   try {
-    // console.log(booking);
+    // logger.info(booking);
 
     const foundBooking = await postSaleLeadModel.findById(booking);
 
@@ -64,9 +69,11 @@ export const getDemandBybookings = async (req, res) => {
     return res.send(
       successRes(200, "Get Demand Details", {
         data: respDemand,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, error));
   }
 };
@@ -108,9 +115,11 @@ export const getDemandCountByProjectAndSlab = async (req, res) => {
           demandGeneratedcount: demandCount,
           resp,
         },
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
+
     return res.send(errorRes(500, error.message));
   }
 };
@@ -134,11 +143,11 @@ export const getDemandInfo = async (req, res) => {
       })
       .populate(demandPopulationOptions);
 
-    // console.log(resp);
+    // logger.info(resp);
     return res.send(
       successRes(200, "Demand for project and slab", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error.message));
@@ -149,7 +158,7 @@ export const addDemand = async (req, res) => {
   const { project, booking, flatNo, slab } = req.body;
   try {
     if (!req.body) return res.send(errorRes(401, "data Required"));
-    // console.log(req.body);
+    // logger.info(req.body);
     //find exisiting demand
     let exisitingDemand = await demandModel.findOne({
       project,
@@ -165,14 +174,14 @@ export const addDemand = async (req, res) => {
         .findByIdAndUpdate(
           exisitingDemand._id,
           { $set: updateData },
-          { new: true }
+          { new: true },
         )
         .populate(demandPopulationOptions);
 
       return res.send(
         successRes(200, "demand Updated", {
           data: exisitingDemand,
-        })
+        }),
       );
     }
     // create new demand
@@ -186,10 +195,10 @@ export const addDemand = async (req, res) => {
     return res.send(
       successRes(200, "new Demand Added", {
         data: updatedNewDemand,
-      })
+      }),
     );
   } catch (error) {
-    // console.log(error);
+    logger.error(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -203,7 +212,7 @@ export const updateDemandHandover = async (req, res) => {
       .findByIdAndUpdate(
         id,
         { isHandedOver: true, handoverDate: now },
-        { new: true }
+        { new: true },
       )
       .populate(demandPopulationOptions);
 
@@ -214,10 +223,10 @@ export const updateDemandHandover = async (req, res) => {
     return res.send(
       successRes(200, "Demand handover updated", {
         data: updatedDemand,
-      })
+      }),
     );
   } catch (error) {
-    // console.log(error);
+    logger.error(error);
     return res.send(errorRes(500, error.message));
   }
 };
@@ -231,10 +240,11 @@ export const deleteDemandById = async (req, res) => {
     return res.send(
       successRes(200, "Demand deleted successfully", {
         data: updatedDemand,
-      })
+      }),
     );
   } catch (error) {
-    // console.log(error);
+    logger.error(error);
+
     return res.send(errorRes(500, error.message));
   }
 };

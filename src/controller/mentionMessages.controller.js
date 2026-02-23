@@ -3,6 +3,7 @@ import messageModel from "../model/mentionMessage.model.js";
 import oneSignalModel from "../model/oneSignal.model.js";
 import { errorRes2, successRes, successRes2 } from "../model/response.js";
 import { messagePopulationOptions } from "../utils/constant.js";
+import logger from "../utils/logger.js";
 import { sendNotificationWithImage } from "./oneSignal.controller.js";
 //func
 export const createMessage = async (leadId, message, taggedEmployees) => {
@@ -86,7 +87,7 @@ export const createNewMessage = async (req, res) => {
     const tags = message.match(/@[\w-]+/g);
     // Step 2: Remove @ and lowercase to match usernames (if you're tagging by username)
     const usernames = tags ? tags.map((t) => t.slice(1)) : [];
-    // console.log(usernames);
+    // logger.info(usernames);
 
     // Step 3: Fetch employees by username
     const employees = await employeeModel.find({
@@ -144,7 +145,7 @@ export const createNewMessage = async (req, res) => {
 
     return successRes2(res, 200, "new message added", { data: updatedMessage });
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     //
     return errorRes2(res, 500, "server error");
   }
@@ -226,7 +227,7 @@ export const markAllMessagesAsSeen = async (req, res) => {
         }
       });
 
-      // console.log(msg.mentioned);
+      // logger.info(msg.mentioned);
       if (updated) {
         bulkOps.push({
           updateOne: {

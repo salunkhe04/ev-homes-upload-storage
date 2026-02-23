@@ -25,7 +25,6 @@ export const addHoliday = async (req, res) => {
   try {
     if (!body) return res.send(errorRes(403, "holiday is required"));
 
-    // console.log(body);
     const newHoliday = await holidayModel.create({
       ...body,
     });

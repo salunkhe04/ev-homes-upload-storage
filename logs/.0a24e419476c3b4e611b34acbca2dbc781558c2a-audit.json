@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\HP\\Desktop\\new_app\\ev_homes_backend\\logs\\.0a24e419476c3b4e611b34acbca2dbc781558c2a-audit.json",
+    "files": [
+        {
+            "date": 1771842028048,
+            "name": "C:\\Users\\HP\\Desktop\\new_app\\ev_homes_backend\\logs\\app-2026-02-23.log",
+            "hash": "ee050b5efe1cb2a00a4b98b5497f48031410d7ef296e256a49b6c115a9412950"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -66,8 +66,8 @@ export const addPassbackEstimate = async (req, res) => {
   try {
     if (!body) return res.send(errorRes(403, "Estimate ID is required"));
 
-    // console.log(body.estimate);
-    // console.log(body);
+    // logger.info(body.estimate);
+    // logger.info(body);
 
     const estimate = await estimateGeneratedModel
       .findById(body.estimate)
@@ -87,13 +87,13 @@ export const addPassbackEstimate = async (req, res) => {
     });
 
 
-    // console.log(newPassback);
+    // logger.info(newPassback);
 
     const newResp = await passbackEstimateModel
       .findById(newPassback._id)
       .populate(passbackEstimatePopulateOptions);
 
-    // console.log(newPassback);
+    // logger.info(newPassback);
 
     return res.send(
       successRes(200, "Passback request added successfully", {

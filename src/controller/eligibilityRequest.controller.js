@@ -10,6 +10,7 @@ import {
 } from "../utils/constant.js";
 import examModel from "../model/exam.model.js";
 import examAnswerModel from "../model/examAnswer.model.js";
+import logger from "../utils/logger.js";
 
 export const getEligibiltyRequest = async (req, res, next) => {
   try {
@@ -24,7 +25,7 @@ export const getEligibiltyRequest = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -42,7 +43,7 @@ export const getEligibiltyRequestById = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server Error $e`));
   }
 };
@@ -66,7 +67,7 @@ export const getRequestByAppliedBy = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -120,7 +121,7 @@ export const addEligibilityRequest = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -159,8 +160,8 @@ export const updateEligibilityApproval = async (req, res, next) => {
       passingMarks,
     } = req.body;
 
-    // console.log(tests);
-    // console.log(req.body);
+    // logger.info(tests);
+    // logger.info(req.body);
 
     const eligibleReq = await eligibilityModel
       .findById(id)
@@ -170,14 +171,14 @@ export const updateEligibilityApproval = async (req, res, next) => {
     if (!eligibleReq) return res.send(errorRes(400, "Request not found"));
     // if(!exam)return res.send(errorRes(404, "exam is required an exam"));
 
-    // console.log(eligibleReq);
+    // logger.info(eligibleReq);
     const step = eligibleReq.approvalSteps.find(
       (s) => s.adminId?._id?.toString() === adminId && s.status === "pending",
     );
-    // console.log(step);
-    // console.log("id:", adminId);
-    // console.log("st:", status);
-    // console.log("pproval Steps:", eligibleReq.approvalSteps);
+    // logger.info(step);
+    // logger.info("id:", adminId);
+    // logger.info("st:", status);
+    // logger.info("pproval Steps:", eligibleReq.approvalSteps);
 
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
@@ -241,7 +242,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
           );
           eligibleReq.status = "exam-schedule";
         } catch (error) {
-          console.error(error);
+          logger.error(error);
         }
         await eligibleReq.save();
         return res.send(
@@ -307,7 +308,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
           },
         );
       } catch (error) {
-        console.error(error);
+        logger.error(error);
       }
 
       let nextStep = eligibleReq.approvalSteps.find(
@@ -315,7 +316,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
       );
 
       while (nextStep && nextStep.adminId?._id.toString() === adminId) {
-        // console.log(nextStep);
+        // logger.info(nextStep);
         nextStep.status = "approved";
         nextStep.approvalDate = new Date();
         nextStep.remark = "Auto-approved (same admin)";
@@ -341,7 +342,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
       successRes(200, `Request ${status}`, { data: eligibleReq }),
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -447,7 +448,7 @@ export const getEligibleCriteria = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
 };
@@ -455,18 +456,18 @@ export const getEligibleCriteria = async (req, res, next) => {
 export const deleteEligibiltyRequestById = async (req, res, next) => {
   const id = req.params.id;
   try {
-    // console.log("ohk");
-    // console.log(id);
+    // logger.info("ohk");
+    // logger.info(id);
     const respMe = await eligibilityModel.findByIdAndDelete(id);
 
-    // console.log("ohk 2");
+    // logger.info("ohk 2");
     return res.send(
       successRes(200, "Eligible", {
         data: respMe,
       }),
     );
   } catch (e) {
-    console.log(e);
+    logger.error(e);
     return res.send(errorRes(500, `Server Error $e`));
   }
 };
@@ -497,7 +498,7 @@ export const updateExamStatus = async (req, res, next) => {
           pdf: pdf,
         });
       } catch (error) {
-        console.log(error);
+        logger.error(error);
       }
     }
 
@@ -509,7 +510,7 @@ export const updateExamStatus = async (req, res, next) => {
       successRes(200, "Status updated successfully", { data: newResp }),
     );
   } catch (e) {
-    console.error("Error updating exam status:", e);
+    logger.error("Error updating exam status:", e);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };

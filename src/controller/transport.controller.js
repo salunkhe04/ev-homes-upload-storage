@@ -77,7 +77,7 @@ export const addTransport = async (req, res) => {
     vehicle,
   } = req.body;
   try {
-    // console.log(req.body);
+    // logger.info(req.body);
     // if (!id) return res.send(errorRes(401, "id is required"));
     // if (!message) return res.send(errorRes(401, "message is required"));
     // if (!type) return res.send(errorRes(401, "type is required"));
@@ -105,7 +105,7 @@ export const addTransport = async (req, res) => {
     });
 
     if (foundTLPlayerId.length > 0) {
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
       await sendNotificationWithInfo({
@@ -131,7 +131,7 @@ export const approveTransport = async (req, res) => {
   const id = req.params.id;
   const user = req?.user;
   try {
-    // console.log(req.body);
+    // logger.info(req.body);
     // if (!id) return res.send(errorRes(401, "id is required"));
 
     // await vehicleModel.findByIdAndUpdate(vehicle, { status: true });
@@ -150,7 +150,7 @@ export const approveTransport = async (req, res) => {
     });
 
     if (foundTLPlayerId.length > 0) {
-      // console.log(foundTLPlayerId);
+      // logger.info(foundTLPlayerId);
       const getPlayerIds = foundTLPlayerId.map((dt) => dt.playerId);
 
       await sendNotificationWithInfo({

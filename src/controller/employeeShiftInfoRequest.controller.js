@@ -3,6 +3,7 @@ import employeeShiftInfoRequestModel from "../model/attendance/shift/employeeShi
 import { employeeShiftInfoRequestPopulateOptions } from "../utils/constant.js";
 import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
 import { createLeaveHistoryFunc } from "./leaveHistory.controller.js";
+import logger from "../utils/logger.js";
 
 export const getShiftInfosRequest = async (req, res, next) => {
   try {
@@ -13,9 +14,10 @@ export const getShiftInfosRequest = async (req, res, next) => {
     return res.send(
       successRes(200, "get ShiftInfo request", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
+    logger.error(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -33,10 +35,11 @@ export const getShiftInfoRequestById = async (req, res, next) => {
     return res.send(
       successRes(200, "get shift info", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
-    // console.log(error);
+    logger.error(error);
+    // logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -64,15 +67,15 @@ export const addShiftInfoRequest = async (req, res, next) => {
       await employeeShiftInfoRequestModel.create({
         ...req.body,
       });
-    // console.log(req.body);
-    // console.log("pass1");
+    // logger.info(req.body);
+    // logger.info("pass1");
     const employeeShiftInfoRequest = await employeeShiftInfoRequestModel
       .findById(newemployeeShiftInfoRequest._id)
       .populate(employeeShiftInfoRequestPopulateOptions);
-    // console.log("pass2");
+    // logger.info("pass2");
     try {
       const lastShift = await shiftInfoModel.findOne({ userId: userId });
-      // console.log(lastShift);
+      // logger.info(lastShift);
 
       const success = await shiftInfoModel.findByIdAndUpdate(lastShift._id, {
         $set: {
@@ -122,18 +125,20 @@ export const addShiftInfoRequest = async (req, res, next) => {
           howManyBefore: lastShift.compensatoryoff,
         });
       }
-      // console.log(success);
+      // logger.info(success);
     } catch (error) {
+      logger.error(error);
       //
-      // console.log(error);
+      // logger.info(error);
     }
     return res.send(
       successRes(200, "Shift Info added", {
         data: employeeShiftInfoRequest,
-      })
+      }),
     );
   } catch (error) {
-    // console.log(error);
+    logger.error(error);
+    // logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };

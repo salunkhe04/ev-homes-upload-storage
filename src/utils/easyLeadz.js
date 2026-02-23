@@ -14,7 +14,6 @@ export const fetchLeadContact = async (queryParams) => {
       headers,
       params: queryParams, // e.g., { email: "example@company.com", name: "John Doe" }
     });
-    // console.log("Contact fetched:", response.data);
     return response.data;
   } catch (error) {
     console.error(

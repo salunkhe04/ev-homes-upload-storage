@@ -8,6 +8,7 @@ import demandModel from "../model/demand.model.js";
 import mongoose from "mongoose";
 import postSaleLeadModel from "../model/postSaleLead.model.js";
 import { de } from "date-fns/locale";
+import logger from "../utils/logger.js";
 
 export const getPayment = async (req, res) => {
   try {
@@ -80,7 +81,7 @@ export const addPayment = async (req, res) => {
     amountRemark,
   } = body;
 
-  // console.log(body);
+  // logger.info(body);
 
   try {
     if (!body) return res.send(errorRes(403, "data is required"));
@@ -99,7 +100,7 @@ export const addPayment = async (req, res) => {
       })
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -109,7 +110,7 @@ export const addPaymentAtDemand = async (req, res) => {
 
   const { demand } = body;
 
-  // console.log(body);
+  // logger.info(body);
 
   try {
     if (!body) return res.send(errorRes(403, "data is required"));
@@ -146,7 +147,7 @@ export const addPaymentAtDemand = async (req, res) => {
           },
         ]);
 
-        // console.log(result);
+        // logger.info(result);
         if (result.length > 0) {
           const values = result[0];
           const updateAtBooking = await postSaleLeadModel.findByIdAndUpdate(
@@ -159,7 +160,7 @@ export const addPaymentAtDemand = async (req, res) => {
           );
         }
       } catch (error) {
-        // console.log(error);
+        // logger.info(error);
       }
     } catch (error) {
       print(error);
@@ -174,7 +175,7 @@ export const addPaymentAtDemand = async (req, res) => {
       })
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -185,7 +186,7 @@ export const updatePaymentAtDemand = async (req, res) => {
 
   const { demand } = body;
 
-  // console.log(req.body);
+  // logger.info(req.body);
 
   try {
     if (!body) return res.send(errorRes(403, "data is required"));
@@ -225,7 +226,7 @@ export const updatePaymentAtDemand = async (req, res) => {
           },
         ]);
 
-        // console.log(result);
+        // logger.info(result);
         if (result.length > 0) {
           const values = result[0];
           const updateAtBooking = await postSaleLeadModel.findByIdAndUpdate(
@@ -238,10 +239,10 @@ export const updatePaymentAtDemand = async (req, res) => {
           );
         }
       } catch (error) {
-        // console.log(error);
+        // logger.info(error);
       }
     } catch (error) {
-      // console.log(error);
+      // logger.info(error);
     }
 
     const respP = await paymentModel
@@ -254,7 +255,7 @@ export const updatePaymentAtDemand = async (req, res) => {
       })
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -282,7 +283,7 @@ export const deletePaymentAtDemand = async (req, res) => {
       successRes(200, "Payment deleted successfully", { data: finalDemand })
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return res.send(errorRes(500, error.message || "Internal Server Error"));
   }
 };
@@ -298,14 +299,14 @@ export const deletePaymentById = async (req, res) => {
     if (!foundPayment) return res.send(errorRes(404, "Payment not found"));
     const deletedPayment = await paymentModel.deleteOne({ _id: id });
 
-    // console.log(deletedPayment);
+    // logger.info(deletedPayment);
     return res.send(
       successRes(200, "Payment deleted successfully", {
         data: deletedPayment.acknowledged,
       })
     );
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     return res.send(errorRes(500, error.message || "Internal Server Error"));
   }
 };
@@ -316,7 +317,7 @@ export const deletePaymentById = async (req, res) => {
 
 //   const { demand } = body;
 
-//   console.log(req.body);
+//   logger.info(req.body);
 
 //   try {
 //     if (!body) return res.send(errorRes(403, "data is required"));
@@ -337,7 +338,7 @@ export const deletePaymentById = async (req, res) => {
 //         },
 //       });
 //     } catch (error) {
-//       console.log(error);
+//       logger.info(error);
 //     }
 //     const respP = await paymentModel
 //       .findById(newPayment._id)
@@ -349,7 +350,7 @@ export const deletePaymentById = async (req, res) => {
 //       })
 //     );
 //   } catch (error) {
-//     console.log(error);
+//     logger.info(error);
 //     return res.send(errorRes(500, error));
 //   }
 // };
@@ -376,7 +377,7 @@ export const updateCheckDates = async (req, res) => {
   const id = req.params.id;
   try {
     const { paymentId, chequeReturnedDate, chequeRedepositDate } = req.body;
-    // console.log(req.body);
+    // logger.info(req.body);
     if (!id) {
       return res.send(errorRes(400, "Payment ID is required"));
     }
@@ -554,7 +555,7 @@ export const getPaymentsByProj = async (req, res) => {
       })
       .populate(paymentPopulateOptions);
 
-    // console.log(respPayment.length);
+    // logger.info(respPayment.length);
     return res.send(
       successRes(200, "Get Payment", {
         data: respPayment,

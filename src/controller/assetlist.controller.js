@@ -36,7 +36,6 @@ export const addAssetlist = async (req, res) => {
   try {
     if (!body) return res.send(errorRes(403, "asset is required"));
 
-    // console.log(body);
     const newAsset = await assetlistModel.create({
       ...body,
     });

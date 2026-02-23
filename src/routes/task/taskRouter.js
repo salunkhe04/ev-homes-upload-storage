@@ -26,6 +26,7 @@ import taskModel from "../../model/task.model.js";
 import { Parser } from "json2csv";
 import leadModelV2 from "../../model/lead/leadV2Model.js";
 import moment from "moment-timezone";
+import logger from "../../utils/logger.js";
 const zone = "Asia/Kolkata"; // or whatever timezone you're working with
 
 const taskRouter = Router();
@@ -109,9 +110,9 @@ taskRouter.post("/dem-task", async (req, res) => {
     //           cycleDate: ele?.lead?.cycle?.validTill,
     //         },
     //       });
-    //       console.log(`success ${i}`);
+    //       logger.info(`success ${i}`);
     //     } catch (error) {
-    //       console.log(error);
+    //       logger.info(error);
     //     }
     //   })
     // );
@@ -155,7 +156,7 @@ taskRouter.get("/task-fixica", async (req, res) => {
     //   resp.map(async (ele) => {
     //     //
     //     if (ele?.lead?.callHistory?.length > 0) {
-    //       console.log(ele._id.toString());
+    //       logger.info(ele._id.toString());
     //       const lastIndex = ele?.lead?.callHistory?.length ?? 0;
     //       const lastFedback = ele?.lead?.callHistory[lastIndex]?.feedback;
     //       await taskModel.findByIdAndUpdate(ele._id.toString(), {
@@ -252,7 +253,7 @@ taskRouter.post("/task-mismatch-fix", async (req, res) => {
           try {
             await taskModel.findByIdAndDelete(ele._id);
           } catch (error) {
-            console.log(error);
+            logger.error(error);
           }
         }
         list.push({

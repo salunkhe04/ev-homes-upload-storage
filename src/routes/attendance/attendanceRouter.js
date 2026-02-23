@@ -44,6 +44,7 @@ import ExcelJS from "exceljs";
 import { errorRes2, successRes2 } from "../../model/response.js";
 import leaveRequestModel from "../../model/attendance/leave/leaveRequest.model.js";
 import attendanceLogModel from "../../model/attendance/attendanceLog.model.js";
+import logger from "../../utils/logger.js";
 
 const attendanceRouter = express.Router();
 
@@ -360,7 +361,7 @@ attendanceRouter.get("/attendance-ot-count", async (req, res) => {
             otRemainingMinutes > 0 ? ` ${otRemainingMinutes}m` : ""
           }`;
           totalOTMinutes += otMinutes;
-          // console.log(
+          // logger.info(
           //   `✔️ Added OT for ${date.format(
           //     "YYYY-MM-DD"
           //   )} = ${otMinutes} minutes`
@@ -372,7 +373,7 @@ attendanceRouter.get("/attendance-ot-count", async (req, res) => {
         checkInFormatted = checkIn.format("hh:mm a");
         checkOutFormatted = checkOut.format("hh:mm a");
       } else {
-        // console.log(
+        // logger.info(
         //   `⚠️ Skipped invalid check-in/out on ${date.format("YYYY-MM-DD")}`
         // );
       }
@@ -588,7 +589,7 @@ attendanceRouter.get("/attendance-ot-count-2", async (req, res) => {
             otRemainingMinutes > 0 ? ` ${otRemainingMinutes}m` : ""
           }`;
           totalOTMinutes += otMinutes;
-          // console.log(
+          // logger.info(
           //   `✔️ Added OT for ${date.format(
           //     "YYYY-MM-DD"
           //   )} = ${otMinutes} minutes`
@@ -613,7 +614,7 @@ attendanceRouter.get("/attendance-ot-count-2", async (req, res) => {
       //   compliton = `${overallHours}hr / ${attOverview.requiredHours}hr`;
       // }
       else {
-        // console.log(
+        // logger.info(
         //   `⚠️ Skipped invalid check-in/out on ${date.format("YYYY-MM-DD")}`
         // );
       }
@@ -695,7 +696,7 @@ attendanceRouter.get("/attendance-ot-count-2", async (req, res) => {
     const idk = distributeHours(
       attOverview.activeHours - attOverview.requiredHours,
     );
-    // console.log(idk);
+    // logger.info(idk);
 
     const overViewRow = worksheet.getRow(resp.length - 3);
     const overViewRow1 = worksheet.getRow(resp.length - 4);
@@ -943,7 +944,7 @@ attendanceRouter.get("/employee-6month", async (req, res) => {
       data: list,
     });
   } catch (error) {
-    // console.log(error);
+    // logger.info(error);
     res.send(error);
   }
 });
@@ -983,7 +984,7 @@ attendanceRouter.get("/attendance-leave-dur-update", async (req, res) => {
         });
         if (foundLv) {
           //
-          // console.log(foundLv.dayType);
+          // logger.info(foundLv.dayType);
           await attendanceModel.findByIdAndUpdate(ele._id, {
             leaveDuration: foundLv.dayType === "half-day" ? 0.5 : 1,
           });
