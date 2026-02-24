@@ -172,6 +172,57 @@ attendanceRouter.post("/attendance-log-update", async (req, res) => {
   }
 });
 
+attendanceRouter.get("/attendance-logs", async (req, res) => {
+  const { startDate, endDate, query = "", action } = req.query;
+  try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    let skip = (page - 1) * limit;
+    // logger.info(req.query);
+
+    let start =
+      startDate && moment(startDate).isValid()
+        ? moment(startDate).tz("Asia/Kolkata").startOf("day").toDate()
+        : null;
+    let end =
+      endDate && moment(endDate).isValid()
+        ? moment(endDate).tz("Asia/Kolkata").endOf("day").toDate()
+        : null;
+    // logger.info(start);
+    // logger.info(end);
+
+    let searchFilter = {
+      $or: [{ userId: { $regex: query, $options: "i" } }].filter(Boolean),
+      ...(action ? { action: action } : {}),
+      ...(start != null && end != null
+        ? { timestamp: { $gte: start, $lte: end } }
+        : {}),
+    };
+
+    // logger.info(searchFilter);
+    const resp = await attendanceLogModel
+      .find(searchFilter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ timestamp: -1 });
+    //
+    const totalItems = await attendanceLogModel.countDocuments(searchFilter);
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return successRes2(res, 200, "attendance logs success", {
+      page,
+      limit,
+      totalPages,
+      totalItems,
+      data: resp,
+    });
+  } catch (error) {
+    logger.info(error);
+    return errorRes2(res, 500, `${error}`);
+  }
+});
+
 attendanceRouter.post("/attendance-difference", async (req, res) => {
   const { checkInTime } = req.body;
 
