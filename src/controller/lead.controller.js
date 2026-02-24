@@ -12185,7 +12185,6 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
         });
       } catch (error) {
         logger.info(error);
-        logger.info(error);
       }
     }
     try {
@@ -12195,6 +12194,9 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
       );
       const allIt2 = [...getIds2, getPlayerIds];
       const allIt = allIt2.filter((ele) => ele != "");
+
+      let totalReminders = 4;
+      let intervalMinutes = 4;
 
       // schedule job after 1 min
       for (let i = 1; i <= totalReminders; i++) {
