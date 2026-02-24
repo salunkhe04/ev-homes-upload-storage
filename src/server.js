@@ -10,11 +10,30 @@ import { io } from "./socket/socket.js";
 import { initCronJobs } from "./app/cron.js";
 import { hostnameCheck } from "./utils/helper.js";
 import routerV2 from "./v2Router/routerV2.js";
+import rateLimit from "express-rate-limit";
+import { redis } from "./app/redis.js";
+import RedisStore from "rate-limit-redis";
 
 router.get("/health", (req, res) => {
   return res.status(200).send("OK");
 });
 
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 300, // 200 requests per minute
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+
+  store: new RedisStore({
+    sendCommand: (...args) => redis.call(...args),
+  }),
+
+  // Skip example (admin bypass)
+  // skip: (req) => req.user?.role === "admin",
+});
+
+// Apply the rate limiting middleware to all requests.
+app.use(limiter)
 app.use(hostnameCheck);
 app.use(logRequest);
 // app.use(versionCheckMiddleware);
