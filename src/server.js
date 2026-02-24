@@ -33,7 +33,8 @@ const limiter = rateLimit({
 });
 
 // Apply the rate limiting middleware to all requests.
-app.use(limiter)
+app.set("trust proxy", 1);
+app.use(limiter);
 app.use(hostnameCheck);
 app.use(logRequest);
 // app.use(versionCheckMiddleware);
