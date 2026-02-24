@@ -154,7 +154,7 @@ export const leadCycleTriggerV4 = async () => {
     };
   } catch (error) {
     //
-    logger.error("Error updating cycles:", error);
+    logger.info("Error updating cycles:", error);
     throw new Error("Internal Server Error");
   }
 };
@@ -276,7 +276,7 @@ export const internalLeadCycleTrigger = async () => {
     };
   } catch (error) {
     //
-    logger.error("Error updating cycles:", error);
+    logger.info("Error updating cycles:", error);
     throw new Error("Internal Server Error");
   }
 };
@@ -402,7 +402,7 @@ export const leadCycleChange_600_from_March_01_2025 = async () => {
     };
   } catch (error) {
     //
-    logger.error("Error updating cycles:", error);
+    logger.info("Error updating cycles:", error);
     throw new Error("Internal Server Error");
   }
 };
@@ -425,7 +425,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
   try {
     await fs.promises.access(csvFilePath, fs.constants.R_OK);
   } catch (err) {
-    logger.error(err);
+    logger.info(err);
     throw new Error("CSV file not found");
   }
 
@@ -503,7 +503,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
                 data: {},
               });
             } catch (err) {
-              logger.error("sendNotificationWithImage error:", err);
+              logger.info("sendNotificationWithImage error:", err);
             }
           }
         }
@@ -536,7 +536,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
           // }
         }
       } catch (err) {
-        logger.error("per-TL notification error for", tl, err);
+        logger.info("per-TL notification error for", tl, err);
       }
     }
 
@@ -598,7 +598,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
 
     return { dataToPush };
   } catch (err) {
-    logger.error("bulk_cp_lead_trigger_35 error:", err);
+    logger.info("bulk_cp_lead_trigger_35 error:", err);
     throw err;
   }
 };

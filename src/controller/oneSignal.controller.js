@@ -28,9 +28,9 @@ export const sendNotification = async ({ playerIds = [], message }) => {
     const response = await axios.post(url, data, { headers });
     // logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    logger.error(
+    logger.info(
       "Error sending notification:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
@@ -40,8 +40,7 @@ export const sendNotificationWithInfo = async ({
   title,
   message,
   data,
-    android_channel_id,
-
+  android_channel_id,
 }) => {
   const url = "https://api.onesignal.com/notifications";
 
@@ -65,7 +64,7 @@ export const sendNotificationWithInfo = async ({
     data: data || {}, // Optional additional data you want to send
     target_channel: "push", // Optional: specify the notification channel
     android_sound: "notification_2",
-        ...(android_channel_id
+    ...(android_channel_id
       ? { existing_android_channel_id: android_channel_id }
       : {}),
 
@@ -76,9 +75,9 @@ export const sendNotificationWithInfo = async ({
     const response = await axios.post(url, notificationData, { headers });
     logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    logger.error(
+    logger.info(
       "Error sending notification:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
@@ -128,9 +127,9 @@ export const sendNotificationWithImage = async ({
     const response = await axios.post(url, notificationData, { headers });
     logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    logger.error(
+    logger.info(
       "Error sending notification:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
@@ -162,9 +161,9 @@ export const sendSilentNotification = async ({ playerIds, data }) => {
     const response = await axios.post(url, notificationData, { headers });
     logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    logger.error(
+    logger.info(
       "Error sending notification:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };

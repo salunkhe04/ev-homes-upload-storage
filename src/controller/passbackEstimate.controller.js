@@ -19,7 +19,7 @@ export const getPassbackEstimate = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -38,7 +38,7 @@ export const getPassbackEstimateById = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -102,7 +102,7 @@ export const addPassbackEstimate = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error.message || error));
   }
 };
@@ -135,7 +135,7 @@ export const updatePassbackStatus = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };

@@ -221,7 +221,7 @@ export const getPendingCheckout = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -351,8 +351,7 @@ export const checkIn = async (req, res) => {
           */
         } catch (error) {
           //
-    logger.error(error);
-
+          logger.info(error);
         }
 
         try {
@@ -363,8 +362,7 @@ export const checkIn = async (req, res) => {
           ]);
         } catch (error) {
           //
-    logger.error(error);
-
+          logger.info(error);
         }
 
         return res.send(
@@ -446,7 +444,7 @@ export const checkIn = async (req, res) => {
       ),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -607,7 +605,7 @@ export const checkOut = async (req, res) => {
     //   await updateOverTimeAndUnderTime(myLeaves, attendance);
     // } catch (error) {
     //   //
-    //   logger.error(error);
+    //   logger.info(error);
     // }
     try {
       //
@@ -617,17 +615,16 @@ export const checkOut = async (req, res) => {
       ]);
     } catch (error) {
       //
-    logger.error(error);
-
+      logger.info(error);
     }
 
     return res.send(
       successRes(200, "Check-out successful", { data: attendance }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
-    // logger.error(error);
+    // logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -804,7 +801,7 @@ export const checkOutV2 = async (req, res) => {
     // try {
     //   await updateOverTimeAndUnderTime(myLeaves, attendance);
     // } catch (error) {
-    //   logger.error(error);
+    //   logger.info(error);
     // }
     try {
       // const dta = await oneSignalModel.find({
@@ -822,7 +819,7 @@ export const checkOutV2 = async (req, res) => {
       //   imageUrl: "https://cdn.evhomes.tech/bbefe53c-ac69-44d2-a76d-ec9b01a97671-office-software-attendance-management-business-concept-infographics-for-web-banner-calendar-task-list-and-chart-the-user-personal-account-vector.jpg",
       // });
     } catch (error) {
-    logger.error(error);
+      logger.info(error);
 
       //
     }
@@ -834,15 +831,14 @@ export const checkOutV2 = async (req, res) => {
       ]);
     } catch (error) {
       //
-    logger.error(error);
-
+      logger.info(error);
     }
 
     return res.send(
       successRes(200, "Check-out successful", { data: attendance }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, "Internal Server Error"));
   }
@@ -1010,7 +1006,7 @@ export const revisedCheckOutV2 = async (req, res) => {
     // try {
     //   await updateOverTimeAndUnderTime(myLeaves, attendance);
     // } catch (error) {
-    //   logger.error(error);
+    //   logger.info(error);
     // }
     try {
       // const dta = await oneSignalModel.find({
@@ -1029,8 +1025,7 @@ export const revisedCheckOutV2 = async (req, res) => {
       // });
     } catch (error) {
       //
-    logger.error(error);
-
+      logger.info(error);
     }
     try {
       //
@@ -1040,15 +1035,14 @@ export const revisedCheckOutV2 = async (req, res) => {
       ]);
     } catch (error) {
       //
-    logger.error(error);
-
+      logger.info(error);
     }
 
     return res.send(
       successRes(200, "Check-out successful", { data: attendance }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, `Internal Server Error ${error}`));
   }
@@ -1100,7 +1094,7 @@ export const getCheckInByUserId = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1318,7 +1312,7 @@ export const getCheckInByDate = async (req, res) => {
       earlyLeaversList,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return errorRes2(res, 500, "Internal Server Error");
   }
@@ -1458,7 +1452,7 @@ export const getGraceApplicableRecords = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1510,8 +1504,7 @@ export const applyGraceTime = async (req, res) => {
       ]);
     } catch (error) {
       //
-    logger.error(error);
-
+      logger.info(error);
     }
     return res.send(
       successRes(200, "Grace time applied successfully", { data: attendance }),
@@ -1550,7 +1543,7 @@ export const breakStart = async (req, res) => {
       successRes(200, "Break started successfully", { data: attendance }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1582,7 +1575,7 @@ export const breakEnd = async (req, res) => {
       successRes(200, "Break ended successfully", { data: attendance }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1624,7 +1617,7 @@ export const manualEntry = async (req, res) => {
       successRes(200, "Manual entry added successfully", { data: attendance }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1664,7 +1657,7 @@ export const updateTimeLine = async (req, res) => {
       successRes(200, "Timeline updated successfully", { data: attendance }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -1736,7 +1729,7 @@ export const updateAttendanceById = async (req, res) => {
           { new: true },
         );
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
       }
     } else if (body?.status === "present-on-paid-leave") {
       updates.status = "present";
@@ -1759,7 +1752,7 @@ export const updateAttendanceById = async (req, res) => {
           { new: true },
         );
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
       }
     } else if (body?.status === "on-paid-leave") {
       updates.status = "on-paid-leave";
@@ -1819,7 +1812,7 @@ export const updateAttendanceById = async (req, res) => {
         }
       } catch (error) {
         //
-        logger.error(error);
+        logger.info(error);
       }
     }
     const eShiftInfo = await shiftInfoModel.findOne({
@@ -1867,7 +1860,7 @@ export const updateAttendanceById = async (req, res) => {
       });
     } catch (error) {
       //
-      logger.error(error);
+      logger.info(error);
     }
 
     return res.send(
@@ -1876,7 +1869,7 @@ export const updateAttendanceById = async (req, res) => {
       }),
     );
   } catch (e) {
-    // logger.error(e);
+    // logger.info(e);
 
     return res.send(errorRes(500, "Internal Server Error"));
   }
@@ -1910,8 +1903,7 @@ export const getAllMyAttendance = async (req, res) => {
       );
     } catch (error) {
       //
-    logger.error(error);
-
+      logger.info(error);
     }
     return res.send(
       successRes(200, "attendance", {
@@ -1975,7 +1967,7 @@ export const triggerMonthlyCompOff = async (req, res) => {
     //2. subtract leave , holiday  ..5
     //3. check weekoffs taken, > 4 , no comp off , but > total montly working hrs , from subtracting 2nd cond, i.e. 234  add comp off
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -2103,7 +2095,7 @@ export const getAttendanceOverview = async (req, res) => {
       },
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -2254,7 +2246,7 @@ export const exportAtendance = async (req, res) => {
     // Send file as a response
     res.download(filePath, "detailed_attendance.xlsx", (err) => {
       if (err) {
-        // logger.error("File download error:", err);
+        // logger.info("File download error:", err);
         res.status(500).json({ message: "Failed to download file." });
       } else {
         // Delete file after download
@@ -2262,7 +2254,7 @@ export const exportAtendance = async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error("Error exporting detailed attendance:", error);
+    logger.info("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
@@ -2433,7 +2425,7 @@ export const exportAttendance2 = async (req, res) => {
     //     // const checkInDate = new Date(checkInTime);
     //     // // Ensure checkInDate is valid
     //     // if (isNaN(checkInDate.getTime())) {
-    //     //   logger.error(
+    //     //   logger.info(
     //     //     `Invalid check-in time for user ${user._id}: ${checkInTime}`
     //     //   );
     //     //   return;
@@ -2629,7 +2621,7 @@ export const exportAttendance2 = async (req, res) => {
 
       res.download(filePath, fileName, (err) => {
         if (err) {
-          logger.error("File download error:", err);
+          logger.info("File download error:", err);
           res.status(500).json({ message: "Failed to download file." });
         } else {
           fs.unlinkSync(filePath);
@@ -2637,7 +2629,7 @@ export const exportAttendance2 = async (req, res) => {
       });
     }
   } catch (error) {
-    logger.error("Error exporting detailed attendance:", error);
+    logger.info("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
@@ -2735,13 +2727,13 @@ export const insertDailyAttendance = async () => {
           );
           resp2.push(resp3);
         } catch (error) {
-          // logger.error("Error updating attendance:", error);
+          // logger.info("Error updating attendance:", error);
         }
       }),
     );
     return resp2;
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return error;
   }
@@ -2768,7 +2760,7 @@ export const markPendingDailyAttendance = async () => {
 
     return pendingresp;
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return error;
   }
@@ -2801,7 +2793,7 @@ export const getPreviousRecord = async (req, res) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server error: ${e}`));
   }
 };
@@ -2949,7 +2941,7 @@ export const insertMonthlyAttendance = async () => {
               );
               resp2.push(resp3);
             } catch (error) {
-              logger.error("Error updating attendance:", error);
+              logger.info("Error updating attendance:", error);
             }
           }),
         );
@@ -2968,7 +2960,7 @@ export const insertMonthlyAttendance = async () => {
 
     return resp2;
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return error;
   }
@@ -3097,7 +3089,7 @@ export const getAttendanceOverviewFunc = async ({ id, date }) => {
       ot: ot,
     };
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return null;
   }
 };
@@ -3215,7 +3207,7 @@ export const getAttendanceOverviewFuncLocal = ({
       ot: ot,
     };
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return null;
   }
 };
@@ -3682,13 +3674,13 @@ export const exportAttendance3 = async (req, res) => {
       );
       res.download(filePath, fileName, (err) => {
         if (err) {
-          logger.error("File download error:", err);
+          logger.info("File download error:", err);
           res.status(500).json({ message: "Failed to download file." });
         } else fs.unlinkSync(filePath);
       });
     }
   } catch (error) {
-    logger.error("Error exporting detailed attendance:", error);
+    logger.info("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
@@ -4002,7 +3994,7 @@ export const generateCompensatoryOff = async (req, res) => {
       data: list,
     });
   } catch (error) {
-    logger.error("Error exporting detailed attendance:", error);
+    logger.info("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };
@@ -4262,7 +4254,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
       data: list,
     });
   } catch (error) {
-    logger.error("Error generating compensatory offs:", error);
+    logger.info("Error generating compensatory offs:", error);
     return errorRes2(
       res,
       500,
@@ -4760,7 +4752,7 @@ export const exportAttendance3Bak = async (req, res) => {
 
       res.download(filePath, fileName, (err) => {
         if (err) {
-          logger.error("File download error:", err);
+          logger.info("File download error:", err);
           res.status(500).json({ message: "Failed to download file." });
         } else {
           fs.unlinkSync(filePath);
@@ -4768,7 +4760,7 @@ export const exportAttendance3Bak = async (req, res) => {
       });
     }
   } catch (error) {
-    logger.error("Error exporting detailed attendance:", error);
+    logger.info("Error exporting detailed attendance:", error);
     res.status(500).json({ message: "Server error." });
   }
 };

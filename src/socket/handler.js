@@ -70,7 +70,7 @@ export const registerSocketEvents = (io, socket, connectedUsers) => {
       //   ...data,
       // });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       // console.error("Error processing locationUpdate:", error);
     }
   });

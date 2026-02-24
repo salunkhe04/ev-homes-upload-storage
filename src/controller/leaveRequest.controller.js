@@ -40,7 +40,7 @@ export const getLeave = async (req, res, next) => {
     }
     return res.send(successRes(200, "Leave records retrieved", { data: resp }));
   } catch (error) {
-    logger.error("Error retrieving leave requests:", error);
+    logger.info("Error retrieving leave requests:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -70,7 +70,7 @@ export const getApplyLeave = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving leave requests:", error);
+    logger.info("Error retrieving leave requests:", error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -101,7 +101,7 @@ export const getMyLeave = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving leave requests:", error);
+    logger.info("Error retrieving leave requests:", error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -237,7 +237,7 @@ export const addLeave = async (req, res, next) => {
         howManyBefore: lastLeaveCount,
       });
     } catch (e) {
-      logger.error(e);
+      logger.info(e);
       return res.status(500).send(errorRes(500, "Internal Server Error"));
     }
 
@@ -275,7 +275,7 @@ export const addLeave = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error in addLeave:", error);
+    logger.info("Error in addLeave:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -325,7 +325,7 @@ export const updateLeaveStatus = async (req, res) => {
         if (error.writeErrors) {
           // logger.info("Some entries were skipped due to duplicates.");
         } else {
-          // logger.error("Failed to insert leaves:", error);
+          // logger.info("Failed to insert leaves:", error);
         }
         logger.info(error);
       }
@@ -377,7 +377,7 @@ export const updateLeaveStatus = async (req, res) => {
       successRes(200, "Leave Status updated successfully", { data: leave }),
     );
   } catch (error) {
-    logger.error("Error updating Leave Status :", error);
+    logger.info("Error updating Leave Status :", error);
     return res.status(500).send({
       success: false,
       message: "Internal Server Error",
@@ -497,11 +497,11 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
           // await attendanceModel.insertMany(dates, { ordered: false });
         } catch (error) {
           if (error?.writeErrors) {
-            logger.error("Some entries were skipped due to duplicates.");
+            logger.info("Some entries were skipped due to duplicates.");
           } else {
-            logger.error("Failed to insert leaves:", error);
+            logger.info("Failed to insert leaves:", error);
           }
-          logger.error(error);
+          logger.info(error);
         }
         // try {
         //   const info = await shiftInfoModel.findOne({
@@ -631,7 +631,7 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
     await leaveResp.save();
     return successRes2(res, 200, `Request ${status}`, { data: leaveResp });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, `${error.message}`));
   }
@@ -697,7 +697,7 @@ export const deleteLeaveRequest = async (req, res) => {
       successRes(200, "Leave Request deleted and leave reversed successfully"),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }

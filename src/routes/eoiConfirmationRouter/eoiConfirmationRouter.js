@@ -75,7 +75,7 @@ eoiConfRouter.get("/eoi-confirmations", async (req, res) => {
 
     return successRes2(res, 200, "ok", { data: oldDoc });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });
@@ -109,7 +109,7 @@ eoiConfRouter.get("/get-eoi-confirmation", async (req, res) => {
     //
     return successRes2(res, 200, "ok", { data: oldDoc });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     // console.error(error);
     return errorRes2(res, 500, "Internal Server Error");
@@ -246,7 +246,7 @@ eoiConfRouter.post("/eoi-confirmation", async (req, res) => {
     //
     return successRes2(res, 200, "ok", { data: newDoc });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "Internal Server Error");
   }
@@ -265,7 +265,7 @@ eoiConfRouter.delete("/eoi-confirmation/:id", async (req, res) => {
     //
     return successRes2(res, 200, "ok", { data: deleted.acknowledged });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "Internal Server Error");
   }
@@ -345,7 +345,7 @@ eoiConfRouter.post("/eoi-confirmation-handover/:id", async (req, res) => {
     //
     return successRes2(res, 200, "ok", { data: updated });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "Internal Server Error");
   }
@@ -385,7 +385,7 @@ eoiConfRouter.get("/eoi-by-phone/:phone", async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, `server error: ${error.message}`));
   }
 });

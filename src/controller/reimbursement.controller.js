@@ -139,7 +139,7 @@ export const getReimbursement = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving Reimbursement:", error);
+    logger.info("Error retrieving Reimbursement:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -227,7 +227,7 @@ export const addReimbursement = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error adding regularization:", error);
+    logger.info("Error adding regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -267,7 +267,7 @@ export const getMyReimbursement = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving Reimbursement:", error);
+    logger.info("Error retrieving Reimbursement:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -307,7 +307,7 @@ export const getReportingToReimbursement = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving week offs:", error);
+    logger.info("Error retrieving week offs:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -327,7 +327,7 @@ export const getReimbursementById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, "Internal Server Error"));
   }
@@ -379,7 +379,7 @@ export const updateReimbursementStatus = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error("Error updating reimbursement status:", error);
+    logger.info("Error updating reimbursement status:", error);
     return res.status(500).send({
       success: false,
       message: "Internal Server Error",
@@ -446,7 +446,7 @@ export const onRejectOrApproveReimbursement = async (req, res, next) => {
     // logger.info(weekoffResp);
     return successRes2(res, 200, `Request ${status}`, { data: weekoffResp });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, `${error.message}`));
   }
@@ -466,7 +466,7 @@ export const deleteReimbursement = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }

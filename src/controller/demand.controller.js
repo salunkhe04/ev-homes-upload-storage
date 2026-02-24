@@ -19,7 +19,7 @@ export const getDemand = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error));
   }
@@ -42,7 +42,7 @@ export const getDemandBybooking = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error));
   }
@@ -72,7 +72,7 @@ export const getDemandBybookings = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error));
   }
@@ -118,7 +118,7 @@ export const getDemandCountByProjectAndSlab = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error.message));
   }
@@ -198,7 +198,7 @@ export const addDemand = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -226,7 +226,7 @@ export const updateDemandHandover = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error.message));
   }
 };
@@ -243,7 +243,7 @@ export const deleteDemandById = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error.message));
   }

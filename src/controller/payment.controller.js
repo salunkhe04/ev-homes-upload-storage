@@ -19,10 +19,10 @@ export const getPayment = async (req, res) => {
     return res.send(
       successRes(200, "Get Payment", {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -53,10 +53,10 @@ export const getPaymentList = async (req, res) => {
     return res.send(
       successRes(200, "Get Payment", {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -99,10 +99,10 @@ export const addPayment = async (req, res) => {
     return res.send(
       successRes(200, `payment added successfully: ${customerName}`, {
         data: respP,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info(error);
     return res.send(errorRes(500, error));
   }
@@ -159,15 +159,15 @@ export const addPaymentAtDemand = async (req, res) => {
               netAmount: values?.totalBookingAmount,
               cgstAmount: values?.totalGstAmount,
               tdsAmount: values?.totalTdsAmount,
-            }
+            },
           );
         }
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         // logger.info(error);
       }
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
     }
     const respP = await paymentModel
       .findById(newPayment._id)
@@ -176,10 +176,10 @@ export const addPaymentAtDemand = async (req, res) => {
     return res.send(
       successRes(200, `payment added successfully`, {
         data: respP,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info(error);
     return res.send(errorRes(500, error));
   }
@@ -203,7 +203,7 @@ export const updatePaymentAtDemand = async (req, res) => {
           ...body,
         },
       },
-      { upsert: true }
+      { upsert: true },
     );
     try {
       const demandResp = await demandModel.findByIdAndUpdate(demand, {
@@ -240,15 +240,15 @@ export const updatePaymentAtDemand = async (req, res) => {
               netAmount: values?.totalBookingAmount,
               cgstAmount: values?.totalGstAmount,
               tdsAmount: values?.totalTdsAmount,
-            }
+            },
           );
         }
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         // logger.info(error);
       }
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       // logger.info(error);
     }
 
@@ -259,10 +259,10 @@ export const updatePaymentAtDemand = async (req, res) => {
     return res.send(
       successRes(200, `payment added successfully`, {
         data: respP,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info(error);
     return res.send(errorRes(500, error));
   }
@@ -288,10 +288,10 @@ export const deletePaymentAtDemand = async (req, res) => {
       .populate(demandPopulationOptions);
 
     return res.send(
-      successRes(200, "Payment deleted successfully", { data: finalDemand })
+      successRes(200, "Payment deleted successfully", { data: finalDemand }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info(error);
     return res.send(errorRes(500, error.message || "Internal Server Error"));
   }
@@ -312,10 +312,10 @@ export const deletePaymentById = async (req, res) => {
     return res.send(
       successRes(200, "Payment deleted successfully", {
         data: deletedPayment.acknowledged,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info(error);
     return res.send(errorRes(500, error.message || "Internal Server Error"));
   }
@@ -348,7 +348,7 @@ export const deletePaymentById = async (req, res) => {
 //         },
 //       });
 //     } catch (error) {
-// logger.error(error);
+// logger.info(error);
 //       logger.info(error);
 //     }
 //     const respP = await paymentModel
@@ -361,7 +361,7 @@ export const deletePaymentById = async (req, res) => {
 //       })
 //     );
 //   } catch (error) {
-// logger.error(error);
+// logger.info(error);
 //     logger.info(error);
 //     return res.send(errorRes(500, error));
 //   }
@@ -377,10 +377,10 @@ export const getPaymentbyFlat = async (req, res) => {
     return res.send(
       successRes(200, "Get Payment", {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -425,10 +425,10 @@ export const updateCheckDates = async (req, res) => {
     return res.send(
       successRes(200, "Check dates updated successfully", {
         data: updatedPayment,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error.message));
   }
 };
@@ -468,7 +468,7 @@ export const updateCheckDates = async (req, res) => {
 //       })
 //     );
 //   } catch (error) {
-// logger.error(error);
+// logger.info(error);
 //     return res.send(errorRes(500, error.message));
 //   }
 // };
@@ -488,10 +488,10 @@ export const getPaymentsbyFlatNoAndProject = async (req, res) => {
     return res.send(
       successRes(200, "Get Payment", {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -528,11 +528,11 @@ export const updatePaymentTypesForSorting = async (req, res) => {
           project: ele.projects,
           slab: ele.slab,
         });
-      })
+      }),
     );
     res.json(updates);
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.send(error);
   }
@@ -555,10 +555,10 @@ export const getPaymentsbyFlatBuildingNoAndProject = async (req, res) => {
     return res.send(
       successRes(200, "Get Payment", {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -577,10 +577,10 @@ export const getPaymentsByProj = async (req, res) => {
     return res.send(
       successRes(200, "Get Payment", {
         data: respPayment,
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };

@@ -41,7 +41,7 @@ export const getLeadsTeamLeaderV2 = async (req, res, next) => {
     });
   } catch (error) {
     //
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 };

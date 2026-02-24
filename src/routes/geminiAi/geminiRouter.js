@@ -27,7 +27,7 @@ geminiRouter.post("/gemini-chat", async (req, res) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(
       successRes(200, "oka", {
         data: {

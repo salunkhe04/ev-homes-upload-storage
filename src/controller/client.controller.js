@@ -807,7 +807,7 @@ export const getClientReAuth = async (req, res, next) => {
             }),
           );
         } catch (refreshError) {
-          logger.error(refreshError);
+          logger.info(refreshError);
           res.setHeader("x-force-logout", `force-logout`);
           return res.send(
             errorRes(401, "Session Expired, Please log in again to continue."),
@@ -822,7 +822,7 @@ export const getClientReAuth = async (req, res, next) => {
     }
   } catch (error) {
     res.setHeader("x-force-logout", `force-logout`);
-    logger.error("Error during re-authentication:", error);
+    logger.info("Error during re-authentication:", error);
     return res.send(errorRes(500, "Internal server error"));
   }
 };
@@ -842,7 +842,7 @@ export const getBookingForClient = async (req, res, next) => {
     //
   } catch (error) {
     //
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, "Internal server error"));
   }
@@ -869,7 +869,7 @@ export const getClientDemand = async (req, res, next) => {
       data: demand,
     });
   } catch (error) {
-    logger.error("Error in getClientDemand:", error);
+    logger.info("Error in getClientDemand:", error);
     return res.status(500).json(errorRes(500, "Internal server error"));
   }
 };

@@ -12,7 +12,7 @@ questionRouter.get("/questions", async (req, res) => {
 
     return successRes2(res, 200, "questions", { data: foundQue });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "Internal server error");
   }
@@ -31,7 +31,7 @@ questionRouter.post("/create-questions", async (req, res) => {
 
     return successRes2(res, 200, "questions", { data: newQues });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "Internal server error");
   }
@@ -53,7 +53,7 @@ questionRouter.post("/update-question/:id", async (req, res) => {
 
     return successRes2(res, 200, "questions", { data: newQues });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "Internal server error");
   }
@@ -85,7 +85,7 @@ questionRouter.post("/add-questions/:id", async (req, res) => {
 
     return successRes2(res, 200, "questions", { data: newQues });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "Internal server error");
   }

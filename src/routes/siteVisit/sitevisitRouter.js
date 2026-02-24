@@ -56,11 +56,7 @@ siteVisitRouter.post(
 );
 
 siteVisitRouter.post("/siteVisits-add", authenticateToken, addSiteVisits);
-siteVisitRouter.post(
-  "/site-visit-add-v2",
-  authenticateToken,
-  addSiteVisitV2,
-);
+siteVisitRouter.post("/site-visit-add-v2", authenticateToken, addSiteVisitV2);
 //ok
 siteVisitRouter.post(
   "/site-visit-add-int/:id",
@@ -166,15 +162,13 @@ siteVisitRouter.get("/site-visit-past-15day", async (req, res) => {
         );
       } catch (error) {
         //
-        logger.error(error);
+        logger.info(error);
       }
     }),
   );
 
   return res.send(resp);
 });
-
-
 
 siteVisitRouter.post(
   "/site-visit-by-start-end-date",

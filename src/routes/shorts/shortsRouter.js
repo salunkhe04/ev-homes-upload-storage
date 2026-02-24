@@ -13,7 +13,7 @@ shortsRouter.get("/fetch-ev-homes-shorts", async (req, res) => {
 
     return successRes2(res, 200, "Fetched ev homes shorts", { data: shorts });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal server error");
   }
 });
@@ -39,7 +39,7 @@ shortsRouter.post("/add-ev-homes-shorts", async (req, res) => {
       data: respP,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, "Error adding shorts");
   }
 });
@@ -56,7 +56,7 @@ shortsRouter.get("/fetch-ev-homes-shorts-project-id/:id", async (req, res) => {
 
     return successRes2(res, 200, "Fetched ev homes shorts", { data: shorts });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal server error");
   }
 });
@@ -86,7 +86,7 @@ shortsRouter.post("/edit-ev-homes-shorts/:id", async (req, res) => {
       data: updatedShorts,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal server error");
   }
 });

@@ -282,7 +282,7 @@ export const getTaskPage = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -361,7 +361,7 @@ export const getTaskReminders = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -438,7 +438,7 @@ export const getReminderToAll = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -458,7 +458,7 @@ export const getTaskByid = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -572,7 +572,7 @@ export const getTaskTeam = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -718,7 +718,7 @@ export const getTaskTeamPagination = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -786,7 +786,7 @@ export const assignTask = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -868,7 +868,7 @@ export const assignMultipleTask = async (req, res, next) => {
         } catch (error) {
           //
 
-          logger.error(`Error assigning task to lead ID: ${ele}`, error);
+          logger.info(`Error assigning task to lead ID: ${ele}`, error);
         }
       }),
     );
@@ -878,7 +878,7 @@ export const assignMultipleTask = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(`main Err: `, error);
+    logger.info(`main Err: `, error);
 
     return res.send(errorRes(500, "Internal Server Error"));
   }
@@ -922,7 +922,7 @@ export const transferTask = async (req, res, next) => {
     );
   } catch (error) {
     //
-    logger.error("Error transferring task:", error); // Debugging: Log the error
+    logger.info("Error transferring task:", error); // Debugging: Log the error
     return next(error);
   }
 };
@@ -991,7 +991,7 @@ export const transferMultipleTasks = async (req, res, next) => {
     );
   } catch (error) {
     //
-    logger.error("Error transferring tasks:", error);
+    logger.info("Error transferring tasks:", error);
     return next(error);
   }
 };
@@ -1063,7 +1063,7 @@ export const updateTask = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1092,7 +1092,7 @@ export const updateTaskReminder = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1165,7 +1165,7 @@ export const updateFeedback = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1286,7 +1286,7 @@ export const updateFeedbackV2 = async (req, res, next) => {
     } catch (error) {
       //safe
 
-      logger.error(error);
+      logger.info(error);
     }
     //
 
@@ -1321,7 +1321,7 @@ export const updateFeedbackV2 = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1626,7 +1626,7 @@ export const getTaskTeamReminderPaginated = async (req, res, next) => {
   } catch (error) {
     //
 
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, error);
   }
 };
@@ -1904,7 +1904,7 @@ export const getTaskMyReminderPaginated = async (req, res, next) => {
   } catch (error) {
     //
 
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, error);
   }
 };
@@ -2044,7 +2044,7 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
     } catch (error) {
       //safe
 
-      logger.error(error);
+      logger.info(error);
     }
     //
 
@@ -2074,7 +2074,7 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
     }
     return res.send(successRes(200, "Feedback added", { data: true }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -2163,7 +2163,7 @@ export const getLeadsTimer = async (req, res, next) => {
       ]);
     return res.send(successRes(200, "Filtered Leads", { data: leads }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, error.message || "Server Error");
   }
 };

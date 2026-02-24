@@ -1045,7 +1045,7 @@ export async function getLeadCounts(req, res, next) {
       }),
     );
   } catch (error) {
-    logger.error("Error getting lead counts:", error);
+    logger.info("Error getting lead counts:", error);
     next(error);
   }
 }
@@ -1125,7 +1125,7 @@ export const addPostSaleLead = async (req, res, next) => {
 
         await findTarget.save();
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         //
       }
     }
@@ -1217,7 +1217,7 @@ export const addPostSaleLead = async (req, res, next) => {
         },
       });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
     }
 
@@ -1232,7 +1232,7 @@ export const addPostSaleLead = async (req, res, next) => {
         occupied: true,
       });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
     }
 
@@ -1252,14 +1252,14 @@ export const addPostSaleLead = async (req, res, next) => {
                 });
               }
             } catch (error) {
-              logger.error(error);
+              logger.info(error);
               //
             }
           }),
         );
       }
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
     }
 
@@ -1288,11 +1288,11 @@ export const addPostSaleLead = async (req, res, next) => {
           },
         });
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         //
       }
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
     }
     // TODO: email commented for testing
@@ -1348,7 +1348,7 @@ export const addPostSaleLead = async (req, res, next) => {
       );
       // await sendEmail("aktarul.evgroup@gmail.com","Congratulations there has been a new booking in Nine Square by Deepak Karki.","");
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
     }
 
@@ -1358,7 +1358,7 @@ export const addPostSaleLead = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -1606,7 +1606,7 @@ export async function getPostSaleLeadCounts(req, res, next) {
 
     return res.json(formattedMonthlyData);
   } catch (error) {
-    logger.error("Error getting lead counts:", error);
+    logger.info("Error getting lead counts:", error);
     next(error);
   }
 }
@@ -1660,7 +1660,7 @@ export const cancelBooking = async (req, res, next) => {
       });
     } catch (error) {
       //
-      logger.error(error);
+      logger.info(error);
     }
 
     // new flat update
@@ -1707,7 +1707,7 @@ export const cancelBooking = async (req, res, next) => {
       );
     } catch (error) {
       //
-      logger.error(error);
+      logger.info(error);
     }
 
     // if (!flatUpdateSuccess) {
@@ -1723,7 +1723,7 @@ export const cancelBooking = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error cancelling booking:", error); // Log the error for debugging
+    logger.info("Error cancelling booking:", error); // Log the error for debugging
     return res.status(500).send(errorRes(500, "An unexpected error occurred"));
   }
 };
@@ -1761,7 +1761,7 @@ export const updateBookingFeedback = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error cancelling booking:", error); // Log the error for debugging
+    logger.info("Error cancelling booking:", error); // Log the error for debugging
     return res.status(500).send(errorRes(500, "An unexpected error occurred"));
   }
 };
@@ -1995,7 +1995,7 @@ export const sendPaymentDueEmail = async (req, res) => {
 
     return { data: allLeadsByManager };
   } catch (err) {
-    logger.error(" Error sending payment reminders:", err);
+    logger.info(" Error sending payment reminders:", err);
     return err;
   }
 };
@@ -2038,7 +2038,7 @@ export const sendPaymentDueEmail = async (req, res) => {
 //     });
 //   } catch (error) {
 //
-// logger.error("Error updating payment detail:", error);
+// logger.info("Error updating payment detail:", error);
 //     return res.status(500).json({
 //       success: false,
 //       message: "Internal Server Error",
@@ -2459,7 +2459,7 @@ export const getPaymentReport = async (req, res) => {
       data: resp,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 };
@@ -2605,7 +2605,7 @@ export const getPaymentReport = async (req, res) => {
 //     return errorRes2(500, `Internal Server error ${e}`);
 
 //     //
-// logger.error("Payment reminder cron error:", err);
+// logger.info("Payment reminder cron error:", err);
 //     // next(err);
 //   }
 // };

@@ -35,8 +35,8 @@ export const getChannelPartners = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
   }
 };
@@ -66,8 +66,8 @@ export const getChannelPartnerReviewList = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
   }
 };
@@ -116,8 +116,8 @@ export const searchChannelPartners = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
   }
 };
@@ -141,8 +141,8 @@ export const getChannelPartnerById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -189,8 +189,8 @@ export const editChannelPartnerById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -216,8 +216,8 @@ export const deleteChannelPartnerById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -300,8 +300,8 @@ export const registerChannelPartner = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
   }
 };
@@ -373,8 +373,8 @@ export const loginChannelPartner = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
   }
 };
@@ -446,8 +446,8 @@ export const loginChannelPartnerV2 = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
   }
 };
@@ -494,8 +494,8 @@ export const newPassword = async (req, res, next) => {
       successRes(200, "Password updated successfully", { data: respCP }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
   }
 };
@@ -530,8 +530,8 @@ export const reAuthChannelPartner = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
   }
 };
@@ -642,8 +642,8 @@ export const forgotPasswordChannelPartner = async (req, res, next) => {
       }),
     );
   } catch (error) {
-        logger.error(error);
-    
+    logger.info(error);
+
     return next(error);
   }
 };
@@ -822,7 +822,7 @@ export const verifyEmailOTP = async (req, res, next) => {
       await otpDbResp.deleteOne();
     } catch (error) {
       //
-      logger.error(error);
+      logger.info(error);
     }
 
     return res.send(
@@ -831,7 +831,7 @@ export const verifyEmailOTP = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -860,7 +860,7 @@ export const verifyRegisterEmailOTP = async (req, res, next) => {
       await otpDbResp.deleteOne();
     } catch (error) {
       //
-      logger.error(error);
+      logger.info(error);
     }
 
     return res.send(
@@ -869,7 +869,7 @@ export const verifyRegisterEmailOTP = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -993,7 +993,7 @@ export const verifyPhoneOTP = async (req, res, next) => {
       await otpDbResp.deleteOne();
     } catch (error) {
       //
-      logger.error(error);
+      logger.info(error);
     }
 
     return res.send(
@@ -1002,7 +1002,7 @@ export const verifyPhoneOTP = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1340,7 +1340,7 @@ export const cpOnboardingRegister = async (req, res, next) => {
       }
     } catch (error) {
       //
-      logger.error(error);
+      logger.info(error);
     }
 
     //if all ok
@@ -1350,7 +1350,7 @@ export const cpOnboardingRegister = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
@@ -1419,7 +1419,7 @@ export const cpOnboardingUpdate = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }

@@ -25,7 +25,7 @@ export const getEligibiltyRequest = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -43,7 +43,7 @@ export const getEligibiltyRequestById = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error $e`));
   }
 };
@@ -67,7 +67,7 @@ export const getRequestByAppliedBy = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -121,7 +121,7 @@ export const addEligibilityRequest = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -242,7 +242,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
           );
           eligibleReq.status = "exam-schedule";
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
         }
         await eligibleReq.save();
         return res.send(
@@ -308,7 +308,7 @@ export const updateEligibilityApproval = async (req, res, next) => {
           },
         );
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
       }
 
       let nextStep = eligibleReq.approvalSteps.find(
@@ -448,7 +448,7 @@ export const getEligibleCriteria = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
 };
@@ -467,7 +467,7 @@ export const deleteEligibiltyRequestById = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error $e`));
   }
 };
@@ -498,7 +498,7 @@ export const updateExamStatus = async (req, res, next) => {
           pdf: pdf,
         });
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
       }
     }
 
@@ -510,7 +510,7 @@ export const updateExamStatus = async (req, res, next) => {
       successRes(200, "Status updated successfully", { data: newResp }),
     );
   } catch (e) {
-    logger.error("Error updating exam status:", e);
+    logger.info("Error updating exam status:", e);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };

@@ -17,7 +17,7 @@ export const getShiftInfos = async (req, res, next) => {
     return res.send(
       successRes(200, "get FaceIds", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -64,13 +64,13 @@ export const addShiftInfo = async (req, res, next) => {
         `employee_shift_info_${createdShiftInfo?._id}`,
       ],
       createdShiftInfo,
-      172800
+      172800,
     ); // 48 hr cache
 
     return res.send(
       successRes(200, "Shift Info added", {
         data: createdShiftInfo,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -88,7 +88,7 @@ export const getShiftInfoById = async (req, res, next) => {
       return res.send(
         successRes(200, "get shift info - cached", {
           data: cached,
-        })
+        }),
       );
     }
 
@@ -99,13 +99,13 @@ export const getShiftInfoById = async (req, res, next) => {
     const cacheNew = await RedisService.setMultipleKeys(
       [`employee_shift_info_${id}`, `employee_shift_info_${resp.userId}`],
       resp,
-      172800
+      172800,
     ); // 48 hr cache
 
     return res.send(
       successRes(200, "get shift info", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -134,13 +134,13 @@ export const getShiftInfoByUserId = async (req, res, next) => {
     const cacheNew = await RedisService.setMultipleKeys(
       [`employee_shift_info_${id}`, `employee_shift_info_${resp._id}`],
       resp,
-      172800
+      172800,
     ); // 48 hr cache
 
     return res.send(
       successRes(200, "get shift info", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -173,7 +173,7 @@ export const updateShiftInfo = async (req, res) => {
           casualLeave,
           compensatoryoff,
         },
-        { new: true }
+        { new: true },
       )
       .populate(employeeShiftInfoPopulateOptions);
     if (!updateShiftInfo)
@@ -187,7 +187,7 @@ export const updateShiftInfo = async (req, res) => {
     return res.send(
       successRes(200, `shiftInfo updated successfully `, {
         data: updatedShiftInfo,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -215,7 +215,7 @@ export const updateShift = async (req, res) => {
       .findOneAndUpdate(
         { userId: emp._id },
         { shift: newShift ? newShift._id : null },
-        { new: true, upsert: true }
+        { new: true, upsert: true },
       )
       .populate(employeeShiftInfoPopulateOptions);
 
@@ -235,7 +235,7 @@ export const updateShift = async (req, res) => {
     } else {
       await shiftModel.updateMany(
         { employees: emp._id },
-        { $pull: { employees: emp._id } }
+        { $pull: { employees: emp._id } },
       );
     }
 
@@ -247,10 +247,10 @@ export const updateShift = async (req, res) => {
     return res.send(
       successRes(200, `shiftInfo updated successfully`, {
         data: updatedShiftInfo,
-      })
+      }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, e));
   }
 };
@@ -278,9 +278,9 @@ export const resetGraceAndRegularization = async () => {
             updatedGraceDays: ele?.shift?.graceDays,
           });
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
         }
-      })
+      }),
     );
 
     return true;
@@ -318,7 +318,7 @@ export const storeOverTime = async (req, res) => {
 
     if (!attendance || !attendance?.checkInTime || !attendance?.checkOutTime) {
       return res.send(
-        errorRes(404, "Valid attendance record not found for today")
+        errorRes(404, "Valid attendance record not found for today"),
       );
     }
     const timeIn = moment(shift.timeIn, "HH:mm").toDate();
@@ -373,10 +373,10 @@ export const storeOverTime = async (req, res) => {
     await shiftInfo.save();
 
     return res.send(
-      successRes(200, "Overtime stored", { data: { overtime, undertime } })
+      successRes(200, "Overtime stored", { data: { overtime, undertime } }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
 };
@@ -437,7 +437,7 @@ export const updateOverTimeAndUnderTime = async (shiftInfo1, attendance) => {
 
     return { overtime, undertime };
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return { overtime: 0, undertime: 0 };
   }
 };
