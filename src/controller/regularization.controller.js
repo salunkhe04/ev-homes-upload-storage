@@ -122,7 +122,7 @@ export const addRegularization = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error adding regularization:", error);
+    logger.info("Error adding regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -156,7 +156,7 @@ export const getRegularization = async (req, res, next) => {
       successRes(200, "Regularizationrecords retrieved", { data: weekoffs }),
     );
   } catch (error) {
-    logger.error("Error retrieving Regularization:", error);
+    logger.info("Error retrieving Regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -196,7 +196,7 @@ export const getMyRegularization = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving Regularization:", error);
+    logger.info("Error retrieving Regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -239,7 +239,7 @@ export const getReportingToRegularization = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving Regularization:", error);
+    logger.info("Error retrieving Regularization:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -269,7 +269,7 @@ export const getRegularizationById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -362,8 +362,7 @@ export async function updateRegularizationApproval(req, res) {
           );
         } catch (error) {
           //
-    logger.error(error);
-
+          logger.info(error);
         }
       }
 
@@ -431,7 +430,7 @@ export async function updateRegularizationApproval(req, res) {
     );
     // res.json({ message: `Request ${status}`, data: regularization });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.status(500).json({ error: error.message });
   }
 }
@@ -451,7 +450,7 @@ export const deleteRegularization = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }

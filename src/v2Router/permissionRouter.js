@@ -15,7 +15,7 @@ permissionRouter.get("/all-permission", async (req, res) => {
       data: resp,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "Internal Server Error");
   }
@@ -33,7 +33,7 @@ permissionRouter.post("/add-permission", async (req, res) => {
     });
   } catch (error) {
     //
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });
@@ -58,7 +58,7 @@ permissionRouter.post("/update-emp-permission/:id", async (req, res) => {
       data: dataResp,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "Internal Server Error");
   }

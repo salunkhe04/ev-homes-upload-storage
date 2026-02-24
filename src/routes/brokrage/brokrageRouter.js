@@ -18,7 +18,7 @@ brokrageRouter.get(
       return successRes2(res, 200, "added", { data: resp });
     } catch (error) {
       //
-      logger.error(error);
+      logger.info(error);
       return errorRes2(res, 500, "Server Error");
     }
   },
@@ -53,7 +53,7 @@ brokrageRouter.post(
       return successRes2(res, 200, "added", { data: updatedResp });
     } catch (error) {
       //
-      logger.error(error);
+      logger.info(error);
       return errorRes2(res, 500, "Server Error");
     }
   },

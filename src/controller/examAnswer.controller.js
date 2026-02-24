@@ -17,7 +17,7 @@ export const getExamResponse = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -262,7 +262,7 @@ export const addAnswer = async (req, res) => {
       successRes(200, "Exam submitted successfully", { data: newAnswer }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
 
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
@@ -386,7 +386,7 @@ export const submitExam = async (req, res) => {
       successRes(200, "Exam submitted successfully", { data: updatedAnswers }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
 
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
@@ -419,7 +419,7 @@ export const addExamTimeLine = async (req, res) => {
       successRes(200, "Exam Timeline added", { data: foundExam }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
 
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }
@@ -492,7 +492,7 @@ export const saveAnswer = async (req, res) => {
       successRes(200, "Exam submitted successfully", { data: updatedAnswers }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
 
     return res.send(errorRes(500, `Server error: ${e.message}`));
   }

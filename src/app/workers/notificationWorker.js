@@ -18,7 +18,7 @@ const worker = new Worker(
       const { playerId, title, message, phoneNumber } = job.data;
       const foundLead = await leadModelV2.findOne(
         { phoneNumber },
-        { taskRef: 1 }
+        { taskRef: 1 },
       );
       if (foundLead.taskRef != null) {
         return;
@@ -39,7 +39,7 @@ const worker = new Worker(
       const { playerIds, title, message, phoneNumber } = job.data;
       const foundLead = await leadModelV2.findOne(
         { phoneNumber },
-        { taskRef: 1 }
+        { taskRef: 1 },
       );
       if (foundLead.taskRef != null) {
         return;
@@ -94,7 +94,7 @@ const worker = new Worker(
             currentDays: 29,
           },
         },
-        { ordered: false }
+        { ordered: false },
       );
 
       logger.info("lead added xelo end", startDate.toISOString());
@@ -139,7 +139,7 @@ const worker = new Worker(
       try {
         //
         const getPlayerIds = foundTLPlayerId.find(
-          (dt) => dt.docId === teamLeader
+          (dt) => dt.docId === teamLeader,
         );
         const allIt2 = [...getIds2, getPlayerIds];
         const allIt = allIt2.filter((ele) => ele != "");
@@ -158,7 +158,7 @@ const worker = new Worker(
               title: `Reminder ${i}: Lead Still Waiting!`,
               message: `Please act on the new lead assigned to you.`,
             },
-            { delay }
+            { delay },
           );
 
           try {
@@ -170,7 +170,7 @@ const worker = new Worker(
                 title: `Reminder ${i}: Lead Still Waiting!`,
                 message: `Please act on the new lead assigned to you.`,
               },
-              { delay }
+              { delay },
             );
           } catch (error) {
             //
@@ -178,11 +178,11 @@ const worker = new Worker(
         }
       } catch (error) {
         //
-        logger.error(error);
+        logger.info(error);
       }
     }
   },
-  { connection: redis, autorun: true }
+  { connection: redis, autorun: true },
 );
 
 worker.on("completed", (job) => {
@@ -190,5 +190,5 @@ worker.on("completed", (job) => {
 });
 
 worker.on("failed", (job, err) => {
-  logger.error(`❌ Job ${job.id} failed:`, err);
+  logger.info(`❌ Job ${job.id} failed:`, err);
 });

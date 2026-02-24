@@ -167,7 +167,7 @@ attendanceRouter.post("/attendance-log-update", async (req, res) => {
     const resp = await attendanceLogModel.create({ ...data });
     return successRes2(res, 200, "success", { data: resp });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, `${error}`);
   }
 });
@@ -187,7 +187,7 @@ attendanceRouter.post("/attendance-fill", async (req, res) => {
       data: resp,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(error);
   }
 });
@@ -200,7 +200,7 @@ attendanceRouter.post("/attendance-fill-month", async (req, res) => {
       data: resp,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(error);
   }
 });
@@ -224,7 +224,7 @@ attendanceRouter.post("/attendance-add-date", async (req, res) => {
       data: dates,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(error);
   }
 });
@@ -258,7 +258,7 @@ attendanceRouter.post("/attendance-comp-off-fix", async (req, res) => {
       data: resp,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -451,7 +451,7 @@ attendanceRouter.get("/attendance-ot-count", async (req, res) => {
 
     return res.send(buffer);
   } catch (error) {
-    logger.error("Excel export error:", error);
+    logger.info("Excel export error:", error);
     res.status(500).send("Failed to generate attendance report.");
   }
 });
@@ -808,7 +808,7 @@ attendanceRouter.get("/attendance-ot-count-2", async (req, res) => {
 
     return res.send(buffer);
   } catch (error) {
-    logger.error("Excel export error:", error);
+    logger.info("Excel export error:", error);
     res.status(500).send("Failed to generate attendance report.");
   }
 });
@@ -823,7 +823,7 @@ attendanceRouter.get("/attendance-week-check", async (req, res) => {
       startOfWeek: startOfWeek,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -875,7 +875,7 @@ attendanceRouter.get("/dummy-attendance-sept", async (req, res) => {
 
     res.send(result);
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -951,7 +951,7 @@ attendanceRouter.get("/employee-6month", async (req, res) => {
       data: list,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -999,7 +999,7 @@ attendanceRouter.get("/attendance-leave-dur-update", async (req, res) => {
         try {
           //
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }),
@@ -1010,7 +1010,7 @@ attendanceRouter.get("/attendance-leave-dur-update", async (req, res) => {
       total: attsLeaves.length,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });

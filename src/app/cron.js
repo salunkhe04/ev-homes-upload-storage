@@ -34,8 +34,7 @@ export const initCronJobs = () => {
           message: response?.message ?? "",
         });
       } catch (error) {
-        logger.error("Error making API call:", error.message);
-
+        logger.info("Error making API call:", error.message);
       }
     }));
 
@@ -53,7 +52,7 @@ export const initCronJobs = () => {
         message: response?.message ?? "",
       });
     } catch (error) {
-      logger.error("Error making API call:", error.message);
+      logger.info("Error making API call:", error.message);
     }
   });
 
@@ -63,7 +62,7 @@ export const initCronJobs = () => {
       // const response = await triggerCycleChangeFunctionFix();
       const response = await getTodayVisitLineUp();
     } catch (error) {
-      logger.error("Error send visit line-up:", error.message);
+      logger.info("Error send visit line-up:", error.message);
     }
   });
 
@@ -92,7 +91,7 @@ export const initCronJobs = () => {
     try {
       const response = await ensurePeriodsUpToCurrentWeek();
     } catch (error) {
-      logger.error("Error updating period:", error.message);
+      logger.info("Error updating period:", error.message);
     }
   });
 
@@ -101,7 +100,7 @@ export const initCronJobs = () => {
     try {
       const response = await notificationForPaymentDue();
     } catch (error) {
-      logger.error("Error in payment notification ", error.message);
+      logger.info("Error in payment notification ", error.message);
     }
   });
 
@@ -110,7 +109,7 @@ export const initCronJobs = () => {
     try {
       const response = await sendPaymentDueEmail();
     } catch (error) {
-      logger.error("Error in payment email ", error.message);
+      logger.info("Error in payment email ", error.message);
     }
   });
 

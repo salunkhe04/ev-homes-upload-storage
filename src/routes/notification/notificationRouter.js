@@ -55,7 +55,7 @@ notifyRouter.post("/send-notification", async (req, res, next) => {
     }
     return res.send(successRes(200, "Notification sent"));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 });
@@ -93,7 +93,7 @@ notifyRouter.post("/send-notification-to-cp", async (req, res, next) => {
     }
     return res.send(successRes(200, "Notification sent"));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 });
@@ -148,7 +148,7 @@ notifyRouter.post("/send-notication-from-cp/:id", async (req, res, next) => {
     }
     return res.send(successRes(200, "Notification sent"));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 });
@@ -198,7 +198,7 @@ notifyRouter.post("/send-notification-doc-id/:id", async (req, res, next) => {
     }
     return res.send(successRes(200, "Notification sent"));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 });
@@ -240,7 +240,7 @@ notifyRouter.post(
       }
       return res.send(successRes(200, "Notification sent"));
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       return next(error);
     }
   },
@@ -294,7 +294,7 @@ notifyRouter.post(
       }
       return res.send(successRes(200, "Notification sent"));
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       return next(error);
     }
   },

@@ -11,7 +11,7 @@ export const getExams = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -27,7 +27,7 @@ export const getExamsById = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -46,7 +46,7 @@ export const addExams = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -65,7 +65,7 @@ export const deleteExam = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -95,7 +95,7 @@ export const updateExam = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }

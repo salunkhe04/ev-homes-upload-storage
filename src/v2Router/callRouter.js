@@ -33,7 +33,7 @@ callRouter.get(
       return successRes2(res, 200, "count", resp.data);
     } catch (error) {
       //
-      // logger.error(error?.message || error);
+      // logger.info(error?.message || error);
       return errorRes2(res, 500, `${error?.message || error}`);
     }
   },
@@ -67,7 +67,7 @@ callRouter.get(
       return successRes2(res, 200, "count", resp.data);
     } catch (error) {
       //
-      // logger.error(error?.response?.data?.message || error?.message || error);
+      // logger.info(error?.response?.data?.message || error?.message || error);
 
       return errorRes2(
         res,

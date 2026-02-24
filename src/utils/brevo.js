@@ -14,7 +14,7 @@ export const sendEmail = async (
   recipientEmail,
   subject,
   htmlContent,
-  attachment = []
+  attachment = [],
 ) => {
   const url = "https://api.brevo.com/v3/smtp/email";
 
@@ -39,9 +39,9 @@ export const sendEmail = async (
     const response = await axios.post(url, emailData, { headers });
     // logger.info("Email sent successfully:", response.data);
   } catch (error) {
-    logger.error(
+    logger.info(
       "Error sending email:",
-      error.response ? error.response.data : error.message
+      error.response ? error.response.data : error.message,
     );
   }
 };
@@ -51,7 +51,7 @@ export const sendMultipleEmail = async (
   subject,
   htmlContent,
   attachment = [],
-  ccEmails = [] // ✅ Add optional CC parameter
+  ccEmails = [], // ✅ Add optional CC parameter
 ) => {
   const url = "https://api.brevo.com/v3/smtp/email";
   let recipients = recipientEmails.map((ele) => {
@@ -90,9 +90,9 @@ export const sendMultipleEmail = async (
     const response = await axios.post(url, emailData, { headers });
     // logger.info("Email sent successfully:", response.data);
   } catch (error) {
-    logger.error(
+    logger.info(
       "Error sending email:",
-      error.response ? error.response.data : error.message
+      error.response ? error.response.data : error.message,
     );
   }
 };
@@ -128,15 +128,12 @@ export const addContact = async ({
       },
       {
         headers: headers,
-      }
+      },
     );
     // logger.info("Contact added:", response.data);
     return response.data;
   } catch (error) {
-    logger.error(
-      "Error adding contact:",
-      error.response?.data || error.message
-    );
+    logger.info("Error adding contact:", error.response?.data || error.message);
     return error;
   }
 };
@@ -159,16 +156,13 @@ export const addChannelPartnerList = async (req, res) => {
       },
       {
         headers: headers,
-      }
+      },
     );
 
     // logger.info("List created:", response.data);
     return res.status(201).json(response.data);
   } catch (error) {
-    logger.error(
-      "Error creating list:",
-      error.response?.data || error.message
-    );
+    logger.info("Error creating list:", error.response?.data || error.message);
     return res
       .status(500)
       .json({ error: error.response?.data || error.message });
@@ -207,18 +201,18 @@ export const updateListById = async (req, res) => {
 
       {
         headers: headers,
-      }
+      },
     );
 
     return res.send(
       successRes(
         200,
         "Contacts synced to Brevo List successfully",
-        response.data
-      )
+        response.data,
+      ),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Something went wrong ${e}`));
   }
 };
@@ -251,7 +245,7 @@ export const addToList = async (req, res) => {
           lastName: ele.lastName ?? "",
           phoneNumber: `91 ${ele.phoneNumber}`,
         });
-      })
+      }),
     );
 
     return res.send(successRes(200, `data added`, { data: updates }));
@@ -283,7 +277,9 @@ export const addToCPListAutomated = async (req, res) => {
       for (const ele2 of leads) {
         await addContact({
           listIds: [ele.brevoId],
-          ...(ele2.email != null && ele2.email != "" ? { email: ele2.email } : {}),
+          ...(ele2.email != null && ele2.email != ""
+            ? { email: ele2.email }
+            : {}),
           firstName: ele2.firstName ?? "",
           lastName: ele2.lastName ?? "",
           phoneNumber: `91 ${ele2.phoneNumber}`,

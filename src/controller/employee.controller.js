@@ -51,9 +51,9 @@ export const updateDesgEmp = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -79,7 +79,7 @@ export const getEmployees = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -101,7 +101,7 @@ export const getEmployeesForAttendance = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -143,7 +143,7 @@ export const getVisitEntryAllowedStaff = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -168,7 +168,7 @@ export const getTeamLeaderCSM = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -203,7 +203,7 @@ export const getSalesManagers = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -236,7 +236,7 @@ export const getSeniorClosingManagers = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -258,7 +258,7 @@ export const getPostSaleExecutives = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -302,7 +302,7 @@ export const getEmployeeByDesignation = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -329,7 +329,7 @@ export const getEmployeeByCustomRole = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -355,7 +355,7 @@ export const getTeamLeaders = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -387,7 +387,7 @@ export const getDataAnalyzers = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -412,7 +412,7 @@ export const getPreSalesExecutive = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -438,7 +438,7 @@ export const getEmployeeById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -491,7 +491,7 @@ export const getEmployeeReAuth = async (req, res, next) => {
       req.user = user;
       return res.send(successRes(200, "Authenticated", { data: user }));
     } catch (error) {
-      // logger.error(error);
+      // logger.info(error);
 
       if (error.name === "TokenExpiredError") {
         // Access token expired, attempt to refresh
@@ -600,7 +600,7 @@ export const getEmployeeReAuth = async (req, res, next) => {
     }
   } catch (error) {
     // res.setHeader("x-force-logout", `force-logout`);
-    logger.error("Error during re-authentication:", error);
+    logger.info("Error during re-authentication:", error);
     return res.send(errorRes(500, "Internal server error"));
   }
 };
@@ -633,7 +633,7 @@ export const editEmployeeById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -688,7 +688,7 @@ export const getReportingTo = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     next(error); // Pass the error to the global error handler
   }
@@ -712,7 +712,7 @@ export const deleteEmployeeById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -747,7 +747,7 @@ export const registerMpin = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     if (error.code === 11000) {
       return res.send(errorRes(400, `${error.keyValue._id} already exists.`));
@@ -844,7 +844,7 @@ export const registerEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     if (error.code === 11000) {
       return res.send(errorRes(400, `${error.keyValue._id} already exists.`));
@@ -893,7 +893,7 @@ export const validateMpin = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -977,7 +977,7 @@ export const loginEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1013,7 +1013,7 @@ export const reAuthEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1085,7 +1085,7 @@ export const forgotPasswordEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1143,7 +1143,7 @@ export const resetPasswordEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1194,7 +1194,7 @@ export const searchEmployee = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1240,7 +1240,7 @@ export const newPassword = async (req, res, next) => {
       successRes(200, "Password updated successfully", { data: respAdmin }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -1316,7 +1316,7 @@ export const sendAddLeaveNotification = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error("Error in sendAddLeaveNoti:", e);
+    logger.info("Error in sendAddLeaveNoti:", e);
     res.status(500).send({ status: "error", message: "Internal server error" });
   }
 };

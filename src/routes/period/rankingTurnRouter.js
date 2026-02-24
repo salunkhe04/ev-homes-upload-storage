@@ -278,7 +278,7 @@ rankingTurnRouter.get("/leads-rank-sync", async (req, res) => {
             });
           }
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }),
@@ -289,7 +289,7 @@ rankingTurnRouter.get("/leads-rank-sync", async (req, res) => {
       data: countableLeads,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, error);
   }
@@ -335,7 +335,7 @@ rankingTurnRouter.get("/leads-rank-sync-for-visit", async (req, res) => {
           );
           // }
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }),
@@ -346,7 +346,7 @@ rankingTurnRouter.get("/leads-rank-sync-for-visit", async (req, res) => {
       data: countableLeads,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, error);
   }
@@ -391,7 +391,7 @@ rankingTurnRouter.get(
         totalUniqueCountable: count,
       });
     } catch (error) {
-      logger.error("Error while checking visits:", error);
+      logger.info("Error while checking visits:", error);
       return errorRes2(res, 500, error);
     }
   },
@@ -493,7 +493,7 @@ rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
     return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
   } catch (error) {
     //
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, "Internal Server Error");
   }
 });

@@ -18,7 +18,7 @@ export const createMessage = async (leadId, message, taggedEmployees) => {
 
     return { success: true, message: "Message created." };
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     throw new Error("Failed to create message.");
   }
@@ -34,7 +34,7 @@ export const getMessagesForLead = async (leadId) => {
 
     return messages;
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     throw new Error("Failed to retrieve messages.");
   }
@@ -54,7 +54,7 @@ export const markMessageAsSeenFunc = async (messageId, employeeId) => {
     await foundMessage.save();
     return { success: true, message: "Message marked as seen." };
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     throw new Error("Failed to mark message as seen.");
   }
@@ -77,7 +77,7 @@ export const getMentionedMessages = async (req, res) => {
       data: resp,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     //
     return errorRes2(500, "server error");
@@ -145,14 +145,14 @@ export const createNewMessage = async (req, res) => {
 
       //
     } catch (error) {
-    logger.error(error);
+      logger.info(error);
 
       //
     }
 
     return successRes2(res, 200, "new message added", { data: updatedMessage });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     // logger.info(error);
     //
@@ -172,7 +172,7 @@ export const markMessageAsSeen = async (req, res) => {
 
     // Prevent duplicate seenBy entry
     const alreadySeen = foundMessage.seenBy.some((seen) =>
-      seen.employee.equals(employee)
+      seen.employee.equals(employee),
     );
 
     if (!alreadySeen) {
@@ -196,7 +196,7 @@ export const markMessageAsSeen = async (req, res) => {
 
     return res.send(successRes(200, "ok", { data: updatedDoc }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return errorRes2(res, 500, "server error");
   }
@@ -264,7 +264,7 @@ export const markAllMessagesAsSeen = async (req, res) => {
       data: updatedList,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return errorRes2(res, 500, "Server error");
   }

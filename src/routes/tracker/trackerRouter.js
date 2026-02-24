@@ -292,7 +292,7 @@ trackerRouter.get("/get-time-tracker-config/:id", async (req, res) => {
       data: foundEntry,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, `${error}`);
   }
 });
@@ -331,7 +331,7 @@ trackerRouter.post("/update-time-tracker-config/:id", async (req, res) => {
       data: foundEntry,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, `${error}`);
   }
 });

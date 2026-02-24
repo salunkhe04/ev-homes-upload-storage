@@ -321,7 +321,7 @@ leadRouter.get(
         }),
       );
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       // logger.info(error);
       return res.send(errorRes(500, "Internal Server Error"));
     }
@@ -544,7 +544,7 @@ leadRouter.get("/lead-trigger-cycle--test", async (req, res) => {
 
     return res.send(resp);
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(error);
   }
 });
@@ -711,7 +711,7 @@ leadRouter.get("/lead-trigger-cycle-5-fix", async (req, res) => {
     // );
     return res.send(successRes(200, "", { total: test.length, data: test }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(200, error));
   }
 });
@@ -746,7 +746,7 @@ leadRouter.get("/lead-tagging-over-check", async (req, res) => {
 
     res.send({ data: tagginOverLeads });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(data);
   }
 });
@@ -802,7 +802,7 @@ leadRouter.get("/fix-pending-lead", async (req, res) => {
       data: { validLeads, expiredLeads },
     });
   } catch (error) {
-    logger.error("Error updating leads:", error);
+    logger.info("Error updating leads:", error);
     return res.status(500).send({
       message: "An error occurred while processing leads",
       error: error.message,
@@ -961,7 +961,7 @@ leadRouter.get("/lead-cycleHistory", async (req, res) => {
       fs.unlinkSync(filePath);
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.status(500).send({ error: error.message });
   }
 });
@@ -991,7 +991,7 @@ leadRouter.get("/all-leads", async (req, res) => {
       cycleHistoryNotEmpty,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -1029,7 +1029,7 @@ leadRouter.get("/removed-assigned", async (req, res) => {
       // data: allLeads,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -1117,7 +1117,7 @@ leadRouter.post("/lead-updates", async (req, res) => {
         //     });
         //     channelPartner = newCp._id;
         //   } catch (error) {
-        // logger.error(error);}
+        // logger.info(error);}
         // }
 
         let dataAnalyzer = dataAnalyzers.find((dt) =>
@@ -1259,7 +1259,7 @@ leadRouter.post("/lead-check-exist", async (req, res) => {
         //     });
         //     channelPartner = newCp._id;
         //   } catch (error) {
-        // logger.error(error);}
+        // logger.info(error);}
         // }
 
         let dataAnalyzer = dataAnalyzers.find((dt) =>
@@ -1347,7 +1347,7 @@ leadRouter.get("/lead-trigger-h-1", async (req, res) => {
       data: filteredLeads,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
   }
 });
 
@@ -1375,7 +1375,7 @@ leadRouter.get("/lead-fix-date-22", async (req, res) => {
   //           "cycle.validTill": yesterdayDate,
   //         });
   //       } catch (error) {
-  // logger.error(error);
+  // logger.info(error);
   //         print(e);
   //       }
   //     })
@@ -1384,7 +1384,7 @@ leadRouter.get("/lead-fix-date-22", async (req, res) => {
   //     data: resp,
   //   });
   // } catch (error) {
-  // logger.error(error);
+  // logger.info(error);
   //   return res.send(successRes(500, error));
   // }
 });
@@ -1543,7 +1543,7 @@ leadRouter.get(
         }),
       );
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       // logger.info(error);
       return res.send(errorRes(500, "Internal Server Error"));
     }
@@ -1600,7 +1600,7 @@ leadRouter.post("/employe-info-csv", async (req, res) => {
                 dateOfBirth: new Date(fdJod?.dob),
               });
             } catch (error) {
-              logger.error(error);
+              logger.info(error);
             }
           }
 
@@ -1610,7 +1610,7 @@ leadRouter.post("/employe-info-csv", async (req, res) => {
           //       joiningDate: new Date(fdJod.dateOfJoing),
           //     });
           //   } catch (error) {
-          // logger.error(error);}
+          // logger.info(error);}
           // }
           filterdList.push({
             ...ele,
@@ -1667,7 +1667,7 @@ leadRouter.post("/employe-caller-update", async (req, res) => {
 
     res.send("OK" + result.length);
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -1708,7 +1708,7 @@ leadRouter.post("/lead-fix-14-day-first-time", async (req, res) => {
       data: filted,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -1764,7 +1764,7 @@ leadRouter.post("/lead-ranjna-transfer-2", async (req, res) => {
       //         },
       //       });
       //     } catch (error) {
-      // logger.error(error);
+      // logger.info(error);
       //       logger.info(error);
       //     }
       //   })
@@ -1794,7 +1794,7 @@ leadRouter.post("/lead-ranjna-change-teamleader", async (req, res) => {
       data: resp,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(error);
   }
 });
@@ -1814,7 +1814,7 @@ leadRouter.get("/lead-teamleader-not-same", async (req, res) => {
       data: filters,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -1846,7 +1846,7 @@ leadRouter.post("/add-note-to-feedback/:id", async (req, res) => {
       data: resp,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return errorRes2(res, 500, error);
     // res.send(error);
   }
@@ -2015,7 +2015,7 @@ leadRouter.post("/old-bulk-visited-leads", async (req, res) => {
       // try {
       //   await leadModelV2.insertMany(dataTuPush, { ordered: false });
       // } catch (error) {
-      // logger.error(error);
+      // logger.info(error);
       //   if (error.name === "MongoBulkWriteError") {
       //     console.warn("Duplicate entries skipped.");
       //   } else {
@@ -2043,7 +2043,7 @@ leadRouter.post("/fix-old-bulk-call-date", async (req, res) => {
     });
     res.send("ok");
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.send("not ok");
   }
@@ -2086,7 +2086,7 @@ leadRouter.post("/cross-check-booking-exist-lead", async (req, res) => {
             // },
           });
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }
@@ -2115,7 +2115,7 @@ leadRouter.post("/cross-check-booking-exist-lead", async (req, res) => {
       //       feedbackGraceTime: moment("2025-10-16T08:30:05.136+00:00").toDate(),
       //     });
       //   } catch (error) {
-      // logger.error(error);
+      // logger.info(error);
       //     //
       //     logger.info(error);
       //   }
@@ -2159,7 +2159,7 @@ leadRouter.post("/edit-feeback-lead/:id", async (req, res) => {
       data: findLead,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, "internal server error");
     res.send(error);
@@ -2198,7 +2198,7 @@ leadRouter.get("/leads-by-task", async (req, res) => {
       leads,
     });
   } catch (error) {
-    logger.error("Error fetching leads by task:", error);
+    logger.info("Error fetching leads by task:", error);
     res.status(500).json({
       success: false,
       message: "Server error",

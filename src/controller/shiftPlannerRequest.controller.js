@@ -26,7 +26,7 @@ export const getShiftPlannerRequests = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
 
     return res.send(errorRes(500, `Server error ${e}`));
   }
@@ -59,7 +59,7 @@ export const getPlannerRequestsByAppliedBy = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
 
     return res.send(errorRes(500, `Server error ${e}`));
   }
@@ -92,7 +92,7 @@ export const getPlannerRequestsByAppliedByApproved = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
 
     return res.send(errorRes(500, `Server error ${e}`));
   }
@@ -145,7 +145,7 @@ export const planShift = async (req, res, next) => {
       successRes(200, "Shift Added successfully", { data: newRequest }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
 
     return res.send(errorRes(500, `Server error ${e}`));
   }
@@ -234,7 +234,7 @@ export async function updateShiftPlanApproval(req, res) {
             // logger.info("shift update");
           } catch (err) {
             //
-            logger.error("Failed shift update:", err);
+            logger.info("Failed shift update:", err);
             return res.send(errorRes(500, "Shift update failed"));
           }
         } else {
@@ -255,7 +255,7 @@ export async function updateShiftPlanApproval(req, res) {
     res.send(successRes(200, `Request ${status}`, { data: shiftPlanReq }));
   } catch (error) {
     //
-    logger.error(error);
+    logger.info(error);
     res.status(500).json({ error: error.message });
   }
 }
@@ -298,7 +298,7 @@ export const getReportingToShiftPlanner = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving shift plan:", error);
+    logger.info("Error retrieving shift plan:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -333,7 +333,7 @@ export const getShiftPlannerByDate = async (req, res, next) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
 
     return res.send(errorRes(500, `Server error ${e}`));
   }
@@ -371,7 +371,7 @@ export const getShiftPByMultiDays = async (req, res) => {
       }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };

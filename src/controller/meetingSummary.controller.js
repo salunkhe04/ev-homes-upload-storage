@@ -17,7 +17,7 @@ export const getMeetingSummary = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error));
   }
@@ -44,7 +44,7 @@ export const getClientMeetingById = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error));
   }
@@ -80,7 +80,7 @@ export const scheduleMeetingByClient = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     // console.error(error);
     return res.send(
@@ -141,7 +141,7 @@ export const addMeetingSummary = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(
       errorRes(500, "An error occurred while adding the meeting summary"),

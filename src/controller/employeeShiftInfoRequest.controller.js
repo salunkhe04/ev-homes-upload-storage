@@ -17,7 +17,7 @@ export const getShiftInfosRequest = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -38,7 +38,7 @@ export const getShiftInfoRequestById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }
@@ -127,7 +127,7 @@ export const addShiftInfoRequest = async (req, res, next) => {
       }
       // logger.info(success);
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
       // logger.info(error);
     }
@@ -137,7 +137,7 @@ export const addShiftInfoRequest = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info(error);
     return res.send(errorRes(500, "Internal Server Error"));
   }

@@ -67,7 +67,7 @@ leadRouterV2.post(
 
       return successRes2(res, 200, "added to queue", { data: updatedResp });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
       res.json(error);
     }
@@ -128,7 +128,7 @@ leadRouterV2.post(
 
       return successRes2(res, 200, "added to queue", { data: updatedResp });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
       return errorRes2(res, 500, "Internal Server Error");
     }
@@ -166,7 +166,7 @@ leadRouterV2.post("/add-cp-to-queue-list", async (req, res) => {
     //         },
     //       });
     //     } catch (error) {
-    // logger.error(error);
+    // logger.info(error);
     //       //
     //       logger.info(error);
     //     }
@@ -195,7 +195,7 @@ leadRouterV2.post("/add-cp-to-queue-list", async (req, res) => {
     // );
     res.json(resp);
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.json(error);
   }
@@ -224,7 +224,7 @@ leadRouterV2.post("/find-same-phone-lead", async (req, res) => {
 
     res.json({ total: cursor.length, data: cursor });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.json(error);
   }
@@ -321,7 +321,7 @@ leadRouterV2.post("/merge-duplicate-leads", async (req, res) => {
       mergedLeads: results,
     });
   } catch (error) {
-    logger.error("Merge error:", error);
+    logger.info("Merge error:", error);
     res.status(500).json({
       success: false,
       error: error.message || "Unknown error occurred.",
@@ -760,7 +760,7 @@ leadRouterV2.get(
 
       return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
       return errorRes2(res, 500, "Internal Server Error");
     }
@@ -1212,7 +1212,7 @@ leadRouterV2.get(
 
       return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
       return errorRes2(res, 500, "Internal Server Error");
     }
@@ -1380,7 +1380,7 @@ leadRouterV2.get(
         data: allEmployeeCounts,
       });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
       return errorRes2(res, 500, "Internal Server Error");
     }
@@ -1740,7 +1740,7 @@ leadRouterV2.get(
         data: employeePerformance,
       });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       return errorRes2(res, 500, "Internal Server Error");
     }
   },
@@ -2117,7 +2117,7 @@ leadRouterV2.get(
 
       return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
       return errorRes2(res, 500, "Internal Server Error");
     }
@@ -2141,7 +2141,7 @@ leadRouterV2.get("/leads-trigger-600-leads", async (req, res) => {
 
     return successRes2(res, 200, "ok", { data: resp });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     return errorRes2(res, 500, error);
   }
@@ -2213,7 +2213,7 @@ leadRouterV2.get(
           // logger.info(changes);
           await leadModelV2.create(changes);
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }),
@@ -2249,14 +2249,14 @@ leadRouterV2.get("/leads-visit-stimate", async (req, res) => {
             revisitDate: ele.revisitDate,
           });
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }),
     );
     res.send(results);
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.send(error);
   }
@@ -2275,7 +2275,7 @@ leadRouterV2.get("/leads-trigger-v4", async (req, res) => {
 
     res.send({ resp });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.send({ error });
   }
@@ -2294,7 +2294,7 @@ leadRouterV2.get("/internal-leads-trigger", async (req, res) => {
 
     res.send({ resp });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.send({ error });
   }
@@ -2324,7 +2324,7 @@ leadRouterV2.get("/internal-leads-trigger-date-fix", async (req, res) => {
 
     res.send({ resp });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.send({ error });
   }
@@ -2396,7 +2396,7 @@ leadRouterV2.get("/last-weeek-rj-lead", async (req, res) => {
 
     // return res.
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
   }
 });
@@ -2505,7 +2505,7 @@ leadRouterV2.post("/upload-channel-partner-bulk-leads", async (req, res) => {
 //     logger.info(resp);
 //     return successRes2(res, 200, "ok", { data: resp });
 //   } catch (error) {
-// logger.error(error);
+// logger.info(error);
 //     logger.info(error);
 
 //     return errorRes2(res, 500, `error ${error}  `);

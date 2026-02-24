@@ -12,7 +12,7 @@ export const getWhatsAppTemplate = async (req, res, next) => {
     return res.send(
       successRes(200, "Whatsapp Templates Fetched Successfully!", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -30,10 +30,10 @@ export const addWhatsAppTemplate = async (req, res, next) => {
     await newResp.save();
 
     return res.send(
-      successRes(200, "Template Added successfully", { data: newResp })
+      successRes(200, "Template Added successfully", { data: newResp }),
     );
   } catch (e) {
-    // logger.error(e);
+    // logger.info(e);
     return res.send(errorRes(500, "Server Error"));
   }
 };
@@ -55,7 +55,7 @@ export const addWhatsAppTemplate = async (req, res, next) => {
 //       successRes(200, "Whatsapp template by project", { data: templates })
 //     );
 //   } catch (e) {
-// logger.error(e);
+// logger.info(e);
 //     return res.send(errorRes(500, `Server Error ${e}`));
 //   }
 // };
@@ -89,17 +89,17 @@ export const getWhatsAppTemplateByProject = async (req, res, next) => {
 
     if (templates.length === 0) {
       return res.send(
-        successRes(200, "No matching templates found", { data: [] })
+        successRes(200, "No matching templates found", { data: [] }),
       );
     }
 
     // logger.info(templates);
 
     return res.send(
-      successRes(200, "Whatsapp template by project", { data: templates })
+      successRes(200, "Whatsapp template by project", { data: templates }),
     );
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, `Server Error ${e}`));
   }
 };
@@ -114,7 +114,7 @@ export const deleteWhatsAppTemplate = async (req, res) => {
     return res.send(
       successRes(200, `Whatsapp Template Deleted Successfully!`, {
         deleteTemplate,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, `Server error: ${error?.message}`));

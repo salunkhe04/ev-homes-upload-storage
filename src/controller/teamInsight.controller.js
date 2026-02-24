@@ -15,7 +15,7 @@ export const getTeam = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -42,7 +42,7 @@ export const getTeamById = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -63,7 +63,7 @@ export const getTeamById = async (req, res) => {
 //       })
 //     );
 //   } catch (error) {
-// logger.error(error);
+// logger.info(error);
 //     return res.send(errorRes(500, error.message || error));
 //   }
 // };
@@ -121,7 +121,7 @@ export const getTeamReportingTo = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error.message || error));
   }
 };
@@ -184,7 +184,7 @@ export const getMyTeam = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error.message || error));
   }
 };
@@ -211,7 +211,7 @@ export const addTeamInsight = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -252,7 +252,7 @@ export const updateCrew = async (req, res) => {
       successRes(200, `crew updated successfully`, { data: updateTeam }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error.message || error));
   }
 };
@@ -304,6 +304,6 @@ export const validateInsight = async (id) => {
       await team.save();
     }
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
   }
 };

@@ -35,7 +35,7 @@ export const getEstimateGenerated = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error.message || "Server error"));
   }
 };
@@ -72,7 +72,7 @@ export const addGeneratedEstimate = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error.message || "Server error"));
   }
 };
@@ -95,7 +95,7 @@ export const getEstimateGeneratedById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -118,7 +118,7 @@ export const getEstimatedById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -141,7 +141,7 @@ export const getEstimateGeneratedByEstId = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -161,7 +161,7 @@ export const updateEstimateGeneratedById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info(error);
     return res.send(errorRes(500, error));
   }
@@ -203,7 +203,7 @@ export const updateEstimateGeneratedByIdArray = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     logger.info(error);
     return res.send(errorRes(500, error));
   }
@@ -229,7 +229,7 @@ export const getEstimateGeneratedMultiple = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, `server error:${error?.message}`));
   }
 };
@@ -278,8 +278,8 @@ export const updateHandoverRevoke = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
-    logger.error(error);
+    logger.info(error);
+    logger.info(error);
     return res.send(errorRes(500, error.message));
   }
 };

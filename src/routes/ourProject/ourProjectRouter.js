@@ -136,7 +136,7 @@ ourProjectRouter.get(
         });
       });
     } catch (error) {
-      logger.error("Error exporting data:", error);
+      logger.info("Error exporting data:", error);
       res.status(500).send("Error exporting data.");
     }
   },
@@ -187,7 +187,7 @@ ourProjectRouter.get(
         });
       });
     } catch (error) {
-      logger.error("Error exporting data:", error);
+      logger.info("Error exporting data:", error);
       res.status(500).send("Error exporting data.");
     }
   },
@@ -266,7 +266,7 @@ ourProjectRouter.post(
         total: updatedFlatsMap.size,
       });
     } catch (error) {
-      logger.error("Error updating flat list:", error);
+      logger.info("Error updating flat list:", error);
       res.status(500).send("Internal server error");
     }
   },
@@ -353,7 +353,7 @@ ourProjectRouter.post(
         totalUpdated: updatedCount,
       });
     } catch (error) {
-      logger.error("Error updating flat list from CSV:", error);
+      logger.info("Error updating flat list from CSV:", error);
       res.status(500).send("Internal server error");
     }
   },
@@ -382,7 +382,7 @@ ourProjectRouter.post(
 
       res.json({ message: "Building numbers updated", data: resp2 });
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       res.status(500).json({ message: "Server error" });
     }
   },
@@ -405,7 +405,7 @@ ourProjectRouter.post("/project-heart-fix-bldg", async (req, res) => {
     await projectResp.save();
     res.send("ok");
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.send(error);
   }
@@ -422,7 +422,7 @@ ourProjectRouter.post("/project-updates-flat-list-sort", async (req, res) => {
     await projectResp.save();
     res.send("ok");
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
     //
   }
@@ -832,7 +832,7 @@ ourProjectRouter.post(
                   { upsert: true },
                 );
               } catch (error) {
-                logger.error(error);
+                logger.info(error);
                 //
               }
             }),

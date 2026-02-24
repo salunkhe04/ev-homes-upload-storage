@@ -145,7 +145,7 @@ export const addweekoff = async (req, res, next) => {
       }),
     );
   } catch (error) {
-   logger.error(error)
+    logger.info(error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -179,7 +179,7 @@ export const getWeekOffs = async (req, res, next) => {
       successRes(200, "Week Off records retrieved", { data: weekoffs }),
     );
   } catch (error) {
-    logger.error("Error retrieving week offs:", error);
+    logger.info("Error retrieving week offs:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -234,7 +234,7 @@ export const getMyWeekOffs = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving week offs:", error);
+    logger.info("Error retrieving week offs:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -274,7 +274,7 @@ export const getReportingToWeekOffs = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error retrieving week offs:", error);
+    logger.info("Error retrieving week offs:", error);
     return res.status(500).send(errorRes(500, "Internal Server Error"));
   }
 };
@@ -381,7 +381,7 @@ export const updateWeekOffStatus = async (req, res) => {
         //   userId: weekoff.applyBy,
         // });
       } catch (error) {
-       logger.error(error)
+        logger.info(error);
         // logger.info("failed to insert weekoff");
       }
     }
@@ -392,7 +392,7 @@ export const updateWeekOffStatus = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error("Error updating Week Off status:", error);
+    logger.info("Error updating Week Off status:", error);
     return res.status(500).send({
       success: false,
       message: "Internal Server Error",
@@ -547,7 +547,7 @@ export const onRejectOrApproveWeekoff = async (req, res, next) => {
             );
           }
         } catch (error) {
-         logger.error(error)
+          logger.info(error);
           // logger.info("failed to insert weekoff");
         }
       }
@@ -652,7 +652,7 @@ export const deleteWeekoff = async (req, res) => {
 //     return res.send(successRes(200, "Week Off records retrieved", { data: weekoffs }));
 //   } catch (error) {
 //
-// logger.error("Error retrieving week offs:", error);
+// logger.info("Error retrieving week offs:", error);
 //     return res.status(500).send(errorRes(500, "Internal Server Error"));
 //   }
 // };
@@ -709,7 +709,7 @@ export const deleteWeekoff = async (req, res) => {
 //     });
 //   } catch (error) {
 //
-// logger.error("Error updating Week Off status:", error);
+// logger.info("Error updating Week Off status:", error);
 //     return res.status(500).send({
 //       success: false,
 //       message: "Internal Server Error",

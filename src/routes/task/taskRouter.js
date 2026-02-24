@@ -112,7 +112,7 @@ taskRouter.post("/dem-task", async (req, res) => {
     //       });
     //       logger.info(`success ${i}`);
     //     } catch (error) {
-    // logger.error(error);
+    // logger.info(error);
     //       logger.info(error);
     //     }
     //   })
@@ -121,7 +121,7 @@ taskRouter.post("/dem-task", async (req, res) => {
       data: filteredTasks.length,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 });
@@ -179,7 +179,7 @@ taskRouter.get("/task-fixica", async (req, res) => {
     // res.attachment("hemant_tasks.csv");
     return res.send(resp);
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.status(500).send(error);
   }
 });
@@ -217,7 +217,7 @@ taskRouter.post("/task-remindeDueFix", async (req, res) => {
           },
         });
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         //
       }
     }),
@@ -257,7 +257,7 @@ taskRouter.post("/task-mismatch-fix", async (req, res) => {
           try {
             await taskModel.findByIdAndDelete(ele._id);
           } catch (error) {
-            logger.error(error);
+            logger.info(error);
           }
         }
         list.push({
@@ -277,7 +277,7 @@ taskRouter.post("/task-mismatch-fix", async (req, res) => {
         //   },
         // });
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         //
       }
     }),

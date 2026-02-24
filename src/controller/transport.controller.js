@@ -46,7 +46,7 @@ export const getTransports = async (req, res) => {
 
     return res.send(successRes(200, "Get Transports", { data: resp }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -62,7 +62,7 @@ export const getTransportById = async (req, res) => {
 
     return res.send(successRes(200, "Get Transports", { data: resp }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -125,7 +125,7 @@ export const addTransport = async (req, res) => {
 
     return res.send(successRes(200, "Added Transport", { data: resp2 }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -170,7 +170,7 @@ export const approveTransport = async (req, res) => {
 
     return res.send(successRes(200, "Added Transport", { data: resp2 }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -190,7 +190,7 @@ export const completedTransport = async (req, res) => {
 
     return res.send(successRes(200, "Added Transport", { data: resp2 }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, `${error}`));
   }
 };
@@ -216,7 +216,7 @@ export const startJourney = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, `${error}`));
   }
 };

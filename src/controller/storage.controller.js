@@ -22,10 +22,10 @@ export const uploadFile = async (req, res) => {
     const uniqueFileName = req.file.filename;
     const token = jwt.sign(
       { filename: uniqueFileName },
-      config.SECRET_STORAGE_KEY
+      config.SECRET_STORAGE_KEY,
     );
 
-      // logger.info(`Uploaded file: ${req.file}`);
+    // logger.info(`Uploaded file: ${req.file}`);
     //   logger.info(req.file);
     //   logger.info(`Token: ${token}`);
     let downloadUrl = `${req.protocol}s://${req.get("host")}`;
@@ -66,7 +66,7 @@ export const uploadFile = async (req, res) => {
       downloadUrl: downloadUrl,
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     res.json({
       message: error,
@@ -89,7 +89,7 @@ export const uploadMultiple = async (req, res) => {
 
     const token = jwt.sign(
       { filename: file.filename },
-      config.SECRET_STORAGE_KEY
+      config.SECRET_STORAGE_KEY,
     );
     // let downloadUrl = `${req.protocol}://${req.get(
     //   "host"
@@ -137,7 +137,7 @@ export const uploadMultiple = async (req, res) => {
 
   // logger.info(uplaodedFiles);
   return res.send(
-    successRes(200, "Files uploaded successfully!", { data: uplaodedFiles })
+    successRes(200, "Files uploaded successfully!", { data: uplaodedFiles }),
   );
 };
 export const getFileLink = (req, res) => {

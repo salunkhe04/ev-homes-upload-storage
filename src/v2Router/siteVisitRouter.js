@@ -52,7 +52,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
         });
         await siteVisitModel.findByIdAndDelete(id);
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         //
       }
       return successRes2(res, 200, "Visit Rejected", { data: updatedVisit });
@@ -147,7 +147,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
             await foundLead.save();
           }
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }
@@ -253,7 +253,7 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
           });
         }
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         //
       }
 
@@ -390,11 +390,11 @@ visitRouterV2.post("/site-visit-approval/:id", async (req, res) => {
           });
         }
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         //
       }
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
     }
 
     return successRes2(res, 200, "", { data: "ok" });
@@ -425,14 +425,14 @@ visitRouterV2.post("/site-visit-cycle-fix", async (req, res) => {
           //   }
           // );
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }),
     );
     res.send({ total: existVisit.length, data: existVisit });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     //
     res.send({ data: error });
   }

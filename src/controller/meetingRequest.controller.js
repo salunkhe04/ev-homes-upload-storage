@@ -27,7 +27,7 @@ export const getMeetingRequest = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error));
   }
@@ -49,7 +49,7 @@ export const getMeetinRequestById = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error));
   }
@@ -100,7 +100,7 @@ export const addMeetingRequest = async (req, res) => {
           password: hashPassword,
         });
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
       }
     } else {
       // logger.info("else part");
@@ -141,7 +141,7 @@ export const addMeetingRequest = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(
       errorRes(500, "An error occurred while adding the meeting request"),

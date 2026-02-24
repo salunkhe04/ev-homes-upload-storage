@@ -42,7 +42,7 @@ const employeeRouter = Router();
 employeeRouter.get(
   "/employee",
   // authenticateToken,
-  getEmployees
+  getEmployees,
 );
 
 employeeRouter.get("/employee-for-attendance", getEmployeesForAttendance);
@@ -53,48 +53,48 @@ employeeRouter.get("/employee-reauth", authenticateToken, getEmployeeReAuth);
 employeeRouter.get(
   "/employee-visit-allowed-staff",
   authenticateToken,
-  getVisitEntryAllowedStaff
+  getVisitEntryAllowedStaff,
 );
 
 employeeRouter.get(
   "/employee-team-leader-csm",
   authenticateToken,
-  getTeamLeaderCSM
+  getTeamLeaderCSM,
 );
 employeeRouter.get(
   "/employee-reporting/:id",
   authenticateToken,
-  getReportingTo
+  getReportingTo,
 );
 
 employeeRouter.get(
   "/employee-closing-manager",
   authenticateToken,
-  getSeniorClosingManagers
+  getSeniorClosingManagers,
 );
 
 employeeRouter.get(
   "/employee-post-sales-executive",
   authenticateToken,
-  getPostSaleExecutives
+  getPostSaleExecutives,
 );
 
 employeeRouter.get(
   "/employee-sales-manager",
   authenticateToken,
-  getSalesManagers
+  getSalesManagers,
 );
 
 employeeRouter.get(
   "/employee-by-designation/:id",
   authenticateToken,
-  getEmployeeByDesignation
+  getEmployeeByDesignation,
 );
 
 employeeRouter.get(
   "/employees-by-custom-role",
   // authenticateToken,
-  getEmployeeByCustomRole
+  getEmployeeByCustomRole,
 );
 
 employeeRouter.get("/employee-team-leader", authenticateToken, getTeamLeaders);
@@ -102,13 +102,13 @@ employeeRouter.get("/employee-team-leader", authenticateToken, getTeamLeaders);
 employeeRouter.get(
   "/employee-data-analzer",
   authenticateToken,
-  getDataAnalyzers
+  getDataAnalyzers,
 );
 
 employeeRouter.get(
   "/employee-pre-sale-executive",
   authenticateToken,
-  getPreSalesExecutive
+  getPreSalesExecutive,
 );
 
 employeeRouter.post("/employee-mpin-register/:id", registerMpin);
@@ -118,7 +118,7 @@ employeeRouter.post("/employee-validate/:id", validateMpin);
 employeeRouter.post(
   "/employee-register",
   validateEmployeeFields,
-  registerEmployee
+  registerEmployee,
 );
 employeeRouter.post("/employee-login", validateEmployeeFields, loginEmployee);
 
@@ -128,19 +128,19 @@ employeeRouter.post(
   "/employee-edit/:id",
   authenticateToken,
   validateEmployeeFields,
-  editEmployeeById
+  editEmployeeById,
 );
 
 employeeRouter.post(
   "/employee-forgot-password",
   validateEmployeeFields,
-  forgotPasswordEmployee
+  forgotPasswordEmployee,
 );
 
 employeeRouter.post(
   "/employee-reset-password",
   validateEmployeeFields,
-  resetPasswordEmployee
+  resetPasswordEmployee,
 );
 employeeRouter.post("/employee-pw/:id", newPassword);
 
@@ -151,7 +151,7 @@ employeeRouter.get("/search-employee", authenticateToken, searchEmployee);
 employeeRouter.post(
   "/send-leave-notification",
   // authenticateToken,
-  sendAddLeaveNotification
+  sendAddLeaveNotification,
 );
 
 // Route to serve the password reset page
@@ -191,7 +191,7 @@ employeeRouter.post("/make-inactive/:id", async (req, res) => {
 
         { status: "inactive" },
 
-        { new: true }
+        { new: true },
       )
       .select("-password -refreshToken")
       .populate(employeePopulateOptions);
@@ -252,9 +252,9 @@ employeeRouter.post("/emp-attach-shift", async (req, res) => {
           }
         } catch (error) {
           //
-          logger.error(error);
+          logger.info(error);
         }
-      })
+      }),
     );
     res.send("ok");
   } catch (error) {

@@ -67,7 +67,7 @@ export const getAllLeads = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -434,7 +434,7 @@ export const getAllGraph = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error", error));
   }
 };
@@ -467,7 +467,7 @@ export const hideLead = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res
       .status(500)
       .json({ message: "Internal Server Error", error: error.message });
@@ -1051,7 +1051,7 @@ export const getAllData = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -1989,7 +1989,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -2104,7 +2104,7 @@ export const getLeadsByTarget = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -2590,7 +2590,7 @@ export const getLeadsAssignFeedback = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -3131,7 +3131,7 @@ export const getLeadsAssignFeedbackByTl = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -3291,7 +3291,7 @@ export const getLeadsAssignFeedbackByTlCounts = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -4313,7 +4313,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -5361,7 +5361,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -5398,7 +5398,7 @@ export const leadUpdateStatus = async (req, res, next) => {
               }.`,
             });
           } catch (error) {
-            logger.error(error);
+            logger.info(error);
           }
         }
       }
@@ -5444,7 +5444,7 @@ export const leadUpdateStatus = async (req, res, next) => {
               }.`,
             });
           } catch (error) {
-            logger.error(error);
+            logger.info(error);
           }
         }
       }
@@ -5461,7 +5461,7 @@ export const leadUpdateStatus = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -5838,7 +5838,7 @@ export const getLeadTeamLeaderGraph = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error", error));
   }
 };
@@ -6088,7 +6088,7 @@ export const getLeadTeamLeaderReportingToGraph = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, "Internal Server Error", error));
   }
 };
@@ -6231,7 +6231,7 @@ export const getLeadsPreSalesExecutive = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -6925,7 +6925,7 @@ export const searchLeads = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -7327,7 +7327,7 @@ export const searchLeadsChannelPartner = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -7351,7 +7351,7 @@ export const getLeadById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -7383,7 +7383,7 @@ export const getLeadByBookingId = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -7416,7 +7416,7 @@ export const getSimilarLeadsById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 };
@@ -7447,7 +7447,7 @@ export const getSiteVisitLeadByPhoneNumber = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, `server error:${error?.message}`));
   }
 };
@@ -7625,8 +7625,8 @@ export const addLead = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
-    logger.error(error);
+    logger.info(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -7678,7 +7678,7 @@ export const updateLead = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -7726,7 +7726,7 @@ export const rejectLeadById = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -7774,7 +7774,7 @@ export const updateDetailsLead = async (req, res) => {
 
     return res.send(successRes(200, "Details Updated", { data: newLead }));
   } catch (e) {
-    logger.error(e);
+    logger.info(e);
     return res.send(errorRes(500, "Sever Error"));
   }
 };
@@ -7798,7 +7798,7 @@ export const deleteLead = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -7902,7 +7902,7 @@ export const leadAssignToTeamLeader = async (req, res, next) => {
       successRes(200, "Lead Assigned Successfully", { data: updatedLead }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
   }
 };
@@ -8147,7 +8147,7 @@ export const assignLeadToTeamLeader = async (req, res, next) => {
       ),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info("got error" + error?.message);
 
     next(error);
@@ -8212,7 +8212,7 @@ export const assignLeadToPreSaleExecutive = async (req, res, next) => {
       ),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     // logger.info("got error" + error?.message);
 
     next(error);
@@ -8238,7 +8238,7 @@ export const updateCallHistoryByPreSaleExcutive = async (req, res, next) => {
       { new: true },
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
   }
 };
 
@@ -8289,7 +8289,7 @@ export const updateCallHistoryPreSales = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error("Error updating call history:", error);
+    logger.info("Error updating call history:", error);
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
 };
@@ -8312,7 +8312,7 @@ export const markLeadAsApproved = async (leadId, employeeId, remark) => {
 
     return updatedLead;
   } catch (error) {
-    logger.error("Error marking lead as approved:", error);
+    logger.info("Error marking lead as approved:", error);
     throw new Error("Could not mark lead as approved");
   }
 };
@@ -8335,7 +8335,7 @@ export const updateLeadDetails = async (leadId, employeeId, changes) => {
 
     return updatedLead;
   } catch (error) {
-    logger.error("Error updating lead:", error);
+    logger.info("Error updating lead:", error);
     throw new Error("Could not update lead");
   }
 };
@@ -8378,7 +8378,7 @@ export const checkLeadsExists = async (req, res, next) => {
       message: "No lead found with this phone number. You can proceed.",
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return next(error);
     // return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
@@ -8524,7 +8524,7 @@ export async function getLeadCounts(req, res, next) {
       }),
     );
   } catch (error) {
-    logger.error("Error getting lead counts:", error);
+    logger.info("Error getting lead counts:", error);
     next(error);
   }
 }
@@ -8721,7 +8721,7 @@ export async function getLeadCountsByTeamLeaders(req, res, next) {
 
     return res.send(successRes(200, "ok", { data: responseData }));
   } catch (error) {
-    logger.error("Error getting unique team leader lead counts:", error);
+    logger.info("Error getting unique team leader lead counts:", error);
     next(error);
   }
 }
@@ -8890,7 +8890,7 @@ export async function getLeadCountsByTeamLeaders(req, res, next) {
 
 //     return res.send(successRes(200, "ok", { data: responseData }));
 //   } catch (error) {
-// logger.error(error);
+// logger.info(error);
 //     next(error);
 //   }
 // }
@@ -9063,7 +9063,7 @@ export async function getAllLeadCountsFunnel(req, res, next) {
 
     return res.send(successRes(200, "ok", { data: responseData }));
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     next(error);
   }
 }
@@ -9252,7 +9252,7 @@ export async function getLeadCountsByChannelPartner(req, res, next) {
 
     return res.send(successRes(200, "ok", { data: responseData }));
   } catch (error) {
-    logger.error("Error getting unique team leader lead counts:", error);
+    logger.info("Error getting unique team leader lead counts:", error);
     next(error);
   }
 }
@@ -9412,7 +9412,7 @@ export async function getLeadCountsByChannelPartnerById(req, res, next) {
       }),
     );
   } catch (error) {
-    logger.error("Error getting lead counts by Channel Partner:", error);
+    logger.info("Error getting lead counts by Channel Partner:", error);
     next(error);
   }
 }
@@ -9549,7 +9549,7 @@ export async function getLeadCountsByChannelPartnerById(req, res, next) {
 //       })
 //     );
 //   } catch (error) {
-// logger.error(error);
+// logger.info(error);
 //     next(error);
 //   }
 // }
@@ -9687,7 +9687,7 @@ export async function getLeadCountsByTeamLeader(req, res, next) {
       }),
     );
   } catch (error) {
-    logger.error("Error getting lead counts by team leader:", error);
+    logger.info("Error getting lead counts by team leader:", error);
     next(error);
   }
 }
@@ -9882,7 +9882,7 @@ export async function getLeadCountsByPreSaleExecutve(req, res, next) {
 
     return res.send(successRes(200, "ok", { data: responseData }));
   } catch (error) {
-    logger.error("Error getting unique team leader lead counts:", error);
+    logger.info("Error getting unique team leader lead counts:", error);
     next(error);
   }
 }
@@ -10049,7 +10049,7 @@ export async function getAllLeadCountsFunnelForPreSaleTL(req, res, next) {
 
     return res.send(successRes(200, "ok", { data: responseData }));
   } catch (error) {
-    logger.error("Error getting all lead counts by status:", error);
+    logger.info("Error getting all lead counts by status:", error);
     next(error);
   }
 }
@@ -10121,7 +10121,7 @@ export const getLeadByStartEndDate = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     res.send(error);
   }
 };
@@ -10297,14 +10297,14 @@ export const generateInternalLeadPdf = async (req, res) => {
     pdfStream.on("finish", () => {
       res.download(pdfPath, "leads-yesterday.pdf", (err) => {
         if (err) {
-          logger.error("Error sending file:", err);
+          logger.info("Error sending file:", err);
           res.status(500).send("Error downloading file.");
         }
         fs.unlinkSync(pdfPath);
       });
     });
   } catch (error) {
-    logger.error("Error generating PDF:", error);
+    logger.info("Error generating PDF:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -10317,7 +10317,7 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
     const startOfYesterday = moment()
       .tz(timeZone)
       .subtract(1, "day")
-      .startOf("day") 
+      .startOf("day")
       .toDate();
     const endOfYesterday = moment()
       .tz(timeZone)
@@ -10468,15 +10468,15 @@ export const generateChannelPartnerLeadPdf = async (req, res) => {
     pdfStream.on("finish", () => {
       res.download(pdfPath, "leads-yesterday.pdf", (err) => {
         if (err) {
-          logger.error("Error sending file:", err);
+          logger.info("Error sending file:", err);
           res.status(500).send("Error downloading file.");
         }
         fs.unlinkSync(pdfPath);
       });
     });
   } catch (error) {
-    logger.error(error);
-    logger.error("Error generating PDF:", error);
+    logger.info(error);
+    logger.info("Error generating PDF:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -10681,7 +10681,7 @@ export const triggerCycleChange = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error("Error updating cycles:", error);
+    logger.info("Error updating cycles:", error);
     return res.status(500).send({ message: "Internal Server Error", error });
   }
 };
@@ -10848,7 +10848,7 @@ export const getCpSalesFunnel = async (req, res, next) => {
       },
     });
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(error));
   }
 };
@@ -10880,8 +10880,8 @@ export const get24hrLeadsNameList = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
-    logger.error(error);
+    logger.info(error);
+    logger.info(error);
     return res.send(errorRes(error));
   }
 };
@@ -11099,7 +11099,7 @@ export const triggerCycleChangeFunction = async () => {
       message: "no cycle changes",
     };
   } catch (error) {
-    logger.error("Error updating cycles:", error);
+    logger.info("Error updating cycles:", error);
     throw new Error("Internal Server Error");
   }
 };
@@ -11232,7 +11232,7 @@ export const triggerCycleChangeFunctionFix = async () => {
       message: "no cycle changes",
     };
   } catch (error) {
-    logger.error("Error updating cycles:", error);
+    logger.info("Error updating cycles:", error);
     throw new Error("Internal Server Error");
   }
 };
@@ -11398,7 +11398,7 @@ export const triggerCycleChangeFunctionFix = async () => {
 //       message: "no cycle changes",
 //     };
 //   } catch (error) {
-// logger.error(error);
+// logger.info(error);
 //     throw new Error("Internal Server Error");
 //   }
 // };
@@ -11485,9 +11485,9 @@ export const getlast24HrNotAssignedLeads = async () => {
           });
           await leadModelV2.bulkWrite(taskOperations);
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
-          logger.error(error);
+          logger.info(error);
         }
       }),
     );
@@ -11498,7 +11498,7 @@ export const getlast24HrNotAssignedLeads = async () => {
 
     return resp;
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return null;
   }
 };
@@ -11590,9 +11590,9 @@ export const getlast24HrNotFeedbackLeads = async () => {
           });
           await taskModel.bulkWrite(taskOperations);
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
-          logger.error(error);
+          logger.info(error);
         }
       }),
     );
@@ -11602,8 +11602,8 @@ export const getlast24HrNotFeedbackLeads = async () => {
 
     return filteredTasks;
   } catch (error) {
-    logger.error(error);
-    logger.error(error);
+    logger.info(error);
+    logger.info(error);
     return null;
   }
 };
@@ -11805,8 +11805,8 @@ export const addLeadV2Autmated = async (req, res, next) => {
           data: {},
         });
       } catch (error) {
-        logger.error(error);
-        logger.error(error);
+        logger.info(error);
+        logger.info(error);
       }
     }
     try {
@@ -11846,7 +11846,7 @@ export const addLeadV2Autmated = async (req, res, next) => {
             { delay },
           );
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }
@@ -11875,9 +11875,9 @@ export const addLeadV2Autmated = async (req, res, next) => {
       //   { delay: 180_000 } // 3 min
       // );
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
-      logger.error(error);
+      logger.info(error);
     }
 
     const updatedLead = await leadModelV2
@@ -11890,8 +11890,8 @@ export const addLeadV2Autmated = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
-    logger.error(error);
+    logger.info(error);
+    logger.info(error);
 
     return next(error);
   }
@@ -12114,9 +12114,9 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
 
         await currentRTurn.save();
       } catch (error) {
-        logger.error(error);
+        logger.info(error);
         //
-        logger.error(error);
+        logger.info(error);
       }
     }
     // update on sample period tl -sequence
@@ -12184,8 +12184,8 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
           data: {},
         });
       } catch (error) {
-        logger.error(error);
-        logger.error(error);
+        logger.info(error);
+        logger.info(error);
       }
     }
     try {
@@ -12222,12 +12222,12 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
             { delay },
           );
         } catch (error) {
-          logger.error(error);
+          logger.info(error);
           //
         }
       }
     } catch (error) {
-      logger.error(error);
+      logger.info(error);
       //
     }
 
@@ -12241,8 +12241,8 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
-    logger.error(error);
+    logger.info(error);
+    logger.info(error);
 
     return next(error);
   }

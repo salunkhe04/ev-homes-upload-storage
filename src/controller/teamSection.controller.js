@@ -17,7 +17,7 @@ export const getTeamSections = async (req, res) => {
     return res.send(
       successRes(200, "Get team Sections", {
         data: respSections,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -54,7 +54,7 @@ export const addTeamSection = async (req, res) => {
     return res.send(
       successRes(200, "New Section added", {
         data: respFound,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, error));
@@ -99,10 +99,10 @@ export const getTeamSectionById = async (req, res) => {
     return res.send(
       successRes(200, "Get team Sections", {
         data: { ...respSections._doc, members },
-      })
+      }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };

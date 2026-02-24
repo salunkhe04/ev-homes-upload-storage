@@ -20,7 +20,7 @@ export const getLeaveHistory = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
     return res.send(errorRes(500, error));
   }
 };
@@ -74,7 +74,7 @@ export const createLeaveHistory = async (req, res) => {
       }),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, error));
   }
@@ -130,7 +130,7 @@ export const createLeaveHistoryFunc = async ({
       message: "Leave history created successfully",
     };
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return {
       success: false,
@@ -157,7 +157,7 @@ export const deleteLeaveHistory = async (req, res) => {
       ),
     );
   } catch (error) {
-    logger.error(error);
+    logger.info(error);
 
     return res.send(errorRes(500, `Server error: ${error?.message}`));
   }
