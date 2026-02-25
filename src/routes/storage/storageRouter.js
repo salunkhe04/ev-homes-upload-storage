@@ -12,6 +12,9 @@ import {
   uploadFile,
   uploadMultiple,
 } from "../../controller/storage.controller.js";
+import storageModel from "../../model/storage.model.js";
+import attendanceModel from "../../model/attendance/attendance.model.js";
+import timeTrackerActivityModel from "../../model/timeline/timelineActivity.model.js";
 
 // Manually define __dirname for ES6 modules
 const __filename = fileURLToPath(import.meta.url);
@@ -84,5 +87,19 @@ storageRouter.get("/file/:filename", verifyTokenFromURL, getFileLink);
 
 // Route to delete a file
 storageRouter.delete("/:filename", verifyTokenFromURL, deleteFile);
+storageRouter.post("/fix-protocol", async (req, res) => {
+  //
+  const files = await timeTrackerActivityModel.find({ webcamUrl: RegExp("httpss:", "i") });
+  await Promise.all(
+    files.map(async (ele) => {
+      //
+      const url = ele.webcamUrl.replace("httpss:", "https:");
+      await timeTrackerActivityModel.findByIdAndUpdate(ele._id, {
+        webcamUrl: url,
+      });
+    }),
+  );
+  res.send("ok");
+});
 
 export default storageRouter;
