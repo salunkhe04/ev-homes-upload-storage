@@ -28,7 +28,8 @@ export const uploadFile = async (req, res) => {
     // logger.info(`Uploaded file: ${req.file}`);
     //   logger.info(req.file);
     //   logger.info(`Token: ${token}`);
-    let downloadUrl = `${req.protocol}s://${req.get("host")}`;
+    const protocol=req.protocol==="https"?req.protocol:"https";
+    let downloadUrl = `${protocol}://${req.get("host")}`;
     if (req.query.path) {
       downloadUrl += `/${req.query.path}`;
     }
@@ -58,6 +59,7 @@ export const uploadFile = async (req, res) => {
     });
 
     await respDb.save();
+    // logger.info(respDb);
     // logger.info(downloadUrl);
     res.json({
       message: "File uploaded successfully!",
@@ -95,7 +97,8 @@ export const uploadMultiple = async (req, res) => {
     //   "host"
     // )}/${uniqueFileName}?token=${token}`;
 
-    let downloadUrl = `${req.protocol}s://${req.get("host")}`;
+    const protocol=req.protocol==="https"?req.protocol:"https";
+    let downloadUrl = `${protocol}://${req.get("host")}`;
     if (req.query.path) {
       downloadUrl += `/${req.query.path}`;
     }
