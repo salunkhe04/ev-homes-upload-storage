@@ -17,6 +17,7 @@ import {
 } from "../controller/postSaleLead.controller.js";
 import leadModelV2 from "../model/lead/leadV2Model.js";
 import logger from "../utils/logger.js";
+import { processDesignReminders } from "../routes/task/designTaskRouter.js";
 
 export const initCronJobs = () => {
   (logger.info("cron starting"),
@@ -110,6 +111,14 @@ export const initCronJobs = () => {
       const response = await sendPaymentDueEmail();
     } catch (error) {
       logger.info("Error in payment email ", error.message);
+    }
+  });
+
+  cron.schedule("* * * * *", async () => {
+    try {
+      const response = await processDesignReminders();
+    } catch (error) {
+      logger.info("Error in notification ", error.message);
     }
   });
 

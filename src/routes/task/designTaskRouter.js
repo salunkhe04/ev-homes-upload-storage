@@ -1,10 +1,15 @@
 import { Router } from "express";
 import designTaskModel from "../../model/task/designTask.model.js";
 import { errorRes2, successRes2 } from "../../model/response.js";
-import { sendNotificationWithInfo } from "../../controller/oneSignal.controller.js";
+import {
+  sendNotificationWithImage,
+  sendNotificationWithInfo,
+} from "../../controller/oneSignal.controller.js";
 import oneSignalModel from "../../model/oneSignal.model.js";
 import { designTaskPopulateOptions } from "../../utils/constant.js";
 import moment from "moment-timezone";
+import logger from "../../utils/logger.js";
+import { notificationQueue } from "../../app/workers/notificationWorker.js";
 
 const designTaskRouter = Router();
 // get all tasks
@@ -1042,6 +1047,125 @@ designTaskRouter.post(
     }
   },
 );
+
+// reminder team
+designTaskRouter.post("/update-team-reminder/:id", async (req, res, next) => {
+  //
+  const {
+    remindMe = true,
+    reminderDate,
+    reminderDescription,
+    reminderCompleted = false,
+  } = req.body;
+
+  const taskId = req.params.id;
+  try {
+    if (!taskId) return errorRes2(res, 400, `task id is required`);
+
+    const myTask = await designTaskModel.findById(taskId);
+
+    if (!myTask) return errorRes2(res, 404, `task not found`);
+
+    const resp = await designTaskModel
+      .findByIdAndUpdate(taskId, {
+        ...req.body,
+      })
+      .populate(designTaskPopulateOptions);
+
+    return successRes2(res, 200, "Reminder updated", {
+      data: resp,
+    });
+  } catch (error) {
+    logger.info(error);
+    return errorRes2(res, 500, `${error}`);
+  }
+});
+
+//
+export const processDesignReminders = async () => {
+  try {
+    const now = new Date();
+
+
+    const tasks = await designTaskModel.find({
+      reminderDate: { $lte: now },
+      reminderCompleted: { $ne: true },
+    });
+
+    for (const task of tasks) {
+      if (!task.assignTo) continue;
+
+      const foundPlayer = await oneSignalModel.find({
+        docId: task.assignTo,
+      });
+
+      const playerIds = foundPlayer
+        .map((dt) => dt.playerId)
+        .filter((id) => id && id !== "");
+
+      if (!playerIds.length) continue;
+
+      await sendNotificationWithInfo({
+        playerIds,
+        title: "Task is pending, hurry up!",
+        message: `${task.title ?? ""}`,
+        android_channel_id: "reminders",
+        data: {
+          taskId: task._id.toString(),
+        },
+      });
+
+      task.reminderCompleted = true;
+      await task.save();
+
+    }
+  } catch (error) {
+    logger.info("Design task Reminder job error:", error);
+  }
+};
+
+//not using just for testing
+designTaskRouter.post("/test-design-reminder", async (req, res, next) => {
+  const delay = 10000;
+  try {
+    const now = new Date();
+
+    logger.info(now);
+    const tasks = await designTaskModel.find({
+      reminderDate: { $lte: now },
+    });
+
+    for (const task of tasks) {
+      const foundPlayer = await oneSignalModel.find({
+        docId: task.assignTo,
+      });
+
+      const playerIds = foundPlayer
+        .map((dt) => dt.playerId)
+        .filter((id) => id && id !== "");
+
+      await sendNotificationWithInfo({
+        playerIds,
+        title: "Task is pending, hurry up!",
+        message: `${task.title ?? ""}`,
+        // imageUrl:
+        //   "https://cdn.evhomes.tech/4ada559f-4e49-4123-b27e-7115eaf5e3d7-1792931.png",
+        android_channel_id: "reminders",
+        data: {
+          taskId: task._id.toString(),
+        },
+      });
+
+      task.reminderCompleted = true;
+
+      await task.save();
+    }
+
+    return successRes2(res, 200, "okay", { data: tasks });
+  } catch (error) {
+    return res.send(error);
+  }
+});
 
 //
 export default designTaskRouter;
