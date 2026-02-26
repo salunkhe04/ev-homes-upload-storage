@@ -72,6 +72,11 @@ const designTaskSchema = new mongoose.Schema(
     // for reminder
     reminderDate: { type: Date, default: null },
     reminderDescription: { type: String, default: null },
+    remindMe: { type: Boolean, default: false },
+    reminderType: { type: String, default: null },
+    reminderCompleted: { type: Boolean, default: false },
+
+    
     // for when what happen in this
     timeline: [{ type: mongoose.Schema.Types.Mixed, default: null }],
 
@@ -81,6 +86,7 @@ const designTaskSchema = new mongoose.Schema(
       ref: "employees",
     },
   },
+
   { timestamps: true },
 );
 

@@ -1067,7 +1067,7 @@ export const updateTask = async (req, res, next) => {
 
     return next(error);
   }
-};
+}; 
 
 export const updateTaskReminder = async (req, res, next) => {
   const { remindMe = true, reminderDate, reminderDescription } = req.body;
