@@ -169,9 +169,11 @@ cpRouter.get("/check-cp-exist", async (req, res) => {
     }
 
     //
-    const resp = await cpModel
-      .findOne(query)
-      .select("email phoneNumber reraNumber");
+    const resp = await cpModel.findOne(query, {
+      email: 1,
+      phoneNumber: 1,
+      reraNumber: 1,
+    });
 
     if (resp) return res.send(successRes(200, "exist", { data: true }));
 
