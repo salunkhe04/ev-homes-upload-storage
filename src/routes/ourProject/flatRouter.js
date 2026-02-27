@@ -5,6 +5,9 @@ import parkingModel from "../../model/parking.model.js";
 import { errorRes2, successRes, successRes2 } from "../../model/response.js";
 import { RedisService } from "../../app/redis.js";
 import logger from "../../utils/logger.js";
+import postSaleLeadModel from "../../model/postSaleLead.model.js";
+import leadModelV2 from "../../model/lead/leadV2Model.js";
+import moment from "moment-timezone";
 const flatRouter = Router();
 
 flatRouter.get("/flat", async (req, res) => {
@@ -172,6 +175,170 @@ flatRouter.get("/project-occupied-count/:id", async (req, res) => {
   } catch (error) {
     logger.info("Error fetching occupied flats:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+flatRouter.get("/get-project-info", async (req, res) => {
+  //
+  try {
+    //
+    const okss = [];
+    const notFound = [];
+
+    const flats = await flatModel.find(
+      {
+        project: "project-ev-10-marina-bay-vashi-sector-10",
+        $or: [
+          {
+            occupied: true,
+          },
+          {
+            hold: true,
+          },
+        ],
+      },
+      {
+        number: 1,
+        floor: 1,
+        flatNo: 1,
+        buildingNo: 1,
+        occupied: 1,
+        hold: 1,
+        project: 1,
+      },
+    );
+
+    await Promise.all(
+      flats.map(async (ele) => {
+        //
+        try {
+          //
+          let cp = null;
+
+          const booking = await postSaleLeadModel.findOne({
+            //
+            project: ele.project,
+            unitNo: ele.flatNo,
+            buildingNo: ele.buildingNo,
+            $and: [
+              {
+                "bookingStatus.type": { $ne: "Cancelled" },
+              },
+              {
+                "bookingStatus.type": { $ne: "cancelled" },
+              },
+            ],
+          });
+          if (!booking) {
+            okss.push({
+              project: ele.project,
+              buildingNo: ele.buildingNo,
+              floor: ele.floor,
+              flatNo: ele.flatNo,
+
+              status: ele.hold === true ? "HOLD" : "OCCUPIED",
+              phoneNumber: null,
+              name: null,
+              bookingStatus: null,
+              bookingDate: null,
+              leadType: null,
+              channelPartner: cp,
+              taggingStart: null,
+              taggingEnd: null,
+              remark: "No booking found",
+            });
+            return;
+          }
+          const lead = await leadModelV2.findOne({
+            phoneNumber: booking.phoneNumber,
+          });
+
+          if (lead) {
+            let bookingDate = moment(booking?.date ?? "").tz("Asia/Kolkata");
+            let taggingStart = moment(lead?.startDate ?? "").tz("Asia/Kolkata");
+            let taggingEnd = moment(lead?.validTill ?? "").tz("Asia/Kolkata");
+
+            if (
+              bookingDate.isValid() &&
+              taggingStart.isValid() &&
+              taggingEnd.isValid()
+            ) {
+              //
+              if (
+                bookingDate.isSameOrAfter(taggingStart) &&
+                bookingDate.isSameOrBefore(taggingEnd)
+              ) {
+                //
+                cp = lead.channelPartner;
+              }
+            } else {
+              okss.push({
+                project: ele.project,
+                floor: ele.floor,
+
+                buildingNo: ele.buildingNo,
+                flatNo: ele.flatNo,
+                status: ele.hold === true ? "HOLD" : "OCCUPIED",
+                phoneNumber: booking.phoneNumber,
+                name: `${booking.firstName} ${booking.lastName}`,
+                bookingStatus: booking.bookingStatus?.type,
+                bookingDate: bookingDate?.format("YYYY-MM-DD"),
+                leadType: lead?.leadType,
+                channelPartner: cp,
+                taggingStart: taggingStart?.format("YYYY-MM-DD"),
+                taggingEnd: taggingEnd?.format("YYYY-MM-DD"),
+                remark: "tagging date issue",
+              });
+              return;
+            }
+          }
+
+          okss.push({
+            project: ele.project,
+            floor: ele.floor,
+
+            buildingNo: ele.buildingNo,
+            flatNo: ele.flatNo,
+            status: ele.hold === true ? "HOLD" : "OCCUPIED",
+            phoneNumber: booking.phoneNumber,
+            name: `${booking.firstName} ${booking.lastName}`,
+            bookingStatus: booking.bookingStatus.type,
+            bookingDate:
+              moment(booking?.date ?? "").isValid() &&
+              moment(booking?.date ?? "")
+                .tz("Asia/Kolkata")
+                .format("YYYY-MM-DD"),
+            leadType: lead?.leadType,
+            channelPartner: cp,
+            taggingStart:
+              moment(lead?.startDate ?? "").isValid() &&
+              moment(lead?.startDate ?? "")
+                .tz("Asia/Kolkata")
+                .format("YYYY-MM-DD"),
+            taggingEnd:
+              moment(lead?.validTill ?? "").isValid() &&
+              moment(lead?.validTill ?? "")
+                .tz("Asia/Kolkata")
+                .format("YYYY-MM-DD"),
+            remark: "Ok",
+          });
+        } catch (error) {
+          //
+          console.log(error);
+        }
+      }),
+    );
+
+    return successRes2(res, 200, "ss", {
+      flats: flats.length,
+      list: okss.length,
+      notFound: notFound.length,
+      notFoundList: notFound,
+      data: okss,
+    });
+  } catch (error) {
+    //
+    return errorRes2(res, 500, `${error}`);
   }
 });
 
