@@ -6,7 +6,12 @@ import cpModel, {
 } from "../model/channelPartner.model.js";
 import oneSignalModel from "../model/oneSignal.model.js";
 import otpModel from "../model/otp.model.js";
-import { errorRes, successRes } from "../model/response.js";
+import {
+  errorRes,
+  errorRes2,
+  successRes,
+  successRes2,
+} from "../model/response.js";
 import {
   cpAccountOTPTemplate,
   forgotPasswordTemplete,
@@ -227,15 +232,17 @@ export const registerChannelPartner = async (req, res, next) => {
   const body = req.filteredBody;
   const { firmName, firstName, lastName, email, phoneNumber, password } = body;
   try {
-    if (!body) return res.send(errorRes(403, "data is required"));
+    if (!body) return errorRes2(res, 403, "data is required");
     if (password.length < 6) {
-      return res.send(
-        errorRes(400, "Password should be at least 6 character long."),
+      return errorRes2(
+        res,
+        400,
+        "Password should be at least 6 character long.",
       );
     }
     const validateFields = validateRegisterCPFields(body);
     if (!validateFields.isValid) {
-      return res.send(errorRes(400, validateFields.message));
+      return errorRes2(res, 400, validateFields.message);
     }
 
     const oldUser = await cpModel
@@ -250,8 +257,10 @@ export const registerChannelPartner = async (req, res, next) => {
       .lean();
 
     if (oldUser) {
-      return res.send(
-        errorRes(400, "Account already exist with this email or phone number"),
+      return errorRes2(
+        res,
+        400,
+        "Account already exist with this email or phone number",
       );
     }
 
@@ -292,13 +301,11 @@ export const registerChannelPartner = async (req, res, next) => {
     savedCp.refreshToken = refreshToken;
     await savedCp.save();
 
-    return res.send(
-      successRes(200, "channel partner is registered", {
-        data: userWithoutPassword,
-        accessToken,
-        refreshToken,
-      }),
-    );
+    return successRes2(200, "Registration Successfully", {
+      data: userWithoutPassword,
+      accessToken,
+      refreshToken,
+    });
   } catch (error) {
     logger.info(error);
 
