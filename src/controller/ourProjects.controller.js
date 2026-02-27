@@ -187,15 +187,18 @@ export const addProjects = async (req, res) => {
     const cached = await RedisService.del("projects");
 
     // Send a success response000
-    return res.send(
-      successRes(200, `Project added successfully: ${(name, locationName)}`, {
-        newProject,
-      }),
+    return successRes2(
+      res,
+      200,
+      `Project added successfully: ${(name, locationName)}`,
+      {
+        data: newProject,
+      },
     );
   } catch (error) {
     logger.info(error);
 
-    return res.send(errorRes(500, `Server error: ${error?.message}`));
+    return errorRes2(res,500, `Server error: ${error?.message}`);
   }
 };
 
@@ -246,16 +249,14 @@ export const updateProjects = async (req, res) => {
     );
 
     if (!updatedProject)
-      return res.send(errorRes(404, `Project not found with ID: ${id}`));
+      return errorRes2(res, 404, `Project not found with ID: ${id}`);
 
     const cached = await RedisService.del("projects");
 
     // Send a success responses
-    return res.send(
-      successRes(200, `Project updated successfully: ${name}`, {
-        updatedProject,
-      }),
-    );
+    return successRes2(res, 200, `Project updated successfully: ${name}`, {
+      data: updatedProject,
+    });
   } catch (error) {
     logger.info(error);
 
