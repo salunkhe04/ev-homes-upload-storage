@@ -550,8 +550,7 @@ export const checkOut = async (req, res) => {
 
       attendance.status = "present";
       if (
-        attendance.wlStatus === "weekoff" ||
-        attendance.status === "weekoff"
+        attendance.wlStatus === "weekoff" 
       ) {
         myLeaves.compensatoryoff += 1;
         await myLeaves.save();
@@ -580,7 +579,8 @@ export const checkOut = async (req, res) => {
         });
       } else if (
         attendance.wlStatus === "on-paid-leave" ||
-        attendance.wlStatus === "on-casual-leave"
+        attendance.wlStatus === "on-casual-leave"||
+        attendance.wlStatus === "on-compensation-off-leave"
       ) {
         myLeaves.compensatoryoff += 1;
         await myLeaves.save();
@@ -778,7 +778,9 @@ export const checkOutV2 = async (req, res) => {
         });
       } else if (
         attendance.wlStatus === "on-paid-leave" ||
-        attendance.wlStatus === "on-casual-leave"
+        attendance.wlStatus === "on-casual-leave"||
+        attendance.wlStatus === "on-compensation-off-leave"
+        
       ) {
         myLeaves.compensatoryoff += 1;
         await myLeaves.save();
