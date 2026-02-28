@@ -206,6 +206,8 @@ designTaskRouter.get(
     //
     if (!id) return errorRes2(res, 401, `id required`);
 
+    const deadline = moment().tz("Asia/Kolkata");
+
     try {
       const aggre = await designTaskModel.aggregate([
         {
@@ -244,6 +246,39 @@ designTaskRouter.get(
               },
               { $count: "count" },
             ],
+            rejected: [
+              {
+                $match: {
+                  //
+                  status: "submission-rejected",
+                },
+              },
+              { $count: "count" },
+            ],
+
+            beforeDeadline: [
+              {
+                $match: {
+                  status: "completed",
+                  $expr: {
+                    $lte: ["$completedDate", "$deadline"],
+                  },
+                },
+              },
+              { $count: "count" },
+            ],
+
+            afterDeadline: [
+              {
+                $match: {
+                  status: "completed",
+                  $expr: {
+                    $gt: ["$completedDate", "$deadline"],
+                  },
+                },
+              },
+              { $count: "count" },
+            ],
           },
         },
         {
@@ -252,6 +287,9 @@ designTaskRouter.get(
             completed: { $arrayElemAt: ["$completed.count", 0] },
             incomplete: { $arrayElemAt: ["$incomplete.count", 0] },
             pendency: { $arrayElemAt: ["$pendency.count", 0] },
+            rejected: { $arrayElemAt: ["$rejected.count", 0] },
+            beforeDeadline: { $arrayElemAt: ["$beforeDeadline.count", 0] },
+            afterDeadline: { $arrayElemAt: ["$afterDeadline.count", 0] },
           },
         },
         {
@@ -260,6 +298,9 @@ designTaskRouter.get(
             completed: 1,
             incomplete: 1,
             pendency: 1,
+            rejected: 1,
+            beforeDeadline: 1,
+            afterDeadline: 1,
           },
         },
       ]);
@@ -294,6 +335,41 @@ designTaskRouter.get(
             pendency: {
               $sum: { $cond: [{ $eq: ["$status", "pendency"] }, 1, 0] },
             },
+
+            rejected: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "submission-rejected"] }, 1, 0],
+              },
+            },
+            beforeDeadline: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $eq: ["$status", "completed"] },
+                      { $lte: ["$completedDate", "$deadline"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+
+            afterDeadline: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $eq: ["$status", "completed"] },
+                      { $gt: ["$completedDate", "$deadline"] },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
           },
         },
         {
@@ -309,6 +385,9 @@ designTaskRouter.get(
             completed: 1,
             incomplete: 1,
             pendency: 1,
+            rejected: 1,
+            beforeDeadline: 1,
+            afterDeadline: 1,
           },
         },
         {
@@ -321,6 +400,9 @@ designTaskRouter.get(
         completed = 0,
         incomplete = 0,
         pendency = 0,
+        rejected = 0,
+        beforeDeadline = 0,
+        afterDeadline = 0,
       } = aggre[0] || {};
       //
       return successRes2(res, 200, "design Tasks", {
@@ -328,7 +410,19 @@ designTaskRouter.get(
         completed,
         incomplete,
         pendency,
-        data: { result, total, completed, incomplete },
+        rejected,
+        beforeDeadline,
+        afterDeadline,
+        data: {
+          result,
+          total,
+          completed,
+          incomplete,
+          pendency,
+          rejected,
+          beforeDeadline,
+          afterDeadline,
+        },
       });
     } catch (error) {
       //
@@ -1086,7 +1180,6 @@ export const processDesignReminders = async () => {
   try {
     const now = new Date();
 
-
     const tasks = await designTaskModel.find({
       reminderDate: { $lte: now },
       reminderCompleted: { $ne: true },
@@ -1117,7 +1210,6 @@ export const processDesignReminders = async () => {
 
       task.reminderCompleted = true;
       await task.save();
-
     }
   } catch (error) {
     logger.info("Design task Reminder job error:", error);
