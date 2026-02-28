@@ -1,24 +1,20 @@
 services:
-  ev-homes-backend:
+  ev-homes-backend-1:
     build: .
-    container_name: ev_homes_backend
+    container_name: ev_homes_backend_1
     restart: unless-stopped
-
-    # for linux
     network_mode: host
-    # only for windows
-    # ports:
-    # - "8082:8082"
 
     env_file:
       - .env
 
     environment:
+      PORT: 8082
       TZ: Asia/Kolkata
       NODE_OPTIONS: "--max-old-space-size=2500"
 
     mem_limit: 4024m
-    cpus: "2.0"
+    cpus: "1.5"
 
     volumes:
       - /var/www/storage:/app/storage
@@ -26,14 +22,66 @@ services:
     security_opt:
       - no-new-privileges:true
 
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8082/health"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  ev-homes-backend-2:
+    build: .
+    container_name: ev_homes_backend_2
+    restart: unless-stopped
+    network_mode: host
+
+    env_file:
+      - .env
+
+    environment:
+      PORT: 8083
+      TZ: Asia/Kolkata
+      NODE_OPTIONS: "--max-old-space-size=2500"
+
+    mem_limit: 4024m
+    cpus: "1.5"
+
+    volumes:
+      - /var/www/storage:/app/storage
+
+    security_opt:
+      - no-new-privileges:true
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8083/health"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+  ev-homes-backend-3:
+    build: .
+    container_name: ev_homes_backend_3
+    restart: unless-stopped
+    network_mode: host
+
+    env_file:
+      - .env
+
+    environment:
+      PORT: 8084
+      TZ: Asia/Kolkata
+      NODE_OPTIONS: "--max-old-space-size=2500"
+
+    mem_limit: 4024m
+    cpus: "1.5"
+
+    volumes:
+      - /var/www/storage:/app/storage
+
+    security_opt:
+      - no-new-privileges:true
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8084/health"]
       interval: 60s
       timeout: 10s
       retries: 3
