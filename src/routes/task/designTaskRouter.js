@@ -61,7 +61,18 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
         ...statusToFind,
         "approval.status": "pending",
       };
-    } else {
+    }else if (status === "submission-rejected") {
+      statusToFind = {
+        ...statusToFind,
+        "approval.status": "rejected",
+      };
+    }else if (status === "pendency-rejected") {
+      statusToFind = {
+        ...statusToFind,
+
+        "pendency.status": "rejected",
+      };
+    }  else {
       statusToFind = {
         ...statusToFind,
         ...(status ? { status: status } : {}),
@@ -250,7 +261,7 @@ designTaskRouter.get(
               {
                 $match: {
                   //
-                  status: "submission-rejected",
+                  "approval.status": "rejected",
                 },
               },
               { $count: "count" },
@@ -338,7 +349,7 @@ designTaskRouter.get(
 
             rejected: {
               $sum: {
-                $cond: [{ $eq: ["$status", "submission-rejected"] }, 1, 0],
+                $cond: [{ $eq: ["$approval.status", "rejected"] }, 1, 0],
               },
             },
             beforeDeadline: {
@@ -931,7 +942,7 @@ designTaskRouter.post(
       if (status === "approved") {
         foundTask.status = "pendency";
       } else {
-        foundTask.status = "pendency-rejected";
+        foundTask.status = "not-completed";
       }
 
       //
@@ -1024,7 +1035,7 @@ designTaskRouter.post(
         foundTask.status = "completed";
         foundTask.completedDate = approvalDate;
       } else {
-        foundTask.status = "submission-rejected";
+        foundTask.status = "not-completed";
       }
       //
       oldTimeline.push({

@@ -445,7 +445,7 @@ export async function updateWeekoffApproval(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-
+//
 export const onRejectOrApproveWeekoff = async (req, res, next) => {
   try {
     const { id, status } = req.params;
