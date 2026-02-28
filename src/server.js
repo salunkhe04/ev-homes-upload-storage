@@ -15,7 +15,7 @@ import { redis } from "./app/redis.js";
 import RedisStore from "rate-limit-redis";
 
 router.get("/health", (req, res) => {
-  return res.status(200).send("OK");
+  res.send(`Handled by port ${process.env.PORT}`);
 });
 
 const limiter = rateLimit({
