@@ -117,6 +117,8 @@ export const addLeave = async (req, res, next) => {
     reportingTo,
     applicant,
   } = req.body;
+
+  // console.log(req.body);
   const user = req.user;
   let newLeaveRequest = null;
   try {
@@ -136,11 +138,14 @@ export const addLeave = async (req, res, next) => {
     // logger.info(applybyEmployee);
     const myLeaves = await shiftInfoModel.findOne({ userId: applicant });
 
+
     const totalPendingLeaves = await leaveRequestModel.countDocuments({
       applicant: applicant,
       leaveType: leaveType,
       leaveStatus: "pending",
     });
+
+    // console.log("totalPendingLeaves ",totalPendingLeaves);
     let leaves = myLeaves.compensatoryoff;
     if (leaveType === "on-paid-leave") {
       leaves = myLeaves.paidLeave;
@@ -150,11 +155,12 @@ export const addLeave = async (req, res, next) => {
       leaves = myLeaves.compensatoryoff;
     }
 
-    if (totalPendingLeaves >= leaves) {
-      return res.send(
-        errorRes(401, "you cant apply more request than available leaves"),
-      );
-    }
+    // if (totalPendingLeaves >= leaves) {
+    //   console.log("faiked");
+    //   return res.send(
+    //     errorRes(401, "you cant apply more request than available leaves"),
+    //   );
+    // }
 
     // logger.info(myLeaves);
 
@@ -164,6 +170,7 @@ export const addLeave = async (req, res, next) => {
       leaveType === "on-casual-leave" &&
       numberOfDays > myLeaves.casualLeave
     ) {
+
       return res.send(errorRes(401, "Your Dont Have Enough Casual Leaves"));
     } else if (
       leaveType === "on-compensation-off-leave" &&
@@ -171,6 +178,8 @@ export const addLeave = async (req, res, next) => {
     ) {
       return res.send(errorRes(401, "Your Dont Have Enough Compensation Off"));
     }
+
+
     const configs = await approvalStepModel.findOne({
       requestType: "leave",
     });

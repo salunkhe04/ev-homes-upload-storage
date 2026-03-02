@@ -142,6 +142,7 @@ import onbExhibRouter from "./onBoardingExhib/onboardingExhibRouter.js";
 import designTaskRouter from "./task/designTaskRouter.js";
 import trackerRouter from "./tracker/trackerRouter.js";
 import logger from "../utils/logger.js";
+import otpRouter from "./otp/otpRouter.js";
 
 const router = Router();
 
@@ -1049,5 +1050,6 @@ router.use(exhibitionVideoCountRouter);
 router.use(onbExhibRouter);
 router.use(designTaskRouter);
 router.use(trackerRouter);
+router.use(otpRouter);
 
 export default router;
