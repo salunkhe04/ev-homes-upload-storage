@@ -118,7 +118,7 @@ export const addLeave = async (req, res, next) => {
     applicant,
   } = req.body;
 
-  console.log(req.body);
+  // console.log(req.body);
   const user = req.user;
   let newLeaveRequest = null;
   try {
