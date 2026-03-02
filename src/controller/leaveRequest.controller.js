@@ -138,7 +138,6 @@ export const addLeave = async (req, res, next) => {
     // logger.info(applybyEmployee);
     const myLeaves = await shiftInfoModel.findOne({ userId: applicant });
 
-
     const totalPendingLeaves = await leaveRequestModel.countDocuments({
       applicant: applicant,
       leaveType: leaveType,
@@ -170,7 +169,6 @@ export const addLeave = async (req, res, next) => {
       leaveType === "on-casual-leave" &&
       numberOfDays > myLeaves.casualLeave
     ) {
-
       return res.send(errorRes(401, "Your Dont Have Enough Casual Leaves"));
     } else if (
       leaveType === "on-compensation-off-leave" &&
@@ -178,7 +176,6 @@ export const addLeave = async (req, res, next) => {
     ) {
       return res.send(errorRes(401, "Your Dont Have Enough Compensation Off"));
     }
-
 
     const configs = await approvalStepModel.findOne({
       requestType: "leave",
@@ -457,6 +454,7 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
         //TODO: when all steps approve leave
         const dates = [];
         let currentDate = moment(leaveResp.startDate);
+        let leaveEndDate = moment(leaveResp.endDate);
 
         while (currentDate <= moment(leaveResp.endDate)) {
           dates.push({
@@ -471,23 +469,14 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
         }
         // logger.info(dates);
         try {
+          const duration = leaveResp.dayType === "full-day" ? 1 : 0.5;
+
           await Promise.all(
             dates.map(async (att) => {
-              // logger.info({
-              //   day: att.day,
-              //   month: att.month, // Moment months are 0-based, so we add 1
-              //   year: att.year,
-              //   userId: att.userId,
-              // });
-              // logger.info({
-              //   status: leaveResp.leaveType?._id,
-              //   wlStatus: leaveResp.leaveType?._id,
-              // });
-
               await attendanceModel.updateOne(
                 {
                   day: att.day,
-                  month: att.month, // Moment months are 0-based, so we add 1
+                  month: att.month,
                   year: att.year,
                   userId: att.userId,
                 },
@@ -495,14 +484,14 @@ export const onRejectOrApproveLeave = async (req, res, next) => {
                   $set: {
                     status: leaveResp.leaveType?._id,
                     wlStatus: leaveResp.leaveType?._id,
+                    leaveDuration: duration,
                   },
                 },
-                {
-                  upsert: true,
-                },
+                { upsert: true },
               );
             }),
           );
+
           // await attendanceModel.insertMany(dates, { ordered: false });
         } catch (error) {
           if (error?.writeErrors) {
