@@ -2066,8 +2066,7 @@ export const getAttendanceOverview = async (req, res) => {
     }
 
     const requiredDays = totalDays - holiday - minWeekoff - leave;
-    const reqWorkHours = requiredDays * minWorkHours;
-    if (activeHours > reqWorkHours) {
+const reqWorkHours = Math.ceil(requiredDays * minWorkHours);    if (activeHours > reqWorkHours) {
       //
       ot = activeHours - reqWorkHours;
     }
@@ -3062,7 +3061,7 @@ export const getAttendanceOverviewFunc = async ({ id, date }) => {
     }
 
     const requiredDays = totalDays - holiday - minWeekoff - leave;
-    const reqWorkHours = requiredDays * minWorkHours;
+    const reqWorkHours = Math.ceil(requiredDays * minWorkHours);
     if (activeHours > reqWorkHours) {
       //
       ot = activeHours - reqWorkHours;
@@ -3180,7 +3179,7 @@ export const getAttendanceOverviewFuncLocal = ({
 
     const requiredDays = totalDays - holiday - minWeekoff - leave;
 
-    const reqWorkHours = requiredDays * minWorkHours;
+    const reqWorkHours = Math.ceil(requiredDays * minWorkHours);
     if (activeHours > reqWorkHours) {
       //
       ot = activeHours - reqWorkHours;
@@ -3242,7 +3241,7 @@ export const exportAttendance3 = async (req, res) => {
       return res.json({ message: "No attendance records found." });
 
     const shiftInfoList = await shiftInfoModel
-      .find({})
+      .find({ })
       .populate(employeeShiftInfoPopulateOptions)
       .lean();
 
@@ -3479,7 +3478,7 @@ export const exportAttendance3 = async (req, res) => {
         } else if (ele.status === "holiday" || ele.wlStatus === "holiday") {
           holiDays++;
         } else if (ele.status === "absent") {
-          if (date.day() === 0) {
+          if (date.day() === 0 &&shiftInfo?.userId?.department?._id === "dept-it") {
             //
             weekoffDays++;
           } else {
@@ -3528,11 +3527,11 @@ export const exportAttendance3 = async (req, res) => {
         attendanceList: attList,
       });
       payableDays =
-        attOverview.activeHours - attOverview.requiredHours > 0
-          ? daysInMonth
-          : attOverview.activeHours / shiftInfo.shift.workingHours;
-      // logger.info(`${shiftInfo.userId.firstName}`, " ", payableDays);
-      if (weekoffDays > 0) {
+         attOverview.activeHours / shiftInfo.shift.workingHours;
+      logger.info(`${shiftInfo.userId.firstName} ${payableDays}`,);
+
+      if (weekoffDays >= 4) {
+        const ok= attOverview.weekoff>=attOverview.minWeekoff?attOverview.weekoff:attOverview.minWeekoff;
         payableDays += weekoffDays;
       }
       if (presentOnweekoffDays > 0) {
@@ -3543,19 +3542,33 @@ export const exportAttendance3 = async (req, res) => {
       }
       if (holiDays > 0) {
         payableDays += holiDays;
-      }
-      if (halfDays > 0) {
-        payableDays += halfDays;
-      }
+      logger.info(`here ${shiftInfo.userId.firstName} ${payableDays}`,  );
 
-      if (weekoffDays < 4 && absentDays > 0) {
+      }
+      // if (halfDays > 0) {
+      //   payableDays += halfDays;
+      // }
+      logger.info(`next ${shiftInfo.userId.firstName} ${payableDays}`,  );
+      logger.info(`weekoffDays ${shiftInfo.userId.firstName} ${weekoffDays}`,  );
+      logger.info(`onLeaveDays ${shiftInfo.userId.firstName} ${onLeaveDays}`,  );
+      logger.info(`holiDays ${shiftInfo.userId.firstName} ${holiDays}`,  );
+      logger.info(`presentOnweekoffDays ${shiftInfo.userId.firstName} ${presentOnweekoffDays}`,  );
+
+
+
+      if ((weekoffDays-presentOnweekoffDays) < 4 ) {
         //TODO: fixes absent if not weekoff
+                const ok= attOverview.minWeekoff;
+        payableDays += ok;
+
       }
       if (weekoffDays < 4) {
         //
         totalComps += 4 - weekoffDays;
       }
       payableDays = roundToHalf(payableDays);
+      logger.info(`${shiftInfo.userId.firstName} ${payableDays}`, );
+
       let abs = daysInMonth - payableDays;
       absentDays = roundToHalf(abs < 0 ? 0 : abs);
       const ots = distributeHours(
