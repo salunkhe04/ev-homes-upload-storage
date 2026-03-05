@@ -230,6 +230,8 @@ export const deleteChannelPartnerById = async (req, res, next) => {
 
 export const registerChannelPartner = async (req, res, next) => {
   const body = req.filteredBody;
+  logger.info(body);
+
   const { firmName, firstName, lastName, email, phoneNumber, password } = body;
   try {
     if (!body) return errorRes2(res, 403, "data is required");
@@ -301,15 +303,15 @@ export const registerChannelPartner = async (req, res, next) => {
     savedCp.refreshToken = refreshToken;
     await savedCp.save();
 
-    return successRes2(200, "Registration Successfully", {
+    return successRes2(res, 200, "Registration Successfully", {
       data: userWithoutPassword,
       accessToken,
       refreshToken,
     });
   } catch (error) {
     logger.info(error);
-
-    return next(error);
+    return errorRes2(res, 500, `${error?.message ?? error}`);
+    // return next(error);
   }
 };
 

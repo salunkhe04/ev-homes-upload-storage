@@ -7429,7 +7429,14 @@ export const getSiteVisitLeadByPhoneNumber = async (req, res) => {
 
     const respSite = await leadModelV2
       .findOne({
-        phoneNumber: phoneNumber,
+        $or: [
+          {
+            phoneNumber: phoneNumber,
+          },
+          {
+            altPhoneNumber: phoneNumber,
+          },
+        ],
         // startDate: { $gte: new Date("2024-12-10T00:00:00.000+00:00") },
       })
       .sort({ createdAt: -1, _id: 1 })
