@@ -41,7 +41,7 @@ const employeeRouter = Router();
 
 employeeRouter.get(
   "/employee",
-  // authenticateToken,
+  authenticateToken,
   getEmployees,
 );
 

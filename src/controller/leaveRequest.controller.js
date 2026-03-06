@@ -47,11 +47,18 @@ export const getLeave = async (req, res, next) => {
 
 export const getApplyLeave = async (req, res, next) => {
   const id = req.params.id;
+  const { leaveStatus } = req.query;
   try {
     if (!id) return res.send(errorRes(401, "id is required"));
 
+    let filter = { "approvalSteps.adminId": id };
+
+    if (leaveStatus) {
+      filter.leaveStatus = leaveStatus;
+    }
+
     const resp = await leaveRequestModel
-      .find({ "approvalSteps.adminId": id })
+      .find(filter)
       .populate(leaveRequestPopulateOptions)
       .sort({
         appliedOn: -1,
