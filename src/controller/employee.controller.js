@@ -64,7 +64,7 @@ export const getEmployees = async (req, res, next) => {
     const { status, desg } = req.query;
 
     let query = {
-      ...(status ? { status: status } : {}),
+      ...(status ? { status: status } : {status:"active"}),
       ...(desg ? { designation: desg } : {}),
     };
 
