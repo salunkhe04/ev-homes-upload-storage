@@ -47,15 +47,21 @@ export const getLeave = async (req, res, next) => {
 
 export const getApplyLeave = async (req, res, next) => {
   const id = req.params.id;
-  const { leaveStatus } = req.query;
+  const { leaveStatus, startDate, endDate } = req.query;
   try {
+    const start = moment(startDate).tz("Asia/Kolkata").startOf("day").toDate();
+    const end = moment(endDate).tz("Asia/Kolkata").endOf("day").toDate();
+
     if (!id) return res.send(errorRes(401, "id is required"));
 
-    let filter = { "approvalSteps.adminId": id };
+    let filter = {
+      "approvalSteps.adminId": id,
+      ...(leaveStatus ? { leaveStatus:leaveStatus } : {}),
+      ...(startDate ? { startDate: { $gte: start } } : {}),
+      ...(endDate ? { endDate: { $lte: end } } : {}),
+    };
 
-    if (leaveStatus) {
-      filter.leaveStatus = leaveStatus;
-    }
+
 
     const resp = await leaveRequestModel
       .find(filter)
