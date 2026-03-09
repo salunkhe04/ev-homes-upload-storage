@@ -1,8 +1,18 @@
-import { errorRes, successRes } from "../model/response.js";
+import {
+  errorRes,
+  errorRes2,
+  successRes,
+  successRes2,
+} from "../model/response.js";
 import shiftModel from "../model/attendance/shift/shift.model.js";
 import employeeModel from "../model/employee.model.js"; // Assuming you have an Employee model
-import { shiftPopulateOptions } from "../utils/constant.js";
+import {
+  employeeShiftInfoPopulateOptions,
+  shiftPopulateOptions,
+} from "../utils/constant.js";
 import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
+import attendanceModel from "../model/attendance/attendance.model.js";
+import moment from "moment-timezone";
 
 export const getShifts = async (req, res, next) => {
   try {
@@ -11,7 +21,7 @@ export const getShifts = async (req, res, next) => {
     return res.send(
       successRes(200, "get shifts", {
         data: resp,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -66,7 +76,7 @@ export const addShift = async (req, res, next) => {
     return res.send(
       successRes(200, "Shift added", {
         data: newShift,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -86,7 +96,7 @@ export const getShiftById = async (req, res, next) => {
     return res.send(
       successRes(200, "get shift", {
         data: shift,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -111,7 +121,7 @@ export const deleteShiftById = async (req, res, next) => {
     return res.send(
       successRes(200, "Shift deleted successfully", {
         data: deletedShift,
-      })
+      }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -164,7 +174,7 @@ export const editShift = async (req, res, next) => {
           multiTimeInOut,
           regularizationDays,
         },
-        { new: true }
+        { new: true },
       )
       .populate(shiftPopulateOptions);
 
@@ -173,7 +183,7 @@ export const editShift = async (req, res, next) => {
     }
 
     return res.send(
-      successRes(200, "Shift updated successfully", { data: updatedShift })
+      successRes(200, "Shift updated successfully", { data: updatedShift }),
     );
   } catch (error) {
     return res.send(errorRes(500, "Internal Server Error"));
@@ -260,7 +270,6 @@ export const addEmployeesToShift = async (req, res) => {
     });
   }
 
-
   try {
     const shift = await shiftModel.findById(shiftId);
 
@@ -283,18 +292,18 @@ export const addEmployeesToShift = async (req, res) => {
               _id: "shift-info-" + eId?.replace(/\s+/g, "-").toLowerCase(),
               shift: shiftId,
             },
-            { upsert: true }
+            { upsert: true },
           );
         } catch (error) {
           //
         }
-      })
+      }),
     );
 
     return res.send(
       successRes(200, "Employees added to shift successfully.", {
         data: updatedShift,
-      })
+      }),
     );
   } catch (error) {
     console.error("Error adding employees to shift:", error);
@@ -329,5 +338,64 @@ export const removeEmployeeFromShift = async (req, res) => {
       message: "Internal server error.",
       error: error.message,
     });
+  }
+};
+
+export const addWeekOffAttendance = async (req, res) => {
+  try {
+    const { month, year } = req.body;
+
+    const shift = await shiftInfoModel
+      .findOne({ userId: "ev000-test-dum" })
+      .populate(employeeShiftInfoPopulateOptions);
+
+    if (!shift) {
+      return errorRes2(res, 400, "Shift not found");
+    }
+
+    const weekOffDay = shift.weekOffDay;
+
+    const startOfMonth = moment(`${year}-${month}`)
+      .tz("Asia/Kolkata")
+      .startOf("month");
+
+    console.log(startOfMonth);
+
+    const endOfMonth = moment(`${year}-${month}`)
+      .tz("Asia/Kolkata")
+      .endOf("month");
+
+    const dates = [];
+    let current = startOfMonth;
+
+    while (current.isSameOrBefore(endOfMonth)) {
+      if (current.format("dddd") === weekOffDay) {
+        dates.push(current.toDate());
+      }
+      current.add(1, "day");
+    }
+
+    console.log(dates);
+
+    for (const d of dates) {
+        const m = moment(d);
+      await attendanceModel.create({
+        userId: "ev000-test-dum",
+        date: d,
+        year: year,
+        day: d.getDate(),
+        month: month,
+        wlStatus: "weekoff",
+        status: "weekoff",
+      });
+    }
+
+    return successRes2(res, 200, "Week off attendance added", {
+      data: dates,
+      length: dates.length,
+    });
+  } catch (error) {
+    console.log(error);
+    return errorRes2(res, 500, "server");
   }
 };

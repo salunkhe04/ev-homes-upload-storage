@@ -10,6 +10,7 @@ import {
   getAssignedEmployees,
   addEmployeesToShift,
   removeEmployeeFromShift,
+  addWeekOffAttendance,
 } from "../../controller/shift.controller.js";
 const shiftRouter = Router();
 
@@ -20,15 +21,18 @@ shiftRouter.delete("/shift/:id", authenticateToken, deleteShiftById);
 shiftRouter.post("/shift-update/:id", authenticateToken, editShift);
 shiftRouter.post("/assign-employees-to-shift", authenticateToken, assignShift);
 shiftRouter.get("/shift-assigned/:id", authenticateToken, getAssignedEmployees);
+
 shiftRouter.post(
   "/shift/:shiftId/add-employees",
   authenticateToken,
-  addEmployeesToShift
+  addEmployeesToShift,
 );
 shiftRouter.delete(
   "/shift/:shiftId/remove-employee/:employeeId",
   authenticateToken,
-  removeEmployeeFromShift
+  removeEmployeeFromShift,
 );
+
+shiftRouter.post("/weekoff-attendance", addWeekOffAttendance);
 
 export default shiftRouter;
