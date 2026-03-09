@@ -48,6 +48,7 @@ import {
   getLeadsByTarget,
   addLeadV2Autmated,
   addLeadV2AutmatedWithPeriod,
+  getInformedCpLeads,
 } from "../../controller/lead.controller.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
 import { validateLeadsFields } from "../../middleware/lead.middleware.js";
@@ -492,6 +493,9 @@ leadRouter.post(
   authenticateToken,
   getLeadByStartEndDate,
 );
+
+leadRouter.get("/infomed-cp-leads", authenticateToken,getInformedCpLeads);
+
 leadRouter.get("/similar-leads2", authenticateToken, checkLeadsExists);
 const parseDate = (dateString, timeString = "12:00:00") => {
   // Split the date string into day, month, year

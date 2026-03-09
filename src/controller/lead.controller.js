@@ -6552,6 +6552,22 @@ export const searchLeads = async (req, res, next) => {
           },
         ],
       };
+    } else if (status === "informed-cp") {
+      statusToFind = {
+        stage: "booking",
+        // bookingStatus: { $ne: "pending" },
+        $and: [
+          {
+            bookingStatus: { $ne: null },
+          },
+          {
+            bookingStatus: { $eq: "booked" },
+          },
+          {
+            informedStatus: { $eq: true },
+          },
+        ],
+      };
     }
 
     // assing /pending/etc
@@ -6896,6 +6912,21 @@ export const searchLeads = async (req, res, next) => {
       siteVisitInterested: true,
     });
 
+    const infomedCpCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [
+        {
+          bookingStatus: { $ne: null },
+        },
+        {
+          bookingStatus: { $ne: "pending" },
+        },
+        {
+          informedStatus: { $eq: true },
+        },
+      ],
+    });
+
     // const assignedCount = await leadModelV2.countDocuments({
     //   $and: [{ preSalesExecutive: { $ne: null } }],
     // });
@@ -6921,6 +6952,7 @@ export const searchLeads = async (req, res, next) => {
         lineUpCount,
         internalLeadCount,
         bulkCount,
+        infomedCpCount,
         data: sortedLeads,
       }),
     );
@@ -12254,5 +12286,39 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     logger.info(error);
 
     return next(error);
+  }
+};
+
+export const getInformedCpLeads = async (req, res, next) => {
+  try {
+    const { status } = req.query;
+
+    let filter = {
+      bookingStatus: "booked",
+      leadType: "cp",
+      channelPartner: { $ne: null },
+    };
+
+    if (status === "yes") {
+      filter.informedStatus = true;
+    } else if (status === "no") {
+      filter.informedStatus = false;
+    }
+    const respLead = await leadModelV2
+      .find(filter)
+      .populate(leadPopulateOptions);
+
+    console.log(respLead.length);
+
+    if (!respLead.length) return errorRes(404, "No lead found");
+
+    return res.send(
+      successRes(200, "informed status leads", {
+        data: respLead,
+      }),
+    );
+  } catch (error) {
+    logger.info(error);
+    next(error);
   }
 };
