@@ -3542,17 +3542,17 @@ export const exportAttendance3 = async (req, res) => {
       }
       if (holiDays > 0) {
         payableDays += holiDays;
-      logger.info(`here ${shiftInfo.userId.firstName} ${payableDays}`,  );
+      // logger.info(`here ${shiftInfo.userId.firstName} ${payableDays}`,  );
 
       }
       // if (halfDays > 0) {
       //   payableDays += halfDays;
-      // }
-      logger.info(`next ${shiftInfo.userId.firstName} ${payableDays}`,  );
-      logger.info(`weekoffDays ${shiftInfo.userId.firstName} ${weekoffDays}`,  );
-      logger.info(`onLeaveDays ${shiftInfo.userId.firstName} ${onLeaveDays}`,  );
-      logger.info(`holiDays ${shiftInfo.userId.firstName} ${holiDays}`,  );
-      logger.info(`presentOnweekoffDays ${shiftInfo.userId.firstName} ${presentOnweekoffDays}`,  );
+      // // }
+      // logger.info(`next ${shiftInfo.userId.firstName} ${payableDays}`,  );
+      // logger.info(`weekoffDays ${shiftInfo.userId.firstName} ${weekoffDays}`,  );
+      // logger.info(`onLeaveDays ${shiftInfo.userId.firstName} ${onLeaveDays}`,  );
+      // logger.info(`holiDays ${shiftInfo.userId.firstName} ${holiDays}`,  );
+      // logger.info(`presentOnweekoffDays ${shiftInfo.userId.firstName} ${presentOnweekoffDays}`,  );
 
 
 
@@ -4177,9 +4177,9 @@ export const generateCompensatoryOffLatest = async (req, res) => {
                   $lte: dt.endOf("day").toDate(),
                 },
               };
-              logger.info(query);
+              // logger.info(query);
               const existingHistory = await leaveHistoryModel.findOne(query);
-              logger.info(existingHistory);
+              // logger.info(existingHistory);
 
               if (!existingHistory) {
                 shouldGenerateCO = true; // mark once
@@ -4188,7 +4188,7 @@ export const generateCompensatoryOffLatest = async (req, res) => {
               }
             }),
           );
-          logger.info(shouldGenerateCO);
+          // logger.info(shouldGenerateCO);
 
           if (shouldGenerateCO && missingWeekoffs > 0) {
             const updated = await shiftInfoModel.findByIdAndUpdate(

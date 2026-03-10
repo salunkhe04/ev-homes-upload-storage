@@ -1,6 +1,11 @@
 import employeeModel from "../model/employee.model.js";
 import leaveHistoryModel from "../model/attendance/leave/leavehistory.model.js";
-import { errorRes, successRes } from "../model/response.js";
+import {
+  errorRes,
+  errorRes2,
+  successRes,
+  successRes2,
+} from "../model/response.js";
 import { leaveHistoryPopulateOptions } from "../utils/constant.js";
 import moment from "moment-timezone";
 import shiftModel from "../model/attendance/shift/shift.model.js";
@@ -316,5 +321,52 @@ export const compOffExpiry = async (req, res) => {
     );
   } catch (e) {
     return res.send(errorRes(500, `Server error ${e.message}`));
+  }
+};
+
+export const overallCompExpiration = async (req, res) => {
+  try {
+    const sixMonthsAgo = moment().subtract(6, "months").toDate();
+
+    const oldDeposits = await leaveHistoryModel.find({
+      type: "deposit",
+      leaveType: "on-compensation-off-leave",
+
+      date: { $lte: sixMonthsAgo },
+    });
+    const expiredDeposits = [];
+    const usedDeposits = [];
+
+    for (const deposit of oldDeposits) {
+      if (!deposit.validTill) continue;
+
+      const usedRecord = await leaveHistoryModel.findOne({
+        userId: deposit.userId,
+        type: "used",
+        leaveType: "on-compensation-off-leave",
+        date: {
+          $gte: deposit.date,
+          $lte: deposit.validTill,
+        },
+      });
+
+      if (usedRecord) {
+        usedDeposits.push({
+          deposit,
+          used: usedRecord,
+        });
+      } else {
+        expiredDeposits.push(deposit);
+      }
+    }
+
+    return successRes2(res, 200, "Overall expiration", {
+      data: {
+        expiredDeposits,
+        usedDeposits,
+      },
+    });
+  } catch (error) {
+    return errorRes2(res, 500, `Server error: ${error?.message}`);
   }
 };
