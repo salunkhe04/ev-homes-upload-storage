@@ -7017,7 +7017,7 @@ export const searchLeadsChannelPartner = async (req, res, next) => {
     } else if (status === "revisit-pending" || status === "visit-done") {
       // logger.info("ersi pendding");
       statusToFind = {
-        stage: { $eq: "revisit" },
+        // stage: { $eq: "revisit" },
         // visitRef: { $ne: null },
         $or: [
           {
@@ -7059,7 +7059,6 @@ export const searchLeadsChannelPartner = async (req, res, next) => {
     } else if (status == "booking-done") {
       // logger.info("booi pendding");
       statusToFind = {
-        stage: { $eq: "booking" },
         bookingStatus: { $eq: "booked" },
         informedStatus: { $eq: true },
         $expr: {
@@ -10747,16 +10746,20 @@ export const getCpSalesFunnel = async (req, res, next) => {
         stage: { $ne: "tagging-over" },
         leadType: { $ne: "walk-in" },
         channelPartner: id,
-        startDate: { $gte: sixMonthsAgo },
-      })
+validTill: { $gte: new Date() },      })
       .sort({ startDate: -1 });
 
     const bookingDone = await leadModelV2.countDocuments({
-      bookingStatus: "booked",
-      stage: { $ne: "tagging-over" },
+      bookingStatus: { $eq: "booked" },
+      informedStatus: { $eq: true },
+      $expr: {
+        $and: [
+          { $gte: ["$bookingDate", "$startDate"] }, // visitDate >= startDate
+          { $lte: ["$bookingDate", "$validTill"] }, // visitDate <= validTill
+        ],
+      },
       leadType: { $ne: "walk-in" },
       channelPartner: id,
-      startDate: { $gte: sixMonthsAgo },
     });
 
     // const visitDone = await leadModelV2.countDocuments({
@@ -10766,15 +10769,28 @@ export const getCpSalesFunnel = async (req, res, next) => {
     // });
 
     const visitDone = await leadModelV2.countDocuments({
-      visitStatus: "visited",
-      stage: { $ne: "tagging-over" },
       leadType: { $ne: "walk-in" },
+
+      $or: [
+        {
+          visitStatus: "visited",
+        },
+        {
+          visitStatus: "virtual-meeting",
+        },
+      ],
+      $expr: {
+        $and: [
+          { $gte: ["$visitDate", "$startDate"] }, // visitDate >= startDate
+          { $lte: ["$visitDate", "$validTill"] }, // visitDate <= validTill
+        ],
+      },
       channelPartner: id,
-      startDate: { $gte: sixMonthsAgo },
+      validTill: { $gte: new Date() },
     });
 
     const contacted = await leadModelV2.countDocuments({
-      startDate: { $gte: sixMonthsAgo },
+      validTill: { $gte: new Date() },
       channelPartner: id,
       callHistory: {
         $exists: true,
@@ -10782,34 +10798,38 @@ export const getCpSalesFunnel = async (req, res, next) => {
       },
     });
     const received = await leadModelV2.countDocuments({
-      startDate: { $gte: sixMonthsAgo },
+      validTill: { $gte: new Date() },
       channelPartner: id,
       leadType: { $ne: "walk-in" },
     });
     const interested = await leadModelV2.countDocuments({
-      startDate: { $gte: sixMonthsAgo },
+      validTill: { $gte: new Date() },
       channelPartner: id,
       clientInterestedStatus: { $eq: "interested" },
     });
     const notInterested = await leadModelV2.countDocuments({
-      startDate: { $gte: sixMonthsAgo },
+      validTill: { $gte: new Date() },
       channelPartner: id,
       clientInterestedStatus: { $eq: "not-interested" },
     });
 
     const followup = await leadModelV2.countDocuments({
-      startDate: { $gte: sixMonthsAgo },
+      validTill: { $gte: new Date() },
       channelPartner: id,
       // callHistory: { $gte: 1 },
       followupStatus: { $eq: "followup" },
     });
 
     const revisitedCount = await leadModelV2.countDocuments({
-      revisitStatus: "revisited",
-      stage: { $ne: "tagging-over" },
+      $expr: {
+        $and: [
+          { $gte: ["$revisitDate", "$startDate"] }, // visitDate >= startDate
+          { $lte: ["$revisitDate", "$validTill"] }, // visitDate <= validTill
+        ],
+      },
       leadType: { $ne: "walk-in" },
       channelPartner: id,
-      startDate: { $gte: sixMonthsAgo },
+      validTill: { $gte: new Date() },
     });
 
     // const revisitDone = await leadModelV2.countDocuments({
@@ -10825,7 +10845,7 @@ export const getCpSalesFunnel = async (req, res, next) => {
         { stage: { $ne: "tagging-over" } },
         { leadType: { $ne: "walk-in" } },
         { channelPartner: id },
-        { startDate: { $gte: sixMonthsAgo } },
+        { validTill: { $gte: new Date() } },
       ],
     });
 
@@ -10842,7 +10862,7 @@ export const getCpSalesFunnel = async (req, res, next) => {
         { stage: { $ne: "tagging-over" } },
         { leadType: { $ne: "walk-in" } },
         { channelPartner: id },
-        { startDate: { $gte: sixMonthsAgo } },
+        { validTill: { $gte: new Date() } },
       ],
     });
 
@@ -10857,7 +10877,7 @@ export const getCpSalesFunnel = async (req, res, next) => {
       // stage: { $ne: "tagging-over" },
       leadType: { $ne: "walk-in" },
       channelPartner: id,
-      startDate: { $gte: sixMonthsAgo },
+      validTill: { $gte: new Date() },
       $and: [
         { stage: "approval" },
         { approvalStatus: "pending" },
