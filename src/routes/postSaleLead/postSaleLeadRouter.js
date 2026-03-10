@@ -48,7 +48,7 @@ postSaleRouter.post(
   updatePostSaleLeadById,
 );
 
-postSaleRouter.post("/cancel-booking", authenticateToken, cancelBooking);
+postSaleRouter.post("/cancel-booking", cancelBooking);
 postSaleRouter.get(
   "/post-sale-leads-for-pse/:id",
   authenticateToken,

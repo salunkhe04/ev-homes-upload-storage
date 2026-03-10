@@ -494,7 +494,7 @@ leadRouter.post(
   getLeadByStartEndDate,
 );
 
-leadRouter.get("/infomed-cp-leads", authenticateToken,getInformedCpLeads);
+leadRouter.get("/infomed-cp-leads",getInformedCpLeads);
 
 leadRouter.get("/similar-leads2", authenticateToken, checkLeadsExists);
 const parseDate = (dateString, timeString = "12:00:00") => {

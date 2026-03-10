@@ -2856,3 +2856,38 @@ export const designTaskPopulateOptions = [
     select: "firstName lastName",
   },
 ];
+
+
+export const leadPopulateOptionsv3 = [
+  {
+    path: "channelPartner",
+    select: "firmName",
+  },
+  {
+    path: "project",
+    select: "name",
+  },
+ 
+  
+  {
+    path: "bookingRef",
+    populate: [
+      { path: "project", select: "name" },
+      {
+        path: "closingManager",
+        select: "firstName lastName",
+        populate: [
+          { path: "designation" },
+          {
+            path: "reportingTo",
+            select: "firstName lastName",
+            populate: [{ path: "designation" }],
+          },
+        ],
+      },
+     
+    ],
+  },
+
+
+];

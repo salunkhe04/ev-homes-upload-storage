@@ -9,6 +9,7 @@ import moment from "moment";
 import {
   employeePopulateOptions,
   leadPopulateOptions,
+  leadPopulateOptionsv3,
   taskPopulateOptions,
 } from "../utils/constant.js";
 import {
@@ -12306,7 +12307,7 @@ export const getInformedCpLeads = async (req, res, next) => {
     }
     const respLead = await leadModelV2
       .find(filter)
-      .populate(leadPopulateOptions);
+      .populate(leadPopulateOptionsv3);
 
     console.log(respLead.length);
 

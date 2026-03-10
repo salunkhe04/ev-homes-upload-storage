@@ -1650,7 +1650,7 @@ export const cancelBooking = async (req, res, next) => {
     // Update the flat status to "unoccupied"
     try {
       const flatUpdateSuccess = await updateFlatInfoByIdFlatNo({
-        projectId: lead.project,
+        projectId: lead.project._id,
         floor: lead.floor,
         number: lead.number,
         buildingNo: lead.buildingNo,
@@ -1668,13 +1668,15 @@ export const cancelBooking = async (req, res, next) => {
       //
       await FlatOccupancyChange({
         project: lead.project,
-        floor,
-        buildingNo,
-        number,
+        floor:lead.floor,
+        buildingNo:lead.buildingNo,
+        number:lead.number,
         occupied: false,
       });
     } catch (error) {
       //
+      logger.info(error);
+
     }
 
     try {

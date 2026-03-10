@@ -6,6 +6,7 @@ import {
   deleteLeaveHistory,
   createLeaveHistoryFunc,
   compOffExpiry,
+  overallCompExpiration,
 } from "../../controller/leaveHistory.controller.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
 
@@ -45,6 +46,13 @@ leaveHistoryRouter.get(
   "/comp-off-expiry",
   // authenticateToken,
   compOffExpiry,
+);
+
+
+leaveHistoryRouter.get(
+  "/overall-comp-off-expiry",
+  // authenticateToken,
+  overallCompExpiration,
 );
 
 export default leaveHistoryRouter;
