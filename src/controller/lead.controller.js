@@ -7016,7 +7016,7 @@ export const searchLeadsChannelPartner = async (req, res, next) => {
     } else if (status === "revisit-pending" || status === "visit-done") {
       // logger.info("ersi pendding");
       statusToFind = {
-        stage: { $eq: "revisit" },
+        // stage: { $eq: "revisit" },
         // visitRef: { $ne: null },
         $or: [
           {
