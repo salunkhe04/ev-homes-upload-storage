@@ -7016,7 +7016,7 @@ export const searchLeadsChannelPartner = async (req, res, next) => {
     } else if (status === "revisit-pending" || status === "visit-done") {
       // logger.info("ersi pendding");
       statusToFind = {
-        stage: { $eq: "revisit" },
+        // stage: { $eq: "revisit" },
         // visitRef: { $ne: null },
         $or: [
           {
@@ -7058,7 +7058,6 @@ export const searchLeadsChannelPartner = async (req, res, next) => {
     } else if (status == "booking-done") {
       // logger.info("booi pendding");
       statusToFind = {
-        stage: { $eq: "booking" },
         bookingStatus: { $eq: "booked" },
         informedStatus: { $eq: true },
         $expr: {
