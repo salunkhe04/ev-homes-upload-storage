@@ -148,7 +148,7 @@ incentiveRouter.post(
 
 incentiveRouter.get(
   "/get-top-3-incentive",
-  // authenticateToken,
+  authenticateToken,
   async (req, res) => {
     const ids = [
       "ev15-deepak-karki",
@@ -170,7 +170,7 @@ incentiveRouter.get(
         "bookingStatus.type": { $ne: "Cancelled" },
         date: { $gte: startOfMonth, $lte: endOfMonth },
       };
-      logger.info(status);
+      // logger.info(status);
       // Step 1: Get all matching bookings
       const bookings = await postSaleLeadModel
         .find({
