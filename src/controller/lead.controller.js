@@ -11972,14 +11972,14 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
   // logger.info("p2");
 
   try {
-    if (!body) return res.send(errorRes(403, "Data is required"));
+    if (!body) return errorRes2(res, 403, "Data is required");
     // logger.info(body);
 
     const validFields = validateRequiredLeadsFields(body);
     // logger.info("p3");
 
     if (!validFields.isValid) {
-      return res.send(errorRes(400, validFields.message));
+      return errorRes2(res, 400, validFields.message);
     }
     // logger.info("p4");
     const existQuery = { $or: [{ phoneNumber }] };
@@ -11994,8 +11994,10 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     const existingLead = await leadModelV2.findOne(existQuery);
 
     if (existingLead) {
-      return res.send(
-        errorRes(409, `Same lead with already exist with phone number.`),
+      return errorRes2(
+        res,
+        409,
+        `Same lead with already exist with phone number.`,
       );
     }
 
@@ -12021,8 +12023,10 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     // get current period - sample or ranking
     const foundPeriod = await periodModel.findOne(filter);
     if (!foundPeriod) {
-      return res.send(
-        errorRes(404, `No Active Period Found Please Refresh the Period`),
+      return errorRes2(
+        res,
+        404,
+        `No Active Period Found Please Refresh the Period`,
       );
     }
     let currentRTurn;
@@ -12042,7 +12046,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
       );
       // if fails
       if (currentTurnIndex === -1) {
-        return res.send(errorRes(404, `No TeamLeader found with active Turn`));
+        return errorRes2(res, 404, `No TeamLeader found with active Turn`);
       }
       // find whoseTurn is now
       const currentTurn = currentRTurn.ranking[currentTurnIndex];
@@ -12172,7 +12176,6 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
 
         await currentRTurn.save();
       } catch (error) {
-        logger.info(error);
         //
         logger.info(error);
       }
@@ -12295,16 +12298,18 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
       .findById(newLead._id)
       .populate(leadPopulateOptions);
 
-    return res.send(
-      successRes(200, `Lead added successfully: ${firstName} ${lastName}`, {
+    return successRes2(
+      res,
+      200,
+      `Lead added successfully: ${firstName} ${lastName}`,
+      {
         data: updatedLead,
-      }),
+      },
     );
   } catch (error) {
     logger.info(error);
-    logger.info(error);
 
-    return next(error);
+    return errorRes2(res, 404, `${error?.message ?? error}`);
   }
 };
 
