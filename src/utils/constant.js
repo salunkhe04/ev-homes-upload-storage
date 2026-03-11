@@ -1286,7 +1286,7 @@ export const siteVisitPopulateOptions = [
     path: "approveBy",
     select: "firstName lastName",
   },
-    {
+  {
     path: "entryBy",
     select: "firstName lastName",
   },
@@ -2857,7 +2857,6 @@ export const designTaskPopulateOptions = [
   },
 ];
 
-
 export const leadPopulateOptionsv3 = [
   {
     path: "channelPartner",
@@ -2867,27 +2866,16 @@ export const leadPopulateOptionsv3 = [
     path: "project",
     select: "name",
   },
- 
-  
+
   {
     path: "bookingRef",
+    select: "project closingManager unitNo number floor buildingNo",
     populate: [
       { path: "project", select: "name" },
       {
         path: "closingManager",
         select: "firstName lastName",
-        populate: [
-          { path: "designation" },
-          {
-            path: "reportingTo",
-            select: "firstName lastName",
-            populate: [{ path: "designation" }],
-          },
-        ],
       },
-     
     ],
   },
-
-
 ];
