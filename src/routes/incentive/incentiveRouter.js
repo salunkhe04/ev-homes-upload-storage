@@ -170,7 +170,7 @@ incentiveRouter.get(
         "bookingStatus.type": { $ne: "Cancelled" },
         date: { $gte: startOfMonth, $lte: endOfMonth },
       };
-      // logger.info(status);
+      logger.info(status);
       // Step 1: Get all matching bookings
       const bookings = await postSaleLeadModel
         .find({

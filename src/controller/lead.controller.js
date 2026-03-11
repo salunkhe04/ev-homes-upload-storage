@@ -6779,7 +6779,7 @@ export const searchLeads = async (req, res, next) => {
       .find(searchFilter)
       .skip(skip)
       .limit(limit)
-      .sort({ startDate: -1, _id: 1 })
+      .sort({ createdAt: -1, _id: 1 })
       .populate(leadPopulateOptions);
     const sortedLeads = respCP.map((ele) => {
       ele.callHistory.sort(
@@ -12310,13 +12310,17 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
 
 export const getInformedCpLeads = async (req, res, next) => {
   try {
-    const { status } = req.query;
-
+    const { status, channelPartner } = req.query;
+    logger.info(req.query);
     let filter = {
       bookingStatus: "booked",
       leadType: "cp",
       channelPartner: { $ne: null },
     };
+
+    if (channelPartner) {
+      filter.channelPartner = channelPartner;
+    }
 
     if (status === "yes") {
       filter.informedStatus = true;
