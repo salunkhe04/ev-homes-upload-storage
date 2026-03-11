@@ -2,7 +2,12 @@ import { validateRequiredLeadsFields } from "../middleware/lead.middleware.js";
 import employeeModel from "../model/employee.model.js";
 import leadModel from "../model/lead/lead.model.js";
 import oneSignalModel from "../model/oneSignal.model.js";
-import { errorRes, successRes } from "../model/response.js";
+import {
+  errorRes,
+  errorRes2,
+  successRes,
+  successRes2,
+} from "../model/response.js";
 import siteVisitModel from "../model/siteVisit.model.js";
 import TeamLeaderAssignTurn from "../model/teamLeaderAssignTurn.model.js";
 import moment from "moment";
@@ -7681,15 +7686,6 @@ export const updateLead = async (req, res, next) => {
 
     const { remark } = body;
 
-    // if (!email) return res.send(errorRes(403, "Email is required"));
-    // if (!firstName) return res.send(errorRes(403, "First name is required"));
-    // if (!lastName) return res.send(errorRes(403, "Last name is required"));
-    // if (!phoneNumber) return res.send(errorRes(403, "Phone number is required"));
-    // if (!status) return res.send(errorRes(403, "Status is required"));
-    // if (!interestedStatus)
-    //   return res.send(errorRes(403, "Interested status is required"));
-    // if (!remark) return res.send(errorRes(403, "Remark is required"));
-
     // Update the lead by ID
     const updatedLead = await leadModelV2.findByIdAndUpdate(
       id,
@@ -7699,27 +7695,28 @@ export const updateLead = async (req, res, next) => {
           updateHistory: {
             employee: user?._id,
             changes: `${JSON.stringify(body)}`,
-            updatedAt: Date.now(),
+            updatedAt: new Date(),
             remark: remark,
           },
         },
       },
       { new: true },
     );
-
     // Check if the lead was updated successfully
     if (!updatedLead)
       return res.send(errorRes(404, `Lead not found with ID: ${id}`));
-
-    return res.send(
-      successRes(200, `Lead updated successfully`, {
-        data: updatedLead,
-      }),
-    );
+    //
+    const updatedLead1 = await leadModelV2
+      .findById(id)
+      .populate(leadPopulateOptions);
+    //
+    return successRes2(res, 200, `Lead updated successfully`, {
+      data: updatedLead1,
+    });
+    //
   } catch (error) {
     logger.info(error);
-    return next(error);
-    // return res.send(errorRes(500, `Server error: ${error?.message}`));
+    return errorRes2(res, 500, `Server error: ${error?.message}`);
   }
 };
 
@@ -10746,7 +10743,8 @@ export const getCpSalesFunnel = async (req, res, next) => {
         stage: { $ne: "tagging-over" },
         leadType: { $ne: "walk-in" },
         channelPartner: id,
-validTill: { $gte: new Date() },      })
+        validTill: { $gte: new Date() },
+      })
       .sort({ startDate: -1 });
 
     const bookingDone = await leadModelV2.countDocuments({
@@ -12326,8 +12324,15 @@ export const getInformedCpLeads = async (req, res, next) => {
       filter.informedStatus = false;
     }
     const respLead = await leadModelV2
-      .find(filter)
-      .populate(leadPopulateOptions);
+      .find(filter, {
+        phoneNumber: 1,
+        firstName: 1,
+        lastName: 1,
+        channelPartner: 1,
+        bookingRef: 1,
+        informedStatus: 1,
+      })
+      .populate(leadPopulateOptionsv3);
 
     // console.log(respLead.length);
 
