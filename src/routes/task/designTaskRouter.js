@@ -61,18 +61,18 @@ designTaskRouter.get("/design-tasks", async (req, res, next) => {
         ...statusToFind,
         "approval.status": "pending",
       };
-    }else if (status === "submission-rejected") {
+    } else if (status === "submission-rejected") {
       statusToFind = {
         ...statusToFind,
         "approval.status": "rejected",
       };
-    }else if (status === "pendency-rejected") {
+    } else if (status === "pendency-rejected") {
       statusToFind = {
         ...statusToFind,
 
         "pendency.status": "rejected",
       };
-    }  else {
+    } else {
       statusToFind = {
         ...statusToFind,
         ...(status ? { status: status } : {}),
@@ -1033,7 +1033,7 @@ designTaskRouter.post(
       if (status === "approved") {
         //
         foundTask.status = "completed";
-        foundTask.completedDate = approvalDate;
+        foundTask.completedDate = foundTask.approval.appliedDate;
       } else {
         foundTask.status = "not-completed";
       }
