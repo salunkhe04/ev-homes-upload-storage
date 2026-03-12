@@ -326,27 +326,29 @@ export const compOffExpiry = async (req, res) => {
 
 export const overallCompExpiration = async (req, res) => {
   try {
-    const sixMonthsAgo = moment().subtract(6, "months").toDate();
+    // const sixMonthsAgo = moment().subtract(6, "months").toDate();
 
     const oldDeposits = await leaveHistoryModel.find({
+      userId: "ev118-anurag-patil",
+
       type: "deposit",
       leaveType: "on-compensation-off-leave",
-
-      date: { $lte: sixMonthsAgo },
+      validTill: { $gt: Date.now() },
+      // date: { $lte: sixMonthsAgo },
     });
     const expiredDeposits = [];
     const usedDeposits = [];
 
     for (const deposit of oldDeposits) {
-      if (!deposit.validTill) continue;
+      // if (!deposit.validTill) continue;
 
       const usedRecord = await leaveHistoryModel.findOne({
-        userId: deposit.userId,
+        userId: "ev118-anurag-patil",
         type: "used",
         leaveType: "on-compensation-off-leave",
         date: {
-          $gte: deposit.date,
-          $lte: deposit.validTill,
+          $gt: deposit.date,
+          $lt: deposit.validTill,
         },
       });
 
@@ -356,7 +358,9 @@ export const overallCompExpiration = async (req, res) => {
           used: usedRecord,
         });
       } else {
-        expiredDeposits.push(deposit);
+        expiredDeposits.push({
+          deposit,
+        });
       }
     }
 
@@ -364,6 +368,58 @@ export const overallCompExpiration = async (req, res) => {
       data: {
         expiredDeposits,
         usedDeposits,
+      },
+    });
+  } catch (error) {
+    return errorRes2(res, 500, `Server error: ${error?.message}`);
+  }
+};
+
+export const updateValidTillDates = async (req, res) => {
+  try {
+    const sixMonthsAgo = moment().subtract(6, "months").toDate();
+
+    const oldDeposits = await leaveHistoryModel.find({
+      type: "deposit",
+      leaveType: "on-compensation-off-leave",
+
+      // date: { $lte: sixMonthsAgo },
+    });
+    const expiredDeposits = [];
+    const usedDeposits = [];
+
+    for (const deposit of oldDeposits) {
+      // if (!deposit.validTill) continue
+
+      console.log(deposit._id);
+
+      let sixMonths = moment(deposit.date)
+        .tz("Asia/Kolkata")
+        .add(180, "days")
+        .toDate();
+
+      const usedRecord = await leaveHistoryModel.findOneAndUpdate(
+        {
+          _id: deposit._id,
+        },
+        {
+          $set: {
+            validTill: sixMonths,
+          },
+        },
+      );
+
+      if (usedRecord) {
+        usedDeposits.push({
+          used: usedRecord,
+        });
+      }
+    }
+
+    return successRes2(res, 200, "Overall expiration", {
+      data: {
+        usedDeposits,
+        length: usedDeposits.length,
       },
     });
   } catch (error) {

@@ -12307,7 +12307,7 @@ export const getInformedCpLeads = async (req, res, next) => {
     }
     const respLead = await leadModelV2
       .find(filter)
-      .populate(leadPopulateOptionsv3);
+      .populate(leadPopulateOptions);
 
     console.log(respLead.length);
 
