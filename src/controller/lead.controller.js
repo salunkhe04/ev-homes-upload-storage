@@ -2,7 +2,12 @@ import { validateRequiredLeadsFields } from "../middleware/lead.middleware.js";
 import employeeModel from "../model/employee.model.js";
 import leadModel from "../model/lead/lead.model.js";
 import oneSignalModel from "../model/oneSignal.model.js";
-import { errorRes, successRes } from "../model/response.js";
+import {
+  errorRes,
+  errorRes2,
+  successRes,
+  successRes2,
+} from "../model/response.js";
 import siteVisitModel from "../model/siteVisit.model.js";
 import TeamLeaderAssignTurn from "../model/teamLeaderAssignTurn.model.js";
 import moment from "moment";
@@ -6774,7 +6779,7 @@ export const searchLeads = async (req, res, next) => {
       .find(searchFilter)
       .skip(skip)
       .limit(limit)
-      .sort({ startDate: -1, _id: 1 })
+      .sort({ createdAt: -1, _id: 1 })
       .populate(leadPopulateOptions);
     const sortedLeads = respCP.map((ele) => {
       ele.callHistory.sort(
@@ -7681,15 +7686,6 @@ export const updateLead = async (req, res, next) => {
 
     const { remark } = body;
 
-    // if (!email) return res.send(errorRes(403, "Email is required"));
-    // if (!firstName) return res.send(errorRes(403, "First name is required"));
-    // if (!lastName) return res.send(errorRes(403, "Last name is required"));
-    // if (!phoneNumber) return res.send(errorRes(403, "Phone number is required"));
-    // if (!status) return res.send(errorRes(403, "Status is required"));
-    // if (!interestedStatus)
-    //   return res.send(errorRes(403, "Interested status is required"));
-    // if (!remark) return res.send(errorRes(403, "Remark is required"));
-
     // Update the lead by ID
     const updatedLead = await leadModelV2.findByIdAndUpdate(
       id,
@@ -7699,27 +7695,28 @@ export const updateLead = async (req, res, next) => {
           updateHistory: {
             employee: user?._id,
             changes: `${JSON.stringify(body)}`,
-            updatedAt: Date.now(),
+            updatedAt: new Date(),
             remark: remark,
           },
         },
       },
       { new: true },
     );
-
     // Check if the lead was updated successfully
     if (!updatedLead)
       return res.send(errorRes(404, `Lead not found with ID: ${id}`));
-
-    return res.send(
-      successRes(200, `Lead updated successfully`, {
-        data: updatedLead,
-      }),
-    );
+    //
+    const updatedLead1 = await leadModelV2
+      .findById(id)
+      .populate(leadPopulateOptions);
+    //
+    return successRes2(res, 200, `Lead updated successfully`, {
+      data: updatedLead1,
+    });
+    //
   } catch (error) {
     logger.info(error);
-    return next(error);
-    // return res.send(errorRes(500, `Server error: ${error?.message}`));
+    return errorRes2(res, 500, `Server error: ${error?.message}`);
   }
 };
 
@@ -10746,7 +10743,8 @@ export const getCpSalesFunnel = async (req, res, next) => {
         stage: { $ne: "tagging-over" },
         leadType: { $ne: "walk-in" },
         channelPartner: id,
-validTill: { $gte: new Date() },      })
+        validTill: { $gte: new Date() },
+      })
       .sort({ startDate: -1 });
 
     const bookingDone = await leadModelV2.countDocuments({
@@ -11974,14 +11972,14 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
   // logger.info("p2");
 
   try {
-    if (!body) return res.send(errorRes(403, "Data is required"));
+    if (!body) return errorRes2(res, 403, "Data is required");
     // logger.info(body);
 
     const validFields = validateRequiredLeadsFields(body);
     // logger.info("p3");
 
     if (!validFields.isValid) {
-      return res.send(errorRes(400, validFields.message));
+      return errorRes2(res, 400, validFields.message);
     }
     // logger.info("p4");
     const existQuery = { $or: [{ phoneNumber }] };
@@ -11996,8 +11994,10 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     const existingLead = await leadModelV2.findOne(existQuery);
 
     if (existingLead) {
-      return res.send(
-        errorRes(409, `Same lead with already exist with phone number.`),
+      return errorRes2(
+        res,
+        409,
+        `Same lead with already exist with phone number.`,
       );
     }
 
@@ -12023,8 +12023,10 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
     // get current period - sample or ranking
     const foundPeriod = await periodModel.findOne(filter);
     if (!foundPeriod) {
-      return res.send(
-        errorRes(404, `No Active Period Found Please Refresh the Period`),
+      return errorRes2(
+        res,
+        404,
+        `No Active Period Found Please Refresh the Period`,
       );
     }
     let currentRTurn;
@@ -12044,7 +12046,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
       );
       // if fails
       if (currentTurnIndex === -1) {
-        return res.send(errorRes(404, `No TeamLeader found with active Turn`));
+        return errorRes2(res, 404, `No TeamLeader found with active Turn`);
       }
       // find whoseTurn is now
       const currentTurn = currentRTurn.ranking[currentTurnIndex];
@@ -12174,7 +12176,6 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
 
         await currentRTurn.save();
       } catch (error) {
-        logger.info(error);
         //
         logger.info(error);
       }
@@ -12297,28 +12298,34 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
       .findById(newLead._id)
       .populate(leadPopulateOptions);
 
-    return res.send(
-      successRes(200, `Lead added successfully: ${firstName} ${lastName}`, {
+    return successRes2(
+      res,
+      200,
+      `Lead added successfully: ${firstName} ${lastName}`,
+      {
         data: updatedLead,
-      }),
+      },
     );
   } catch (error) {
     logger.info(error);
-    logger.info(error);
 
-    return next(error);
+    return errorRes2(res, 404, `${error?.message ?? error}`);
   }
 };
 
 export const getInformedCpLeads = async (req, res, next) => {
   try {
-    const { status } = req.query;
-
+    const { status, channelPartner } = req.query;
+    logger.info(req.query);
     let filter = {
       bookingStatus: "booked",
       leadType: "cp",
       channelPartner: { $ne: null },
     };
+
+    if (channelPartner) {
+      filter.channelPartner = channelPartner;
+    }
 
     if (status === "yes") {
       filter.informedStatus = true;
@@ -12326,10 +12333,17 @@ export const getInformedCpLeads = async (req, res, next) => {
       filter.informedStatus = false;
     }
     const respLead = await leadModelV2
-      .find(filter)
-      .populate(leadPopulateOptions);
+      .find(filter, {
+        phoneNumber: 1,
+        firstName: 1,
+        lastName: 1,
+        channelPartner: 1,
+        bookingRef: 1,
+        informedStatus: 1,
+      })
+      .populate(leadPopulateOptionsv3);
 
-    console.log(respLead.length);
+    // console.log(respLead.length);
 
     if (!respLead.length) return errorRes(404, "No lead found");
 

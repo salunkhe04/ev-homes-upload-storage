@@ -148,7 +148,7 @@ incentiveRouter.post(
 
 incentiveRouter.get(
   "/get-top-3-incentive",
-  // authenticateToken,
+  authenticateToken,
   async (req, res) => {
     const ids = [
       "ev15-deepak-karki",
