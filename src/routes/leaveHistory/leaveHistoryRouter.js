@@ -7,6 +7,7 @@ import {
   createLeaveHistoryFunc,
   compOffExpiry,
   overallCompExpiration,
+  updateValidTillDates,
 } from "../../controller/leaveHistory.controller.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
 
@@ -54,5 +55,14 @@ leaveHistoryRouter.get(
   // authenticateToken,
   overallCompExpiration,
 );
+
+
+
+leaveHistoryRouter.post(
+  "/update-valid-till",
+  // authenticateToken,
+  updateValidTillDates,
+);
+
 
 export default leaveHistoryRouter;
