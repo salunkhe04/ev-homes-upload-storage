@@ -45,4 +45,4 @@ app.use(notFound);
 app.use(errorHandler);
 
 connectDatabase();
-initCronJobs();
+// initCronJobs();

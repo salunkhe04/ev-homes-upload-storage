@@ -20,24 +20,24 @@ import logger from "../utils/logger.js";
 import { processDesignReminders } from "../routes/task/designTaskRouter.js";
 
 export const initCronJobs = () => {
-  (logger.info("cron starting"),
-    // Schedule a task to run at 8 AM daily and change cycle
-    cron.schedule("0 8 * * *", async () => {
-      try {
-        // const response = await triggerCycleChangeFunctionFix();
-        const response = await internalLeadCycleTrigger();
+  logger.info("cron starting");
+  // Schedule a task to run at 8 AM daily and change cycle
+  cron.schedule("0 8 * * *", async () => {
+    try {
+      // const response = await triggerCycleChangeFunctionFix();
+      const response = await internalLeadCycleTrigger();
 
-        await triggerHistoryModel.create({
-          date: new Date(),
-          changes: response?.changes ?? [],
-          changesString: response?.changesString ?? "",
-          totalTrigger: response?.total ?? 0,
-          message: response?.message ?? "",
-        });
-      } catch (error) {
-        logger.info("Error making API call:", error.message);
-      }
-    }));
+      await triggerHistoryModel.create({
+        date: new Date(),
+        changes: response?.changes ?? [],
+        changesString: response?.changesString ?? "",
+        totalTrigger: response?.total ?? 0,
+        message: response?.message ?? "",
+      });
+    } catch (error) {
+      logger.info("Error making API call:", error.message);
+    }
+  });
 
   // Schedule a task to run at 9 AM daily and change cycle
   cron.schedule("0 9 * * *", async () => {
