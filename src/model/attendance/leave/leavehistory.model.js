@@ -58,13 +58,27 @@ export const leaveHistorySchema = new mongoose.Schema(
       ref: "regularization",
       default: null,
     },
+    expired: {
+      type: Boolean,
+      default: false,
+    },
+    remaining: {
+      type: Number,
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const leaveHistoryModel = mongoose.model(
   "leaveHistory",
   leaveHistorySchema,
-  "leaveHistory"
+  "leaveHistory",
 );
+// export const leaveHistoryModelTest = mongoose.model(
+//   "leaveHistoryTest",
+//   leaveHistorySchema,
+//   "leaveHistoryTest",
+// );
 export default leaveHistoryModel;
+

@@ -168,191 +168,36 @@ export const deleteLeaveHistory = async (req, res) => {
   }
 };
 
-//comp - off expiry
-// export const compOffExpiry = async (req, res) => {
-//   try {
-//     const timeZone = "Asia/Kolkata";
-//     const today = moment().tz(timeZone);
-
-//     // const targetDate = today.subtract(6, "months");
-
-//     logger.info(today);
-
-//     const startOfDay = today.startOf("day").toDate();
-
-//     const endOfDay = today.endOf("day").toDate();
-
-//     logger.info("star", startOfDay);
-//     logger.info("endOfDay", endOfDay);
-
-//     const expiredCompOffs = await leaveHistoryModel.find({
-//       leaveType: "on-compensation-off-leave",
-//       validTill: {
-//         $gte: startOfDay,
-//         // $lte: endOfDay,
-//       },
-//     });
-
-//     const updatedUsers = [];
-//     // for (const user of expiredCompOffs) {
-//     //   const { userId } = user;
-
-//     const leaveHistory = await leaveHistoryModel.find({
-//       userId,
-
-//       leaveType: "on-compensation-off-leave",
-//     });
-
-//     //   await createLeaveHistoryFunc({
-//     //     userId,
-//     //     date: today.toDate(),
-//     //     description: "Comp-off expired after 6 months",
-//     //     count: 1,
-//     //     type: "expired",
-//     //     leaveType: "on-compensation-off-leave",
-//     //     deposittype: "auto-generated",
-//     //   });
-
-//     //   const shift = await shiftInfoModel.findOne({ userId });
-
-//     //   logger.info(shift);
-
-//     //   // if (!shift) continue;
-
-//     //   const currentCompOff = shift.compensatoryoff || 0;
-//     //   const currentOverDue = shift.overDueCompOff || 0;
-
-//     //   const updatedCompOff = Math.max(currentCompOff - 1, 0);
-//     //   const updatedOverDue = currentOverDue + 1;
-
-//     //   const resp = await shiftInfoModel.updateOne(
-//     //     { userId },
-//     //     {
-//     //       $set: {
-//     //         compensatoryoff: updatedCompOff,
-//     //         overDueCompOff: updatedOverDue,
-//     //       },
-//     //     },
-//     //   );
-
-//     //   const updatedShift = await shiftInfoModel.findOne({ userId });
-//     //   updatedUsers.push(updatedShift);
-//     // }
-
-//     return res.send(
-//       successRes(200, "Comp-off expiry processed", {
-//         length: updatedUsers.length,
-//         data: updatedUsers,
-//       }),
-//     );
-//   } catch (e) {
-//     return res.send(errorRes(500, `Server error ${e}`));
-//   }
-// };
-
-//all comp off leaves //the most oldest "used" comp off is less than today's 6 month
-// if yes dont do anythong , else deduct //like 31/01/2026 , oldest "deposit" is 06/09 etc.. means 6 months not complted, dont minus , if deposit is before than that minus it
-//  //like 02/04/2025
-
-export const compOffExpiry = async (req, res) => {
-  try {
-    const timeZone = "Asia/Kolkata";
-    const today = moment().tz(timeZone);
-
-    const targetDay = today.subtract(6, "months");
-    const expiryStDate = targetDay.startOf("day").toDate();
-    const expiryDate = targetDay.endOf("day").toDate();
-
-    const userId = "EV900-test-closing-m";
-
-    const oldDeposits = await leaveHistoryModel.find({
-      userId,
-      leaveType: "on-compensation-off-leave",
-      type: "deposit",
-      date: { $gte: expiryStDate, $lte: expiryDate },
-    });
-
-    let expiredCount = 0;
-    const updatedUsers = [];
-
-    for (const deposit of oldDeposits) {
-      const usedEntry = await leaveHistoryModel.findOne({
-        userId,
-        leaveType: "on-compensation-off-leave",
-        type: "used",
-        leave: { $exists: true },
-      });
-
-      if (!usedEntry) continue;
-
-      const leave = await leaveRequestModel.findById(usedEntry.leave);
-
-      if (leave && leave.leaveStatus === "rejected") {
-        await createLeaveHistoryFunc({
-          userId,
-          date: today.toDate(),
-          description: "Comp-off expired after 6 months",
-          count: 1,
-          type: "expired",
-          leaveType: "on-compensation-off-leave",
-          deposittype: "auto-generated-expiry",
-        });
-
-        await shiftInfoModel.updateOne(
-          { userId },
-          {
-            $set: {
-              compensatoryoff: Math.max((shift.compensatoryoff || 0) - 1, 0),
-              overDueCompOff: (shift.overDueCompOff || 0) + 1,
-            },
-          },
-        );
-
-        expiredCount++;
-        updatedUsers.push(userId);
-      }
-    }
-
-    return res.send(
-      successRes(200, "Comp-off expiry processed", {
-        expiredCount,
-        users: updatedUsers,
-      }),
-    );
-  } catch (e) {
-    return res.send(errorRes(500, `Server error ${e.message}`));
-  }
-};
-
 export const overallCompExpiration = async (req, res) => {
   try {
-    // const sixMonthsAgo = moment().subtract(6, "months").toDate();
+    const sixMonthsAgo = moment().subtract(6, "months").toDate();
 
     const oldDeposits = await leaveHistoryModel.find({
-      userId: "ev118-anurag-patil",
-
       type: "deposit",
       leaveType: "on-compensation-off-leave",
-      validTill: { $gt: Date.now() },
+      validTill: { $lt: new Date() },
       // date: { $lte: sixMonthsAgo },
     });
     const expiredDeposits = [];
     const usedDeposits = [];
+    const comparedDeposits = [];
 
     for (const deposit of oldDeposits) {
       // if (!deposit.validTill) continue;
 
       const usedRecord = await leaveHistoryModel.findOne({
-        userId: "ev118-anurag-patil",
+        userId: deposit.userId,
         type: "used",
         leaveType: "on-compensation-off-leave",
         date: {
           $gt: deposit.date,
           $lt: deposit.validTill,
         },
+        _id: { $nin: comparedDeposits },
       });
 
       if (usedRecord) {
+        comparedDeposits.push(usedRecord._id);
         usedDeposits.push({
           deposit,
           used: usedRecord,
@@ -405,6 +250,7 @@ export const updateValidTillDates = async (req, res) => {
         {
           $set: {
             validTill: sixMonths,
+            // remaining: deposit.count,
           },
         },
       );
@@ -420,6 +266,172 @@ export const updateValidTillDates = async (req, res) => {
       data: {
         usedDeposits,
         length: usedDeposits.length,
+      },
+    });
+  } catch (error) {
+    return errorRes2(res, 500, `Server error: ${error?.message}`);
+  }
+};
+
+export const overallCompExpirationFunct = async () => {
+  try {
+    const shift = await shiftInfoModel.find();
+    const userIds = shift.map((e) => e.userId);
+
+    const oldDeposits = await leaveHistoryModel.find({
+      userId: { $in: userIds },
+      type: "deposit",
+      leaveType: "on-compensation-off-leave",
+      validTill: { $lt: new Date() },
+      // date: { $lte: sixMonthsAgo },
+      expired: false,
+    }).sort({date:1});
+    const expiredDeposits = [];
+    const usedDeposits = [];
+    const comparedDeposits = [];
+
+    for (const deposit of oldDeposits) {
+      if (!deposit?.validTill) continue;
+
+      const usedRecord = await leaveHistoryModel.findOne({
+        userId: deposit.userId,
+        type: "used",
+        leaveType: "on-compensation-off-leave",
+        date: {
+          $gt: deposit.date,
+          $lt: deposit.validTill,
+        },
+        expired: false,
+        count: deposit.count,
+      }).sort({date:1});
+
+      if (usedRecord) {
+        // comparedDeposits.push(usedRecord._id);
+        usedDeposits.push({
+          deposit,
+          used: usedRecord,
+        });
+        await leaveHistoryModel.findByIdAndUpdate(usedRecord._id, {
+          $set: {
+            expired: true,
+          },
+        });
+      } else {
+        expiredDeposits.push({
+          deposit,
+        });
+        //
+
+        await leaveHistoryModel.findByIdAndUpdate(deposit._id, {
+          $set: {
+            expired: true,
+          },
+        });
+        const foundShift = await shiftInfoModel.findOne({
+          userId: deposit.userId,
+        });
+        if (!foundShift) continue;
+
+        if (foundShift.compensatoryoff <= 0) continue;
+
+        await shiftInfoModel.findOneAndUpdate(
+          { userId: deposit.userId },
+          {
+            //
+            compensatoryoff: foundShift.compensatoryoff - deposit.count,
+            overDueCompOff: foundShift.overDueCompOff + deposit.count,
+          },
+        );
+      }
+    }
+
+    // return successRes2(res, 200, "Overall expiration", {
+    
+    return {
+      expiredDeposits,
+      usedDeposits,
+    };
+    // });
+  } catch (error) {
+    console.log(error);
+    return {};
+    // return errorRes2(res, 500, `Server error: ${error?.message}`);
+  }
+};
+// for leave history single entry days
+function distributeDays(totalDays) {
+  const schedule = [];
+
+  while (totalDays > 0) {
+    if (totalDays >= 1) {
+      schedule.push({ day: 1 });
+      totalDays -= 1;
+    } else if (totalDays >= 0.5) {
+      schedule.push({ day: 0.5 });
+      totalDays -= 0.5;
+    } else {
+      break; // ignore anything less than 0.5
+    }
+  }
+
+  return schedule;
+}
+
+export const updateCompOffHistory = async (req, res) => {
+  try {
+    // take all comp off record
+    const leaveHistory = await leaveHistoryModel
+      .find({
+        leaveType: { $ne: "on-compensation-off-leave" },
+      })
+      .lean();
+    const singleEntries = [];
+    const multiEntries = [];
+
+    await Promise.all(
+      leaveHistory.map(async (e) => {
+        //1
+
+        if (e.count === 1) {
+          singleEntries.push(e); // 913 single entrues // 125 muliti
+        } else {
+          let entries = distributeDays(e.count);
+          //
+          const { _id, ...rest } = e;
+
+          for (const multi of entries) {
+            multiEntries.push({
+              ...rest,
+              count: multi.day,
+            });
+          }
+        }
+      }),
+    );
+    const finalEntries = [...singleEntries, ...multiEntries];
+
+    const result = await leaveHistoryModel.aggregate([
+      {
+        $match: {
+          leaveType: { $ne: "on-compensation-off-leave" },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalCount: { $sum: "$count" },
+        },
+      },
+    ]);
+    // await leaveHistoryModelTest.insertMany(finalEntries);
+
+    return successRes2(res, 200, "Overall expiration", {
+      data: {
+        result,
+        singlelength: singleEntries.length,
+        multiEntrieslength: multiEntries.length,
+        singleEntries,
+        multiEntries,
       },
     });
   } catch (error) {
