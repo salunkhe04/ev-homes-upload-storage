@@ -4,10 +4,10 @@ import {
   getLeaveHistoryById,
   createLeaveHistory,
   deleteLeaveHistory,
-  createLeaveHistoryFunc,
-  compOffExpiry,
-  overallCompExpiration,
+  createLeaveHistoryFunc,  overallCompExpiration,
   updateValidTillDates,
+  overallCompExpirationFunct,
+  updateCompOffHistory,
 } from "../../controller/leaveHistory.controller.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
 
@@ -43,11 +43,6 @@ leaveHistoryRouter.post(
   },
 );
 
-leaveHistoryRouter.get(
-  "/comp-off-expiry",
-  // authenticateToken,
-  compOffExpiry,
-);
 
 
 leaveHistoryRouter.get(
@@ -57,12 +52,26 @@ leaveHistoryRouter.get(
 );
 
 
+leaveHistoryRouter.get(
+  "/six-month-comp-off-expiration",
+  // authenticateToken,
+ async (req,res)=>{
+    //
+  const expiry= await overallCompExpirationFunct();
 
+   return res.send(expiry);
+  },
+);
 leaveHistoryRouter.post(
   "/update-valid-till",
   // authenticateToken,
   updateValidTillDates,
 );
 
+leaveHistoryRouter.post(
+  "/update-comp-off-history",
+  // authenticateToken,
+  updateCompOffHistory,
+);
 
 export default leaveHistoryRouter;
