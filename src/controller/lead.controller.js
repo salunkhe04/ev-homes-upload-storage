@@ -10816,9 +10816,12 @@ export const getCpSalesFunnel = async (req, res, next) => {
       channelPartner: id,
       // callHistory: { $gte: 1 },
       followupStatus: { $eq: "followup" },
+      
     });
 
     const revisitedCount = await leadModelV2.countDocuments({
+            revisitStatus: "revisited",
+
       $expr: {
         $and: [
           { $gte: ["$revisitDate", "$startDate"] }, // visitDate >= startDate
@@ -10827,6 +10830,7 @@ export const getCpSalesFunnel = async (req, res, next) => {
       },
       leadType: { $ne: "walk-in" },
       channelPartner: id,
+      revisitRef:{$ne:null},
       validTill: { $gte: new Date() },
     });
 
