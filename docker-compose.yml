@@ -85,3 +85,24 @@ services:
       interval: 60s
       timeout: 10s
       retries: 3
+
+  ev-homes-worker:
+    build: .
+    container_name: ev_homes_worker
+    restart: unless-stopped
+    network_mode: host
+
+    env_file:
+      - .env
+
+    environment:
+      TZ: Asia/Kolkata
+      NODE_OPTIONS: "--max-old-space-size=2500"
+
+    command: node src/app/workers/worker.js
+
+    mem_limit: 4024m
+    cpus: "1.5"
+
+    security_opt:
+      - no-new-privileges:true
