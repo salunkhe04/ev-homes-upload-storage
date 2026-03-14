@@ -150,7 +150,7 @@ trackerRouter.get("/user/:userId/timeline", async (req, res) => {
     end: { $lte: end.toDate() },
   };
 
-  logger.info(statusToFInd);
+  // logger.info(statusToFInd);
   const rows = await timelineTracker
     .find(statusToFInd)
     .sort({ start: 1 })

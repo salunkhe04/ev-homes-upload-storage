@@ -28,10 +28,10 @@ export const sendNotification = async ({ playerIds = [], message }) => {
     const response = await axios.post(url, data, { headers });
     // logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    logger.info(
-      "Error sending notification:",
-      error.response?.data || error.message,
-    );
+    // logger.info(
+    //   "Error sending notification:",
+    //   error.response?.data || error.message,
+    // );
   }
 };
 
@@ -73,12 +73,12 @@ export const sendNotificationWithInfo = async ({
   // logger.info(notificationData);
   try {
     const response = await axios.post(url, notificationData, { headers });
-    logger.info("Notification sent successfully:", response.data);
+    // logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    logger.info(
-      "Error sending notification:",
-      error.response?.data || error.message,
-    );
+    // logger.info(
+    //   "Error sending notification:",
+    //   error.response?.data || error.message,
+    // );
   }
 };
 
@@ -125,12 +125,12 @@ export const sendNotificationWithImage = async ({
 
   try {
     const response = await axios.post(url, notificationData, { headers });
-    logger.info("Notification sent successfully:", response.data);
+    // logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    logger.info(
-      "Error sending notification:",
-      error.response?.data || error.message,
-    );
+    // logger.info(
+    //   "Error sending notification:",
+    //   error.response?.data || error.message,
+    // );
   }
 };
 
@@ -159,11 +159,11 @@ export const sendSilentNotification = async ({ playerIds, data }) => {
 
   try {
     const response = await axios.post(url, notificationData, { headers });
-    logger.info("Notification sent successfully:", response.data);
+    // logger.info("Notification sent successfully:", response.data);
   } catch (error) {
-    logger.info(
-      "Error sending notification:",
-      error.response?.data || error.message,
-    );
+    // logger.info(
+    //   "Error sending notification:",
+    //   error.response?.data || error.message,
+    // );
   }
 };

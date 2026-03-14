@@ -64,7 +64,7 @@ const worker = new Worker(
         approvalRemark,
       } = job.data;
 
-      logger.info("lead added xelo start", JSON.stringify(job.data));
+      // logger.info("lead added xelo start", JSON.stringify(job.data));
 
       const timeZone = "Asia/Kolkata";
       const baseTime = moment().tz(timeZone);
