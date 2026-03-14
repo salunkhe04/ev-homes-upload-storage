@@ -19,7 +19,7 @@ router.get("/health", (req, res) => {
 
 const limiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 300, // 200 requests per minute
+  max: 500, // 200 requests per minute
   standardHeaders: "draft-8",
   legacyHeaders: false,
 
