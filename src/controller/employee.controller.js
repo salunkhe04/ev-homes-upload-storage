@@ -64,7 +64,7 @@ export const getEmployees = async (req, res, next) => {
     const { status, desg } = req.query;
 
     let query = {
-      ...(status ? { status: status } : {status:"active"}),
+      ...(status ? { status: status } : { status: "active" }),
       ...(desg ? { designation: desg } : {}),
     };
 
@@ -671,7 +671,19 @@ export const getReportingTo = async (req, res, next) => {
     }
 
     const employees = await employeeModel
-      .find(filter)
+      .find(filter, {
+        email: 1,
+        profilePic: 1,
+        employeeId: 1,
+        firstName: 1,
+        middleName: 1,
+        lastName: 1,
+        department: 1,
+        designation: 1,
+        division: 1,
+        reportingTo: 1,
+        incentive: 1,
+      })
       // .select("firstName lastName profilePic employeeId phoneNumber email")
       .populate(employeePopulateOptions);
     // .populate({

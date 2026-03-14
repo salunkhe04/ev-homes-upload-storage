@@ -39,11 +39,7 @@ import logger from "../../utils/logger.js";
 
 const employeeRouter = Router();
 
-employeeRouter.get(
-  "/employee",
-  authenticateToken,
-  getEmployees,
-);
+employeeRouter.get("/employee", authenticateToken, getEmployees);
 
 employeeRouter.get("/employee-for-attendance", getEmployeesForAttendance);
 
@@ -63,7 +59,7 @@ employeeRouter.get(
 );
 employeeRouter.get(
   "/employee-reporting/:id",
-  authenticateToken,
+  // authenticateToken,
   getReportingTo,
 );
 
