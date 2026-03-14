@@ -1075,7 +1075,7 @@ export const addPostSaleLead = async (req, res, next) => {
     if (body.applicants == null || body.applicants?.length <= 0) {
       return res.send(errorRes(401, "Aplicant cant be empty"));
     }
-    logger.info(body);
+    // logger.info(body);
     const findProject = await ourProjectModel.findById(project);
 
     if (findProject) {
@@ -1668,15 +1668,14 @@ export const cancelBooking = async (req, res, next) => {
       //
       await FlatOccupancyChange({
         project: lead.project,
-        floor:lead.floor,
-        buildingNo:lead.buildingNo,
-        number:lead.number,
+        floor: lead.floor,
+        buildingNo: lead.buildingNo,
+        number: lead.number,
         occupied: false,
       });
     } catch (error) {
       //
       logger.info(error);
-
     }
 
     try {

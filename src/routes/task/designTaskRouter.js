@@ -1233,7 +1233,7 @@ designTaskRouter.post("/test-design-reminder", async (req, res, next) => {
   try {
     const now = new Date();
 
-    logger.info(now);
+    // logger.info(now);
     const tasks = await designTaskModel.find({
       reminderDate: { $lte: now },
     });
