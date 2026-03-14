@@ -2,6 +2,26 @@ import { RedisService } from "../app/redis";
 import leadModelV2 from "../model/lead/leadV2Model.js";
 import { leadPopulateOptions } from "./constant";
 
+/*
+---- need to re-validate cache ----
+add feedback,
+add cp,
+update cp,
+update lead,
+add site visit,
+add booking,
+cancel booking,
+assignTask,
+assignTaskMultiple,
+LinkdinUpdate,
+task Transfer,
+lead Transfer (trigger),
+edit feedback,
+reject lead,
+on approve TL,
+on cp note,
+on Inform cp,
+*/
 export const getLeadById = async ({ id, ignoreCache = false }) => {
   // 1. check from cached
   const cached = await RedisService.get(`lead_${id}`, true);
