@@ -2438,6 +2438,7 @@ export const getPaymentReport = async (req, res) => {
             unitNo: "$unitNo",
             floor: "$floor",
             carpetArea: "$carpetArea",
+            configuration: "$configuration",
 
             closingManager: {
               _id: "$closingManager._id",

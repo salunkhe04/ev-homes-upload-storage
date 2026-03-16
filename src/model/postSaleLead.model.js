@@ -397,12 +397,12 @@ export const postSaleLeadSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const postSaleLeadModel = mongoose.model(
   "postSaleLead",
   postSaleLeadSchema,
-  "postSaleLeads"
+  "postSaleLeads",
 );
 export default postSaleLeadModel;

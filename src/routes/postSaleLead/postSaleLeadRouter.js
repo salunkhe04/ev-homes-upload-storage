@@ -27,6 +27,7 @@ import employeeModel from "../../model/employee.model.js";
 import ourProjectModel from "../../model/ourProjects.model.js";
 import { postSalePopulateOptionsv2 } from "../../utils/constant.js";
 import logger from "../../utils/logger.js";
+import flatModel from "../../model/flat.model.js";
 
 const postSaleRouter = Router();
 postSaleRouter.get(
@@ -482,21 +483,32 @@ postSaleRouter.get("/postsale-fix-docs", async (req, res) => {
         //
         try {
           //
-          ele?.applicants?.forEach((apl) => {
-            const emptyAdhar = apl?.kyc?.addhar.document === "";
-            const emptyPan = apl?.kyc?.pan.document === "";
-            const emptyOther = apl?.kyc?.other.document === "";
-            if (emptyAdhar) {
-              apl.kyc.addhar.document = null;
-            }
-            if (emptyPan) {
-              apl.kyc.pan.document = null;
-            }
-            if (emptyOther) {
-              apl.kyc.other.document = null;
-            }
+          const foundflat = await flatModel.findOne({
+            project: ele.project,
+            flatNo: ele.unitNo,
+            buildingNo: ele.buildingNo,
+            floor: ele.floor,
           });
-          await ele.save();
+          if (foundflat?.configuration) {
+            //
+            ele.configuration = foundflat.configuration;
+            await ele.save();
+          }
+          // ele?.applicants?.forEach((apl) => {
+          //   const emptyAdhar = apl?.kyc?.addhar.document === "";
+          //   const emptyPan = apl?.kyc?.pan.document === "";
+          //   const emptyOther = apl?.kyc?.other.document === "";
+          //   if (emptyAdhar) {
+          //     apl.kyc.addhar.document = null;
+          //   }
+          //   if (emptyPan) {
+          //     apl.kyc.pan.document = null;
+          //   }
+          //   if (emptyOther) {
+          //     apl.kyc.other.document = null;
+          //   }
+          // });
+          // await ele.save();
         } catch (error) {
           logger.info(error);
           //
