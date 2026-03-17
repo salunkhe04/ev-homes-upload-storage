@@ -14,7 +14,23 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json({ limit: "2gb" }));
 app.use(express.urlencoded({ limit: "2gb", extended: true }));
+//
+app.use((req, res, next) => {
+  const startMem = process.memoryUsage().heapUsed;
 
+  res.on("finish", () => {
+    const endMem = process.memoryUsage().heapUsed;
+
+    logger.info(
+      `[${req.method}] ${req.url}`,
+      "mem diff:",
+      ((endMem - startMem) / 1024 / 1024).toFixed(2),
+      "MB",
+    );
+  });
+
+  next();
+});
 // app.use(async (req, res, next) => {
 //   const start = process.hrtime.bigint();
 //   res.on("finish", () => {
