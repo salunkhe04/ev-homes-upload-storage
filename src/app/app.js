@@ -22,10 +22,7 @@ app.use((req, res, next) => {
     const endMem = process.memoryUsage().heapUsed;
 
     logger.info(
-      `[${req.method}] ${req.url}`,
-      "mem diff:",
-      ((endMem - startMem) / 1024 / 1024).toFixed(2),
-      "MB",
+      `[${req.method}] ${req.url} | mem diff: ${((endMem - startMem) / 1024 / 1024).toFixed(2)} MB`,
     );
   });
 
