@@ -7,7 +7,12 @@ import employeeModel from "../model/employee.model.js";
 import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
 import oneSignalModel from "../model/oneSignal.model.js";
 import otpModel from "../model/otp.model.js";
-import { errorRes, successRes } from "../model/response.js";
+import {
+  errorRes,
+  errorRes2,
+  successRes,
+  successRes2,
+} from "../model/response.js";
 import shiftModel from "../model/attendance/shift/shift.model.js";
 import { forgotPasswordTemplete } from "../templates/html_template.js";
 import { sendEmail, sendMultipleEmail } from "../utils/brevo.js";
@@ -915,9 +920,9 @@ export const loginEmployee = async (req, res, next) => {
   const body = req.filteredBody;
   const { email, password } = body;
   try {
-    if (!body) return res.send(errorRes(403, "data is required"));
-    if (!email) return res.send(errorRes(403, "email is required"));
-    if (!password) return res.send(errorRes(403, "password is required"));
+    if (!body) return errorRes2(res, 403, "data is required");
+    if (!email) return errorRes2(res, 403, "email is required");
+    if (!password) return errorRes2(res, 403, "password is required");
 
     const employeeDb = await employeeModel
       .findOne({
@@ -928,17 +933,17 @@ export const loginEmployee = async (req, res, next) => {
     // .lean();
 
     if (!employeeDb) {
-      return res.send(errorRes(400, errorMessage.EMP_EMAIL_NOT_EXIST));
+      return errorRes2(res, 400, errorMessage.EMP_EMAIL_NOT_EXIST);
     }
 
     if (employeeDb.status != "active") {
-      return res.send(errorRes(401, "This account is no longer active."));
+      return errorRes2(res, 401, "This account is no longer active.");
     }
 
     const hashPass = await comparePassword(password, employeeDb.password);
 
     if (!hashPass) {
-      return res.send(errorRes(400, errorMessage.INVALID_PASS));
+      return errorRes2(res, 400, errorMessage.INVALID_PASS);
     }
 
     const { password: dbPassword, ...userWithoutPassword } = employeeDb._doc;
@@ -981,17 +986,15 @@ export const loginEmployee = async (req, res, next) => {
       });
     }
 
-    return res.send(
-      successRes(200, errorMessage.EMP_LOGIN_SUCCESS, {
-        data: userWithoutPassword,
-        accessToken,
-        refreshToken,
-      }),
-    );
+    return successRes2(res, 200, errorMessage.EMP_LOGIN_SUCCESS, {
+      data: userWithoutPassword,
+      accessToken,
+      refreshToken,
+    });
   } catch (error) {
     logger.info(error);
 
-    return next(error);
+    return errorRes2(res, 500, `${error?.message ?? error} `);
   }
 };
 
@@ -999,9 +1002,9 @@ export const reAuthEmployee = async (req, res, next) => {
   const body = req.body;
   const { email, password } = body;
   try {
-    if (!body) return res.send(errorRes(403, "data is required"));
-    if (!email) return res.send(errorRes(403, "email is required"));
-    if (!password) return res.send(errorRes(403, "password is required"));
+    if (!body) return errorRes2(res, 403, "data is required");
+    if (!email) return errorRes2(res, 403, "email is required");
+    if (!password) return errorRes2(res, 403, "password is required");
 
     const employeeDb = await employeeModel
       .findOne({
@@ -1010,24 +1013,22 @@ export const reAuthEmployee = async (req, res, next) => {
       .lean();
 
     if (!employeeDb) {
-      return res.send(errorRes(400, errorMessage.EMP_NOT_FOUND));
+      return errorRes2(res, 400, errorMessage.EMP_NOT_FOUND);
     }
 
     const hashPass = await comparePassword(password, employeeDb.password);
 
     if (!hashPass) {
-      return res.send(errorRes(401, errorMessage.INVALID_PASS));
+      return errorRes2(res, 401, errorMessage.INVALID_PASS);
     }
 
-    return res.send(
-      successRes(200, "You have been successfully authenticated", {
-        data: true,
-      }),
-    );
+    return successRes2(res, 200, "You have been successfully authenticated", {
+      data: true,
+    });
   } catch (error) {
     logger.info(error);
 
-    return next(error);
+    return errorRes2(res, 500, `${error?.message ?? error}`);
   }
 };
 
