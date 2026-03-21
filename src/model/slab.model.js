@@ -9,6 +9,7 @@ const slabSchema = new mongoose.Schema({
   completed: { type: Boolean, default: false },
   completedOn: { type: Date, default: null },
   architectCertificate: { type: String, default: null },
+  buildingNo: { type: Number, default: null },
 });
 
 export const slabInfoSchema = new mongoose.Schema(
@@ -17,9 +18,10 @@ export const slabInfoSchema = new mongoose.Schema(
     project: { type: String, ref: "ourProjects", required: true },
     // address: { type: String, default: "" },
     currentSlab: { type: String, default: null },
+
     slabs: [slabSchema],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const slabModel = mongoose.model("slab", slabInfoSchema, "slabs");
