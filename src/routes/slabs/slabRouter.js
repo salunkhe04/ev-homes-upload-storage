@@ -204,8 +204,8 @@ slabRouter.post("/update-building-number/:id", async (req, res) => {
     const resp = await slabModel.findById(idResp);
 
     resp.slabs.forEach((row) => {
-      if (row.buildingNo==null) {
-        row["buildingNo"] =1;
+      if (row.buildingNo==2) {
+        row.index +=1;
         // row.buildingNo = null;
       }
     });
