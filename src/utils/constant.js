@@ -1170,7 +1170,7 @@ export const leaveHistoryPopulateOptions = [
 ];
 
 export const postSalePopulateOptions = [
-  { path: "project", select: "name shortCode" },
+  { path: "project", select: "name shortCode businessAccount govAccount address" },
   {
     path: "closingManager",
     select: "firstName lastName",
