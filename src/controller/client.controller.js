@@ -873,3 +873,24 @@ export const getClientDemand = async (req, res, next) => {
     return res.status(500).json(errorRes(500, "Internal server error"));
   }
 };
+
+export const getBookingForClientMul = async (req, res, next) => {
+  const id = req.params.id;
+  try {
+    const resp = await postSaleLeadModel
+      .find({ phoneNumber: id })
+      .populate(postSalePopulateOptionsv2);
+    if (!resp) errorRes2(res, 400, "Booking not found");
+
+    // logger.info(resp);
+    return successRes2(res, 200, "Booking details for client", {
+      data: resp,
+    });
+    //
+  } catch (error) {
+    //
+    logger.info(error);
+
+    return res.send(errorRes(500, "Internal server error"));
+  }
+};
