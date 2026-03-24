@@ -16,6 +16,7 @@ import {
   getClientReAuth,
   getBookingForClient,
   getClientDemand,
+  getBookingForClientMul,
 } from "../../controller/client.controller.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
 import { validateClientFields } from "../../middleware/client.middleware.js";
@@ -61,5 +62,8 @@ clientRouter.post("/client-duplicate", authenticateToken, duplicateClients);
 clientRouter.post("/validate-client-session", getClientReAuth);
 clientRouter.get("/client-booking-data/:id", getBookingForClient); // single data
 clientRouter.get("/client-demand-data/:id", getClientDemand);
+clientRouter.get("/client-multiple-booking/:id", getBookingForClientMul);
+
+
 
 export default clientRouter;

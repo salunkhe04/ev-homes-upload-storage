@@ -15,7 +15,7 @@ const demandRouter = Router();
 demandRouter.get("/demand", authenticateToken, getDemand);
 demandRouter.get(
   "/get-demand-by-booking/:booking",
-  authenticateToken,
+  // authenticateToken,
   getDemandBybooking
 );
 demandRouter.get(
