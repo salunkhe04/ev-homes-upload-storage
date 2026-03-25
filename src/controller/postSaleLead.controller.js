@@ -1619,8 +1619,7 @@ export const cancelBooking = async (req, res, next) => {
 
     // Find the lead to get the associated flat details
     const lead = await postSaleLeadModel
-      .findById(id)
-      .populate(postSalePopulateOptions);
+      .findById(id);
 
     if (!lead) return res.send(errorRes(404, "Lead not found"));
 
@@ -1648,20 +1647,20 @@ export const cancelBooking = async (req, res, next) => {
     }
 
     // Update the flat status to "unoccupied"
-    try {
-      const flatUpdateSuccess = await updateFlatInfoByIdFlatNo({
-        projectId: lead.project._id,
-        floor: lead.floor,
-        number: lead.number,
-        buildingNo: lead.buildingNo,
-        updates: {
-          occupied: false,
-        },
-      });
-    } catch (error) {
-      //
-      logger.info(error);
-    }
+    // try {
+    //   const flatUpdateSuccess = await updateFlatInfoByIdFlatNo({
+    //     projectId: lead.project._id,
+    //     floor: lead.floor,
+    //     number: lead.number,
+    //     buildingNo: lead.buildingNo,
+    //     updates: {
+    //       occupied: false,
+    //     },
+    //   });
+    // } catch (error) {
+    //   //
+    //   logger.info(error);
+    // }
 
     // new flat update
     try {
