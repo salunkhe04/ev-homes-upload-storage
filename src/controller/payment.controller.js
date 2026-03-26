@@ -81,9 +81,10 @@ export const addPayment = async (req, res) => {
     tds,
     cgst,
     amountRemark,
+    addedBy,
   } = body;
 
-  const addedBy = req.user._id;
+  const add = addedBy ?? req.user._id;
   // logger.info(body);
 
   try {
@@ -91,7 +92,7 @@ export const addPayment = async (req, res) => {
     //   if (!department) return res.send(errorRes(403, "department is required"));
     const newPayment = await paymentModel.create({
       ...body,
-      addedBy: addedBy,
+      addedBy: add,
     });
     await newPayment.save();
     const respP = await paymentModel
@@ -583,6 +584,44 @@ export const getPaymentsByProj = async (req, res) => {
     );
   } catch (error) {
     logger.info(error);
+    return res.send(errorRes(500, error));
+  }
+};
+
+export const updatePayment = async (req, res) => {
+  const body = req.body;
+  const id = req.params.id;
+  const {
+    paymentType,
+    amountRemark,
+
+    slab,
+    transactionId,
+    receiptNo,
+    paymentMode,
+    tds,
+    cgst,
+    bookingAmt,
+    date,
+  } = body;
+  try {
+    if (!id) return res.send(errorRes(403, "id is required"));
+    const updatedPayment = await paymentModel.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          ...body,
+        },
+      },
+      { upsert: true },
+    );
+
+    return res.send(
+      successRes(200, ` updated successfully: `, {
+        data: updatedPayment,
+      }),
+    );
+  } catch (error) {
     return res.send(errorRes(500, error));
   }
 };
