@@ -11,6 +11,7 @@ import {
   getPaymentsbyFlatNoAndProject,
   getPaymentsByProj,
   updateCheckDates,
+  updatePayment,
   updatePaymentAtDemand,
   updatePaymentTypesForSorting,
 } from "../../controller/payment.controller.js";
@@ -32,46 +33,52 @@ paymentRouter.post("/payment-add", authenticateToken, addPayment);
 paymentRouter.post(
   "/payment-add-at-demand",
   authenticateToken,
-  addPaymentAtDemand
+  addPaymentAtDemand,
 );
 paymentRouter.post(
   "/update-payment-add-at-demand/:id",
   authenticateToken,
-  updatePaymentAtDemand
+  updatePaymentAtDemand,
 );
 paymentRouter.post(
   "/delete-payment-at-demand/:id",
   authenticateToken,
-  deletePaymentAtDemand
+  deletePaymentAtDemand,
 );
 paymentRouter.post(
   "/update-cheque-date/:id",
   authenticateToken,
-  updateCheckDates
+  updateCheckDates,
 );
 paymentRouter.get("/get-payment-by-flat", authenticateToken, getPaymentbyFlat);
 paymentRouter.get(
   "/get-payment-by-flat-project",
   authenticateToken,
-  getPaymentsbyFlatNoAndProject
+  getPaymentsbyFlatNoAndProject,
 );
 
 paymentRouter.get(
   "/get-payment-by-flat-building-project",
   authenticateToken,
-  getPaymentsbyFlatBuildingNoAndProject
+  getPaymentsbyFlatBuildingNoAndProject,
 );
 
 paymentRouter.delete(
   "/delete-payment/:id",
   // authenticateToken,
-  deletePaymentById
+  deletePaymentById,
 );
 
 paymentRouter.get(
   "/payment-by-project",
   // authenticateToken,
-  getPaymentsByProj
+  getPaymentsByProj,
+);
+
+paymentRouter.post(
+  "/update-payment/:id",
+  // authenticateToken,
+  updatePayment,
 );
 
 const monthMap = {
@@ -342,7 +349,7 @@ paymentRouter.get(
         message: "Failed to generate sales report",
       });
     }
-  }
+  },
 );
 
 function extractNumber(str) {

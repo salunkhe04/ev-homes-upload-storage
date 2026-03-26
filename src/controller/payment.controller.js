@@ -587,3 +587,41 @@ export const getPaymentsByProj = async (req, res) => {
     return res.send(errorRes(500, error));
   }
 };
+
+export const updatePayment = async (req, res) => {
+  const body = req.body;
+  const id = req.params.id;
+  const {
+    paymentType,
+    amountRemark,
+
+    slab,
+    transactionId,
+    receiptNo,
+    paymentMode,
+    tds,
+    cgst,
+    bookingAmt,
+    date,
+  } = body;
+  try {
+    if (!id) return res.send(errorRes(403, "id is required"));
+    const updatedPayment = await paymentModel.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          ...body,
+        },
+      },
+      { upsert: true },
+    );
+
+    return res.send(
+      successRes(200, ` updated successfully: `, {
+        data: updatedPayment,
+      }),
+    );
+  } catch (error) {
+    return res.send(errorRes(500, error));
+  }
+};
