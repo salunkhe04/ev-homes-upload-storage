@@ -83,6 +83,7 @@ export const addPayment = async (req, res) => {
     amountRemark,
   } = body;
 
+  const addedBy = req.user._id;
   // logger.info(body);
 
   try {
@@ -90,6 +91,7 @@ export const addPayment = async (req, res) => {
     //   if (!department) return res.send(errorRes(403, "department is required"));
     const newPayment = await paymentModel.create({
       ...body,
+      addedBy: addedBy,
     });
     await newPayment.save();
     const respP = await paymentModel

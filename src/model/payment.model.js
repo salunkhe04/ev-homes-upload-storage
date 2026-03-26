@@ -110,9 +110,10 @@ export const paymentSchema = new mongoose.Schema(
     chequeRedeposit: { type: Date, default: null },
     cgst: { type: Number, default: 0 },
     amountRemark: { type: String, default: null },
-
+    addedBy: { type: String, default: null },
+    
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const paymentModel = mongoose.model("payments", paymentSchema, "payments");
