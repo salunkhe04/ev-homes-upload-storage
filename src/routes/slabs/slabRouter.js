@@ -202,20 +202,33 @@ slabRouter.post("/update-building-number/:id", async (req, res) => {
     if (!idResp) return res.send(errorRes(400, "id required"));
 
     const resp = await slabModel.findById(idResp);
-
-    resp.slabs.forEach((row) => {
-      if (row.buildingNo==2) {
-        row.index +=1;
-        // row.buildingNo = null;
-      }
+    const slabsData = resp.slabs.map((e) => {
+      e.buildingNo = 3;
+      e.id = `${resp.project}-3-${e.index}-${e.name?.replace(
+        /\s+/g,
+        "-",
+      )}`.toLowerCase();
+      return e;
     });
-    resp.markModified("slabs"); // ✅ important
+    await slabModel.findByIdAndUpdate(idResp, {
+      $addToSet: {
+        slabs: slabsData,
+      },
+    });
+    // resp.slabs.forEach((row) => {
+    //   row.buildingNo = 1;
+    //   // if (row.buildingNo) {
+    //   //   row.index +=1;
+    //   //   // row.buildingNo = null;
+    //   // }
+    // });
+    // resp.markModified("slabs"); // ✅ important
 
-    await resp.save();
+    // await resp.save();
 
     return res.send(
       successRes(200, `updated Succesffully`, {
-        data: resp,
+        data: slabsData,
       }),
     );
   } catch (error) {
