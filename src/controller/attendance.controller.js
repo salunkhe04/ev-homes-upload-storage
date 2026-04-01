@@ -549,9 +549,7 @@ export const checkOut = async (req, res) => {
       // logger.info("completed min hours");
 
       attendance.status = "present";
-      if (
-        attendance.wlStatus === "weekoff" 
-      ) {
+      if (attendance.wlStatus === "weekoff") {
         myLeaves.compensatoryoff += 1;
         await myLeaves.save();
         await createLeaveHistoryFunc({
@@ -579,7 +577,7 @@ export const checkOut = async (req, res) => {
         });
       } else if (
         attendance.wlStatus === "on-paid-leave" ||
-        attendance.wlStatus === "on-casual-leave"||
+        attendance.wlStatus === "on-casual-leave" ||
         attendance.wlStatus === "on-compensation-off-leave"
       ) {
         myLeaves.compensatoryoff += 1;
@@ -778,9 +776,8 @@ export const checkOutV2 = async (req, res) => {
         });
       } else if (
         attendance.wlStatus === "on-paid-leave" ||
-        attendance.wlStatus === "on-casual-leave"||
+        attendance.wlStatus === "on-casual-leave" ||
         attendance.wlStatus === "on-compensation-off-leave"
-        
       ) {
         myLeaves.compensatoryoff += 1;
         await myLeaves.save();
@@ -2066,7 +2063,8 @@ export const getAttendanceOverview = async (req, res) => {
     }
 
     const requiredDays = totalDays - holiday - minWeekoff - leave;
-const reqWorkHours = Math.ceil(requiredDays * minWorkHours);    if (activeHours > reqWorkHours) {
+    const reqWorkHours = Math.ceil(requiredDays * minWorkHours);
+    if (activeHours > reqWorkHours) {
       //
       ot = activeHours - reqWorkHours;
     }
@@ -3241,7 +3239,8 @@ export const exportAttendance3 = async (req, res) => {
       return res.json({ message: "No attendance records found." });
 
     const shiftInfoList = await shiftInfoModel
-      .find({ })
+      .find({
+      })
       .populate(employeeShiftInfoPopulateOptions)
       .lean();
 
@@ -3416,10 +3415,7 @@ export const exportAttendance3 = async (req, res) => {
 
     // ---------- Populate Employee Data ----------
     const filteredShifts = shiftInfoList.filter(
-      (ele) =>
-        ele?.userId?.status === "active" &&
-        ele?.shift &&
-        ele?.userId?.department._id != "dept-it",
+      (ele) => ele?.userId?.status === "active" && ele?.shift,
     );
 
     filteredShifts.forEach((shiftInfo, idx) => {
@@ -3478,7 +3474,10 @@ export const exportAttendance3 = async (req, res) => {
         } else if (ele.status === "holiday" || ele.wlStatus === "holiday") {
           holiDays++;
         } else if (ele.status === "absent") {
-          if (date.day() === 0 &&shiftInfo?.userId?.department?._id === "dept-it") {
+          if (
+            date.day() === 0 &&
+            shiftInfo?.userId?.department?._id === "dept-it"
+          ) {
             //
             weekoffDays++;
           } else {
@@ -3526,25 +3525,33 @@ export const exportAttendance3 = async (req, res) => {
         shiftInfo,
         attendanceList: attList,
       });
-      payableDays =
-         attOverview.activeHours / shiftInfo.shift.workingHours;
-      logger.info(`${shiftInfo.userId.firstName} ${payableDays}`,);
 
-      if (weekoffDays >= 4) {
-        const ok= attOverview.weekoff>=attOverview.minWeekoff?attOverview.weekoff:attOverview.minWeekoff;
-        payableDays += weekoffDays;
-      }
-      if (presentOnweekoffDays > 0) {
-        payableDays += presentOnweekoffDays;
-      }
-      if (onLeaveDays > 0) {
-        payableDays += onLeaveDays;
-      }
-      if (holiDays > 0) {
-        payableDays += holiDays;
-      // logger.info(`here ${shiftInfo.userId.firstName} ${payableDays}`,  );
+      const calculatedDays= attOverview.requiredHours - attOverview.activeHours;
+      let remainingDays=calculatedDays<=0?0: calculatedDays/ 9 ;
 
-      }
+      payableDays = daysInMonth- remainingDays;
+      logger.info(`${shiftInfo.userId.firstName} ${payableDays}`);
+
+      // if (weekoffDays >= 4) {
+      //   const ok =
+      //     attOverview.weekoff >= attOverview.minWeekoff
+      //       ? attOverview.weekoff
+      //       : attOverview.minWeekoff;
+      //   payableDays += weekoffDays;
+      //   logger.info(`wo ${shiftInfo.userId.firstName} ${payableDays}`);
+      // }
+      // if (presentOnweekoffDays > 0) {
+      //   payableDays += presentOnweekoffDays;
+      //   logger.info(`pwo ${shiftInfo.userId.firstName} ${payableDays}`);
+      // }
+      // if (onLeaveDays > 0) {
+      //   payableDays += onLeaveDays;
+      //   logger.info(`onL ${shiftInfo.userId.firstName} ${payableDays}`);
+      // }
+      // if (holiDays > 0) {
+      //   payableDays += holiDays;
+      //   logger.info(`hol ${shiftInfo.userId.firstName} ${payableDays}`);
+      // }
       // if (halfDays > 0) {
       //   payableDays += halfDays;
       // // }
@@ -3554,20 +3561,18 @@ export const exportAttendance3 = async (req, res) => {
       // logger.info(`holiDays ${shiftInfo.userId.firstName} ${holiDays}`,  );
       // logger.info(`presentOnweekoffDays ${shiftInfo.userId.firstName} ${presentOnweekoffDays}`,  );
 
-
-
-      if ((weekoffDays-presentOnweekoffDays) < 4 ) {
-        //TODO: fixes absent if not weekoff
-                const ok= attOverview.minWeekoff;
-        payableDays += ok;
-
-      }
+      // if (weekoffDays - presentOnweekoffDays < 4) {
+      //   //TODO: fixes absent if not weekoff
+      //   const ok = attOverview.minWeekoff;
+      //   payableDays += ok;
+      //   logger.info(`$next wo ${payableDays}`);
+      // }
       if (weekoffDays < 4) {
         //
         totalComps += 4 - weekoffDays;
       }
       payableDays = roundToHalf(payableDays);
-      logger.info(`${shiftInfo.userId.firstName} ${payableDays}`, );
+      logger.info(`${shiftInfo.userId.firstName} ${payableDays}`);
 
       let abs = daysInMonth - payableDays;
       absentDays = roundToHalf(abs < 0 ? 0 : abs);
