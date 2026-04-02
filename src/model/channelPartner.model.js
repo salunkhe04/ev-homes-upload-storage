@@ -95,13 +95,17 @@ export const channelPartnerSchema = new mongoose.Schema(
     brevoId: {
       type: Number,
     },
+    reraExpiry: {
+      type: Date,
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const cpModel = mongoose.model(
   "channelPartners",
   channelPartnerSchema,
-  "channelPartners"
+  "channelPartners",
 );
 export default cpModel;
