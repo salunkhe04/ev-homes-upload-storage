@@ -7,6 +7,7 @@ import {
   getApplyLeave,
   onRejectOrApproveLeave,
   deleteLeaveRequest,
+  multipleRejectApproveLeave,
 } from "../../controller/leaveRequest.controller.js";
 import { authenticateToken } from "../../middleware/auth.middleware.js";
 const leaveRequestRouter = Router();
@@ -36,4 +37,12 @@ leaveRequestRouter.delete(
   authenticateToken,
   deleteLeaveRequest
 );
+
+
+leaveRequestRouter.post(
+  "/multiple-leave-requests/:status",
+  // authenticateToken,
+  multipleRejectApproveLeave
+);
+
 export default leaveRequestRouter;

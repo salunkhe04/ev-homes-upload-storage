@@ -1,6 +1,11 @@
 import leaveRequestModel from "../model/attendance/leave/leaveRequest.model.js";
 import employeeModel from "../model/employee.model.js";
-import { errorRes, successRes, successRes2 } from "../model/response.js";
+import {
+  errorRes,
+  errorRes2,
+  successRes,
+  successRes2,
+} from "../model/response.js";
 import moment from "moment-timezone";
 import attendanceModel from "../model/attendance/attendance.model.js";
 import { leaveRequestPopulateOptions } from "../utils/constant.js";
@@ -56,12 +61,10 @@ export const getApplyLeave = async (req, res, next) => {
 
     let filter = {
       "approvalSteps.adminId": id,
-      ...(leaveStatus ? { leaveStatus:leaveStatus } : {}),
+      ...(leaveStatus ? { leaveStatus: leaveStatus } : {}),
       ...(startDate ? { startDate: { $gte: start } } : {}),
       ...(endDate ? { endDate: { $lte: end } } : {}),
     };
-
-
 
     const resp = await leaveRequestModel
       .find(filter)
@@ -711,5 +714,208 @@ export const deleteLeaveRequest = async (req, res) => {
     logger.info(error);
 
     return res.send(errorRes(500, `Server error: ${error?.message}`));
+  }
+};
+
+export const multipleRejectApproveLeave = async (req, res, next) => {
+  try {
+    const { status } = req.params;
+    const { ids, adminId, reason, remark } = req.body;
+
+    if (!ids || !Array.isArray(ids)) {
+      return errorRes2(res, 401, "ids array required");
+    }
+
+    const results = [];
+
+    for (const id of ids) {
+      try {
+        const leaveResp = await leaveRequestModel
+          .findById(id)
+          .populate(leaveRequestPopulateOptions);
+
+        if (!leaveResp) {
+          results.push({ id, success: false, message: "leave resp not found" });
+          continue;
+        }
+
+        const step = leaveResp.approvalSteps.find(
+          (s) =>
+            s.adminId?._id?.toString() === adminId && s.status === "pending",
+        );
+
+        if (!step) {
+          results.push({
+            id,
+            success: false,
+            message: "No pending approval",
+          });
+          continue;
+        }
+
+        step.status = status;
+        step.approvalDate = new Date();
+        step.reason = reason;
+        step.remark = remark;
+
+        if (status === "approved") {
+          let nextStep = leaveResp.approvalSteps.find(
+            (s) => s.level === step.level + 1,
+          );
+
+          while (nextStep && nextStep?.adminId?._id.toString() === adminId) {
+            nextStep.status = "approved";
+            nextStep.approvalDate = new Date();
+            nextStep.reason = "Auto-approved (same admin)";
+            nextStep.remark = remark;
+            leaveResp.currentLevel = nextStep.level;
+
+            nextStep = leaveResp.approvalSteps.find(
+              (s) => s.level === leaveResp.currentLevel + 1,
+            );
+          }
+
+          const allStepsApproved = leaveResp.approvalSteps.every(
+            (step) => step.status?.toLowerCase() === "approved",
+          );
+
+          if (allStepsApproved) {
+            const dates = [];
+            let currentDate = moment(leaveResp.startDate);
+
+            while (currentDate <= moment(leaveResp.endDate)) {
+              dates.push({
+                day: currentDate.date(),
+                month: currentDate.month() + 1,
+                year: currentDate.year(),
+                status: leaveResp.leaveType?._id,
+                wlStatus: leaveResp?.leaveType,
+                userId: leaveResp.applicant?._id,
+              });
+              currentDate.add(1, "days");
+            }
+
+            try {
+              const duration = leaveResp.dayType === "full-day" ? 1 : 0.5;
+
+              await Promise.all(
+                dates.map(async (att) => {
+                  await attendanceModel.updateOne(
+                    {
+                      day: att.day,
+                      month: att.month,
+                      year: att.year,
+                      userId: att.userId,
+                    },
+                    {
+                      $set: {
+                        status: leaveResp.leaveType?._id,
+                        wlStatus: leaveResp.leaveType?._id,
+                        leaveDuration: duration,
+                      },
+                    },
+                    { upsert: true },
+                  );
+                }),
+              );
+            } catch (error) {
+              logger.info(error);
+            }
+
+            const dta = await oneSignalModel.find({
+              $or: [{ docId: leaveResp.applicant?._id }],
+            });
+
+            let playerIds = dta.map((ele) => ele.playerId);
+
+            await sendNotificationWithImage({
+              playerIds: [...playerIds],
+              title: "Leave Approved",
+              message: `Leave approved by ${
+                leaveResp.reportingTo?.firstName ?? ""
+              } ${leaveResp.reportingTo?.lastName ?? ""}`,
+              imageUrl:
+                "https://uknowva.com/images/aashna/leave-management.png",
+              data: {
+                type: "leave-request",
+                id: id,
+              },
+            });
+          }
+
+          if (nextStep && nextStep.adminId.toString() != adminId) {
+            leaveResp.currentLevel = nextStep.level;
+          }
+
+          if (!nextStep) {
+            leaveResp.leaveStatus = "approved";
+            leaveResp.approveReason = reason;
+          }
+        } else if (status === "rejected") {
+          leaveResp.leaveStatus = "rejected";
+
+          const leaveFrom = moment(leaveResp.startDate).format("DD MMM YYYY");
+          const leaveTo = moment(leaveResp.endDate).format("DD MMM YYYY");
+
+          const info = await shiftInfoModel.findOne({
+            userId: leaveResp.applicant?._id,
+          });
+
+          if (info) {
+            let reverseUpdate = {};
+
+            if (leaveResp.leaveType?._id === "on-paid-leave") {
+              reverseUpdate = {
+                paidLeave: info.paidLeave + leaveResp.numberOfDays,
+              };
+            } else if (leaveResp.leaveType?._id === "on-casual-leave") {
+              reverseUpdate = {
+                casualLeave: info.casualLeave + leaveResp.numberOfDays,
+              };
+            } else if (
+              leaveResp.leaveType?._id === "on-compensation-off-leave"
+            ) {
+              reverseUpdate = {
+                compensatoryoff: info.compensatoryoff + leaveResp.numberOfDays,
+              };
+            }
+
+            await shiftInfoModel.findByIdAndUpdate(info._id, {
+              $set: reverseUpdate,
+            });
+          }
+
+          await leaveHistoryModel.findOneAndDelete({
+            leave: leaveResp._id,
+            userId: leaveResp.applicant?._id,
+            type: "used",
+          });
+
+          await createLeaveHistoryFunc({
+            date: new Date(),
+            description: `Auto-reverse leave (${leaveFrom} - ${leaveTo})`,
+            count: leaveResp.numberOfDays,
+            userId: leaveResp.applicant,
+            type: "deposit",
+            leaveType: leaveResp.leaveType,
+            leave: leaveResp._id,
+          });
+        }
+
+        await leaveResp.save();
+
+        results.push({ id, success: true });
+      } catch (err) {
+        results.push({ id, success: false, message: err.message });
+      }
+    }
+
+    return successRes2(res, 200, `Multiple Leave request done`, {
+      data:true
+    });
+  } catch (error) {
+    logger.info(`Error approving leave:`, error);
+
+    return errorRes2(res, 500, error.message);
   }
 };
