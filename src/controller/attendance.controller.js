@@ -3239,8 +3239,7 @@ export const exportAttendance3 = async (req, res) => {
       return res.json({ message: "No attendance records found." });
 
     const shiftInfoList = await shiftInfoModel
-      .find({
-      })
+      .find({})
       .populate(employeeShiftInfoPopulateOptions)
       .lean();
 
@@ -3414,9 +3413,21 @@ export const exportAttendance3 = async (req, res) => {
     );
 
     // ---------- Populate Employee Data ----------
-    const filteredShifts = shiftInfoList.filter(
-      (ele) => ele?.userId?.status === "active" && ele?.shift,
-    );
+    const filteredShifts = shiftInfoList
+      .filter((ele) => ele?.userId?.status === "active" && ele?.shift)
+      .sort((a, b) => {
+        if (
+          a.userId?.department?._id === "dept-it" &&
+          b.userId?.department?._id !== "dept-it"
+        )
+          return -1;
+        if (
+          a.userId?.department?._id !== "dept-it" &&
+          b.userId?.department?._id === "dept-it"
+        )
+          return 1;
+        return 0;
+      });
 
     filteredShifts.forEach((shiftInfo, idx) => {
       let payableDays = 0;
@@ -3526,10 +3537,11 @@ export const exportAttendance3 = async (req, res) => {
         attendanceList: attList,
       });
 
-      const calculatedDays= attOverview.requiredHours - attOverview.activeHours;
-      let remainingDays=calculatedDays<=0?0: calculatedDays/ 9 ;
+      const calculatedDays =
+        attOverview.requiredHours - attOverview.activeHours;
+      let remainingDays = calculatedDays <= 0 ? 0 : calculatedDays / 9;
 
-      payableDays = daysInMonth- remainingDays;
+      payableDays = daysInMonth - remainingDays;
       logger.info(`${shiftInfo.userId.firstName} ${payableDays}`);
 
       // if (weekoffDays >= 4) {
