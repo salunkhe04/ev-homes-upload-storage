@@ -1372,6 +1372,8 @@ export const cpOnboardingUpdate = async (req, res, next) => {
   try {
     if (!id) return res.send(errorRes(403, "id is required"));
     if (!body) return res.send(errorRes(403, "valid data is required"));
+    if (!body.reraExpiry) return res.send(errorRes(403, "valid rera date is required"));
+
     // logger.info(body);
     const respCP = await cpModel.findById(id);
 
