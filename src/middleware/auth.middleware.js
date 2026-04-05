@@ -21,7 +21,8 @@ export const authenticateToken = async (req, res, next) => {
     const refreshToken =
       req.headers["x-refresh-token"]?.split(" ")[1] ?? refreshTokenCoockie;
     const clientIsWeb = req.headers["x-platform"];
-
+    console.log(`acces ${accessToken}`);
+    console.log(`refresh ${refreshToken}`);
     if (!accessToken) {
       if (!refreshToken) {
         res.setHeader("x-force-logout", `force-logout`);
@@ -156,7 +157,7 @@ export const authenticateToken = async (req, res, next) => {
           .lean();
 
         if (!user) {
-          return errorRes2(res, 401, "Channel Partner not found");
+          return errorRes2(res, 401, "employee not found");
         }
         if (user.status != "active") {
           res.setHeader("x-force-logout", `force-logout`);
@@ -169,7 +170,7 @@ export const authenticateToken = async (req, res, next) => {
         if (!user) {
           res.setHeader("x-force-logout", `force-logout`);
 
-          return errorRes2(res, 401, "Channel Partner not found");
+          return errorRes2(res, 401, "client not found");
         }
       }
 
