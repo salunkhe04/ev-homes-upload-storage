@@ -454,12 +454,18 @@ export const getEmployeeReAuth = async (req, res, next) => {
   try {
     const accessTokenCoockie = req.cookies.accessToken;
     const refreshTokenCoockie = req.cookies.refreshToken;
+    const accessHeader = req.headers["authorization"]?.split(" ")[1];
+    const refreshHeader = req.headers["x-refresh-token"]?.split(" ")[1];
 
-    const accessToken =
-      req.headers["authorization"]?.split(" ")[1] ?? accessTokenCoockie;
-    const refreshToken =
-      req.headers["x-refresh-token"]?.split(" ")[1] ?? refreshTokenCoockie;
+    const accessToken = accessHeader ?? accessTokenCoockie;
+    const refreshToken = refreshHeader ?? refreshTokenCoockie;
     const clientIsWeb = req.headers["x-platform"];
+
+    // console.log(`acces web ${accessTokenCoockie}`);
+    // console.log(`refresh web ${refreshTokenCoockie}`);
+
+    // console.log(`acces ${accessHeader}`);
+    // console.log(`refresh ${refreshHeader}`);
 
     if (!accessToken) {
       res.setHeader("x-force-logout", `force-logout`);
@@ -604,8 +610,7 @@ export const getEmployeeReAuth = async (req, res, next) => {
 
           return successRes2(res, 200, "Token refreshed", {
             data: user,
-            refreshToken:
-              timeLeft < 24 * 60 * 60 ? newRefreshToken : undefined, // Include new token if generated
+            refreshToken: timeLeft < 24 * 60 * 60 ? newRefreshToken : undefined, // Include new token if generated
           });
         } catch (refreshError) {
           // logger.info(refreshError);
@@ -997,13 +1002,13 @@ export const loginEmployee = async (req, res, next) => {
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
+        // sameSite: "Strict",
         maxAge: 15 * 60 * 1000,
       });
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
+        // sameSite: "Strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
     }

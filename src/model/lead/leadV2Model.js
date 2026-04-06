@@ -54,7 +54,7 @@ const cycleSchema = new mongoose.Schema(
   {
     ...cycle,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const approvalSchema = new mongoose.Schema({
@@ -148,7 +148,7 @@ const callHistorySchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const channelPartnerHistory = new mongoose.Schema(
@@ -175,7 +175,7 @@ const channelPartnerHistory = new mongoose.Schema(
     },
     approval: approvalSchema,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const lostSchema = new mongoose.Schema({
@@ -270,10 +270,6 @@ export const leadSchema = new mongoose.Schema(
     visitStatus: {
       type: String,
       default: "pending",
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
     },
 
     firstVisit: {
@@ -452,8 +448,25 @@ export const leadSchema = new mongoose.Schema(
       default: null,
       enum: ["exhibition-2025"],
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    disabledDate: {
+      type: Date,
+      default: null,
+    },
+    disabledRemark: {
+      type: String,
+      default: null,
+    },
+    clientType: {
+      type: String,
+      default: null,
+      enum: ["is-channel-partner", "blacklisted-client","lost"],
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const leadModelV2 = mongoose.model("lead", leadSchema, "leads");

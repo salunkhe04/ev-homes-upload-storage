@@ -1067,7 +1067,7 @@ export const updateTask = async (req, res, next) => {
 
     return next(error);
   }
-}; 
+};
 
 export const updateTaskReminder = async (req, res, next) => {
   const { remindMe = true, reminderDate, reminderDescription } = req.body;
@@ -1937,6 +1937,7 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
     const startDate = new Date();
     let lostEntry;
     let isCountable;
+    let clientType = null;
 
     const leadInfo = await leadModelV2.findById(lead, {
       cycle: 1,
@@ -1953,6 +1954,11 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
         date: startDate,
         remark: leadStage,
       };
+      clientType = "lost";
+    } else if (leadStage?.toLowerCase() === "blacklisted-client") {
+      clientType = "blacklisted-client";
+    } else if (leadStage?.toLowerCase() === "is-channel-partner") {
+      clientType = "is-channel-partner";
     }
 
     const now = moment();
@@ -2012,6 +2018,13 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
         },
         ...(lostEntry ? { lostHistory: lostEntry } : {}),
       },
+      ...(clientType
+        ? {
+            clientType: clientType,
+            disabledRemark: feedback,
+            disabledDate: new Date(),
+          }
+        : {}), // mark here
     };
 
     await leadModelV2.findByIdAndUpdate(lead, leadUpdates);

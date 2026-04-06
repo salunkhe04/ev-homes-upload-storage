@@ -15,14 +15,21 @@ export const authenticateToken = async (req, res, next) => {
   try {
     const accessTokenCoockie = req.cookies.accessToken;
     const refreshTokenCoockie = req.cookies.refreshToken;
+    const accessHeader= req.headers["authorization"]?.split(" ")[1] ;
+    const refreshHeader= req.headers["x-refresh-token"]?.split(" ")[1]  ;
+
 
     const accessToken =
-      req.headers["authorization"]?.split(" ")[1] ?? accessTokenCoockie;
+     accessHeader ?? accessTokenCoockie;
     const refreshToken =
-      req.headers["x-refresh-token"]?.split(" ")[1] ?? refreshTokenCoockie;
+     refreshHeader ?? refreshTokenCoockie;
     const clientIsWeb = req.headers["x-platform"];
-    console.log(`acces ${accessToken}`);
-    console.log(`refresh ${refreshToken}`);
+
+    // console.log(`acces web ${accessTokenCoockie}`);
+    // console.log(`refresh web ${refreshTokenCoockie}`);
+
+    // console.log(`acces ${accessHeader}`);
+    // console.log(`refresh ${refreshHeader}`);
     if (!accessToken) {
       if (!refreshToken) {
         res.setHeader("x-force-logout", `force-logout`);

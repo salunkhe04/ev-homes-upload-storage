@@ -701,6 +701,33 @@ export const getAllData = async (req, res, next) => {
           },
         ],
       };
+    } else if (status === "is-channel-partner") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            clientType: { $eq: "is-channel-partner" },
+          },
+        ],
+      };
+    } else if (status === "blacklisted-client") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            clientType: { $eq: "blacklisted-client" },
+          },
+        ],
+      };
+    } else if (status === "lost") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            clientType: { $eq: "lost" },
+          },
+        ],
+      };
     }
 
     if (interval === "monthly") {
@@ -1014,6 +1041,19 @@ export const getAllData = async (req, res, next) => {
       },
     ]);
 
+       const blacklistedClient = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: "blacklisted-client" }],
+    });
+    const isCpCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: "is-channel-partner" }],
+    });
+
+    const lostCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: "lost" }],
+    });
     const {
       totalItems = 0,
       pendingCount = 0,
@@ -1053,6 +1093,9 @@ export const getAllData = async (req, res, next) => {
         internalLeadCount,
         bulkCount,
         exhibition2025,
+        blacklistedClient,
+        isCpCount,
+        lostCount,
         data: leadsWithTeamLeader,
       }),
     );
@@ -6574,6 +6617,33 @@ export const searchLeads = async (req, res, next) => {
           },
         ],
       };
+    } else if (status === "is-channel-partner") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            clientType: { $eq: "is-channel-partner" },
+          },
+        ],
+      };
+    } else if (status === "blacklisted-client") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            clientType: { $eq: "blacklisted-client" },
+          },
+        ],
+      };
+    } else if (status === "lost") {
+      statusToFind = {
+        ...statusToFind,
+        $and: [
+          {
+            clientType: { $eq: "lost" },
+          },
+        ],
+      };
     }
 
     // assing /pending/etc
@@ -6933,6 +7003,20 @@ export const searchLeads = async (req, res, next) => {
       ],
     });
 
+    const blacklistedClient = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: "blacklisted-client" }],
+    });
+    const isCpCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: "is-channel-partner" }],
+    });
+
+    const lostCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: "lost" }],
+    });
+
     // const assignedCount = await leadModelV2.countDocuments({
     //   $and: [{ preSalesExecutive: { $ne: null } }],
     // });
@@ -6959,6 +7043,9 @@ export const searchLeads = async (req, res, next) => {
         internalLeadCount,
         bulkCount,
         infomedCpCount,
+        blacklistedClient,
+        isCpCount,
+        lostCount,
         data: sortedLeads,
       }),
     );
@@ -10816,11 +10903,10 @@ export const getCpSalesFunnel = async (req, res, next) => {
       channelPartner: id,
       // callHistory: { $gte: 1 },
       followupStatus: { $eq: "followup" },
-      
     });
 
     const revisitedCount = await leadModelV2.countDocuments({
-            revisitStatus: "revisited",
+      revisitStatus: "revisited",
 
       $expr: {
         $and: [
@@ -10830,7 +10916,7 @@ export const getCpSalesFunnel = async (req, res, next) => {
       },
       leadType: { $ne: "walk-in" },
       channelPartner: id,
-      revisitRef:{$ne:null},
+      revisitRef: { $ne: null },
       validTill: { $gte: new Date() },
     });
 
