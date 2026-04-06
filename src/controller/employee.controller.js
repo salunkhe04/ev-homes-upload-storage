@@ -26,6 +26,7 @@ import {
 } from "../utils/helper.js";
 import { sendNotificationWithImage } from "./oneSignal.controller.js";
 import logger from "../utils/logger.js";
+import blockedTokenModel from "../model/token.model.js";
 
 export const updateDesgEmp = async (req, res, next) => {
   try {
@@ -463,38 +464,48 @@ export const getEmployeeReAuth = async (req, res, next) => {
     if (!accessToken) {
       res.setHeader("x-force-logout", `force-logout`);
 
-      return res.send(
-        errorRes(
-          401,
-          "Your session has expired. Please log in again to continue.",
-        ),
+      return errorRes2(
+        res,
+        401,
+        "Your session has expired. Please log in again to continue.",
       );
     }
 
     try {
+      const blockedToken2 = await blockedTokenModel.findOne({
+        token: accessToken,
+      });
+      if (blockedToken2) {
+        res.setHeader("x-force-logout", `force-logout`);
+
+        return errorRes2(res, 401, "Unauthorized Access.");
+      }
+
       // Verify access token
       const decoded = verifyJwtToken(accessToken, config.SECRET_ACCESS_KEY);
 
       const user = await employeeModel
-        .findById(decoded.data._id)
+        .findOne({ _id: decoded.data._id, refreshToken: refreshToken })
         .select("-password -refreshToken")
         .populate(employeePopulateOptions)
         .lean();
 
       if (!user) {
         res.setHeader("x-force-logout", `force-logout`);
-        return res.send(
-          errorRes(401, "Session Expired, Please log in again to continue."),
+        return errorRes2(
+          res,
+          401,
+          "Session Expired, Please log in again to continue.",
         );
       }
 
       if (user.status != "active") {
         res.setHeader("x-force-logout", `force-logout`);
-        return res.send(errorRes(401, "Your account is no longer active."));
+        return errorRes2(res, 401, "Your account is no longer active.");
       }
 
       req.user = user;
-      return res.send(successRes(200, "Authenticated", { data: user }));
+      return successRes2(res, 200, "Authenticated", { data: user });
     } catch (error) {
       // logger.info(error);
 
@@ -502,9 +513,19 @@ export const getEmployeeReAuth = async (req, res, next) => {
         // Access token expired, attempt to refresh
         if (!refreshToken) {
           res.setHeader("x-force-logout", `force-logout`);
-          return res.send(
-            errorRes(401, "Session Expired, Please log in again to continue."),
+          return errorRes2(
+            res,
+            401,
+            "Session Expired, Please log in again to continue.",
           );
+        }
+        const blockedToken2 = await blockedTokenModel.findOne({
+          token: refreshToken,
+        });
+        if (blockedToken2) {
+          res.setHeader("x-force-logout", `force-logout`);
+
+          return errorRes2(res, 401, "Unauthorized Access.");
         }
 
         try {
@@ -513,18 +534,17 @@ export const getEmployeeReAuth = async (req, res, next) => {
             config.SECRET_REFRESH_KEY,
           );
           const user = await employeeModel
-            .findById(decoded.data._id)
+            .findOne({ _id: decoded.data._id, refreshToken: refreshToken })
             .select("-password -refreshToken")
             .populate(employeePopulateOptions)
             .lean();
 
           if (!user) {
             res.setHeader("x-force-logout", `force-logout`);
-            return res.send(
-              errorRes(
-                401,
-                "Session Expired, Please log in again to continue.",
-              ),
+            return errorRes2(
+              res,
+              401,
+              "Session Expired, Please log in again to continue.",
             );
           }
 
@@ -582,31 +602,33 @@ export const getEmployeeReAuth = async (req, res, next) => {
 
           req.user = user;
 
-          return res.json(
-            successRes(200, "Token refreshed", {
-              data: user,
-              newRefreshToken:
-                timeLeft < 24 * 60 * 60 ? newRefreshToken : undefined, // Include new token if generated
-            }),
-          );
+          return successRes2(res, 200, "Token refreshed", {
+            data: user,
+            refreshToken:
+              timeLeft < 24 * 60 * 60 ? newRefreshToken : undefined, // Include new token if generated
+          });
         } catch (refreshError) {
           // logger.info(refreshError);
           res.setHeader("x-force-logout", `force-logout`);
-          return res.send(
-            errorRes(401, "Session Expired, Please log in again to continue."),
+          return errorRes2(
+            res,
+            401,
+            "Session Expired, Please log in again to continue.",
           );
         }
       }
       res.setHeader("x-force-logout", `force-logout`);
 
-      return res.send(
-        errorRes(401, "Session Expired, Please log in again to continue."),
+      return errorRes2(
+        res,
+        401,
+        "Session Expired, Please log in again to continue.",
       );
     }
   } catch (error) {
     // res.setHeader("x-force-logout", `force-logout`);
     logger.info("Error during re-authentication:", error);
-    return res.send(errorRes(500, "Internal server error"));
+    return errorRes2(res, 500, "Internal server error");
   }
 };
 

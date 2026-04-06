@@ -3,11 +3,12 @@ import cpModel from "../model/channelPartner.model.js";
 import clientModel from "../model/client.model.js";
 import employeeModel from "../model/employee.model.js";
 import requestLogModel from "../model/reqeustLog.model.js";
-import { errorRes } from "../model/response.js";
+import { errorRes, errorRes2 } from "../model/response.js";
 import { createJwtToken, verifyJwtToken } from "../utils/helper.js";
 import os from "os";
 import semver from "semver";
 import logger from "../utils/logger.js";
+import blockedTokenModel from "../model/token.model.js";
 const MIN_VERSION = "1.1.105";
 
 export const authenticateToken = async (req, res, next) => {
@@ -17,15 +18,11 @@ export const authenticateToken = async (req, res, next) => {
 
     const accessToken =
       req.headers["authorization"]?.split(" ")[1] ?? accessTokenCoockie;
-    // const refreshToken = req.headers.refreshtoken?.split(" ")[1];
     const refreshToken =
       req.headers["x-refresh-token"]?.split(" ")[1] ?? refreshTokenCoockie;
-    const clientVersion = req.headers["x-app-version"];
     const clientIsWeb = req.headers["x-platform"];
-
-    // logger.info(`app version: ${clientVersion} `);
-    // logger.info(`acces: ${accessToken} `);
-    // logger.info(`refresh: ${refreshToken} `);
+    console.log(`acces ${accessToken}`);
+    console.log(`refresh ${refreshToken}`);
     if (!accessToken) {
       if (!refreshToken) {
         res.setHeader("x-force-logout", `force-logout`);
@@ -33,6 +30,15 @@ export const authenticateToken = async (req, res, next) => {
           message: "Your account is no longer active.",
         });
       }
+      const blockedToken2 = await blockedTokenModel.findOne({
+        token: refreshToken,
+      });
+      if (blockedToken2) {
+        res.setHeader("x-force-logout", `force-logout`);
+
+        return errorRes2(res, 401, "Unauthorized Access.");
+      }
+
       try {
         const decoded = verifyJwtToken(refreshToken, config.SECRET_REFRESH_KEY);
         let user = null;
@@ -42,26 +48,28 @@ export const authenticateToken = async (req, res, next) => {
           if (!user) {
             res.setHeader("x-force-logout", `force-logout`);
 
-            return res.send(errorRes(401, "Channel Partner not found"));
+            return errorRes2(res, 401, "Channel Partner not found");
           }
           if (user.status != "active") {
             res.setHeader("x-force-logout", `force-logout`);
 
-            return res.send(errorRes(401, "Unauthorized Access."));
+            return errorRes2(res, 401, "Unauthorized Access.");
           }
         } else if (decoded.data.role === "employee") {
-          user = await employeeModel.findById(decoded.data._id).lean();
+          user = await employeeModel
+            .findOne({ _id: decoded.data._id, refreshToken: refreshToken })
+            .lean();
 
           if (!user) {
             res.setHeader("x-force-logout", `force-logout`);
 
-            return res.send(errorRes(401, "Channel Partner not found"));
+            return errorRes2(res, 401, "Employee not found");
           }
 
           if (user.status != "active") {
             res.setHeader("x-force-logout", `force-logout`);
 
-            return res.send(errorRes(401, "Unauthorized Access"));
+            return errorRes2(res, 401, "Unauthorized Access");
           }
         } else if (decoded.data.role === "customer") {
           user = await clientModel.findById(decoded.data._id).lean();
@@ -69,18 +77,17 @@ export const authenticateToken = async (req, res, next) => {
           if (!user) {
             res.setHeader("x-force-logout", `force-logout`);
 
-            return res.send(errorRes(401, "Channel Partner not found"));
+            return errorRes2(res, 401, "client not found");
           }
         }
 
         if (!user) {
           res.setHeader("x-force-logout", `force-logout`);
 
-          return res.send(
-            errorRes(
-              401,
-              "Your session has expired. Please log in again to continue."
-            )
+          return errorRes2(
+            res,
+            401,
+            "Your session has expired. Please log in again to continue.",
           );
         }
 
@@ -94,7 +101,7 @@ export const authenticateToken = async (req, res, next) => {
         const newAccessToken = createJwtToken(
           dataToken,
           config.SECRET_ACCESS_KEY,
-          "15m"
+          "15m",
         );
 
         res.setHeader("Authorization", `Bearer ${newAccessToken}`);
@@ -114,13 +121,20 @@ export const authenticateToken = async (req, res, next) => {
       } catch (refreshError) {
         res.setHeader("x-force-logout", `force-logout`);
 
-        return res.send(
-          errorRes(
-            401,
-            "Your session has expired. Please log in again to continue."
-          )
+        return errorRes2(
+          res,
+          401,
+          "Your session has expired. Please log in again to continue.",
         );
       }
+    }
+    const blockedToken2 = await blockedTokenModel.findOne({
+      token: accessToken,
+    });
+    if (blockedToken2) {
+      res.setHeader("x-force-logout", `force-logout`);
+
+      return errorRes2(res, 401, "Unauthorized Access.");
     }
 
     try {
@@ -130,23 +144,25 @@ export const authenticateToken = async (req, res, next) => {
         user = await cpModel.findById(decoded.data._id).lean();
 
         if (!user) {
-          return res.send(errorRes(401, "Channel Partner not found"));
+          return errorRes2(res, 401, "Channel Partner not found");
         }
         if (user.status != "active") {
           res.setHeader("x-force-logout", `force-logout`);
 
-          return res.send(errorRes(401, "Unauthorized Access."));
+          return errorRes2(res, 401, "Unauthorized Access.");
         }
       } else if (decoded.data.role === "employee") {
-        user = await employeeModel.findById(decoded.data._id).lean();
+        user = await employeeModel
+          .findOne({ _id: decoded.data._id, refreshToken: refreshToken })
+          .lean();
 
         if (!user) {
-          return res.send(errorRes(401, "Channel Partner not found"));
+          return errorRes2(res, 401, "employee not found");
         }
         if (user.status != "active") {
           res.setHeader("x-force-logout", `force-logout`);
 
-          return res.send(errorRes(401, "Unauthorized Access."));
+          return errorRes2(res, 401, "Unauthorized Access.");
         }
       } else if (decoded.data.role === "customer") {
         user = await clientModel.findById(decoded.data._id).lean();
@@ -154,18 +170,17 @@ export const authenticateToken = async (req, res, next) => {
         if (!user) {
           res.setHeader("x-force-logout", `force-logout`);
 
-          return res.send(errorRes(401, "Channel Partner not found"));
+          return errorRes2(res, 401, "client not found");
         }
       }
 
       if (!user) {
         res.setHeader("x-force-logout", `force-logout`);
 
-        return res.send(
-          errorRes(
-            401,
-            "Your session has expired. Please log in again to continue."
-          )
+        return errorRes2(
+          res,
+          401,
+          "Your session has expired. Please log in again to continue.",
         );
       }
 
@@ -177,18 +192,25 @@ export const authenticateToken = async (req, res, next) => {
         if (!refreshToken) {
           res.setHeader("x-force-logout", `force-logout`);
 
-          return res.send(
-            errorRes(
-              401,
-              "Your session has expired. Please log in again to continue."
-            )
+          return errorRes2(
+            res,
+            401,
+            "Your session has expired. Please log in again to continue.",
           );
+        }
+        const blockedToken2 = await blockedTokenModel.findOne({
+          token: refreshToken,
+        });
+        if (blockedToken2) {
+          res.setHeader("x-force-logout", `force-logout`);
+
+          return errorRes2(res, 401, "Unauthorized Access.");
         }
 
         try {
           const decoded = verifyJwtToken(
             refreshToken,
-            config.SECRET_REFRESH_KEY
+            config.SECRET_REFRESH_KEY,
           );
           let user = null;
           if (decoded.data.role === "channel-partner") {
@@ -197,21 +219,23 @@ export const authenticateToken = async (req, res, next) => {
             if (!user) {
               res.setHeader("x-force-logout", `force-logout`);
 
-              return res.send(errorRes(401, "Channel Partner not found"));
+              return errorRes2(res, 401, "Channel Partner not found");
             }
           } else if (decoded.data.role === "employee") {
-            user = await employeeModel.findById(decoded.data._id).lean();
+            user = await employeeModel
+              .findOne({ _id: decoded.data._id, refreshToken: refreshToken })
+              .lean();
 
             if (!user) {
               res.setHeader("x-force-logout", `force-logout`);
 
-              return res.send(errorRes(401, "Channel Partner not found"));
+              return errorRes2(res, 401, "Employee not found");
             }
 
             if (user.status != "active") {
               res.setHeader("x-force-logout", `force-logout`);
 
-              return res.send(errorRes(401, "Unauthorized Access"));
+              return errorRes2(res, 401, "Unauthorized Access");
             }
           } else if (decoded.data.role === "customer") {
             user = await clientModel.findById(decoded.data._id).lean();
@@ -219,18 +243,17 @@ export const authenticateToken = async (req, res, next) => {
             if (!user) {
               res.setHeader("x-force-logout", `force-logout`);
 
-              return res.send(errorRes(401, "Channel Partner not found"));
+              return errorRes2(res, 401, "client not found");
             }
           }
 
           if (!user) {
             res.setHeader("x-force-logout", `force-logout`);
 
-            return res.send(
-              errorRes(
-                401,
-                "Your session has expired. Please log in again to continue."
-              )
+            return errorRes2(
+              res,
+              401,
+              "Your session has expired. Please log in again to continue.",
             );
           }
 
@@ -244,7 +267,7 @@ export const authenticateToken = async (req, res, next) => {
           const newAccessToken = createJwtToken(
             dataToken,
             config.SECRET_ACCESS_KEY,
-            "15m"
+            "15m",
           );
 
           res.setHeader("Authorization", `Bearer ${newAccessToken}`);
@@ -264,22 +287,21 @@ export const authenticateToken = async (req, res, next) => {
         } catch (refreshError) {
           res.setHeader("x-force-logout", `force-logout`);
 
-          return res.send(
-            errorRes(
-              401,
-              "Your session has expired. Please log in again to continue."
-            )
+          return errorRes2(
+            res,
+            401,
+            "Your session has expired. Please log in again to continue.",
           );
         }
       }
       res.setHeader("x-force-logout", `force-logout`);
 
-      return res.send(errorRes(401, "Invalid credentials"));
+      return errorRes2(res, 401, "Invalid credentials");
     }
   } catch (error) {
     res.setHeader("x-force-logout", `force-logout`);
     // logger.info(error);
-    return res.send(errorRes(401, "Internal server error"));
+    return errorRes2(res, 401, "Internal server error");
   }
 };
 
