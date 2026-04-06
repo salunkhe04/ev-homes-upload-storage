@@ -44,7 +44,7 @@ employeeRouter.get("/employee", authenticateToken, getEmployees);
 employeeRouter.get("/employee-for-attendance", getEmployeesForAttendance);
 
 employeeRouter.get("/employee/:id", authenticateToken, getEmployeeById);
-employeeRouter.get("/employee-reauth", authenticateToken, getEmployeeReAuth);
+employeeRouter.get("/employee-reauth", getEmployeeReAuth);
 
 employeeRouter.get(
   "/employee-visit-allowed-staff",

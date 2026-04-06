@@ -778,11 +778,11 @@ ourProjectRouter.post(
     const results = [];
     const dataToPush = [];
 
-    const csvFilePath = path.join(__dirname, "9hq.csv");
+    const csvFilePath = path.join(__dirname, "aspire_a1.csv");
 
     try {
       const projectResp = await ourProjectModel.findOne({
-        _id: "project-ev-9hq-vashi-2026",
+        _id: "project-solaris-rohinjan-2025",
       });
 
       if (!projectResp) {
@@ -799,18 +799,11 @@ ourProjectRouter.post(
         .on("end", async () => {
           // Collect only the required fields from CSV
           for (const row of results) {
-            const { flatNo, carpetArea, saleArea, flatCost, floor } = row;
+            // const { flatNo, carpetArea, saleArea, flatCost, floor } = row;
 
-            let number = parseInt(flatNo) % 100;
+            // let number = parseInt(flatNo) % 100;/
             dataToPush.push({
-              flatNo,
-              floor: parseInt(floor),
-              number: number,
-              type: "office",
-              usableCarpetArea: carpetArea,
-              allInclusiveValue: flatCost,
-              sellableCarpetArea: saleArea,
-              occupied: false,
+              ...row,
             });
           }
 
@@ -821,13 +814,21 @@ ourProjectRouter.post(
                 //
                 await flatModel.findOneAndUpdate(
                   {
-                    project: "project-ev-9hq-vashi-2026",
+                    project: "project-solaris-rohinjan-2025",
                     flatNo: ele.flatNo,
                     // number: ele.number,
+                    buildingNo: 2,
                   },
                   {
-                    ...ele,
-                    project: "project-ev-9hq-vashi-2026",
+                    // ...ele,
+                    configuration: ele.configuration,
+                    reraArea: ele.reraArea,
+                    carpetArea: ele.carpetArea,
+                    sellableCarpetArea: ele.sellableCarpetArea,
+                    allInclusiveValue: ele.allInclusiveValue,
+                    occupied: ele.occupied == "SOLD" ? true : false,
+
+                    // project: "project-solaris-rohinjan-2025",
                   },
                   { upsert: true },
                 );

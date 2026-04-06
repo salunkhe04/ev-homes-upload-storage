@@ -93,7 +93,7 @@ leadRouter.get("/leads-graph", authenticateToken, getAllGraph);
 leadRouter.get(
   "/leads-team-leader/:id",
 
-  // authenticateToken,
+  authenticateToken,
 
   getLeadsTeamLeader,
 );
@@ -119,13 +119,13 @@ leadRouter.post(
 leadRouter.post("/leads-hide/:id", authenticateToken, hideLead);
 leadRouter.get(
   "/leads-assign-count",
-  // authenticateToken,
+  authenticateToken,
   getLeadsAssignFeedbackByTlCounts,
 );
 
 leadRouter.get(
   "/lead-assign-feedback/:id",
-  // authenticateToken,
+  authenticateToken,
   getLeadsAssignFeedbackByTl,
 );
 
@@ -376,7 +376,9 @@ leadRouter.post(
   updateCallHistoryPreSales,
 );
 
-leadRouter.get("/search-lead", authenticateToken, searchLeads);
+leadRouter.get("/search-lead", 
+  authenticateToken,
+   searchLeads);
 
 leadRouter.get(
   "/search-lead-channel-partner/:id",
