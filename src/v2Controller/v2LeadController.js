@@ -46,6 +46,7 @@ export const leadCycleTriggerV4 = async () => {
       bookingStatus: { $ne: "booked" },
       bookingRef: null,
       isBulkLead: false,
+      clientType: null,
       // "cycle.startDate": { $gte: filterDate.toDate() },
       // "cycle.validTill": { $lte: filterDateEnd.toDate() },
       "cycle.validTill": { $lte: endOfYesterday },
@@ -353,7 +354,7 @@ export const leadCycleChange_600_from_March_01_2025 = async () => {
                 update: {
                   $set: {
                     cycle: cCycle,
-                    disabled: false,
+                    clientType: null,
                     teamLeader: cCycle.teamLeader,
                     taskRef: null,
                     stage: isStageNull ? "visit" : entry?.stage,
@@ -574,7 +575,7 @@ export const bulk_cp_lead_trigger_35 = async () => {
           validTill,
           project: [],
           address: ".",
-          disabled: false,
+          clientType: null,
           isBulkLead: false,
           cycle: {
             stage: "visit",

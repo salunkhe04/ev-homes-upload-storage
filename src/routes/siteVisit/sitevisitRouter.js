@@ -179,7 +179,7 @@ siteVisitRouter.post(
 // siteVisitRouter.get("/site-visit-date-update-lead", async (req, res) => {
 //   try {
 //     const leads = await leadModelV2.find({
-//       disabled: false,
+//       clientType: null,
 //       $or: [{ visitRef: { $ne: null } }, { revisitRef: { $ne: null } }],
 //     });
 

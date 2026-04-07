@@ -426,7 +426,7 @@ leadRouterV2.get(
             totalItems: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                 },
               },
               { $count: "count" },
@@ -434,7 +434,7 @@ leadRouterV2.get(
             pendingCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   $or: [
                     // { visitRef: { $eq: null } },
                     // { revisitRef: { $eq: null } },
@@ -453,17 +453,17 @@ leadRouterV2.get(
               { $count: "count" },
             ],
             assignedCount: [
-              { $match: { disabled: false, taskRef: { $ne: null } } },
+              { $match: { clientType: null, taskRef: { $ne: null } } },
               { $count: "count" },
             ],
             notAssignedCount: [
-              { $match: { disabled: false, taskRef: { $eq: null } } },
+              { $match: { clientType: null, taskRef: { $eq: null } } },
               { $count: "count" },
             ],
             visitCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   stage: { $ne: "approval" },
                   stage: { $ne: "booking" },
                   $and: [
@@ -482,7 +482,7 @@ leadRouterV2.get(
             revisitCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   stage: "booking",
                   $and: [
                     {
@@ -499,7 +499,7 @@ leadRouterV2.get(
             visit2Count: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   visitStatus: { $ne: "pending" },
 
                   $or: [
@@ -531,7 +531,7 @@ leadRouterV2.get(
             internalLeadCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   $and: [{ leadType: { $eq: "internal-lead" } }],
                 },
               },
@@ -540,7 +540,7 @@ leadRouterV2.get(
             lineUpCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   $and: [
                     { siteVisitInterested: { $eq: true } },
                     { siteVisitInterestedDate: { $gte: today.toDate() } },
@@ -581,7 +581,7 @@ leadRouterV2.get(
             bulkCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   isBulkLead: true,
                 },
               },
@@ -708,7 +708,7 @@ leadRouterV2.get(
       const taskCounts = await taskModel.aggregate([
         {
           $match: {
-            disabled: false,
+            clientType: null,
 
             assignTo: id,
             // teamLeader: empResp.reportingTo,
@@ -873,7 +873,7 @@ leadRouterV2.get(
             totalItems: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                 },
               },
               { $count: "count" },
@@ -881,7 +881,7 @@ leadRouterV2.get(
             pendingCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   $or: [
                     // { visitRef: { $ne: null } },
                     // { revisitRef: { $ne: null } },
@@ -899,17 +899,17 @@ leadRouterV2.get(
               { $count: "count" },
             ],
             assignedCount: [
-              { $match: { disabled: false, taskRef: { $ne: null } } },
+              { $match: { clientType: null, taskRef: { $ne: null } } },
               { $count: "count" },
             ],
             notAssignedCount: [
-              { $match: { disabled: false, taskRef: { $eq: null } } },
+              { $match: { clientType: null, taskRef: { $eq: null } } },
               { $count: "count" },
             ],
             visitCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   stage: { $ne: "approval" },
                   stage: { $ne: "booking" },
                   $and: [
@@ -928,7 +928,7 @@ leadRouterV2.get(
             revisitCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   stage: "booking",
                   $and: [
                     {
@@ -945,7 +945,7 @@ leadRouterV2.get(
             visit2Count: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   visitStatus: { $ne: "pending" },
 
                   $or: [
@@ -977,7 +977,7 @@ leadRouterV2.get(
             lineUpCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   $and: [
                     { siteVisitInterested: { $eq: true } },
                     // { siteVisitInterestedDate: { $gte: new Date() } },
@@ -1020,7 +1020,7 @@ leadRouterV2.get(
             bulkCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   isBulkLead: true,
                 },
               },
@@ -1042,7 +1042,7 @@ leadRouterV2.get(
             internalLeadCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   $and: [{ leadType: { $eq: "internal-lead" } }],
                 },
               },
@@ -1160,7 +1160,7 @@ leadRouterV2.get(
       const taskCounts = await taskModel.aggregate([
         {
           $match: {
-            disabled: false,
+            clientType: null,
             assignBy: id,
             // teamLeader: empResp.reportingTo,
             deadline: { $gte: now },
@@ -1290,7 +1290,7 @@ leadRouterV2.get(
         //   deadline: { $gte: now },
         // });
         const baseFilter = {
-          // disabled: false,
+          // clientType: null,
 
           assignTo: empId,
 
@@ -1460,7 +1460,7 @@ leadRouterV2.get(
       const taskCounts = await taskModel.aggregate([
         {
           $match: {
-            // disabled: false,
+            // clientType: null,
             assignTo: emp._id,
             // deadline: { $gte: now },
             ...(startDate && endDate
@@ -1536,7 +1536,7 @@ leadRouterV2.get(
 
       const taskIds = await taskModel.find(
         {
-          disabled: false,
+          clientType: null,
           assignTo: emp._id,
           ...(startDate && endDate
             ? {
@@ -1837,7 +1837,7 @@ leadRouterV2.get(
             totalItems: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                 },
               },
               { $count: "count" },
@@ -1845,7 +1845,7 @@ leadRouterV2.get(
             pendingCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   $or: [
                     // { visitRef: { $ne: null } },
                     // { revisitRef: { $ne: null } },
@@ -1863,17 +1863,17 @@ leadRouterV2.get(
               { $count: "count" },
             ],
             assignedCount: [
-              { $match: { disabled: false, taskRef: { $ne: null } } },
+              { $match: { clientType: null, taskRef: { $ne: null } } },
               { $count: "count" },
             ],
             notAssignedCount: [
-              { $match: { disabled: false, taskRef: { $eq: null } } },
+              { $match: { clientType: null, taskRef: { $eq: null } } },
               { $count: "count" },
             ],
             visitCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   stage: { $ne: "approval" },
                   stage: { $ne: "booking" },
                   $and: [
@@ -1892,7 +1892,7 @@ leadRouterV2.get(
             revisitCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   stage: "booking",
                   $and: [
                     {
@@ -1909,7 +1909,7 @@ leadRouterV2.get(
             visit2Count: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   visitStatus: { $ne: "pending" },
 
                   $or: [
@@ -1941,7 +1941,7 @@ leadRouterV2.get(
             lineUpCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   $and: [
                     { siteVisitInterested: { $eq: true } },
                     // { siteVisitInterestedDate: { $gte: new Date() } },
@@ -1984,7 +1984,7 @@ leadRouterV2.get(
             bulkCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   isBulkLead: true,
                 },
               },
@@ -2006,7 +2006,7 @@ leadRouterV2.get(
             internalLeadCount: [
               {
                 $match: {
-                  disabled: false,
+                  clientType: null,
                   $and: [{ leadType: { $eq: "internal-lead" } }],
                 },
               },
@@ -2474,7 +2474,7 @@ leadRouterV2.post("/upload-channel-partner-bulk-leads", async (req, res) => {
               validTill,
               project: [],
               address: ".",
-              disabled: false,
+              clientType: null,
               isBulkLead: false,
               cycle: {
                 stage: "visit",

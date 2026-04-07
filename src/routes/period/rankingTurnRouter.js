@@ -432,7 +432,7 @@ rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
           interestedClient: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 isCountable: true,
               },
             },
@@ -441,7 +441,7 @@ rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
           firstVisit: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
 
                 isCountableVisit: true,
               },
@@ -449,7 +449,7 @@ rankingTurnRouter.get("/ranking-count/:id", async (req, res) => {
             { $count: "count" },
           ],
           booking: [
-            { $match: { disabled: false, isCountableBooking: true } },
+            { $match: { clientType: null, isCountableBooking: true } },
             { $count: "count" },
           ],
         },
