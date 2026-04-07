@@ -33,6 +33,7 @@ import oneSignalModel from "../model/oneSignal.model.js";
 import { RedisService } from "../app/redis.js";
 import leaveHistoryModel from "../model/attendance/leave/leavehistory.model.js";
 import logger from "../utils/logger.js";
+import { hasPermission } from "../utils/helper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1100,6 +1101,9 @@ export const getCheckInByUserId = async (req, res) => {
 
 export const getCheckInByDate = async (req, res) => {
   const { date, filter, startDate, endDate, department } = req.query;
+  const user = req.user;
+  //
+  const viewAllAtt = hasPermission(user, "view_full_insight");
   try {
     let filterToUse = {};
     let now = new Date();
@@ -1115,7 +1119,7 @@ export const getCheckInByDate = async (req, res) => {
     };
 
     const cached = await RedisService.get("daily_attendance_list", true);
-    if (cached != null && !filter && !department) {
+    if (cached != null && !filter && !department && viewAllAtt) {
       //
       return res.send(
         successRes(200, "Attendance List -cached", {
@@ -1177,6 +1181,27 @@ export const getCheckInByDate = async (req, res) => {
       //
       const emps = await employeeModel.find(
         { department: department, status: "active" },
+        { _id: 1 },
+      );
+      const ids = emps.map((ele) => ele._id);
+      filterToUse = {
+        ...filterToUse,
+        userId: { $in: ids },
+      };
+    }
+
+    if (!viewAllAtt) {
+      //
+      const teamLeaders = [
+        { _id: "ev15-deepak-karki" },
+        { _id: "ev70-jaspreet-arora" },
+        { _id: "ev54-ranjna-gupta" },
+      ];
+      const repo =
+        teamLeaders.find((a) => a._id == user?._id) ?? user?.reportingTo;
+
+      const emps = await employeeModel.find(
+        { status: "active", reportingTo: repo },
         { _id: 1 },
       );
       const ids = emps.map((ele) => ele._id);
@@ -1269,7 +1294,7 @@ export const getCheckInByDate = async (req, res) => {
 
       return false;
     });
-    if (!filter || !department) {
+    if (!filter && !department && viewAllAtt) {
       const cached = await RedisService.set(
         "daily_attendance_list",
         {
@@ -1697,6 +1722,10 @@ export const getMyAttendance = async (req, res) => {
 export const updateAttendanceById = async (req, res) => {
   const id = req.params.id;
   const body = req.body;
+  const user = req.user;
+  const hasPerm = hasPermission(user, "edit_insight");
+  if (!hasPerm) return errorRes2(res, 401, "You dont have permission");
+
   try {
     if (!id) return res.send(errorRes(401, "id is required"));
     if (!body) return res.send(errorRes(401, "updates is required"));

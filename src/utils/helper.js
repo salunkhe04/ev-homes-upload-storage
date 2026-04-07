@@ -76,7 +76,7 @@ export const hostnameCheck = (req, res, next) => {
   // logger.info("Request Host:", requestHost);
 
   const allowedHosts = config.ALLOWED_HOSTS.split(",").map((host) =>
-    host.toLowerCase().trim()
+    host.toLowerCase().trim(),
   );
   // logger.info("Allowed Hosts:", allowedHosts);
 
@@ -122,4 +122,9 @@ export const filterNullValue = (obj = {}) => {
   }
 
   return filteredBody;
+};
+
+export const hasPermission = (user, permission) => {
+  const perms = user?.permissions ?? [];
+  return perms?.includes("all_access") || perms?.includes(permission);
 };
