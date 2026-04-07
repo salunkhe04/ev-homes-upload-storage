@@ -376,9 +376,7 @@ leadRouter.post(
   updateCallHistoryPreSales,
 );
 
-leadRouter.get("/search-lead", 
-  authenticateToken,
-   searchLeads);
+leadRouter.get("/search-lead", authenticateToken, searchLeads);
 
 leadRouter.get(
   "/search-lead-channel-partner/:id",
@@ -1993,7 +1991,7 @@ leadRouter.post("/old-bulk-visited-leads", async (req, res) => {
           // firstName: name,
           // phoneNumber,
           // isBulkLead: false,
-          // disabled: false,
+          // clientType: null,
           // // firstName: Name,
           // // phoneNumber: newNumber,
           // startDate: newDate,
@@ -2283,7 +2281,7 @@ leadRouter.post("/xello-1time-10m", async (req, res) => {
             validTill,
             project: [],
             address: ".",
-            disabled: false,
+            clientType: null,
             isBulkLead: false,
             cycle: {
               stage: "visit",

@@ -147,7 +147,7 @@ export const getTaskPage = async (req, res, next) => {
     if (!id) return res.send(errorRes(401, "No ID provided"));
     const ids = [];
     const now = new Date();
-    let filter = { assignTo: id, deadline: { $gt: now }, disabled: false };
+    let filter = { assignTo: id, deadline: { $gt: now }, clientType: null };
 
     if (type) {
       if (type === "completed") {
@@ -475,7 +475,7 @@ export const getTaskTeam = async (req, res, next) => {
     if (!id) return res.send(errorRes(401, "No ID provided"));
     const now = new Date();
     let taskIds = [];
-    let filter = { deadline: { $gt: now }, disabled: false };
+    let filter = { deadline: { $gt: now }, clientType: null };
 
     if (member) {
       filter = { assignTo: member };

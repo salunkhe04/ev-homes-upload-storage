@@ -689,7 +689,7 @@ export const getAllData = async (req, res, next) => {
     } else if (status === "bulk-lead") {
       statusToFind = {
         ...statusToFind,
-        disabled: false,
+        clientType: null,
         isBulkLead: true,
       };
     } else if (status === "internal-lead") {
@@ -1210,7 +1210,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
       ...(status === "booking-done" || status === "booking"
         ? {}
         : {
-            disabled: false,
+            clientType: null,
           }),
     };
 
@@ -1540,7 +1540,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
     } else if (status === "bulk-lead") {
       statusToFind = {
         ...statusToFind,
-        disabled: false,
+        clientType: null,
         isBulkLead: true,
       };
     } else if (status === "internal-lead") {
@@ -1671,7 +1671,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           }
         : {
             // isBulkLead: { $ne: true },
-            // disabled: false,
+            // clientType: null,
           }),
       ...(clientstatus ? { clientInterestedStatus: clientstatus } : {}),
       ...(leadstatus === "lost"
@@ -1804,7 +1804,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
     const counts = await leadModelV2.aggregate([
       {
         $match: {
-          // disabled: false,
+          // clientType: null,
 
           hideStatus: { $ne: true },
           teamLeader: teamLeaderId,
@@ -1819,7 +1819,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           totalItems: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
               },
             },
             { $count: "count" },
@@ -1833,7 +1833,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           pendingCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 $or: [
                   { visitStatus: "pending", bookingStatus: { $ne: "booked" } },
                   {
@@ -1848,7 +1848,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           contactedCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 contactedStatus: { $ne: "pending" },
               },
             },
@@ -1857,7 +1857,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           followUpCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 followupStatus: { $ne: "pending" },
               },
             },
@@ -1866,7 +1866,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           assignedCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 taskRef: { $ne: null },
               },
             },
@@ -1875,7 +1875,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           visitCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
 
                 $and: [
                   {
@@ -1901,7 +1901,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           revisitCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
 
                 stage: "booking",
                 $and: [
@@ -1919,7 +1919,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           visit2Count: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 visitStatus: { $ne: "pending" },
 
                 $or: [
@@ -1954,7 +1954,7 @@ export const getLeadsTeamLeader = async (req, res, next) => {
           lineUpCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
 
                 stage: { $ne: "tagging-over" },
                 leadType: { $ne: "walk-in" },
@@ -2717,7 +2717,7 @@ export const getLeadsAssignFeedbackByTl = async (req, res, next) => {
     // Base Filter for Search and Leads Query
     let baseFilter = {
       teamLeader: { $eq: teamLeaderId },
-      disabled: false,
+      clientType: null,
 
       // startDate: {
       //   $gte: filterDate,
@@ -2816,7 +2816,7 @@ export const getLeadsAssignFeedbackByTl = async (req, res, next) => {
     const counts = await leadModelV2.aggregate([
       {
         $match: {
-          disabled: false,
+          clientType: null,
 
           teamLeader: teamLeaderId,
           // startDate: {
@@ -3239,7 +3239,7 @@ export const getLeadsAssignFeedbackByTlCounts = async (req, res, next) => {
               "cycle.teamLeader": teamLeaderId,
               // hideStatus: { $ne: true },
               ...baseFilter,
-              disabled: false,
+              clientType: null,
             },
           },
           {
@@ -3494,7 +3494,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
     let statusToFind = {
       ...(status === "booking-done" || status === "booking"
         ? {}
-        : { disabled: false }),
+        : { clientType: null }),
     };
 
     // let statusToFind = null;
@@ -4431,7 +4431,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
     let statusToFind = {
       ...(status === "booking-done" || status === "booking"
         ? {}
-        : { disabled: false }),
+        : { clientType: null }),
     };
 
     let walkinType = { leadType: { $ne: "walk-in" } };
@@ -4809,7 +4809,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
     } else if (status === "bulk-lead") {
       statusToFind = {
         ...statusToFind,
-        disabled: false,
+        clientType: null,
         isBulkLead: true,
       };
     } else if (status === "internal-lead") {
@@ -4938,7 +4938,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           }
         : {
             // isBulkLead: { $ne: true },
-            // disabled: false,
+            // clientType: null,
           }),
       ...(clientstatus ? { clientInterestedStatus: clientstatus } : {}),
       ...(leadstatus ? { interestedStatus: leadstatus } : {}),
@@ -5188,7 +5188,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           totalItems: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
               },
             },
             { $count: "count" },
@@ -5202,7 +5202,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           pendingCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
 
                 $or: [
                   { visitStatus: "pending", bookingStatus: { $ne: "booked" } },
@@ -5218,7 +5218,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           contactedCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 contactedStatus: { $ne: "pending" },
               },
             },
@@ -5227,7 +5227,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           followUpCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 followupStatus: { $ne: "pending" },
               },
             },
@@ -5236,7 +5236,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           assignedCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 taskRef: { $ne: null },
               },
             },
@@ -5245,7 +5245,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           visitCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
 
                 $and: [
                   {
@@ -5271,7 +5271,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           revisitCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
 
                 stage: "booking",
                 $and: [
@@ -5289,7 +5289,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           visit2Count: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
                 visitStatus: { $ne: "pending" },
 
                 $or: [
@@ -5324,7 +5324,7 @@ export const getLeadsTeamLeaderReportingTo = async (req, res, next) => {
           lineUpCount: [
             {
               $match: {
-                disabled: false,
+                clientType: null,
 
                 stage: { $ne: "tagging-over" },
                 leadType: { $ne: "walk-in" },
@@ -6979,7 +6979,7 @@ export const searchLeads = async (req, res, next) => {
 
     const bulkCount = await leadModelV2.countDocuments({
       // bookingStatus: { $ne: "pending" },
-      $and: [{ disabled: false }, { isBulkLead: true }],
+      $and: [{ clientType: null }, { isBulkLead: true }],
     });
 
     const lineUpCount = await leadModelV2.countDocuments({
@@ -7962,7 +7962,7 @@ export const leadAssignToTeamLeader = async (req, res, next) => {
           approvalDate: startDate,
           stage: "visit",
           $set: {
-            disabled: false,
+            clientType: null,
             cycle: {
               nextTeamLeader: null,
               stage: "visit",
@@ -11836,7 +11836,7 @@ export const addLeadV2Autmated = async (req, res, next) => {
       approvalRemark: remark ?? "approved",
       approvalDate: cycleStartDate,
       stage: "visit",
-      disabled: false,
+      clientType: null,
       cycle: {
         nextTeamLeader: null,
         stage: "visit",
@@ -11888,7 +11888,7 @@ export const addLeadV2Autmated = async (req, res, next) => {
         approvalRemark: remark ?? "approved",
         approvalDate: cycleStartDate,
         stage: "visit",
-        disabled: false,
+        clientType: null,
       };
     }
 
@@ -12178,7 +12178,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
       approvalRemark: remark ?? "approved",
       approvalDate: cycleStartDate,
       stage: "visit",
-      disabled: false,
+      clientType: null,
       propertyType: propertyType,
       feedbackGraceTime: curDate.toDate(),
       cycle: {
@@ -12232,7 +12232,7 @@ export const addLeadV2AutmatedWithPeriod = async (req, res, next) => {
         approvalRemark: remark ?? "approved",
         approvalDate: cycleStartDate,
         stage: "visit",
-        disabled: false,
+        clientType: null,
       };
     }
 
