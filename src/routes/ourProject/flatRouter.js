@@ -348,18 +348,21 @@ flatRouter.get("/get-project-info", async (req, res) => {
 //update flat by project id
 flatRouter.post("/update-flats", authenticateToken, async (req, res) => {
   try {
-    const updates = req.body.updates;
+    const { updates } = req.body;
     //
+    // logger.info(updates);
+
     if (!updates?.length) {
       return res.status(400).json({ error: "No updates provided" });
     }
     //
     const operations = updates
       .map((item) => {
-        const { project, buildingNo, flatNo, ...rest } = item;
+        // console.log(item);
+        const { project, buildingNo, flatNo, floor, number, ...rest } = item;
 
-        if (!project || !buildingNo || !flatNo) return null;
-
+        if (!project || buildingNo === undefined || !flatNo) return null;
+        // console.log(rest);
         const updateData = Object.fromEntries(
           Object.entries(rest).filter(([_, v]) => v !== undefined),
         );
@@ -376,7 +379,14 @@ flatRouter.post("/update-flats", authenticateToken, async (req, res) => {
       })
       .filter(Boolean);
     //
+    await backFlatsFunc();
+    // logger.info(operations);
     const result = await flatModel.bulkWrite(operations);
+    try {
+      await RedisService.del("flats");
+      await RedisService.del(`flats_${updateData[0]?.project}`);
+    } catch (error) {}
+
     //
     res.json({
       success: true,
