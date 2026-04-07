@@ -238,9 +238,12 @@ taskRouter.get(
 );
 
 taskRouter.post("/task-mismatch-fix", async (req, res) => {
+  const filterDate = moment().subtract(2, "month").tz(zone).toDate();
+
   const resp = await taskModel
     .find({
       completed: false,
+      createdAt: { $gte: filterDate },
     })
     .lean();
   const list = [];

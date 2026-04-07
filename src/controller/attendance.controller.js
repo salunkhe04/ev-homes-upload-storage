@@ -1100,6 +1100,9 @@ export const getCheckInByUserId = async (req, res) => {
 
 export const getCheckInByDate = async (req, res) => {
   const { date, filter, startDate, endDate, department } = req.query;
+  const user = req.user;
+  //
+  const isSuperAdmin = user?.permissions?.includes("is_super_admin");
   try {
     let filterToUse = {};
     let now = new Date();
@@ -1115,7 +1118,7 @@ export const getCheckInByDate = async (req, res) => {
     };
 
     const cached = await RedisService.get("daily_attendance_list", true);
-    if (cached != null && !filter && !department) {
+    if (cached != null && !filter && !department && isSuperAdmin) {
       //
       return res.send(
         successRes(200, "Attendance List -cached", {
@@ -1177,6 +1180,27 @@ export const getCheckInByDate = async (req, res) => {
       //
       const emps = await employeeModel.find(
         { department: department, status: "active" },
+        { _id: 1 },
+      );
+      const ids = emps.map((ele) => ele._id);
+      filterToUse = {
+        ...filterToUse,
+        userId: { $in: ids },
+      };
+    }
+
+    if (!isSuperAdmin) {
+      //
+      const teamLeaders = [
+        { _id: "ev15-deepak-karki" },
+        { _id: "ev70-jaspreet-arora" },
+        { _id: "ev54-ranjna-gupta" },
+      ];
+      const repo =
+        teamLeaders.find((a) => a._id == user?._id) ?? user?.reportingTo;
+
+      const emps = await employeeModel.find(
+        { status: "active", reportingTo: repo },
         { _id: 1 },
       );
       const ids = emps.map((ele) => ele._id);
@@ -1269,7 +1293,7 @@ export const getCheckInByDate = async (req, res) => {
 
       return false;
     });
-    if (!filter || !department) {
+    if (!filter && !department && isSuperAdmin) {
       const cached = await RedisService.set(
         "daily_attendance_list",
         {

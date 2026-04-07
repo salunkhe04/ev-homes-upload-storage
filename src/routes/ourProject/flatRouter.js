@@ -8,6 +8,9 @@ import logger from "../../utils/logger.js";
 import postSaleLeadModel from "../../model/postSaleLead.model.js";
 import leadModelV2 from "../../model/lead/leadV2Model.js";
 import moment from "moment-timezone";
+import mongoose from "mongoose";
+import { authenticateToken } from "../../middleware/auth.middleware.js";
+
 const flatRouter = Router();
 
 flatRouter.get("/flat", async (req, res) => {
@@ -342,6 +345,93 @@ flatRouter.get("/get-project-info", async (req, res) => {
   }
 });
 
+//update flat by project id
+flatRouter.post("/update-flats", authenticateToken, async (req, res) => {
+  try {
+    const updates = req.body.updates;
+    //
+    if (!updates?.length) {
+      return res.status(400).json({ error: "No updates provided" });
+    }
+    //
+    const operations = updates
+      .map((item) => {
+        const { project, buildingNo, flatNo, ...rest } = item;
+
+        if (!project || !buildingNo || !flatNo) return null;
+
+        const updateData = Object.fromEntries(
+          Object.entries(rest).filter(([_, v]) => v !== undefined),
+        );
+
+        if (Object.keys(updateData).length === 0) return null;
+
+        return {
+          updateOne: {
+            filter: { project, buildingNo, flatNo },
+            update: { $set: updateData },
+            upsert: false,
+          },
+        };
+      })
+      .filter(Boolean);
+    //
+    const result = await flatModel.bulkWrite(operations);
+    //
+    res.json({
+      success: true,
+      matched: result.matchedCount,
+      modified: result.modifiedCount,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
+export const backFlatsFunc = async () => {
+  //
+  try {
+    const db = mongoose.connection.db; // ✅ correct
+
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, "_");
+    const baseName = `bakflats_${today}`;
+
+    // ✅ Now this WILL work
+    const collections = await db
+      .listCollections({}, { nameOnly: true })
+      .toArray();
+
+    const names = collections.map((c) => c.name);
+
+    const todaysBackups = names.filter((name) => name.startsWith(baseName));
+
+    let nextIndex = 1;
+
+    if (todaysBackups.length > 0) {
+      const indexes = todaysBackups.map((name) => {
+        const parts = name.split("_");
+        return parseInt(parts[parts.length - 1]) || 0;
+      });
+
+      nextIndex = Math.max(...indexes) + 1;
+    }
+
+    const backupName = `${baseName}_${nextIndex}`;
+
+    // 🔥 Backup
+    await db
+      .collection("flats")
+      .aggregate([{ $out: backupName }])
+      .toArray();
+
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
 export const FlatOccupancyChange = async ({
   project,
   floor,
