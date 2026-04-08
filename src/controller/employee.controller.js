@@ -22,11 +22,15 @@ import {
   createJwtToken,
   encryptPassword,
   generateOTP,
+  generateSessionAccessToken,
+  generateSessionefreshToken,
+  hashToken,
   verifyJwtToken,
 } from "../utils/helper.js";
 import { sendNotificationWithImage } from "./oneSignal.controller.js";
 import logger from "../utils/logger.js";
 import blockedTokenModel from "../model/token.model.js";
+import sessionModel from "../model/sessionSchema/session.model.js";
 
 export const updateDesgEmp = async (req, res, next) => {
   try {
@@ -461,68 +465,88 @@ export const getEmployeeReAuth = async (req, res, next) => {
     const refreshToken = refreshHeader ?? refreshTokenCoockie;
     const clientIsWeb = req.headers["x-platform"];
 
-    // console.log(`acces web ${accessTokenCoockie}`);
-    // console.log(`refresh web ${refreshTokenCoockie}`);
-
-    // console.log(`acces ${accessHeader}`);
-    // console.log(`refresh ${refreshHeader}`);
-
     if (!accessToken) {
+      if (!refreshToken) {
+        res.setHeader("x-force-logout", `force-logout`);
+        return res.status(401).json({
+          message: "Your account is no longer active.",
+        });
+      }
+
       res.setHeader("x-force-logout", `force-logout`);
 
-      return errorRes2(
-        res,
-        401,
-        "Your session has expired. Please log in again to continue.",
-      );
+      return errorRes2(res, 401, "Employee not found");
+    }
+    const blockedToken2 = await blockedTokenModel.findOne({
+      token: accessToken,
+    });
+    if (blockedToken2) {
+      res.setHeader("x-force-logout", `force-logout`);
+
+      return errorRes2(res, 401, "Unauthorized Access.");
     }
 
     try {
-      const blockedToken2 = await blockedTokenModel.findOne({
-        token: accessToken,
-      });
-      if (blockedToken2) {
-        res.setHeader("x-force-logout", `force-logout`);
-
-        return errorRes2(res, 401, "Unauthorized Access.");
-      }
-
-      // Verify access token
       const decoded = verifyJwtToken(accessToken, config.SECRET_ACCESS_KEY);
+      let user = null;
+      if (decoded.data.role === "channel-partner") {
+        user = await cpModel.findById(decoded.data._id).lean();
 
-      const user = await employeeModel
-        .findOne({ _id: decoded.data._id, refreshToken: refreshToken })
-        .select("-password -refreshToken")
-        .populate(employeePopulateOptions)
-        .lean();
+        if (!user) {
+          return errorRes2(res, 401, "Channel Partner not found");
+        }
+        if (user.status != "active") {
+          res.setHeader("x-force-logout", `force-logout`);
+
+          return errorRes2(res, 401, "Unauthorized Access.");
+        }
+      } else if (decoded.data.role === "employee") {
+        user = await employeeModel
+          .findById(decoded.data._id)
+          .populate(employeePopulateOptions)
+          .lean();
+
+        if (!user) {
+          return errorRes2(res, 401, "employee not found");
+        }
+        if (user.status != "active") {
+          res.setHeader("x-force-logout", `force-logout`);
+
+          return errorRes2(res, 401, "Unauthorized Access.");
+        }
+      } else if (decoded.data.role === "customer") {
+        user = await clientModel.findById(decoded.data._id).lean();
+
+        if (!user) {
+          res.setHeader("x-force-logout", `force-logout`);
+
+          return errorRes2(res, 401, "client not found");
+        }
+      }
 
       if (!user) {
         res.setHeader("x-force-logout", `force-logout`);
+
         return errorRes2(
           res,
           401,
-          "Session Expired, Please log in again to continue.",
+          "Your session has expired. Please log in again to continue.",
         );
       }
-
-      if (user.status != "active") {
-        res.setHeader("x-force-logout", `force-logout`);
-        return errorRes2(res, 401, "Your account is no longer active.");
-      }
+          const { password, ...userWithoutPassword } = user;
 
       req.user = user;
-      return successRes2(res, 200, "Authenticated", { data: user });
+      return successRes2(res, 200, "Authenticated", { data: userWithoutPassword });
     } catch (error) {
-      // logger.info(error);
-
       if (error.name === "TokenExpiredError") {
-        // Access token expired, attempt to refresh
+        // Token has expired, attempt to refresh
         if (!refreshToken) {
           res.setHeader("x-force-logout", `force-logout`);
+
           return errorRes2(
             res,
             401,
-            "Session Expired, Please log in again to continue.",
+            "Your session has expired. Please log in again to continue.",
           );
         }
         const blockedToken2 = await blockedTokenModel.findOne({
@@ -535,106 +559,334 @@ export const getEmployeeReAuth = async (req, res, next) => {
         }
 
         try {
-          const decoded = verifyJwtToken(
-            refreshToken,
-            config.SECRET_REFRESH_KEY,
-          );
-          const user = await employeeModel
-            .findOne({ _id: decoded.data._id, refreshToken: refreshToken })
-            .select("-password -refreshToken")
-            .populate(employeePopulateOptions)
-            .lean();
+          const session = await sessionModel.findOne({
+            refreshToken: refreshToken,
+            isRevoked: false,
+          });
+
+          if (!session) {
+            res.setHeader("x-force-logout", `force-logout`);
+
+            return errorRes2(res, 401, "Employee not found");
+          }
+
+          let user = null;
+          if (session.role === "channel-partner") {
+            user = await cpModel.findById(session.userId).lean();
+
+            if (!user) {
+              res.setHeader("x-force-logout", `force-logout`);
+
+              return errorRes2(res, 401, "Channel Partner not found");
+            }
+          } else if (session.role === "employee") {
+            user = await employeeModel
+              .findById(session.userId)
+              .populate(employeePopulateOptions)
+              .lean();
+
+            if (!user) {
+              res.setHeader("x-force-logout", `force-logout`);
+
+              return errorRes2(res, 401, "Employee not found");
+            }
+
+            if (user.status != "active") {
+              res.setHeader("x-force-logout", `force-logout`);
+
+              return errorRes2(res, 401, "Unauthorized Access");
+            }
+          } else if (session.role === "customer") {
+            user = await clientModel.findById(session.userId).lean();
+
+            if (!user) {
+              res.setHeader("x-force-logout", `force-logout`);
+
+              return errorRes2(res, 401, "client not found");
+            }
+          }
 
           if (!user) {
             res.setHeader("x-force-logout", `force-logout`);
+
             return errorRes2(
               res,
               401,
-              "Session Expired, Please log in again to continue.",
+              "Your session has expired. Please log in again to continue.",
             );
           }
 
+          const date = moment().tz("Asia/Kolkata");
+          const { password, ...userWithoutPassword } = user;
           const dataToken = {
             _id: user._id,
-            email: user.email,
+            // email: user.email,
             role: user.role,
           };
+          const expiredDate = moment(session.expiresAt).tz("Asia/Kolkata");
+         if (expiredDate.isBefore(date)) {
+            // 4. Revoke old session
+            session.isRevoked = true;
+            session.lastUsedAt = new Date();
 
-          // Generate a new access token
-          const newAccessToken = createJwtToken(
-            dataToken,
-            config.SECRET_ACCESS_KEY,
-            "15m",
-          );
+            await session.save();
 
-          // Check if refresh token is about to expire (e.g., less than 1 day)
-          const refreshDecoded = verifyJwtToken(
-            refreshToken,
-            config.SECRET_REFRESH_KEY,
-          );
-          // logger.info(refreshDecoded);
-          const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-          const timeLeft = refreshDecoded.exp - currentTime;
+            const sesssionRefresh = generateSessionefreshToken();
 
-          let newRefreshToken = refreshToken;
-          if (timeLeft < 24 * 60 * 60) {
-            // If less than 1 day left
-            newRefreshToken = createJwtToken(
-              dataToken,
-              config.SECRET_REFRESH_KEY,
-              "7d",
-            ); // Generate a new refresh token
-            res.setHeader("x-new-refresh-token", newRefreshToken); // Send new refresh token in response header
+            const hashedRefresh = hashToken(sesssionRefresh);
+
+            await sessionModel.create({
+              userId: user._id,
+              role: user.role,
+              refreshToken: hashedRefresh,
+              userAgent: req.headers["user-agent"],
+              deviceName: req.headers["x-device-name"],
+              deviceType: req.headers["x-device-type"],
+              os: req.headers["x-device-os"],
+              ipAddress: req.ip,
+
+              expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            });
+            res.setHeader("x-refresh-token", `Bearer ${hashedRefresh}`);
             if (clientIsWeb === "web") {
-              res.cookie("refreshToken", newRefreshToken, {
+              res.cookie("refreshToken", hashedRefresh, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "Strict",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
               });
             }
+          } else {
+            session.lastUsedAt = new Date();
+            await session.save();
           }
 
-          res.setHeader("Authorization", `Bearer ${newAccessToken}`);
+          const newAccessToken = createJwtToken(
+            dataToken,
+            config.SECRET_ACCESS_KEY,
+            "15m",
+          );
 
+          res.setHeader("Authorization", `Bearer ${newAccessToken}`);
           if (clientIsWeb === "web") {
-            res.cookie("accessToken", accessToken, {
+            res.cookie("accessToken", newAccessToken, {
               httpOnly: true,
               secure: process.env.NODE_ENV === "production",
               sameSite: "Strict",
               maxAge: 15 * 60 * 1000,
             });
           }
-
-          req.user = user;
-
-          return successRes2(res, 200, "Token refreshed", {
-            data: user,
-            refreshToken: timeLeft < 24 * 60 * 60 ? newRefreshToken : undefined, // Include new token if generated
+          // res.setHeader("NewAccessToken", `Bearer ${newAccessToken}`);
+          req.user = {
+            ...userWithoutPassword,
+          };
+          return successRes2(res, 200, "Authenticated", {
+            data: userWithoutPassword,
           });
         } catch (refreshError) {
-          // logger.info(refreshError);
           res.setHeader("x-force-logout", `force-logout`);
+
           return errorRes2(
             res,
             401,
-            "Session Expired, Please log in again to continue.",
+            "Your session has expired. Please log in again to continue.",
           );
         }
       }
       res.setHeader("x-force-logout", `force-logout`);
 
-      return errorRes2(
-        res,
-        401,
-        "Session Expired, Please log in again to continue.",
-      );
+      return errorRes2(res, 401, "Invalid credentials");
     }
   } catch (error) {
-    // res.setHeader("x-force-logout", `force-logout`);
-    logger.info("Error during re-authentication:", error);
-    return errorRes2(res, 500, "Internal server error");
+    res.setHeader("x-force-logout", `force-logout`);
+    // logger.info(error);
+    return errorRes2(res, 401, "Internal server error");
   }
+
+  // try {
+  //   const accessTokenCoockie = req.cookies.accessToken;
+  //   const refreshTokenCoockie = req.cookies.refreshToken;
+  //   const accessHeader = req.headers["authorization"]?.split(" ")[1];
+  //   const refreshHeader = req.headers["x-refresh-token"]?.split(" ")[1];
+
+  //   const accessToken = accessHeader ?? accessTokenCoockie;
+  //   const refreshToken = refreshHeader ?? refreshTokenCoockie;
+  //   const clientIsWeb = req.headers["x-platform"];
+
+  //   // console.log(`acces web ${accessTokenCoockie}`);
+  //   // console.log(`refresh web ${refreshTokenCoockie}`);
+
+  //   // console.log(`acces ${accessHeader}`);
+  //   // console.log(`refresh ${refreshHeader}`);
+
+  //   if (!accessToken) {
+  //     res.setHeader("x-force-logout", `force-logout`);
+
+  //     return errorRes2(
+  //       res,
+  //       401,
+  //       "Your session has expired. Please log in again to continue.",
+  //     );
+  //   }
+
+  //   try {
+  //     const blockedToken2 = await blockedTokenModel.findOne({
+  //       token: accessToken,
+  //     });
+  //     if (blockedToken2) {
+  //       res.setHeader("x-force-logout", `force-logout`);
+
+  //       return errorRes2(res, 401, "Unauthorized Access.");
+  //     }
+
+  //     // Verify access token
+  //     const decoded = verifyJwtToken(accessToken, config.SECRET_ACCESS_KEY);
+
+  //     const user = await employeeModel
+  //       .findOne({ _id: decoded.data._id, refreshToken: refreshToken })
+  //       .select("-password -refreshToken")
+  //       .populate(employeePopulateOptions)
+  //       .lean();
+
+  //     if (!user) {
+  //       res.setHeader("x-force-logout", `force-logout`);
+  //       return errorRes2(
+  //         res,
+  //         401,
+  //         "Session Expired, Please log in again to continue.",
+  //       );
+  //     }
+
+  //     if (user.status != "active") {
+  //       res.setHeader("x-force-logout", `force-logout`);
+  //       return errorRes2(res, 401, "Your account is no longer active.");
+  //     }
+
+  //     req.user = user;
+  //     return successRes2(res, 200, "Authenticated", { data: user });
+  //   } catch (error) {
+  //     // logger.info(error);
+
+  //     if (error.name === "TokenExpiredError") {
+  //       // Access token expired, attempt to refresh
+  //       if (!refreshToken) {
+  //         res.setHeader("x-force-logout", `force-logout`);
+  //         return errorRes2(
+  //           res,
+  //           401,
+  //           "Session Expired, Please log in again to continue.",
+  //         );
+  //       }
+  //       const blockedToken2 = await blockedTokenModel.findOne({
+  //         token: refreshToken,
+  //       });
+  //       if (blockedToken2) {
+  //         res.setHeader("x-force-logout", `force-logout`);
+
+  //         return errorRes2(res, 401, "Unauthorized Access.");
+  //       }
+
+  //       try {
+  //         const decoded = verifyJwtToken(
+  //           refreshToken,
+  //           config.SECRET_REFRESH_KEY,
+  //         );
+  //         const user = await employeeModel
+  //           .findOne({ _id: decoded.data._id, refreshToken: refreshToken })
+  //           .select("-password -refreshToken")
+  //           .populate(employeePopulateOptions)
+  //           .lean();
+
+  //         if (!user) {
+  //           res.setHeader("x-force-logout", `force-logout`);
+  //           return errorRes2(
+  //             res,
+  //             401,
+  //             "Session Expired, Please log in again to continue.",
+  //           );
+  //         }
+
+  //         const dataToken = {
+  //           _id: user._id,
+  //           email: user.email,
+  //           role: user.role,
+  //         };
+
+  //         // Generate a new access token
+  //         const newAccessToken = createJwtToken(
+  //           dataToken,
+  //           config.SECRET_ACCESS_KEY,
+  //           "15m",
+  //         );
+
+  //         // Check if refresh token is about to expire (e.g., less than 1 day)
+  //         const refreshDecoded = verifyJwtToken(
+  //           refreshToken,
+  //           config.SECRET_REFRESH_KEY,
+  //         );
+  //         // logger.info(refreshDecoded);
+  //         const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+  //         const timeLeft = refreshDecoded.exp - currentTime;
+
+  //         let newRefreshToken = refreshToken;
+  //         if (timeLeft < 24 * 60 * 60) {
+  //           // If less than 1 day left
+  //           newRefreshToken = createJwtToken(
+  //             dataToken,
+  //             config.SECRET_REFRESH_KEY,
+  //             "7d",
+  //           ); // Generate a new refresh token
+  //           res.setHeader("x-new-refresh-token", newRefreshToken); // Send new refresh token in response header
+  //           if (clientIsWeb === "web") {
+  //             res.cookie("refreshToken", newRefreshToken, {
+  //               httpOnly: true,
+  //               secure: process.env.NODE_ENV === "production",
+  //               sameSite: "Strict",
+  //               maxAge: 7 * 24 * 60 * 60 * 1000,
+  //             });
+  //           }
+  //         }
+
+  //         res.setHeader("Authorization", `Bearer ${newAccessToken}`);
+
+  //         if (clientIsWeb === "web") {
+  //           res.cookie("accessToken", accessToken, {
+  //             httpOnly: true,
+  //             secure: process.env.NODE_ENV === "production",
+  //             sameSite: "Strict",
+  //             maxAge: 15 * 60 * 1000,
+  //           });
+  //         }
+
+  //         req.user = user;
+
+  //         return successRes2(res, 200, "Token refreshed", {
+  //           data: user,
+  //           refreshToken: timeLeft < 24 * 60 * 60 ? newRefreshToken : undefined, // Include new token if generated
+  //         });
+  //       } catch (refreshError) {
+  //         // logger.info(refreshError);
+  //         res.setHeader("x-force-logout", `force-logout`);
+  //         return errorRes2(
+  //           res,
+  //           401,
+  //           "Session Expired, Please log in again to continue.",
+  //         );
+  //       }
+  //     }
+  //     res.setHeader("x-force-logout", `force-logout`);
+
+  //     return errorRes2(
+  //       res,
+  //       401,
+  //       "Session Expired, Please log in again to continue.",
+  //     );
+  //   }
+  // } catch (error) {
+  //   // res.setHeader("x-force-logout", `force-logout`);
+  //   logger.info("Error during re-authentication:", error);
+  //   return errorRes2(res, 500, "Internal server error");
+  // }
 };
 
 export const editEmployeeById = async (req, res, next) => {
@@ -976,7 +1228,7 @@ export const loginEmployee = async (req, res, next) => {
     const { password: dbPassword, ...userWithoutPassword } = employeeDb._doc;
     const dataToken = {
       _id: employeeDb._id,
-      email: employeeDb.email,
+      // email: employeeDb.email,
       role: employeeDb.role,
     };
 
@@ -990,6 +1242,24 @@ export const loginEmployee = async (req, res, next) => {
       config.SECRET_REFRESH_KEY,
       "7d",
     );
+
+    const sesssionRefresh = generateSessionefreshToken();
+
+    const hashedRefresh = hashToken(sesssionRefresh);
+
+    await sessionModel.create({
+      userId: employeeDb._id,
+      role: employeeDb.role,
+      refreshToken: hashedRefresh,
+      userAgent: req.headers["user-agent"],
+      deviceName: req.headers["x-device-name"],
+      deviceType: req.headers["x-device-type"],
+      os: req.headers["x-device-os"],
+      ipAddress: req.ip,
+
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
     await employeeDb.updateOne(
       {
         refreshToken: refreshToken,
@@ -1011,12 +1281,18 @@ export const loginEmployee = async (req, res, next) => {
         // sameSite: "Strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
+
+      res.cookie("sessionRefreshToken", hashedRefresh, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
     }
 
     return successRes2(res, 200, errorMessage.EMP_LOGIN_SUCCESS, {
       data: userWithoutPassword,
       accessToken,
-      refreshToken,
+      refreshToken: hashedRefresh,
     });
   } catch (error) {
     logger.info(error);

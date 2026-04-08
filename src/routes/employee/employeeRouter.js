@@ -36,6 +36,7 @@ import shiftInfoModel from "../../model/attendance/shift/employeeShiftInfo.js";
 import moment from "moment-timezone";
 import { employeePopulateOptions } from "../../utils/constant.js";
 import logger from "../../utils/logger.js";
+import sessionModel from "../../model/sessionSchema/session.model.js";
 
 const employeeRouter = Router();
 
@@ -157,6 +158,8 @@ employeeRouter.get("/reset-password", (req, res) => {
 
 employeeRouter.post("/employee-logout", async (req, res) => {
   try {
+    const token = req.cookies.refreshToken;
+
     res.cookie("refreshToken", null, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -171,6 +174,7 @@ employeeRouter.post("/employee-logout", async (req, res) => {
       maxAge: 0,
       path: "/",
     });
+    await sessionModel.updateOne({ refreshToken: token }, { isRevoked: true });
     return successRes2(res, 200, "logged Out");
   } catch (error) {
     return errorRes2(res, 500, error);
