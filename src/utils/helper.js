@@ -128,3 +128,17 @@ export const hasPermission = (user, permission) => {
   const perms = user?.permissions ?? [];
   return perms?.includes("all_access") || perms?.includes(permission);
 };
+
+export const generateSessionAccessToken = (userId) => {
+  return jwt.sign({ userId }, config.SECRET_ACCESS_KEY, {
+    expiresIn: "15m",
+  });
+};
+
+export const generateSessionefreshToken = () => {
+  return crypto.randomBytes(64).toString("hex");
+};
+
+export const hashToken = (token) => {
+  return crypto.createHash("sha256").update(token).digest("hex");
+};
