@@ -1636,3 +1636,4 @@ export const sendAddLeaveNotification = async (req, res, next) => {
     res.status(500).send({ status: "error", message: "Internal server error" });
   }
 };
+

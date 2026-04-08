@@ -143,6 +143,7 @@ import designTaskRouter from "./task/designTaskRouter.js";
 import trackerRouter from "./tracker/trackerRouter.js";
 import logger from "../utils/logger.js";
 import otpRouter from "./otp/otpRouter.js";
+import sessionRouter from "./session/sessionRouter.js";
 
 const router = Router();
 
@@ -1051,5 +1052,5 @@ router.use(onbExhibRouter);
 router.use(designTaskRouter);
 router.use(trackerRouter);
 router.use(otpRouter);
-
+router.use(sessionRouter);
 export default router;
