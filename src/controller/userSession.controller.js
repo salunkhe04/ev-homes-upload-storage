@@ -11,7 +11,11 @@ export const getSessions = async (req, res) => {
         userId: req.user._id,
         isRevoked: false,
       })
-      .select("-refreshToken");
+      .select("-refreshToken")
+      .populate({
+        path: "userId",
+        select: "firstName lastName employeeId",
+      })
 
     return successRes2(res, 200, "Sessions", { data: sessions });
   } catch (error) {
