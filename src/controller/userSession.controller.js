@@ -35,3 +35,45 @@ export const logoutAll = async (req, res) => {
     return errorRes2(res, 500, `error${error}`);
   }
 };
+export const getAllSessions = async (req, res) => {
+  const query = req.query.query || "";
+
+  let page = parseInt(req.query.page) || 1;
+  let limit = parseInt(req.query.limit) || 10;
+  let skip = (page - 1) * limit;
+
+  try {
+    const searchFilter = query
+      ? {
+          userId: { $regex: query, $options: "i" },
+        }
+      : {};
+
+    console.log(searchFilter);
+
+    const sessions = await sessionModel
+      .find(searchFilter)
+      .select("-refreshToken")
+      .populate({
+        path: "userId",
+        select: "firstName lastName employeeId",
+      })
+      .skip(skip)
+      .limit(limit);
+
+    const totalItems = await sessionModel.countDocuments(searchFilter);
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return successRes2(res, 200, "Sessions", {
+      page,
+      limit,
+      totalPages,
+      totalItems,
+      total: sessions.length,
+      data: sessions,
+    });
+  } catch (error) {
+    logger.info(error);
+    return errorRes2(res, 500, `error ${error}`);
+  }
+};
