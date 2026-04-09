@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  getAllSessions,
   getSessions,
   logoutAll,
 } from "../../controller/userSession.controller.js";
@@ -12,5 +13,8 @@ sessionRouter.get(
   getSessions,
 );
 sessionRouter.get("/sessions-logout-all", authenticateToken, logoutAll);
+
+sessionRouter.get("/sessions-all", getAllSessions);
+
 
 export default sessionRouter;
