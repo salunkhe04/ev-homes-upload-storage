@@ -22,6 +22,16 @@ on approve TL,
 on cp note,
 on Inform cp,
 */
+
+/*
+reference : not using anymore
+teamLeader : not using anymore,using cycle.teamLeader
+
+
+ */
+
+
+
 export const getLeadById = async ({ id, ignoreCache = false }) => {
   // 1. check from cached
   const cached = await RedisService.get(`lead_${id}`, true);

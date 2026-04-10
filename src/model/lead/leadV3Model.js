@@ -215,11 +215,6 @@ export const leadSchema = new mongoose.Schema(
     lastName: { type: String, default: null },
     address: { type: String, default: null },
     leadType: { type: String, default: "cp" },
-    reference: {
-      type: String,
-      ref: "reference",
-      default: null,
-    },
     channelPartner: {
       type: String,
       ref: "channelPartners",
@@ -230,21 +225,21 @@ export const leadSchema = new mongoose.Schema(
       ref: "employees",
       default: null,
     },
-    teamLeader: {
-      type: String,
-      ref: "employees",
-      default: null,
-    },
+
     countryCode: { type: String, default: "+91" },
     phoneNumber: { type: Number, default: null, unique: true },
     altPhoneNumber: { type: Number, default: null },
-    remark: { type: String, default: null },
-    stage: { type: String, default: "approval" },
+    altPhoneNumbers: { type: [Number], default: [] },
+
+    remark: { type: String, default: null }, //internal remark from admin or srm
+    stage: { type: String, default: "approval" }, //hold
+
     startDate: {
       type: Date,
       // required: true,
       default: Date.now,
     },
+
     validTill: {
       type: Date,
       // required: true,
@@ -300,33 +295,6 @@ export const leadSchema = new mongoose.Schema(
       ref: "task",
       default: null,
     },
-
-    task: {
-      id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "task",
-        default: null,
-      },
-      assignTo: {
-        type: String,
-        required: true,
-        ref: "employees",
-      },
-      assignBy: {
-        type: String,
-        required: true,
-        ref: "employees",
-      },
-      type: { type: String, default: null },
-      assignDate: { type: Date, default:null },
-      deadline: { type: Date, default: null },
-      completedDate: { type: Date, default: null },
-      details: { type: String, default: null },
-      completed: { type: Boolean, default: false },
-      transferTaskFrom: { type: String, ref: "employees",default: null },
-      phoneNumber: { type: Number, default: null },
-    },
-    
     revisitStatus: {
       type: String,
       default: "pending",
