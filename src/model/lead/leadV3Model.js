@@ -464,6 +464,6 @@ export const leadSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-const leadModelV2 = mongoose.model("lead", leadSchema, "leads");
+const leadModelV3 = mongoose.model("lead", leadSchema, "leads");
 // const leadModelV2 = mongoose.model("lead", leadSchema, "leads");
-export default leadModelV2;
+export default leadModelV3;
