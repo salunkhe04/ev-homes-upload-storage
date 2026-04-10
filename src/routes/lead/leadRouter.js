@@ -2327,4 +2327,66 @@ leadRouter.post("/xello-1time-10m", async (req, res) => {
     });
 });
 
+leadRouter.post("/tasks-deserialize", async (req, res) => {
+  try {
+    const batchSize = 1000;
+    let bulkOps = [];
+    let count = 0;
+
+    const cursor = leadModelV2
+      .find({ taskRef: { $ne: null } })
+      .populate(leadPopulateOptions) // ⚠️ try to remove if possible
+      .lean()
+      .cursor();
+
+    for await (const e of cursor) {
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: e._id },
+          update: {
+            $set: {
+              task: {
+                id: e.taskRef?._id,
+                assignTo: e.taskRef?.assignTo?._id,
+                assignBy: e.taskRef?.assignBy?._id,
+                type: e.taskRef?.type,
+                assignDate: e.taskRef?.assignDate,
+                deadline: e.taskRef?.deadline,
+                completedDate: e.taskRef?.completedDate,
+                details: e.taskRef?.details,
+                completed: e.taskRef?.completed,
+                transferTaskFrom: e.taskRef?.transferTaskFrom?._id,
+                phoneNumber: e.taskRef?.phoneNumber,
+              },
+            },
+          },
+        },
+      });
+
+      if (bulkOps.length === batchSize) {
+        await leadModelV2.bulkWrite(bulkOps);
+        count += bulkOps.length;
+        bulkOps = [];
+        console.log("Processed:", count);
+      }
+    }
+
+    // remaining
+    if (bulkOps.length > 0) {
+      await leadModelV2.bulkWrite(bulkOps);
+      count += bulkOps.length;
+    }
+
+    res.status(200).json({
+      success: true,
+      processed: count,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+});
 export default leadRouter;

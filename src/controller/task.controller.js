@@ -760,7 +760,25 @@ export const assignTask = async (req, res, next) => {
     if (body?.lead) {
       foundLead = await leadModelV2.findOneAndUpdate(
         { _id: body?.lead },
-        { taskRef: resp?._id },
+        {
+          $set: {
+            taskRef: resp?._id,
+
+            task: {
+              id: resp?._id,
+              assignTo: resp?.assignTo,
+              assignBy: resp?.assignBy,
+              type: resp?.type,
+              assignDate: resp?.assignDate,
+              deadline: resp?.deadline,
+              completedDate: resp?.completedDate,
+              details: resp?.details,
+              completed: resp?.completed,
+              transferTaskFrom: resp?.transferTaskFrom,
+              phoneNumber: resp?.phoneNumber,
+            },
+          },
+        },
       );
     }
 
@@ -848,7 +866,25 @@ export const assignMultipleTask = async (req, res, next) => {
           });
           foundLead = await leadModelV2.findOneAndUpdate(
             { _id: ele },
-            { taskRef: resp?._id },
+            {
+              $set: {
+                taskRef: resp?._id,
+
+                task: {
+                  id: resp?._id,
+                  assignTo: resp?.assignTo,
+                  assignBy: resp?.assignBy,
+                  type: resp?.type,
+                  assignDate: resp?.assignDate,
+                  deadline: resp?.deadline,
+                  completedDate: resp?.completedDate,
+                  details: resp?.details,
+                  completed: resp?.completed,
+                  transferTaskFrom: resp?.transferTaskFrom,
+                  phoneNumber: resp?.phoneNumber,
+                },
+              },
+            },
           );
 
           // logger.info("passed");
@@ -906,7 +942,25 @@ export const transferTask = async (req, res, next) => {
 
     // Save the updated task
     const updatedTask = await task.save();
+    try {
+      const foundLead = await leadModelV2.findOneAndUpdate(
+        { phoneNumber: task.phoneNumber },
+        {
+          $set: {
+            taskRef: task?._id,
 
+            task: {
+              id: task?._id,
+              assignTo: assignTo,
+              transferTaskFrom: transferTaskFrom ?? task.assignTo,
+              completed: false,
+            },
+          },
+        },
+      );
+    } catch (error) {
+      //
+    }
     const populatedTask = await taskModel
       .findByIdAndUpdate(updatedTask._id, {
         assignTo: assignTo,
@@ -980,7 +1034,25 @@ export const transferMultipleTasks = async (req, res, next) => {
           { new: true },
         )
         .populate(taskPopulateOptions);
+      try {
+        const foundLead = await leadModelV2.findOneAndUpdate(
+          { phoneNumber: task.phoneNumber },
+          {
+            $set: {
+              taskRef: task?._id,
 
+              task: {
+                id: task?._id,
+                assignTo: assignTo,
+                transferTaskFrom: transferTaskFrom ?? task.assignTo,
+                completed: false,
+              },
+            },
+          },
+        );
+      } catch (error) {
+        //
+      }
       updatedTasks.push(updatedTask);
     }
 
