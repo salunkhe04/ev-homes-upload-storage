@@ -533,10 +533,12 @@ export const getEmployeeReAuth = async (req, res, next) => {
           "Your session has expired. Please log in again to continue.",
         );
       }
-          const { password, ...userWithoutPassword } = user;
+      const { password, ...userWithoutPassword } = user;
 
       req.user = user;
-      return successRes2(res, 200, "Authenticated", { data: userWithoutPassword });
+      return successRes2(res, 200, "Authenticated", {
+        data: userWithoutPassword,
+      });
     } catch (error) {
       if (error.name === "TokenExpiredError") {
         // Token has expired, attempt to refresh
@@ -624,7 +626,7 @@ export const getEmployeeReAuth = async (req, res, next) => {
             role: user.role,
           };
           const expiredDate = moment(session.expiresAt).tz("Asia/Kolkata");
-         if (expiredDate.isBefore(date)) {
+          if (expiredDate.isBefore(date)) {
             // 4. Revoke old session
             session.isRevoked = true;
             session.lastUsedAt = new Date();
@@ -1287,6 +1289,9 @@ export const loginEmployee = async (req, res, next) => {
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
+
+      res.setHeader("Authorization", `Bearer ${accessToken}`);
+      res.setHeader("x-refresh-token", `Bearer ${hashedRefresh}`);
     }
 
     return successRes2(res, 200, errorMessage.EMP_LOGIN_SUCCESS, {
@@ -1636,4 +1641,3 @@ export const sendAddLeaveNotification = async (req, res, next) => {
     res.status(500).send({ status: "error", message: "Internal server error" });
   }
 };
-
