@@ -2056,10 +2056,8 @@ leadRouter.post("/fix-old-bulk-call-date", async (req, res) => {
 leadRouter.post("/cross-check-booking-exist-lead", async (req, res) => {
   const bookings = await postSaleLeadModel.find({
     $or: [
-      { phoneNumber: 9320320025 },
-      { phoneNumber: 9987642694 },
-      { phoneNumber: 9987388263 },
-      // { phoneNumber: 109223 },
+      { "bookingStatus.type": { $ne: "Cancelled" } },
+      { "bookingStatus.type": { $ne: "cancelled" } },
     ],
   });
   const result = [];
@@ -2075,14 +2073,15 @@ leadRouter.post("/cross-check-booking-exist-lead", async (req, res) => {
         try {
           //
           const newLead = await leadModelV2.findByIdAndUpdate(foundLead._id, {
-            firstName: ele.firstName,
-            lastName: ele.lastName,
-            // stage: "booking",
+            // firstName: ele.firstName,
+            // lastName: ele.lastName,
+            stage: "booking",
             // bookingRef: ele._id,
-            // bookingStatus: ele.bookingStatus.type,
+            bookingStatus: ele.bookingStatus.type,
             // startDate: ele.date,
             // teamLeader: ele.closingManager,
             bookingDate: ele.date,
+
             // cycle: {
             //   stage: "booking",
             //   teamLeader: ele.closingManager,
