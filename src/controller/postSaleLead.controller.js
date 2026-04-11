@@ -1107,105 +1107,110 @@ export const addPostSaleLead = async (req, res, next) => {
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
+    try {
+      const findTarget = await TargetModel.findOne({
+        staffId: resp?.closingManager,
+        month: currentMonth,
+        year: currentYear,
+      });
 
-    const findTarget = await TargetModel.findOne({
-      staffId: resp?.closingManager,
-      month: currentMonth,
-      year: currentYear,
-    });
+      if (findTarget != null) {
+        try {
+          findTarget.achieved += 1;
+          findTarget.extraAchieved = Math.max(
+            0,
+            findTarget.achieved - findTarget.target,
+          );
+          findTarget.bookings.push(resp._id);
 
-    if (findTarget != null) {
-      try {
-        findTarget.achieved += 1;
-        findTarget.extraAchieved = Math.max(
-          0,
-          findTarget.achieved - findTarget.target,
-        );
-        findTarget.bookings.push(resp._id);
-
-        await findTarget.save();
-      } catch (error) {
-        logger.info(error);
-        //
-      }
-    }
-
-    const bookingDate = new Date(resp.date || Date.now());
-    const { startDate, endDate, year, quarter } = getQuarterInfo(bookingDate);
-
-    function calculateTotalTarget(projectList) {
-      let total = 0;
-      for (let i = 0; i < projectList.length; i++) {
-        total += projectList[i].target || 0;
-      }
-      return total;
-    }
-
-    const isBooking = resp?.bookingStatus?.type === "confirm-booking";
-    const isRegistration = resp?.registrationDone === true;
-
-    const targetF = {
-      staffId: resp?.closingManager,
-      startDate,
-      endDate,
-      year,
-    };
-
-    let revisedTarget = await revisedTargetModel.findOne(targetF);
-
-    if (!revisedTarget) {
-      try {
-        const projectWiseData = defaultProjectTargets.map((p) => ({
-          projectId: p.projectId,
-          target: p.target,
-          booking: p.projectId === resp.project && isBooking ? 1 : 0,
-          registration: p.projectId === resp.project && isRegistration ? 1 : 0,
-        }));
-
-        revisedTarget = new revisedTargetModel({
-          ...targetF,
-          quarter,
-          booking: isBooking ? [resp._id] : [],
-          registration: isRegistration ? [resp._id] : [],
-          projectWise: projectWiseData,
-          target: calculateTotalTarget(projectWiseData),
-        });
-
-        await revisedTarget.save();
-      } catch (e) {
-        logger.info(e);
-      }
-    } else {
-      try {
-        const alreadyInBooking = revisedTarget.booking?.includes(resp._id);
-        const alreadyInRegistration = revisedTarget.registration?.includes(
-          resp._id,
-        );
-
-        if (isBooking && !alreadyInBooking) {
-          revisedTarget.booking.push(resp._id);
+          await findTarget.save();
+        } catch (error) {
+          logger.info(error);
+          //
         }
+      }
 
-        if (isRegistration && !alreadyInRegistration) {
-          revisedTarget.registration.push(resp._id);
+      const bookingDate = new Date(resp.date || Date.now());
+      const { startDate, endDate, year, quarter } = getQuarterInfo(bookingDate);
+
+      function calculateTotalTarget(projectList) {
+        let total = 0;
+        for (let i = 0; i < projectList.length; i++) {
+          total += projectList[i].target || 0;
         }
+        return total;
+      }
 
-        for (let i = 0; i < revisedTarget.projectWise.length; i++) {
-          const project = revisedTarget.projectWise[i];
-          if (project.projectId === resp.project) {
-            if (isBooking) project.booking = (project.booking || 0) + 1;
-            if (isRegistration)
-              project.registration = (project.registration || 0) + 1;
+      const isBooking = resp?.bookingStatus?.type === "confirm-booking";
+      const isRegistration = resp?.registrationDone === true;
+
+      const targetF = {
+        staffId: resp?.closingManager,
+        startDate,
+        endDate,
+        year,
+      };
+
+      let revisedTarget = await revisedTargetModel.findOne(targetF);
+
+      if (!revisedTarget) {
+        try {
+          const projectWiseData = defaultProjectTargets.map((p) => ({
+            projectId: p.projectId,
+            target: p.target,
+            booking: p.projectId === resp.project && isBooking ? 1 : 0,
+            registration:
+              p.projectId === resp.project && isRegistration ? 1 : 0,
+          }));
+
+          revisedTarget = new revisedTargetModel({
+            ...targetF,
+            quarter,
+            booking: isBooking ? [resp._id] : [],
+            registration: isRegistration ? [resp._id] : [],
+            projectWise: projectWiseData,
+            target: calculateTotalTarget(projectWiseData),
+          });
+
+          await revisedTarget.save();
+        } catch (e) {
+          logger.info(e);
+        }
+      } else {
+        try {
+          const alreadyInBooking = revisedTarget.booking?.includes(resp._id);
+          const alreadyInRegistration = revisedTarget.registration?.includes(
+            resp._id,
+          );
+
+          if (isBooking && !alreadyInBooking) {
+            revisedTarget.booking.push(resp._id);
           }
+
+          if (isRegistration && !alreadyInRegistration) {
+            revisedTarget.registration.push(resp._id);
+          }
+
+          for (let i = 0; i < revisedTarget.projectWise.length; i++) {
+            const project = revisedTarget.projectWise[i];
+            if (project.projectId === resp.project) {
+              if (isBooking) project.booking = (project.booking || 0) + 1;
+              if (isRegistration)
+                project.registration = (project.registration || 0) + 1;
+            }
+          }
+
+          revisedTarget.target = calculateTotalTarget(
+            revisedTarget.projectWise,
+          );
+
+          await revisedTarget.save();
+        } catch (e) {
+          logger.info(e);
         }
-
-        revisedTarget.target = calculateTotalTarget(revisedTarget.projectWise);
-
-        await revisedTarget.save();
-      } catch (e) {
-        logger.info(e);
       }
-    }
+    } catch (error) {}
+    //
     try {
       await updateFlatInfoByIdFlatNo({
         projectId: project,
@@ -1269,7 +1274,7 @@ export const addPostSaleLead = async (req, res, next) => {
         $or: [
           { _id: lead },
           {
-            teamLeader: resp?.closingManager,
+            "cycle.teamLeader": resp?.closingManager,
             phoneNumber: phoneNumber,
           },
         ],
@@ -1618,8 +1623,7 @@ export const cancelBooking = async (req, res, next) => {
     if (!id) return res.send(errorRes(400, "Lead ID is required"));
 
     // Find the lead to get the associated flat details
-    const lead = await postSaleLeadModel
-      .findById(id);
+    const lead = await postSaleLeadModel.findById(id);
 
     if (!lead) return res.send(errorRes(404, "Lead not found"));
 
