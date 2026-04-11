@@ -310,13 +310,11 @@ export const leadSchema = new mongoose.Schema(
       assignTo: {
         type: String,
         default: null,
-
         ref: "employees",
       },
       assignBy: {
         type: String,
         default: null,
-
         ref: "employees",
       },
       type: { type: String, default: null },
