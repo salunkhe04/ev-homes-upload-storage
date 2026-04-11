@@ -309,24 +309,26 @@ export const leadSchema = new mongoose.Schema(
       },
       assignTo: {
         type: String,
-        required: true,
+        default: null,
+
         ref: "employees",
       },
       assignBy: {
         type: String,
-        required: true,
+        default: null,
+
         ref: "employees",
       },
       type: { type: String, default: null },
-      assignDate: { type: Date, default:null },
+      assignDate: { type: Date, default: null },
       deadline: { type: Date, default: null },
       completedDate: { type: Date, default: null },
       details: { type: String, default: null },
       completed: { type: Boolean, default: false },
-      transferTaskFrom: { type: String, ref: "employees",default: null },
+      transferTaskFrom: { type: String, ref: "employees", default: null },
       phoneNumber: { type: Number, default: null },
     },
-    
+
     revisitStatus: {
       type: String,
       default: "pending",
