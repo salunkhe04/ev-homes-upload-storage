@@ -1196,6 +1196,7 @@ export const getCheckInByDate = async (req, res) => {
         { _id: "ev15-deepak-karki" },
         { _id: "ev70-jaspreet-arora" },
         { _id: "ev54-ranjna-gupta" },
+        { _id: "ev118-anurag-patil" },
       ];
       const repo =
         teamLeaders.find((a) => a._id == user?._id) ?? user?.reportingTo;
