@@ -15,6 +15,9 @@ import {
   sendPaymentDueEmail,
   updatePaymentDetailsAmtStatus,
   getPaymentReport,
+  getPostSaleLeadForParking,
+  addParkingInBooking,
+  removeParkingFromBooking,
   // flatUpdateResult
   // cancelBooking
 
@@ -42,12 +45,32 @@ postSaleRouter.get(
   authenticateToken,
   getPostSaleLeadByBookingId,
 );
+
+postSaleRouter.get(
+  "/post-sale-lead-parking/:id",
+  // authenticateToken,
+  getPostSaleLeadForParking,
+);
+
 postSaleRouter.post("/post-sale-lead-add", authenticateToken, addPostSaleLead);
 postSaleRouter.post(
   "/post-sale-lead-update/:id",
   authenticateToken,
   updatePostSaleLeadById,
 );
+
+postSaleRouter.post(
+  "/post-sale-lead-add-parking/:id",
+  authenticateToken,
+  addParkingInBooking,
+);
+
+postSaleRouter.delete(
+  "/post-sale-lead-remove-parking/:id",
+  authenticateToken,
+  removeParkingFromBooking,
+);
+
 
 postSaleRouter.post("/cancel-booking", cancelBooking);
 postSaleRouter.get(
