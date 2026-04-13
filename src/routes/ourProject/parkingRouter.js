@@ -200,7 +200,9 @@ export const ParkingOccupancyChange = async ({
   project,
   floor,
   number,
+  buildingNo,
   occupied,
+  occupiedBy,
 }) => {
   //
   try {
@@ -209,13 +211,14 @@ export const ParkingOccupancyChange = async ({
       project: project,
       floor: floor,
       number: number,
+      buildingNo:buildingNo,
     });
 
     if (!flat) return null;
     const cacheData = project ? `parking_${project}` : "parkings";
 
     const updated = await parkingModel
-      .findByIdAndUpdate(flat._id, { occupied: occupied }, { new: true })
+      .findByIdAndUpdate(flat._id, { occupied: occupied,occupiedBy:occupiedBy }, { new: true })
       .populate({ path: "project", select: "name" });
     //
     await RedisService.delMultipleKeys(["parkings", cacheData]);

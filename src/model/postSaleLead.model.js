@@ -290,16 +290,12 @@ export const postSaleLeadSchema = new mongoose.Schema(
     uploadedDocuments: [documentSchema],
     parking: [
       {
+        id: { type: String, default: null },
         floor: { type: Number, default: null },
-        floorName: { type: String, default: null },
         number: { type: Number, default: null },
         parkingNo: { type: String, default: null },
-        occupied: { type: Boolean, default: false },
-        occupiedBy: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "postSaleLead",
-          default: null,
-        },
+        buildingNo: { type: Number, default: null },
+
       },
     ],
     agreementValue: {

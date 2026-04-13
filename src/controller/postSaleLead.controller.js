@@ -38,6 +38,7 @@ import { FlatOccupancyChange } from "../routes/ourProject/flatRouter.js";
 import { ParkingOccupancyChange } from "../routes/ourProject/parkingRouter.js";
 import flatModel from "../model/flat.model.js";
 import logger from "../utils/logger.js";
+import parkingModel from "../model/parking.model.js";
 
 export const getPostSaleLeads = async (req, res, next) => {
   try {
@@ -292,6 +293,41 @@ export const getPostSaleLeadByBookingId = async (req, res, next) => {
 
     return res.send(
       successRes(200, "get booking by id", {
+        data: resp,
+      }),
+    );
+  } catch (error) {
+    return next(error);
+  }
+};
+export const getPostSaleLeadForParking = async (req, res, next) => {
+  const id = req.params.id;
+  try {
+    if (!id) return errorRes2(res, 401, "id is required");
+
+    const resp = await postSaleLeadModel
+      .findById(id, {
+        firstName: 1,
+        lastName: 1,
+        closingManager: 1,
+        unitNo: 1,
+        bookingStatus: 1,
+        status: 1,
+        project: 1,
+      })
+      .populate([
+        {
+          path: "closingManager",
+          select: "firstName lastName",
+        },
+        {
+          path: "project",
+          select: "name",
+        },
+      ]);
+
+    return res.send(
+      successRes(200, "get booking for parking", {
         data: resp,
       }),
     );
@@ -1253,7 +1289,10 @@ export const addPostSaleLead = async (req, res, next) => {
                   project: project,
                   floor: ele.floor,
                   number: ele.number,
+                  buildingNo: newLead?.buildingNo,
+
                   occupied: true,
+                  occupiedBy: newLead?._id,
                 });
               }
             } catch (error) {
@@ -1416,7 +1455,10 @@ export const updatePostSaleLeadById = async (req, res, next) => {
                   project: foundLead?.project,
                   floor: ele?.floor,
                   number: ele?.number,
+                  buildingNo: foundLead?.buildingNo,
+
                   occupied: true,
+                  occupiedBy: foundLead?._id,
                 });
               }
             } catch (error) {
@@ -1439,6 +1481,174 @@ export const updatePostSaleLeadById = async (req, res, next) => {
   }
 };
 
+export const addParkingInBooking = async (req, res, next) => {
+  const { number, floor, buildingNo = null } = req.body;
+  const id = req.params.id;
+
+  try {
+    if (floor===null || floor===undefined) {
+      return errorRes2(res, 400, "Floor is required");
+    }
+
+    const lead = await postSaleLeadModel.findById(id);
+    if (!lead) {
+      return errorRes2(res, 404, "No lead found");
+    }
+
+    let parkingIndex = -1;
+
+    // 🔍 Case 1: Only floor
+    if (!number) {
+      parkingIndex = lead.parking.findIndex(
+        (p) => p.floor === floor && !p.number,
+      );
+    } else {
+      // 🔍 Case 2: Full parking
+      parkingIndex = lead.parking.findIndex(
+        (p) =>
+          p.floor === floor &&
+          p.number === number &&
+          p.buildingNo === buildingNo,
+      );
+    }
+
+    // 🔍 Find parking master (optional)
+    let park = null;
+    if (number) {
+      park = await parkingModel.findOne({
+        project: lead.project,
+        number,
+        floor,
+        buildingNo,
+      });
+    }
+
+    const parkingObj = park
+      ? {
+          id: park?._id,
+          number: park?.number,
+          floor: park?.floor,
+          buildingNo: park?.buildingNo,
+          parkingNo: park?.parkingNo,
+        }
+      : {
+          number,
+          floor,
+          buildingNo,
+        };
+
+    // ✅ UPDATE existing
+    if (parkingIndex !== -1) {
+      lead.parking[parkingIndex] = {
+        ...lead.parking[parkingIndex],
+        ...parkingObj,
+      };
+    }
+    // ✅ ADD new
+    else {
+      lead.parking.push(parkingObj);
+    }
+
+    await lead.save();
+
+    // ✅ Occupancy update (only for full parking)
+    if (number) {
+      try {
+        await ParkingOccupancyChange({
+          project: lead.project,
+          floor,
+          number,
+          buildingNo,
+          occupied: true,
+          occupiedBy: lead._id,
+        });
+      } catch (err) {
+        console.log("Occupancy error:", err);
+      }
+    }
+
+    const updatedLead = await postSaleLeadModel
+      .findById(id)
+      .populate(postSalePopulateOptions);
+
+    return successRes2(res, 200, "Parking handled successfully", {
+      data: updatedLead,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const removeParkingFromBooking = async (req, res, next) => {
+  const { number, floor, buildingNo = null } = req.body;
+  const id = req.params.id;
+
+  try {
+    if (floor===null || floor===undefined) {
+      return errorRes2(res, 400, "Floor is required");
+    }
+
+    const lead = await postSaleLeadModel.findById(id);
+    if (!lead) {
+      return errorRes2(res, 404, "No lead found");
+    }
+
+    let parkingIndex = -1;
+    let removedParking = null;
+
+    // 🔍 Case 1: Only floor
+    if (!number) {
+      parkingIndex = lead.parking.findIndex(
+        (p) => p.floor === floor && !p.number,
+      );
+    } else {
+      // 🔍 Case 2: Full parking
+      parkingIndex = lead.parking.findIndex(
+        (p) =>
+          p.floor === floor &&
+          p.number === number &&
+          p.buildingNo === buildingNo,
+      );
+    }
+
+    // ❌ Not found
+    if (parkingIndex === -1) {
+      return errorRes2(res, 404, "Parking not found");
+    }
+
+    // ✅ Remove from array
+    removedParking = lead.parking[parkingIndex];
+    lead.parking.splice(parkingIndex, 1);
+
+    await lead.save();
+
+    // ✅ Free occupancy (only for full parking)
+    if (removedParking?.number) {
+      try {
+        await ParkingOccupancyChange({
+          project: lead.project,
+          floor: removedParking.floor,
+          number: removedParking.number,
+          buildingNo: removedParking.buildingNo,
+          occupied: false,
+          occupiedBy: null,
+        });
+      } catch (err) {
+        console.log("Occupancy revert error:", err);
+      }
+    }
+
+    const updatedLead = await postSaleLeadModel
+      .findById(id)
+      .populate(postSalePopulateOptions);
+
+    return successRes2(res, 200, "Parking removed successfully", {
+      data: updatedLead,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
 export const deletePostSaleLeadBydId = async (req, res, next) => {
   const body = req.body;
   const id = req.params.id;
@@ -1692,7 +1902,10 @@ export const cancelBooking = async (req, res, next) => {
                 project: project,
                 floor: ele.floor,
                 number: ele.number,
+                buildingNo: ele?.buildingNo,
+
                 occupied: false,
+                occupiedBy: null,
               });
             } catch (error) {
               //
