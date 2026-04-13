@@ -75,7 +75,7 @@ cpRouter.post(
 
 cpRouter.post(
   "/channel-partner-onboarding-update/:id",
-  // authenticateToken,
+  authenticateToken,
   cpOnboardingUpdate,
 );
 
@@ -101,7 +101,7 @@ cpRouter.post("/channel-partner-verify-phone-otp", verifyPhoneOTP);
 //
 cpRouter.post(
   "/channel-partner-review-request/:id",
-  // authenticateToken,
+  authenticateToken,
   cpOnboardingApproval,
 );
 

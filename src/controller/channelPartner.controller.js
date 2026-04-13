@@ -268,12 +268,16 @@ export const registerChannelPartner = async (req, res, next) => {
 
     const hashPassword = await encryptPassword(password);
 
-    const newCpId =
-      firmName?.replace(/\s+/g, "-").toLowerCase() +
-      "-" +
-      firstName?.replace(/\s+/g, "").toLowerCase() +
-      "-" +
-      lastName.replace(/\s+/g, "").toLowerCase();
+    const sanitizeWithDash = (str) =>
+      str
+        ?.toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-") // replace 1+ special chars with single "-"
+        .replace(/^-+|-+$/g, ""); // remove leading/trailing "-"
+
+    const sanitizeNoDash = (str) =>
+      str?.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    const newCpId = `${sanitizeWithDash(firmName)}-${sanitizeNoDash(firstName)}-${sanitizeNoDash(lastName)}`;
 
     const newChannelPartner = new cpModel({
       ...body,
@@ -1307,12 +1311,16 @@ export const cpOnboardingRegister = async (req, res, next) => {
 
     const hashPassword = await encryptPassword(password?.toString());
 
-    const newCpId =
-      firmName?.replace(/\s+/g, "-").toLowerCase() +
-      "-" +
-      firstName?.replace(/\s+/g, "").toLowerCase() +
-      "-" +
-      lastName.replace(/\s+/g, "").toLowerCase();
+    const sanitizeWithDash = (str) =>
+      str
+        ?.toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-") // replace 1+ special chars with single "-"
+        .replace(/^-+|-+$/g, ""); // remove leading/trailing "-"
+
+    const sanitizeNoDash = (str) =>
+      str?.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    const newCpId = `${sanitizeWithDash(firmName)}-${sanitizeNoDash(firstName)}-${sanitizeNoDash(lastName)}`;
 
     const newResp = await cpModel.create({
       ...body,
@@ -1372,7 +1380,8 @@ export const cpOnboardingUpdate = async (req, res, next) => {
   try {
     if (!id) return res.send(errorRes(403, "id is required"));
     if (!body) return res.send(errorRes(403, "valid data is required"));
-    if (!body.reraExpiry) return res.send(errorRes(403, "valid rera date is required"));
+    if (!body.reraExpiry)
+      return res.send(errorRes(403, "valid rera date is required"));
 
     // logger.info(body);
     const respCP = await cpModel.findById(id);
