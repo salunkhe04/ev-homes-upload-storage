@@ -119,6 +119,20 @@ export const leadCycleTriggerV4 = async () => {
             update: {
               teamLeader: cCycle.teamLeader,
               taskRef: null,
+              task: {
+                id: null,
+                assignTo: null,
+                assignBy: null,
+                type: null,
+                assignDate: null,
+                deadline: null,
+                completedDate: null,
+                details: null,
+                completed: null,
+                transferTaskFrom: null,
+                phoneNumber: null,
+              },
+
               $set: { cycle: cCycle },
               $push: { cycleHistoryNew: previousCycle },
               //reset ranks
@@ -244,6 +258,20 @@ export const internalLeadCycleTrigger = async () => {
             update: {
               teamLeader: cCycle.teamLeader,
               taskRef: null,
+              task: {
+                id: null,
+                assignTo: null,
+                assignBy: null,
+                type: null,
+                assignDate: null,
+                deadline: null,
+                completedDate: null,
+                details: null,
+                completed: null,
+                transferTaskFrom: null,
+                phoneNumber: null,
+              },
+
               $set: { cycle: cCycle },
               $push: { cycleHistoryNew: previousCycle },
             },

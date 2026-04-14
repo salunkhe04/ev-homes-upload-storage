@@ -326,6 +326,38 @@ export const leadSchema = new mongoose.Schema(
       transferTaskFrom: { type: String, ref: "employees", default: null },
       phoneNumber: { type: Number, default: null },
     },
+    // bookings: [
+    //   {
+    //     _id: { type: String, default: null },
+    //     firstName: { type: String, default: null },
+    //     lastName: { type: String, default: null },
+    //     countryCode: { type: String, default: "+91" },
+    //     phoneNumber: { type: Number, default: null },
+    //     unitNo: { type: String, default: null },
+    //     floor: { type: Number, default: null },
+    //     buildingNo: { type: Number, default: null },
+    //     number: { type: Number, default: null },
+    //     bookingStatus: { type: String, default: null },
+    //     registrationDone: { type: Boolean, default: false },
+    //     project: {
+    //       type: String,
+    //       default: null,
+    //       ref: "ourProjects",
+    //     },
+    //     closingManager: {
+    //       type: String,
+    //       ref: "employees",
+    //       default: null,
+    //     },
+    //     bookingDate: { type: Date, default: null },
+    //     bookingCancelDate: { type: Date, default: null },
+    //     channelPartner: { type: String, ref: "channelPartners", default: null },
+    //     informedStatus: {
+    //       type: Boolean,
+    //       default: false,
+    //     },
+    //   },
+    // ],
 
     revisitStatus: {
       type: String,
