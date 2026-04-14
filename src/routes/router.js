@@ -67,6 +67,7 @@ import {
   paymentConfirmationTemplate,
   siteVisitOtpTempleteV2,
   sitevisitTodayEmalTemplete,
+  solarisLeadTemplate,
   visitTemplateV2,
 } from "../templates/html_template.js";
 import reimbursementRouter from "./reimbursement/reimbursementRouter.js";
@@ -473,15 +474,27 @@ router.post("/add-contact-brevo", async (req, res, next) => {
 });
 
 router.post("/add-contact-solaris", async (req, res, next) => {
-  const { name, phoneNumber, email } = req.body;
+  const { name, phoneNumber, email, type } = req.body;
   const resp = await addContact({
     listIds: [197],
     email: email,
     firstName: name,
-    lastName: name,
-
     phoneNumber: phoneNumber,
+    type: type,
   });
+
+  //send mail
+  await sendMultipleEmail(
+    ["ricki@evgroup.co.in"],
+    `Solaris Lead Received for ${type}`,
+    solarisLeadTemplate({
+      phoneNumber: phoneNumber,
+      type: type,
+      email: email,
+
+      name: name,
+    }),
+  );
   res.send(resp);
 });
 

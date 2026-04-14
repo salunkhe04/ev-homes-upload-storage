@@ -106,6 +106,7 @@ export const addContact = async ({
   lastName,
   phoneNumber,
   apiKey,
+  type
 }) => {
   try {
     const headers = {
@@ -123,6 +124,7 @@ export const addContact = async ({
           ...(lastName ? { LASTNAME: lastName } : {}),
           ...(phoneNumber ? { WHATSAPP: phoneNumber } : {}),
           ...(phoneNumber ? { SMS: phoneNumber } : {}),
+          ...(type ? { REQUIREMENT: type } : {}),
         },
         listIds: listIds,
         updateEnabled: true,
