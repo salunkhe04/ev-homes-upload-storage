@@ -105,12 +105,13 @@ export const addContact = async ({
   firstName,
   lastName,
   phoneNumber,
+  apiKey,
 }) => {
   try {
     const headers = {
       accept: "application/json",
       "content-type": "application/json",
-      "api-key": config.BREVO_API_KEY, // Ensure your API key is set in your config
+      "api-key": apiKey ?? config.BREVO_API_KEY, // Ensure your API key is set in your config
     };
 
     const response = await axios.post(

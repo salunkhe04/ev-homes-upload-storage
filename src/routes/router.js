@@ -472,6 +472,19 @@ router.post("/add-contact-brevo", async (req, res, next) => {
   res.send(resp);
 });
 
+router.post("/add-contact-solaris", async (req, res, next) => {
+  const { name, phoneNumber, email } = req.body;
+  const resp = await addContact({
+    listIds: [197],
+    email: email,
+    firstName: name,
+    lastName: name,
+
+    phoneNumber: phoneNumber,
+  });
+  res.send(resp);
+});
+
 router.post("/hashPassword", async (req, res, next) => {
   const { password } = req.body;
   try {
