@@ -474,28 +474,34 @@ router.post("/add-contact-brevo", async (req, res, next) => {
 });
 
 router.post("/add-contact-solaris", async (req, res, next) => {
-  const { name, phoneNumber, email, type } = req.body;
-  const resp = await addContact({
-    listIds: [197],
-    email: email,
-    firstName: name,
-    phoneNumber: phoneNumber,
-    type: type,
-  });
-
-  //send mail
-  await sendMultipleEmail(
-    ["ricki@evgroup.co.in"],
-    `Solaris Lead Received for ${type}`,
-    solarisLeadTemplate({
+  try {
+    const { name, phoneNumber, email, type } = req.body;
+    const resp = await addContact({
+      listIds: [197],
+      email: email,
+      firstName: name,
       phoneNumber: phoneNumber,
       type: type,
-      email: email,
+    });
 
-      name: name,
-    }),
-  );
-  res.send(resp);
+    if (resp.id) {
+      await sendMultipleEmail(
+        ["ricki@evgroup.co.in"],
+        `Solaris Lead Received for ${type}`,
+        solarisLeadTemplate({
+          phoneNumber: phoneNumber,
+          type: type,
+          email: email,
+
+          name: name,
+        }),
+      );
+    }
+
+    res.send(resp);
+  } catch (e) {
+    //
+  }
 });
 
 router.post("/hashPassword", async (req, res, next) => {
