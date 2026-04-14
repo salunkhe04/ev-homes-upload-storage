@@ -484,18 +484,20 @@ router.post("/add-contact-solaris", async (req, res, next) => {
       type: type,
     });
 
-    //send mail
-    await sendMultipleEmail(
-      ["ricki@evgroup.co.in"],
-      `Solaris Lead Received for ${type}`,
-      solarisLeadTemplate({
-        phoneNumber: phoneNumber,
-        type: type,
-        email: email,
+    if (resp.id) {
+      await sendMultipleEmail(
+        ["ricki@evgroup.co.in"],
+        `Solaris Lead Received for ${type}`,
+        solarisLeadTemplate({
+          phoneNumber: phoneNumber,
+          type: type,
+          email: email,
 
-        name: name,
-      }),
-    );
+          name: name,
+        }),
+      );
+    }
+
     res.send(resp);
   } catch (e) {
     //
