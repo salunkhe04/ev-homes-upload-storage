@@ -309,7 +309,7 @@ export const bookingRecievedTemplate = (
   visitDate,
   revisitDate,
   bookingDate,
-  kycRecieved
+  kycRecieved,
 ) => {
   // let cpInfo = "";
   // if (channelPartner)
@@ -469,7 +469,7 @@ export const feedbackPendingTemplate = (
   assignBy,
   assignTo,
   assignDate,
-  leadStatus
+  leadStatus,
 ) => {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -570,7 +570,7 @@ export const cpFeedbackPendingTemplate = (
   phoneNumber,
   email,
   channelPartnerName,
-  date
+  date,
 ) => {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -672,7 +672,7 @@ export const leadAssignPendingTemplate = (
   channelPartner,
   dataAnalyzer,
   assignDate,
-  teamLeader
+  teamLeader,
 ) => {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -770,7 +770,7 @@ export const leadAssignPendingTemplate = (
 export const meetingRequestTemplate = (
   teamLeader,
   clientFirstName,
-  clientLastName
+  clientLastName,
 ) => {
   return `
    <!DOCTYPE html>
@@ -797,7 +797,7 @@ export const weekOffTemplete = (
   designation,
   reportingTo,
   date,
-  reason
+  reason,
 ) => {
   return `<!DOCTYPE html>
 <html>
@@ -880,7 +880,7 @@ export const visitTemplate = (
   requirement,
   team,
   closingManager,
-  visitType = ""
+  visitType = "",
 ) => {
   return `<!DOCTYPE html>
 <html>
@@ -2139,10 +2139,12 @@ export const sitevisitTodayEmalTemplete = ({ leads = [], teamLeader }) => {
 `;
 };
 
-
 export const paymentReminderTemplate = ({ leads = [] }) => {
   const todayStr = moment().tz("Asia/Kolkata").format("DD/MM/YYYY");
-  const tomorrowStr = moment().tz("Asia/Kolkata").add(1, "day").format("DD/MM/YYYY");
+  const tomorrowStr = moment()
+    .tz("Asia/Kolkata")
+    .add(1, "day")
+    .format("DD/MM/YYYY");
 
   // Group by payment type + due date
   const grouped = {};
@@ -2153,7 +2155,6 @@ export const paymentReminderTemplate = ({ leads = [] }) => {
       { label: "Payment 2", date: lead.paymentTwoDueDate },
       { label: "Payment 3", date: lead.paymentThreeDueDate },
       { label: "Payment 4", date: lead.paymentFourDueDate },
-
     ];
 
     payments.forEach(({ label, date }) => {
@@ -2164,8 +2165,8 @@ export const paymentReminderTemplate = ({ leads = [] }) => {
         formatted === todayStr
           ? "today"
           : formatted === tomorrowStr
-          ? "tomorrow"
-          : null;
+            ? "tomorrow"
+            : null;
 
       if (!when) return;
 
@@ -2199,14 +2200,18 @@ export const paymentReminderTemplate = ({ leads = [] }) => {
           </tr>
         </thead>
         <tbody>
-          ${items.map(lead => `
+          ${items
+            .map(
+              (lead) => `
             <tr>
               <td>${lead.firstName || ""} ${lead.lastName || ""}</td>
               <td>${lead.phoneNumber || ""}</td>
               <td>${lead.unitNo || ""}</td>
               <td>${lead.closingManager?.firstName || ""} ${lead.closingManager?.lastName || ""}</td>
             </tr>
-          `).join("")}
+          `,
+            )
+            .join("")}
         </tbody>
       </table>
     `;
@@ -2264,3 +2269,105 @@ export const paymentReminderTemplate = ({ leads = [] }) => {
   `;
 };
 
+export const solarisLeadTemplate = ({ type, email, name, phoneNumber }) => {
+  // let cpInfo = "";
+  // if (channelPartner)
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solaris Lead</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        background-color: #ffffff;
+        overflow: hidden;
+      }
+      .header {
+        text-align: center;
+        color: #ffffff;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        /* padding: 20px; */
+        line-height: 10px;
+      }
+      .subject {
+        font-weight: 500;
+      }
+      .subject .span-s {
+        font-weight: 600;
+      }
+      .content p {
+        font-size: 16px;
+        /* margin-bottom: 20px; */
+      }
+      .footer {
+        padding: 20px;
+        background-color: #f1f1f1;
+        font-size: 12px;
+        color: #666;
+      }
+      .footer a {
+        color: #ff9800; /* Orange theme */
+        text-decoration: none;
+      }
+      .content .details-para {
+        font-size: 16px;
+      }
+      .info-para {
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .info-span {
+        font-size: 14px;
+        font-weight: 400;
+      }
+      .para-sir {
+        font-size: 16px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="content">
+        <p class="para-sir">Dear sir,</p>
+        <p class="subject">
+          <span> New Lead Recieved for Solaris</span>
+          <span class="span-s"> ${type} </span>
+        </p>
+        <p class="details-para">Details of client are mentioned below.</p>
+        <p class="info-para">
+          Client Name: <span class="info-span">${name}</span>
+        </p>
+        <p class="info-para">
+          Client Number: <span class="info-span">${phoneNumber}</span>
+        </p>
+        <p class="info-para">
+          Email: <span class="info-span">${email}</span>
+        </p>
+        <p class="info-para">
+          Project: <span class="info-span">Solaris ${type}</span>
+        </p>
+      </div>
+      <div class="footer">
+        <p>&copy; 2026 EV Homes Construction PVT LTD. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
+`;
+};

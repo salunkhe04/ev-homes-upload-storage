@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solaris Lead</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        color: #333;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        background-color: #ffffff;
+        overflow: hidden;
+      }
+      .header {
+        text-align: center;
+        color: #ffffff;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        /* padding: 20px; */
+        line-height: 10px;
+      }
+      .subject {
+        font-weight: 500;
+      }
+      .subject .span-s {
+        font-weight: 600;
+      }
+      .content p {
+        font-size: 16px;
+        /* margin-bottom: 20px; */
+      }
+      .footer {
+        padding: 20px;
+        background-color: #f1f1f1;
+        font-size: 12px;
+        color: #666;
+      }
+      .footer a {
+        color: #ff9800; /* Orange theme */
+        text-decoration: none;
+      }
+      .content .details-para {
+        font-size: 16px;
+      }
+      .info-para {
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .info-span {
+        font-size: 14px;
+        font-weight: 400;
+      }
+      .para-sir {
+        font-size: 16px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="content">
+        <p class="para-sir">Dear sir,</p>
+        <p class="subject">
+          <span> New Lead Recieved for Solaris</span>
+          <span class="span-s"> ${type} </span>
+        </p>
+        <p class="details-para">Details of client are mentioned below.</p>
+        <p class="info-para">
+          Client Name: <span class="info-span">${name}</span>
+        </p>
+        <p class="info-para">
+          Client Number: <span class="info-span">${phoneNumber}</span>
+        </p>
+        <p class="info-para">
+          Email: <span class="info-span">${email}</span>
+        </p>
+        <p class="info-para">
+          Project: <span class="info-span">${type}</span>
+        </p>
+      </div>
+      <div class="footer">
+        <p>&copy; 2026 EV Homes Construction PVT LTD. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
