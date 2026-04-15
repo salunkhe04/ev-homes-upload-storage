@@ -444,6 +444,18 @@ export const leadPopulateOptions = [
     path: "channelPartnerHistory.channelPartner",
     select: "firstName lastName firmName",
   },
+  {
+    path: "task.assignTo",
+    select: "firstName lastName",
+  },
+  {
+    path: "task.assignBy",
+    select: "firstName lastName",
+  },
+  {
+    path: "task.transferTaskFrom",
+    select: "firstName lastName",
+  },
 ];
 
 export const leadTaskPopulateOptions = [
@@ -1170,7 +1182,10 @@ export const leaveHistoryPopulateOptions = [
 ];
 
 export const postSalePopulateOptions = [
-  { path: "project", select: "name shortCode businessAccount govAccount address" },
+  {
+    path: "project",
+    select: "name shortCode businessAccount govAccount address",
+  },
   {
     path: "closingManager",
     select: "firstName lastName",
