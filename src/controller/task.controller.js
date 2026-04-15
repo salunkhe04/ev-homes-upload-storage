@@ -1017,7 +1017,7 @@ export const transferMultipleTasks = async (req, res, next) => {
       // }
       // task.timeLine.push(timelineEntry);
 
-      const savedTask = await task.save();
+      // const savedTask = await task.save();
       const updatedTask = await taskModel
         .findByIdAndUpdate(
           savedTask._id,
