@@ -1025,7 +1025,7 @@ export const transferMultipleTasks = async (req, res, next) => {
             assignTo: assignTo,
             transferReason: transferReason,
             transferDate: new Date(),
-            transferTaskFrom: task.assignTo,
+            transferTaskFrom: transferTaskFrom ?? task.assignTo,
             completed: false,
             $addToSet: {
               timeLine: timelineEntry,
@@ -1044,7 +1044,7 @@ export const transferMultipleTasks = async (req, res, next) => {
               task: {
                 id: task?._id,
                 assignTo: assignTo,
-                transferTaskFrom: task.assignTo,
+                transferTaskFrom: transferTaskFrom ?? task.assignTo,
                 completed: false,
               },
             },
