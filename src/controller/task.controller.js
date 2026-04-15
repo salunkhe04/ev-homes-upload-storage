@@ -2018,6 +2018,7 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
       callHistory: 1,
       createdAt: 1,
       clientInterestedStatus: 1,
+      task: 1,
     });
 
     if (leadStage?.toLowerCase() === "lost") {
@@ -2096,7 +2097,14 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
             disabledRemark: feedback,
             disabledDate: new Date(),
           }
-        : {}), // mark here
+        : {}),
+      ...(leadInfo?.task?.completed != false
+        ? {
+            "task.completed": true,
+            "task.completedDate": new Date(),
+          }
+        : {}),
+      // mark here
     };
 
     await leadModelV2.findByIdAndUpdate(lead, leadUpdates);
