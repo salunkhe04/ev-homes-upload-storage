@@ -992,6 +992,9 @@ export const transferMultipleTasks = async (req, res, next) => {
     return res.send(errorRes(400, "Task IDs are required"));
   }
 
+  logger.info("tasks:", id);
+  logger.info("tasks assignTo:", assignTo);
+
   try {
     const updatedTasks = [];
 
@@ -1020,7 +1023,7 @@ export const transferMultipleTasks = async (req, res, next) => {
       // const savedTask = await task.save();
       const updatedTask = await taskModel
         .findByIdAndUpdate(
-          savedTask._id,
+          task._id,
           {
             assignTo: assignTo,
             transferReason: transferReason,
