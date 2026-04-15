@@ -2331,9 +2331,9 @@ leadRouter.post("/tasks-deserialize", async (req, res) => {
     const batchSize = 1000;
     let bulkOps = [];
     let count = 0;
-
+    const memoDate = moment().tz("Asia/Kolkata").subtract(30, "day").toDate();
     const cursor = leadModelV2
-      .find({ taskRef: { $ne: null } })
+      .find({ taskRef: { $ne: null }, "cycle.startDate": { $gte: memoDate } })
       .populate(leadPopulateOptions) // ⚠️ try to remove if possible
       .lean()
       .cursor();
