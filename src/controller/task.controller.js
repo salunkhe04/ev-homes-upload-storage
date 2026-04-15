@@ -992,8 +992,8 @@ export const transferMultipleTasks = async (req, res, next) => {
     return res.send(errorRes(400, "Task IDs are required"));
   }
 
-  logger.info("tasks:", id);
-  logger.info("tasks assignTo:", assignTo);
+  // logger.info("tasks:", id);
+  // logger.info("tasks assignTo:", assignTo);
 
   try {
     const updatedTasks = [];
