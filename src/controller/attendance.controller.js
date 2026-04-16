@@ -241,7 +241,7 @@ export const checkIn = async (req, res) => {
 
     // Validate required fields
     if (!userId || !checkInLatitude || !checkInLongitude || !checkInPhoto) {
-      return res.send(errorRes(400, "Missing required fields"));
+      return errorRes2(res, 400, "Missing required fields");
     }
 
     let statusWillBe = "active";
@@ -366,24 +366,21 @@ export const checkIn = async (req, res) => {
           logger.info(error);
         }
 
-        return res.send(
-          successRes(
-            200,
-            statusWillBe === "active"
-              ? "Check-in successful"
-              : `Marked as ${statusWillBe}`,
-            {
-              data: updated,
-            },
-          ),
+        return successRes2(
+          res,
+          200,
+          statusWillBe === "active"
+            ? "Check-in successful"
+            : `Marked as ${statusWillBe}`,
+          {
+            data: updated,
+          },
         );
       }
 
-      return res.send(
-        successRes(400, "User has already checked in today", {
-          data: existingAttendance,
-        }),
-      );
+      return successRes2(res, 400, "User has already checked in today", {
+        data: existingAttendance,
+      });
     }
 
     const newAttendance = new attendanceModel({
@@ -435,18 +432,17 @@ export const checkIn = async (req, res) => {
       //
     }
 
-    return res.send(
-      successRes(
-        200,
-        statusWillBe === "active"
-          ? "Check-in successful"
-          : `Marked as ${statusWillBe}`,
-        { data: newAtt },
-      ),
+    return successRes2(
+      res,
+      200,
+      statusWillBe === "active"
+        ? "Check-in successful"
+        : `Marked as ${statusWillBe}`,
+      { data: newAtt },
     );
   } catch (error) {
     logger.info(error);
-    return res.send(errorRes(500, "Internal Server Error"));
+    return errorRes2(res, 500, `${error}`);
   }
 };
 
@@ -882,11 +878,11 @@ export const revisedCheckOutV2 = async (req, res) => {
       .populate(attendancePopulateOption);
 
     if (!attendance) {
-      return res.send(errorRes(404, "Attendance record not found for today"));
+      return errorRes2(res, 404, "Attendance record not found for today");
     }
 
     if (attendance.checkOutTime) {
-      return res.send(errorRes(400, "User has already checked out"));
+      return errorRes2(res, 400, "User has already checked out");
     }
 
     // 2. Date boundaries for holiday check
@@ -899,7 +895,7 @@ export const revisedCheckOutV2 = async (req, res) => {
       .populate(employeeShiftInfoPopulateOptions);
 
     if (!myLeaves) {
-      return res.send(errorRes(404, "Attendance record not found for today"));
+      return errorRes2(res, 404, "Attendance record not found for today");
     }
 
     const haveHoliday = await holidayModel.findOne({
@@ -920,7 +916,7 @@ export const revisedCheckOutV2 = async (req, res) => {
 
     const minWorkHours = myLeaves?.shift?.workingHours;
     const absentHours = myLeaves?.shift?.absentHours;
-    const isFlexi = myLeaves?.shift?.type?.toLowerCase() === "flexi";
+    // const isFlexi = myLeaves?.shift?.type?.toLowerCase() === "flexi";
     const dept = myLeaves?.department?._id;
 
     // 5. Save checkout info
@@ -937,21 +933,21 @@ export const revisedCheckOutV2 = async (req, res) => {
       attendance.wlStatus = "holiday";
     }
 
-    if (isFlexi && dept === "dept-marketing") {
-      if (activeHours < absentHours) {
-        attendance.status = "absent";
-      } else if (activeHours >= absentHours && activeHours < minWorkHours) {
-        attendance.status = "half-day";
-      } else {
-        attendance.status = "present";
-      }
-    } else if (isFlexi && dept === "dept-it") {
-      if (activeHours >= minWorkHours) {
-        attendance.status = "present";
-      } else {
-        attendance.status = "active";
-      }
+    // if (isFlexi && dept === "dept-marketing") {
+    //   if (activeHours < absentHours) {
+    //     attendance.status = "absent";
+    //   } else if (activeHours >= absentHours && activeHours < minWorkHours) {
+    //     attendance.status = "half-day";
+    //   } else {
+    //     attendance.status = "present";
+    //   }
+    // } else if (isFlexi && dept === "dept-it") {
+    if (activeHours >= minWorkHours) {
+      attendance.status = "present";
+    } else {
+      attendance.status = "active";
     }
+    // }
 
     await attendance.save();
 
@@ -1038,13 +1034,11 @@ export const revisedCheckOutV2 = async (req, res) => {
       logger.info(error);
     }
 
-    return res.send(
-      successRes(200, "Check-out successful", { data: attendance }),
-    );
+    return successRes2(res, 200, "Check-out successful", { data: attendance });
   } catch (error) {
     logger.info(error);
 
-    return res.send(errorRes(500, `Internal Server Error ${error}`));
+    return errorRes2(res, 500, `${error}`);
   }
 };
 
@@ -3512,8 +3506,11 @@ export const exportAttendance3 = async (req, res) => {
           }
         } else if (ele.status === "half-day") {
           halfDays += 0.5;
-        } else if (ele.status === "holiday" || ele.wlStatus === "holiday") {
+        } else if (ele.wlStatus === "holiday") {
           holiDays++;
+          if (ele.status === "present") {
+            totalComps++;
+          }
         } else if (ele.status === "absent") {
           if (
             date.day() === 0 &&
@@ -3531,6 +3528,7 @@ export const exportAttendance3 = async (req, res) => {
           }
         } else if (ele.status === "present" && ele.wlStatus === "weekoff") {
           presentOnweekoffDays++;
+          totalComps++;
         }
       });
 
@@ -3609,10 +3607,10 @@ export const exportAttendance3 = async (req, res) => {
       //   payableDays += ok;
       //   logger.info(`$next wo ${payableDays}`);
       // }
-      if (weekoffDays < 4) {
-        //
-        totalComps += 4 - weekoffDays;
-      }
+      // if (weekoffDays < 4) {
+      //   //
+      //   totalComps += 4 - weekoffDays;
+      // }
       payableDays = roundToHalf(payableDays);
       logger.info(`${shiftInfo.userId.firstName} ${payableDays}`);
 
