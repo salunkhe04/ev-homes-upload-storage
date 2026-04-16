@@ -948,13 +948,10 @@ export const transferTask = async (req, res, next) => {
         {
           $set: {
             taskRef: task?._id,
-
-            task: {
-              id: task?._id,
-              assignTo: assignTo,
-              transferTaskFrom: task?.transferTaskFrom ?? task.assignTo,
-              completed: false,
-            },
+            "task.id": task?._id,
+            "task.assignTo": assignTo,
+            "task.transferTaskFrom": task?.transferTaskFrom ?? task.assignTo,
+            "task.completed": false,
           },
         },
       );
@@ -986,10 +983,10 @@ export const transferMultipleTasks = async (req, res, next) => {
   const transferTaskFrom = req.params.id;
 
   if (!transferTaskFrom) {
-    return res.send(errorRes(400, "id is required"));
+    return errorRes2(res, 400, "id is required");
   }
   if (!Array.isArray(id)) {
-    return res.send(errorRes(400, "Task IDs are required"));
+    return errorRes2(res, 400, "Task IDs are required");
   }
 
   // logger.info("tasks:", id);
@@ -1043,13 +1040,10 @@ export const transferMultipleTasks = async (req, res, next) => {
           {
             $set: {
               taskRef: task?._id,
-
-              task: {
-                id: task?._id,
-                assignTo: assignTo,
-                transferTaskFrom: transferTaskFrom ?? task.assignTo,
-                completed: false,
-              },
+              "task.id": task?._id,
+              "task.assignTo": assignTo,
+              "task.transferTaskFrom": transferTaskFrom ?? task.assignTo,
+              "task.completed": false,
             },
           },
         );
@@ -1059,15 +1053,13 @@ export const transferMultipleTasks = async (req, res, next) => {
       updatedTasks.push(updatedTask);
     }
 
-    return res.send(
-      successRes(200, "Tasks Transferred Successfully", {
-        data: updatedTasks,
-      }),
-    );
+    return successRes2(res, 200, "Tasks Transferred Successfully", {
+      data: true,
+    });
   } catch (error) {
     //
     logger.info("Error transferring tasks:", error);
-    return next(error);
+    return errorRes2(res, 500, `Error transferring tasks: ${error}`);
   }
 };
 

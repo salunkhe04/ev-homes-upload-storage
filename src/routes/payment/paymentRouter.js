@@ -23,6 +23,8 @@ import { authenticateToken } from "../../middleware/auth.middleware.js";
 import postSaleLeadModel from "../../model/postSaleLead.model.js";
 import { successRes2 } from "../../model/response.js";
 import paymentModel from "../../model/payment.model.js";
+import moment from "moment";
+import flatModel from "../../model/flat.model.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -414,4 +416,106 @@ paymentRouter.post("/payment-update", async (req, res) => {
 
 paymentRouter.get("/payment-mode-updates", updatePaymentTypesForSorting);
 
+paymentRouter.get(
+  "/payment-export-com",
+  authenticateToken,
+  async (req, res) => {
+    //
+
+    try {
+      const payments = await paymentModel.find({
+        $or: [
+          { project: "project-9-vtc-vashi-2025" },
+          { project: "project-ev-capitol-9-vashi-2025" },
+
+          { project: "project-ev-9hq-vashi-2026" },
+
+          { projects: "project-9-vtc-vashi-2025" },
+          { projects: "project-ev-capitol-9-vashi-2025" },
+
+          { projects: "project-ev-9hq-vashi-2026" },
+        ],
+      });
+      const flats = await flatModel.find({
+        $or: [
+          { project: "project-9-vtc-vashi-2025" },
+          { project: "project-ev-capitol-9-vashi-2025" },
+
+          { project: "project-ev-9hq-vashi-2026" },
+
+          { projects: "project-9-vtc-vashi-2025" },
+          { projects: "project-ev-capitol-9-vashi-2025" },
+
+          { projects: "project-ev-9hq-vashi-2026" },
+        ],
+      });
+
+      const bookings = await postSaleLeadModel.find({
+        $or: [
+          { project: "project-9-vtc-vashi-2025" },
+          { project: "project-ev-capitol-9-vashi-2025" },
+          { project: "project-ev-9hq-vashi-2026" },
+        ],
+        $and: [
+          { "bookingStatus.type": { $ne: "cancelled" } },
+          { "bookingStatus.type": { $ne: "Cancelled" } },
+        ],
+      });
+
+      const map = payments.map((ele, ind) => {
+        const paymentDate = moment(ele.date)
+          .tz("Asia/Kolkata")
+          .format("DD-MM-YYYY");
+        const proj = ele?.project ?? ele?.projects;
+
+        const flat = flats.find(
+          (e) =>
+            e?.flatNo === ele?.flatNo &&
+            e?.buildingNo === ele?.buildingNo &&
+            e?.project == proj,
+        );
+
+        const booking = bookings.find(
+          (e) =>
+            e?.unitNo === ele?.flatNo &&
+            e?.buildingNo === ele?.buildingNo &&
+            e?.project == proj,
+        );
+        const bookingDate = moment(booking?.date).isValid()
+          ? moment(booking?.date)?.tz("Asia/Kolkata")?.format("DD-MM-YYYY")
+          : "--";
+        return {
+          sr: ind + 1,
+          project: proj,
+          floor: flat?.floor,
+          buildingNo: ele?.buildingNo,
+          officeNo: ele?.flatNo,
+          name: `${booking?.firstName} ${booking?.lastName}`,
+          carpet: flat?.carpetArea,
+          reraArea: flat?.reraArea,
+          rateSqft: "",
+          parking: "",
+          netAmount: booking?.flatCost,
+          gst: "",
+          stampDuty: "",
+          amountRecieved: ele?.bookingAmt ?? 0,
+          recievedDate: paymentDate,
+          bookingDate: bookingDate,
+          bookingStatus: booking?.bookingStatus?.type ?? "--",
+        };
+      });
+
+      //
+      res.json({
+        data: map,
+      });
+    } catch (error) {
+      //
+      console.log(error);
+      res.json({
+        data: [],
+      });
+    }
+  },
+);
 export default paymentRouter;
