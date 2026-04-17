@@ -7,6 +7,7 @@ export const parkingSchema = new mongoose.Schema(
     floor: { type: Number, default: null },
     floorName: { type: String, default: null },
     number: { type: Number, default: null },
+    buildingNo: { type: Number, default: null },
     parkingNo: { type: String, default: null },
     occupied: { type: Boolean, default: false },
     occupiedBy: {
@@ -15,7 +16,7 @@ export const parkingSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 const parkingModel = mongoose.model("parking", parkingSchema, "parkings");
 export default parkingModel;
