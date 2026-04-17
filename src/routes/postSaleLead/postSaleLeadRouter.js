@@ -71,7 +71,6 @@ postSaleRouter.delete(
   removeParkingFromBooking,
 );
 
-
 postSaleRouter.post("/cancel-booking", cancelBooking);
 postSaleRouter.get(
   "/post-sale-leads-for-pse/:id",
@@ -148,7 +147,36 @@ postSaleRouter.get("/post-sale-list/:id", async (req, res) => {
     res.send(e);
   }
 });
+// one time used
 
+postSaleRouter.get("/post-sale-list-marina-fix-bldg", async (req, res) => {
+  try {
+    const leads = await postSaleLeadModel.find({
+      project: "project-ev-10-marina-bay-vashi-sector-10",
+      parking: { $ne: [] },
+    });
+
+    if (!leads.length) {
+      return errorRes2(res, 404, "No lead found");
+    }
+
+    for (const el of leads) {
+      el.parking.forEach((p) => {
+        p.buildingNo = 1;
+      });
+
+      // ensure mongoose detects change
+      el.markModified("parking");
+
+      await el.save();
+    }
+
+    res.send({ total: leads.length, data: "ok" });
+  } catch (e) {
+    logger.info(e);
+    res.send(e);
+  }
+});
 postSaleRouter.get(
   "/post-sale-dashboard-count/:id",
   authenticateToken,

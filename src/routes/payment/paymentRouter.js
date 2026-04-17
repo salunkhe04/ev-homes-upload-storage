@@ -498,6 +498,8 @@ paymentRouter.get(
           netAmount: booking?.flatCost,
           gst: "",
           stampDuty: "",
+          paymentType: ele?.paymentMode ?? "-",
+          transactionId: ele?.transactionId ?? "-",
           amountRecieved: ele?.bookingAmt ?? 0,
           recievedDate: paymentDate,
           bookingDate: bookingDate,
@@ -518,4 +520,100 @@ paymentRouter.get(
     }
   },
 );
+
+paymentRouter.get(
+  "/payment-export-com2",
+  authenticateToken,
+  async (req, res) => {
+    //
+
+    try {
+      const payments = await paymentModel.find({
+        $or: [
+          { project: "project-9-vtc-vashi-2025" },
+          { project: "project-ev-capitol-9-vashi-2025" },
+
+          { project: "project-ev-9hq-vashi-2026" },
+
+          { projects: "project-9-vtc-vashi-2025" },
+          { projects: "project-ev-capitol-9-vashi-2025" },
+
+          { projects: "project-ev-9hq-vashi-2026" },
+        ],
+      });
+      const flats = await flatModel.find({
+        $or: [
+          { project: "project-9-vtc-vashi-2025" },
+          { project: "project-ev-capitol-9-vashi-2025" },
+
+          { project: "project-ev-9hq-vashi-2026" },
+
+          { projects: "project-9-vtc-vashi-2025" },
+          { projects: "project-ev-capitol-9-vashi-2025" },
+
+          { projects: "project-ev-9hq-vashi-2026" },
+        ],
+      });
+
+      const bookings = await postSaleLeadModel.find({
+        $or: [
+          { project: "project-9-vtc-vashi-2025" },
+          { project: "project-ev-capitol-9-vashi-2025" },
+          { project: "project-ev-9hq-vashi-2026" },
+        ],
+        $and: [
+          { "bookingStatus.type": { $ne: "cancelled" } },
+          { "bookingStatus.type": { $ne: "Cancelled" } },
+        ],
+      });
+
+      const map = bookings.map((booking, ind) => {
+        const proj = booking?.project ?? booking?.projects;
+
+        const flat = flats.find(
+          (e) =>
+            e?.flatNo === booking?.unitNo &&
+            e?.buildingNo === booking?.buildingNo &&
+            e?.project == proj,
+        );
+        const payment2 = payments.find(
+          (ea) =>
+            ea?.flatNo === booking?.unitNo &&
+            ea?.buildingNo === booking?.buildingNo &&
+            (ea?.project == proj || ea?.projects == proj),
+        );
+
+        const bookingDate = moment(booking?.date).isValid()
+          ? moment(booking?.date)?.tz("Asia/Kolkata")?.format("DD-MM-YYYY")
+          : "--";
+        return {
+          sr: ind + 1,
+          project: proj,
+          floor: flat?.floor,
+          buildingNo: booking?.buildingNo,
+          officeNo: booking?.unitNo,
+          name: `${booking?.firstName} ${booking?.lastName}`,
+          carpet: flat?.carpetArea,
+          reraArea: flat?.reraArea,
+          netAmount: booking?.flatCost,
+          bookingDate: bookingDate,
+          bookingStatus: booking?.bookingStatus?.type ?? "--",
+          paymentAdded: payment2 ? "yes" : "no",
+        };
+      });
+
+      //
+      res.json({
+        data: map,
+      });
+    } catch (error) {
+      //
+      console.log(error);
+      res.json({
+        data: [],
+      });
+    }
+  },
+);
+
 export default paymentRouter;
