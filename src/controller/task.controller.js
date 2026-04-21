@@ -2093,7 +2093,7 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
             disabledDate: new Date(),
           }
         : {}),
-      ...(leadInfo?.task?.completed != false
+      ...(leadInfo?.task?.completed != true
         ? {
             "task.completed": true,
             "task.completedDate": new Date(),
