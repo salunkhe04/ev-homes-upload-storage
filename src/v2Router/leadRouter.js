@@ -1810,6 +1810,8 @@ leadRouterV2.get(
         internalLeadCount: 0,
         bulkCount: 0,
         exhibition2025: 0,
+        approvedCount: 0,
+        rejectedCount: 0,
       },
       task: {
         total: 0,
@@ -2020,6 +2022,30 @@ leadRouterV2.get(
               },
               { $count: "count" },
             ],
+            approvedCount: [
+              {
+                $match: {
+                  $and: [
+                    { approvalStatus: "approved" },
+                    // { stage: { $ne: "tagging-over" } },
+                    { leadType: { $ne: "walk-in" } },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            rejectedCount: [
+              {
+                $match: {
+                  $and: [
+                    { approvalStatus: "rejected" },
+                    // { stage: { $ne: "tagging-over" } },
+                    { leadType: { $ne: "walk-in" } },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
           },
         },
         {
@@ -2051,6 +2077,12 @@ leadRouterV2.get(
             exhibition2025: {
               $arrayElemAt: ["$exhibition2025.count", 0],
             },
+            approvedCount: {
+              $arrayElemAt: ["$exhibition2025.count", 0],
+            },
+            rejectedCount: {
+              $arrayElemAt: ["$exhibition2025.count", 0],
+            },
 
             // Add other fields similarly as required
           },
@@ -2072,6 +2104,8 @@ leadRouterV2.get(
             bulkCount: 1,
             internalLeadCount: 1,
             exhibition2025: 1,
+            approvedCount: 1,
+            rejectedCount: 1,
 
             // Include only the fields you need
           },
@@ -2096,6 +2130,8 @@ leadRouterV2.get(
         bulkCount = 0,
         internalLeadCount = 0,
         exhibition2025 = 0,
+        approvedCount = 0,
+        rejectedCount = 0,
         // Add other counts as required
       } = counts[0] || {};
 
@@ -2114,6 +2150,420 @@ leadRouterV2.get(
       allCounts.lead.bulkCount = bulkCount;
       allCounts.lead.internalLeadCount = internalLeadCount;
       allCounts.lead.exhibition2025 = exhibition2025;
+      allCounts.lead.approvedCount = approvedCount;
+      allCounts.lead.rejectedCount = rejectedCount;
+
+      return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
+    } catch (error) {
+      logger.info(error);
+      //
+      return errorRes2(res, 500, "Internal Server Error");
+    }
+  },
+);
+leadRouterV2.get(
+  "/super-admin-dashboard-count",
+  // authenticateToken,
+  async (req, res) => {
+    let { startDate, endDate, interval } = req.query;
+    const now = new Date();
+    if (interval === "monthly") {
+      startDate = moment().startOf("month").toDate();
+      endDate = moment().endOf("month").toDate();
+    } else if (interval === "quarterly") {
+      startDate = moment().startOf("quarter").toDate();
+      endDate = moment().endOf("quarter").toDate();
+    } else if (interval === "semi-annually") {
+      const month = moment().month();
+      const year = moment().year();
+      const isFirstHalf = month < 6;
+
+      startDate = moment([year, isFirstHalf ? 0 : 6])
+        .startOf("month")
+        .toDate();
+      endDate = moment([year, isFirstHalf ? 5 : 11])
+        .endOf("month")
+        .toDate();
+    } else if (interval === "annually") {
+      startDate = moment().startOf("year").toDate();
+      endDate = moment().endOf("year").toDate();
+    }
+    // logger.info(interval);
+    // logger.info(startDate);
+    // logger.info(endDate);
+
+    const dateFilter =
+      startDate && endDate
+        ? {
+            startDate: {
+              $gte: startDate,
+              $lte: endDate,
+            },
+          }
+        : null;
+
+    // logger.info(dateFilter);
+    const allCounts = {
+      name: null,
+      designation: null,
+      date: now,
+      startDate: startDate,
+      endDate: endDate,
+      lead: {
+        total: 0,
+        visit1: 0,
+        visit2: 0,
+        revisit: 0,
+        booking: 0,
+        pending: 0,
+        assigned: 0,
+        notAssigned: 0,
+        lineup: 0,
+        bookingCp: 0,
+        bookingWalkIn: 0,
+        cpNotePendingCount: 0,
+        internalLeadCount: 0,
+        bulkCount: 0,
+        exhibition2025: 0,
+        blacklistedClient: 0,
+        isCpCount: 0,
+        lostCount: 0,
+      },
+      task: {
+        total: 0,
+        pending: 0,
+        completed: 0,
+      },
+    };
+
+    try {
+      const today = moment().tz("Asia/Kolkata");
+      let filter = {
+        $match: {},
+      };
+      if (dateFilter != null) {
+        filter.$match = {
+          ...filter.$match,
+          ...dateFilter,
+        };
+      }
+      // logger.info(filter);
+      const counts = await leadModelV2.aggregate([
+        filter,
+        {
+          $facet: {
+            totalItems: [{ $count: "count" }],
+            assignedCount: [
+              { $match: { clientType: null, taskRef: { $ne: null } } },
+              { $count: "count" },
+            ],
+            notAssignedCount: [
+              { $match: { clientType: null, taskRef: { $eq: null } } },
+              { $count: "count" },
+            ],
+            visitCount: [
+              {
+                $match: {
+                  clientType: null,
+                  stage: { $ne: "approval" },
+                  stage: { $ne: "booking" },
+                  $and: [
+                    {
+                      visitStatus: { $ne: null },
+                    },
+                    {
+                      visitStatus: { $ne: "pending" },
+                    },
+                    { leadType: { $eq: "cp" } },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            revisitCount: [
+              {
+                $match: {
+                  clientType: null,
+                  stage: "booking",
+                  $and: [
+                    {
+                      revisitStatus: { $ne: null },
+                    },
+                    {
+                      revisitStatus: { $ne: "pending" },
+                    },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            visit2Count: [
+              {
+                $match: {
+                  clientType: null,
+                  $and: [
+                    {
+                      stage: { $ne: "approval" },
+                    },
+                    {
+                      stage: { $ne: "booking" },
+                    },
+                    {
+                      visitStatus: { $ne: null },
+                    },
+                    {
+                      visitStatus: { $ne: "pending" },
+                    },
+                    {
+                      leadType: { $eq: "walk-in" },
+                    },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            bookingCount: [
+              {
+                $match: {
+                  // bookingStatus: { $ne: "pending" },
+                  clientType: null,
+                  $and: [
+                    // {
+                    //   bookingStatus: { $eq: "booked" },
+                    // },
+                    {
+                      bookingStatus: { $ne: null },
+                    },
+                    {
+                      bookingStatus: { $ne: "pending" },
+                    },
+
+                    {
+                      bookingRef: { $ne: null },
+                    },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            lineUpCount: [
+              {
+                $match: {
+                  clientType: null,
+                  $and: [
+                    { siteVisitInterested: { $eq: true } },
+                    // { siteVisitInterestedDate: { $gte: new Date() } },
+                    { siteVisitInterestedDate: { $gte: today.toDate() } }, // only today & future
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            bookingWalkinCount: [
+              {
+                $match: {
+                  stage: "booking",
+                  $and: [
+                    { bookingStatus: { $eq: "booked" } },
+                    {
+                      $or: [
+                        { leadType: "walk-in" },
+                        { leadType: "internal-lead" },
+                      ],
+                    },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+            bookingCpCount: [
+              {
+                $match: {
+                  stage: "booking",
+                  $and: [
+                    { bookingStatus: { $eq: "booked" } },
+                    { leadType: "cp" },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+
+            bulkCount: [
+              {
+                $match: {
+                  clientType: null,
+                  isBulkLead: true,
+                },
+              },
+              { $count: "count" },
+            ],
+            cpNotePendingCount: [
+              {
+                $match: {
+                  $and: [
+                    { cpNoteResolved: false },
+                    { "callHistory.notes": { $exists: true } },
+                    // { "callHistory.notes": { $ne: [] } },
+                  ],
+                },
+              },
+              { $count: "count" },
+            ],
+
+            internalLeadCount: [
+              {
+                $match: {
+                  clientType: null,
+                  $and: [{ leadType: { $eq: "internal-lead" } }],
+                },
+              },
+              { $count: "count" },
+            ],
+            exhibition2025: [
+              {
+                $match: {
+                  leadFrom: "exhibition-2025",
+                },
+              },
+              { $count: "count" },
+            ],
+            blacklistedClient: [
+              {
+                $match: {
+                  $and: [{ clientType: "blacklisted-client" }],
+                },
+              },
+              { $count: "count" },
+            ],
+            isCpCount: [
+              {
+                $match: {
+                  $and: [{ clientType: "is-channel-partner" }],
+                },
+              },
+              { $count: "count" },
+            ],
+            lostCount: [
+              {
+                $match: {
+                  clientType: "lost",
+                },
+              },
+              { $count: "count" },
+            ],
+          },
+        },
+        {
+          $addFields: {
+            totalItems: { $arrayElemAt: ["$totalItems.count", 0] },
+            assignedCount: { $arrayElemAt: ["$assignedCount.count", 0] },
+            notAssignedCount: { $arrayElemAt: ["$notAssignedCount.count", 0] },
+            visitCount: { $arrayElemAt: ["$visitCount.count", 0] },
+            revisitCount: { $arrayElemAt: ["$revisitCount.count", 0] },
+            visit2Count: { $arrayElemAt: ["$visit2Count.count", 0] },
+            bookingCount: { $arrayElemAt: ["$bookingCount.count", 0] },
+            lineUpCount: { $arrayElemAt: ["$lineUpCount.count", 0] },
+            bookingWalkinCount: {
+              $arrayElemAt: ["$bookingWalkinCount.count", 0],
+            },
+            bookingCpCount: { $arrayElemAt: ["$bookingCpCount.count", 0] },
+
+            cpNotePendingCount: {
+              $arrayElemAt: ["$cpNotePendingCount.count", 0],
+            },
+            bulkCount: {
+              $arrayElemAt: ["$bulkCount.count", 0],
+            },
+
+            internalLeadCount: {
+              $arrayElemAt: ["$internalLeadCount.count", 0],
+            },
+            exhibition2025: {
+              $arrayElemAt: ["$exhibition2025.count", 0],
+            },
+            blacklistedClient: {
+              $arrayElemAt: ["$blacklistedClient.count", 0],
+            },
+            isCpCount: {
+              $arrayElemAt: ["$isCpCount.count", 0],
+            },
+            lostCount: {
+              $arrayElemAt: ["$lostCount.count", 0],
+            },
+
+            // Add other fields similarly as required
+          },
+        },
+        {
+          $project: {
+            totalItems: 1,
+            pendingCount: 1,
+            assignedCount: 1,
+            visitCount: 1,
+            revisitCount: 1,
+            visit2Count: 1,
+            bookingCount: 1,
+            lineUpCount: 1,
+            notAssignedCount: 1,
+            bookingWalkinCount: 1,
+            bookingCpCount: 1,
+            cpNotePendingCount: 1,
+            bulkCount: 1,
+            internalLeadCount: 1,
+            exhibition2025: 1,
+            blacklistedClient: 1,
+            isCpCount: 1,
+            lostCount: 1,
+
+            // Include only the fields you need
+          },
+        },
+      ]);
+
+      const {
+        totalItems = 0,
+        pendingCount = 0,
+        // contactedCount = 0,
+        // followUpCount = 0,
+        assignedCount = 0,
+        visitCount = 0,
+        revisitCount = 0,
+        visit2Count = 0,
+        bookingCount = 0,
+        lineUpCount = 0,
+        notAssignedCount = 0,
+        bookingWalkinCount = 0,
+        bookingCpCount = 0,
+        cpNotePendingCount = 0,
+        bulkCount = 0,
+        internalLeadCount = 0,
+        exhibition2025 = 0,
+        blacklistedClient = 0,
+        isCpCount = 0,
+        lostCount = 0,
+
+        // Add other counts as required
+      } = counts[0] || {};
+
+      allCounts.lead.total = totalItems;
+      allCounts.lead.pending = pendingCount;
+      allCounts.lead.visit1 = visitCount;
+      allCounts.lead.visit2 = visit2Count;
+      allCounts.lead.revisit = revisitCount;
+      allCounts.lead.assigned = assignedCount;
+      allCounts.lead.lineup = lineUpCount;
+      allCounts.lead.notAssigned = notAssignedCount;
+      allCounts.lead.booking = bookingCount;
+      allCounts.lead.bookingCp = bookingCpCount;
+      allCounts.lead.bookingWalkIn = bookingWalkinCount;
+      allCounts.lead.cpNotePendingCount = cpNotePendingCount;
+      allCounts.lead.bulkCount = bulkCount;
+      allCounts.lead.internalLeadCount = internalLeadCount;
+      allCounts.lead.exhibition2025 = exhibition2025;
+      allCounts.lead.blacklistedClient = blacklistedClient;
+      allCounts.lead.isCpCount = isCpCount;
+      allCounts.lead.lostCount = lostCount;
 
       return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
     } catch (error) {

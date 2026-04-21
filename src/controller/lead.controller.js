@@ -13,6 +13,8 @@ import TeamLeaderAssignTurn from "../model/teamLeaderAssignTurn.model.js";
 import moment from "moment";
 import {
   employeePopulateOptions,
+  leadListOptions,
+  leadListPopulateOptions,
   leadPopulateOptions,
   leadPopulateOptionsv3,
   taskPopulateOptions,
@@ -1041,7 +1043,7 @@ export const getAllData = async (req, res, next) => {
       },
     ]);
 
-       const blacklistedClient = await leadModelV2.countDocuments({
+    const blacklistedClient = await leadModelV2.countDocuments({
       // bookingStatus: { $ne: "pending" },
       $and: [{ clientType: "blacklisted-client" }],
     });
@@ -6742,54 +6744,66 @@ export const searchLeads = async (req, res, next) => {
     // }
 
     let orFilters = [
-      { firstName: { $regex: query, $options: "i" } },
-      { lastName: { $regex: query, $options: "i" } },
-      {
-        $expr: {
-          $regexMatch: {
-            input: { $concat: ["$firstName", " ", "$lastName"] },
-            regex: query,
-            options: "i",
-          },
-        },
-      },
+      ...(query ? [{ firstName: { $regex: query, $options: "i" } }] : []),
+      ...(query ? [{ lastName: { $regex: query, $options: "i" } }] : []),
+      ...(query
+        ? [
+            {
+              $expr: {
+                $regexMatch: {
+                  input: { $concat: ["$firstName", " ", "$lastName"] },
+                  regex: query,
+                  options: "i",
+                },
+              },
+            },
+          ]
+        : []),
     ];
-
     if (isNumberQuery) {
       orFilters.push(
-        {
-          $expr: {
-            $regexMatch: {
-              input: { $toString: "$phoneNumber" },
-              regex: query,
-            },
-          },
-        },
-        {
-          $expr: {
-            $regexMatch: {
-              input: { $toString: "$altPhoneNumber" },
-              regex: query,
-            },
-          },
-        },
+        ...(query
+          ? [
+              {
+                $expr: {
+                  $regexMatch: {
+                    input: { $toString: "$phoneNumber" },
+                    regex: query,
+                  },
+                },
+              },
+            ]
+          : []),
+
+        ...(query
+          ? [
+              {
+                $expr: {
+                  $regexMatch: {
+                    input: { $toString: "$altPhoneNumber" },
+                    regex: query,
+                  },
+                },
+              },
+            ]
+          : []),
       );
     }
-
     orFilters.push(
-      { email: { $regex: query, $options: "i" } },
-      { address: { $regex: query, $options: "i" } },
-      { interestedStatus: { $regex: query, $options: "i" } },
+      ...(query ? [{ email: { $regex: query, $options: "i" } }] : []),
+      ...(query ? [{ address: { $regex: query, $options: "i" } }] : []),
+      ...(query
+        ? [{ interestedStatus: { $regex: query, $options: "i" } }]
+        : []),
     );
 
     let searchFilter = {
-      ...(statusToFind != null ? statusToFind : null),
-      $or: orFilters,
+      ...(statusToFind != null ? statusToFind : {}),
+      ...(orFilters.length != 0 ? { $or: orFilters } : {}),
 
       // ...(approvalStatus && {
       //   approvalStatus: { $regex: approvalStatus, $options: "i" },
       // }),
-      ...(statusToFind != null ? statusToFind : null),
 
       ...(cycle != null ? { "cycle.currentDays": parseInt(cycle) - 1 } : {}),
       ...(callData != null
@@ -6842,184 +6856,17 @@ export const searchLeads = async (req, res, next) => {
       // logger.info(taskIdArray.length);
       searchFilter.taskRef = { $in: taskIdArray }; // Filter leads based on taskRef
     }
-    // logger.info(JSON.stringify(searchFilter, null, 2));
+    // logger.info(searchFilter);
 
     // Execute the search with the refined filter
     const respCP = await leadModelV2
-      .find(searchFilter)
+      .find(searchFilter, leadListOptions)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1, _id: 1 })
-      .populate(leadPopulateOptions);
-    const sortedLeads = respCP.map((ele) => {
-      ele.callHistory.sort(
-        (a, b) => new Date(b.callDate) - new Date(a.callDate),
-      );
-      return ele;
-    });
+      .populate(leadListPopulateOptions);
 
-    // Count the total items matching the filter
-    // const totalItems = await leadModelV2.countDocuments(searchFilter);
-
-    // Count the total items matching the filter
-    const totalItems = await leadModelV2.countDocuments({
-      // stage: { $ne: "tagging-over" },
-      // leadType: { $ne: "walk-in" },
-    });
-    // const totalItems = await leadModelV2.countDocuments(searchFilter);
-    const rejectedCount = await leadModelV2.countDocuments({
-      $and: [
-        { approvalStatus: "rejected" },
-        // { stage: { $ne: "tagging-over" } },
-        { leadType: { $ne: "walk-in" } },
-      ],
-    });
-
-    const pendingCount = await leadModelV2.countDocuments({
-      $and: [
-        {
-          isBulkLead: false,
-        },
-        { approvalStatus: "pending" },
-        // { stage: { $ne: "tagging-over" } },
-        { leadType: { $ne: "walk-in" } },
-      ],
-    });
-
-    const approvedCount = await leadModelV2.countDocuments({
-      $and: [
-        { approvalStatus: "approved" },
-        // { stage: { $ne: "tagging-over" } },
-        { leadType: { $ne: "walk-in" } },
-      ],
-    });
-
-    const visitCount = await leadModelV2.countDocuments({
-      $and: [
-        {
-          stage: { $ne: "approval" },
-        },
-        {
-          stage: { $ne: "booking" },
-        },
-        {
-          visitStatus: { $ne: null },
-        },
-        {
-          visitStatus: { $ne: "pending" },
-        },
-        {
-          leadType: "cp",
-        },
-      ],
-    });
-
-    const visit2Count = await leadModelV2.countDocuments({
-      $and: [
-        {
-          stage: { $ne: "approval" },
-        },
-        {
-          stage: { $ne: "booking" },
-        },
-        {
-          visitStatus: { $ne: null },
-        },
-        {
-          visitStatus: { $ne: "pending" },
-        },
-        {
-          leadType: { $eq: "walk-in" },
-        },
-      ],
-    });
-    const bookingCount = await leadModelV2.countDocuments({
-      stage: "booking",
-      // bookingStatus: { $ne: "pending" },
-      $and: [
-        {
-          bookingStatus: { $ne: null },
-        },
-        {
-          bookingStatus: { $ne: "pending" },
-        },
-      ],
-    });
-    const booking1Count = await leadModelV2.countDocuments({
-      stage: "booking",
-      // bookingStatus: { $ne: "pending" },
-      $and: [
-        { leadType: { $ne: "walk-in" } },
-        {
-          bookingStatus: { $ne: null },
-        },
-        {
-          bookingStatus: { $ne: "pending" },
-        },
-      ],
-    });
-
-    const booking2Count = await leadModelV2.countDocuments({
-      stage: "booking",
-      // bookingStatus: { $ne: "pending" },
-      $and: [
-        { leadType: "walk-in" },
-        {
-          bookingStatus: { $ne: null },
-        },
-        {
-          bookingStatus: { $ne: "pending" },
-        },
-      ],
-    });
-    const internalLeadCount = await leadModelV2.countDocuments({
-      // bookingStatus: { $ne: "pending" },
-      $and: [{ leadType: "internal-lead" }],
-    });
-
-    const bulkCount = await leadModelV2.countDocuments({
-      // bookingStatus: { $ne: "pending" },
-      $and: [{ clientType: null }, { isBulkLead: true }],
-    });
-
-    const lineUpCount = await leadModelV2.countDocuments({
-      // stage: { $ne: "tagging-over" },
-      leadType: { $ne: "walk-in" },
-      siteVisitInterested: true,
-    });
-
-    const infomedCpCount = await leadModelV2.countDocuments({
-      // bookingStatus: { $ne: "pending" },
-      $and: [
-        {
-          bookingStatus: { $ne: null },
-        },
-        {
-          bookingStatus: { $ne: "pending" },
-        },
-        {
-          informedStatus: { $eq: true },
-        },
-      ],
-    });
-
-    const blacklistedClient = await leadModelV2.countDocuments({
-      // bookingStatus: { $ne: "pending" },
-      $and: [{ clientType: "blacklisted-client" }],
-    });
-    const isCpCount = await leadModelV2.countDocuments({
-      // bookingStatus: { $ne: "pending" },
-      $and: [{ clientType: "is-channel-partner" }],
-    });
-
-    const lostCount = await leadModelV2.countDocuments({
-      // bookingStatus: { $ne: "pending" },
-      $and: [{ clientType: "lost" }],
-    });
-
-    // const assignedCount = await leadModelV2.countDocuments({
-    //   $and: [{ preSalesExecutive: { $ne: null } }],
-    // });
+    const totalItems = await leadModelV2.countDocuments(searchFilter);
 
     // Calculate the total number of pages
     const totalPages = Math.ceil(totalItems / limit);
@@ -7030,23 +6877,7 @@ export const searchLeads = async (req, res, next) => {
         limit,
         totalPages,
         totalItems,
-        pendingCount,
-        approvedCount,
-        // assignedCount,
-        rejectedCount,
-        visitCount,
-        visit2Count,
-        bookingCount,
-        booking1Count,
-        booking2Count,
-        lineUpCount,
-        internalLeadCount,
-        bulkCount,
-        infomedCpCount,
-        blacklistedClient,
-        isCpCount,
-        lostCount,
-        data: sortedLeads,
+        data: respCP,
       }),
     );
   } catch (error) {
