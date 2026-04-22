@@ -2894,3 +2894,104 @@ export const leadPopulateOptionsv3 = [
     ],
   },
 ];
+export const leadListOptions = {
+  // client info
+  phoneNumber: 1,
+  countryCode: 1,
+  firstName: 1,
+  lastName: 1,
+  //
+  startDate: 1,
+  validTill: 1,
+  channelPartner: 1,
+  //
+  cycle: 1,
+
+  //
+  task: 1,
+  //
+  stage: 1,
+  clientInterestedStatus: 1,
+  interestedStatus: 1,
+  status: 1,
+  approvalStatus: 1,
+  visitStatus: 1,
+  revisitStatus: 1,
+  bookingStatus: 1,
+  clientType: 1,
+  siteVisitInterested: 1,
+  siteVisitInterestedDate: 1,
+  leadFrom: 1,
+  disabledRemark: 1,
+  //
+  totalCalls: 1,
+  //
+  // project:1,
+  dataAnalyzer: 1,
+  visitRef: 1,
+  revisitRef: 1,
+  bookingRef: 1,
+};
+export const leadListPopulateOptions = [
+  {
+    path: "channelPartner",
+    select: "firmName",
+  },
+  // {
+  //   path: "project",
+  //   select: "name",
+  // },
+  {
+    path: "cycle.teamLeader",
+    select: "firstName lastName",
+  },
+  {
+    path: "dataAnalyzer",
+    select: "firstName lastName",
+  },
+  {
+    path: "visitRef",
+    select: "closingManager date",
+    populate: [
+      {
+        path: "closingManager",
+        select: "firstName lastName",
+      },
+    ],
+  },
+  {
+    path: "revisitRef",
+    select: "closingManager date",
+    populate: [
+      {
+        path: "closingManager",
+        select: "firstName lastName",
+      },
+    ],
+  },
+  {
+    path: "bookingRef",
+    select:
+      "project unitNo buildingNo bookingStatus closingManager date registrationDone status",
+    populate: [
+      { path: "project", select: "name" },
+      {
+        path: "closingManager",
+        select: "firstName lastName",
+      },
+    ],
+  },
+
+  {
+    path: "task.assignTo",
+    select: "firstName lastName",
+  },
+  {
+    path: "task.assignBy",
+    select: "firstName lastName",
+  },
+  {
+    path: "task.transferTaskFrom",
+    select: "firstName lastName",
+  },
+];

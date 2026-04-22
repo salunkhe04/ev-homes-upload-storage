@@ -2099,6 +2099,7 @@ export const updateFeedbackWithTimer = async (req, res, next) => {
             "task.completedDate": new Date(),
           }
         : {}),
+      totalCalls: (leadInfo?.callHistory?.length ?? 0) + 1,
       // mark here
     };
 

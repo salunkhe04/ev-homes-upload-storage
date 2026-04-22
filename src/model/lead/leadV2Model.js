@@ -524,6 +524,10 @@ export const leadSchema = new mongoose.Schema(
       default: null,
       enum: ["is-channel-partner", "blacklisted-client", "lost"],
     },
+    totalCalls: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );
