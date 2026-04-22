@@ -6744,66 +6744,54 @@ export const searchLeads = async (req, res, next) => {
     // }
 
     let orFilters = [
-      ...(query ? [{ firstName: { $regex: query, $options: "i" } }] : []),
-      ...(query ? [{ lastName: { $regex: query, $options: "i" } }] : []),
-      ...(query
-        ? [
-            {
-              $expr: {
-                $regexMatch: {
-                  input: { $concat: ["$firstName", " ", "$lastName"] },
-                  regex: query,
-                  options: "i",
-                },
-              },
-            },
-          ]
-        : []),
+      { firstName: { $regex: query, $options: "i" } },
+      { lastName: { $regex: query, $options: "i" } },
+      {
+        $expr: {
+          $regexMatch: {
+            input: { $concat: ["$firstName", " ", "$lastName"] },
+            regex: query,
+            options: "i",
+          },
+        },
+      },
     ];
+
     if (isNumberQuery) {
       orFilters.push(
-        ...(query
-          ? [
-              {
-                $expr: {
-                  $regexMatch: {
-                    input: { $toString: "$phoneNumber" },
-                    regex: query,
-                  },
-                },
-              },
-            ]
-          : []),
-
-        ...(query
-          ? [
-              {
-                $expr: {
-                  $regexMatch: {
-                    input: { $toString: "$altPhoneNumber" },
-                    regex: query,
-                  },
-                },
-              },
-            ]
-          : []),
+        {
+          $expr: {
+            $regexMatch: {
+              input: { $toString: "$phoneNumber" },
+              regex: query,
+            },
+          },
+        },
+        {
+          $expr: {
+            $regexMatch: {
+              input: { $toString: "$altPhoneNumber" },
+              regex: query,
+            },
+          },
+        },
       );
     }
+
     orFilters.push(
-      ...(query ? [{ email: { $regex: query, $options: "i" } }] : []),
-      ...(query ? [{ address: { $regex: query, $options: "i" } }] : []),
-      ...(query
-        ? [{ interestedStatus: { $regex: query, $options: "i" } }]
-        : []),
+      { email: { $regex: query, $options: "i" } },
+      { address: { $regex: query, $options: "i" } },
+      { interestedStatus: { $regex: query, $options: "i" } },
     );
 
     let searchFilter = {
-      ...(statusToFind != null ? statusToFind : {}),
-      ...(orFilters.length != 0 ? { $or: orFilters } : {}),
+      ...(statusToFind != null ? statusToFind : null),
+      $or: orFilters,
 
       // ...(approvalStatus && {
       //   approvalStatus: { $regex: approvalStatus, $options: "i" },
       // }),
+      ...(statusToFind != null ? statusToFind : null),
 
       ...(cycle != null ? { "cycle.currentDays": parseInt(cycle) - 1 } : {}),
       ...(callData != null
@@ -6856,17 +6844,184 @@ export const searchLeads = async (req, res, next) => {
       // logger.info(taskIdArray.length);
       searchFilter.taskRef = { $in: taskIdArray }; // Filter leads based on taskRef
     }
-    // logger.info(searchFilter);
+    // logger.info(JSON.stringify(searchFilter, null, 2));
 
     // Execute the search with the refined filter
     const respCP = await leadModelV2
-      .find(searchFilter, leadListOptions)
+      .find(searchFilter)
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1, _id: 1 })
-      .populate(leadListPopulateOptions);
+      .populate(leadPopulateOptions);
+    const sortedLeads = respCP.map((ele) => {
+      ele.callHistory.sort(
+        (a, b) => new Date(b.callDate) - new Date(a.callDate),
+      );
+      return ele;
+    });
 
-    const totalItems = await leadModelV2.countDocuments(searchFilter);
+    // Count the total items matching the filter
+    // const totalItems = await leadModelV2.countDocuments(searchFilter);
+
+    // Count the total items matching the filter
+    const totalItems = await leadModelV2.countDocuments({
+      // stage: { $ne: "tagging-over" },
+      // leadType: { $ne: "walk-in" },
+    });
+    // const totalItems = await leadModelV2.countDocuments(searchFilter);
+    const rejectedCount = await leadModelV2.countDocuments({
+      $and: [
+        { approvalStatus: "rejected" },
+        // { stage: { $ne: "tagging-over" } },
+        { leadType: { $ne: "walk-in" } },
+      ],
+    });
+
+    const pendingCount = await leadModelV2.countDocuments({
+      $and: [
+        {
+          isBulkLead: false,
+        },
+        { approvalStatus: "pending" },
+        // { stage: { $ne: "tagging-over" } },
+        { leadType: { $ne: "walk-in" } },
+      ],
+    });
+
+    const approvedCount = await leadModelV2.countDocuments({
+      $and: [
+        { approvalStatus: "approved" },
+        // { stage: { $ne: "tagging-over" } },
+        { leadType: { $ne: "walk-in" } },
+      ],
+    });
+
+    const visitCount = await leadModelV2.countDocuments({
+      $and: [
+        {
+          stage: { $ne: "approval" },
+        },
+        {
+          stage: { $ne: "booking" },
+        },
+        {
+          visitStatus: { $ne: null },
+        },
+        {
+          visitStatus: { $ne: "pending" },
+        },
+        {
+          leadType: "cp",
+        },
+      ],
+    });
+
+    const visit2Count = await leadModelV2.countDocuments({
+      $and: [
+        {
+          stage: { $ne: "approval" },
+        },
+        {
+          stage: { $ne: "booking" },
+        },
+        {
+          visitStatus: { $ne: null },
+        },
+        {
+          visitStatus: { $ne: "pending" },
+        },
+        {
+          leadType: { $eq: "walk-in" },
+        },
+      ],
+    });
+    const bookingCount = await leadModelV2.countDocuments({
+      stage: "booking",
+      // bookingStatus: { $ne: "pending" },
+      $and: [
+        {
+          bookingStatus: { $ne: null },
+        },
+        {
+          bookingStatus: { $ne: "pending" },
+        },
+      ],
+    });
+    const booking1Count = await leadModelV2.countDocuments({
+      stage: "booking",
+      // bookingStatus: { $ne: "pending" },
+      $and: [
+        { leadType: { $ne: "walk-in" } },
+        {
+          bookingStatus: { $ne: null },
+        },
+        {
+          bookingStatus: { $ne: "pending" },
+        },
+      ],
+    });
+
+    const booking2Count = await leadModelV2.countDocuments({
+      stage: "booking",
+      // bookingStatus: { $ne: "pending" },
+      $and: [
+        { leadType: "walk-in" },
+        {
+          bookingStatus: { $ne: null },
+        },
+        {
+          bookingStatus: { $ne: "pending" },
+        },
+      ],
+    });
+    const internalLeadCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ leadType: "internal-lead" }],
+    });
+
+    const bulkCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: null }, { isBulkLead: true }],
+    });
+
+    const lineUpCount = await leadModelV2.countDocuments({
+      // stage: { $ne: "tagging-over" },
+      leadType: { $ne: "walk-in" },
+      siteVisitInterested: true,
+    });
+
+    const infomedCpCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [
+        {
+          bookingStatus: { $ne: null },
+        },
+        {
+          bookingStatus: { $ne: "pending" },
+        },
+        {
+          informedStatus: { $eq: true },
+        },
+      ],
+    });
+
+    const blacklistedClient = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: "blacklisted-client" }],
+    });
+    const isCpCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: "is-channel-partner" }],
+    });
+
+    const lostCount = await leadModelV2.countDocuments({
+      // bookingStatus: { $ne: "pending" },
+      $and: [{ clientType: "lost" }],
+    });
+
+    // const assignedCount = await leadModelV2.countDocuments({
+    //   $and: [{ preSalesExecutive: { $ne: null } }],
+    // });
 
     // Calculate the total number of pages
     const totalPages = Math.ceil(totalItems / limit);
@@ -6877,7 +7032,23 @@ export const searchLeads = async (req, res, next) => {
         limit,
         totalPages,
         totalItems,
-        data: respCP,
+        pendingCount,
+        approvedCount,
+        // assignedCount,
+        rejectedCount,
+        visitCount,
+        visit2Count,
+        bookingCount,
+        booking1Count,
+        booking2Count,
+        lineUpCount,
+        internalLeadCount,
+        bulkCount,
+        infomedCpCount,
+        blacklistedClient,
+        isCpCount,
+        lostCount,
+        data: sortedLeads,
       }),
     );
   } catch (error) {
@@ -6885,6 +7056,606 @@ export const searchLeads = async (req, res, next) => {
     return next(error);
   }
 };
+
+// TODO: update 
+// export const searchLeadsv2 = async (req, res, next) => {
+//   try {
+//     let query = req.query.query || "";
+//     let status =
+//       req.query.approvalStatus?.toLowerCase() ??
+//       req.query.status?.toLowerCase();
+//     let status2 = req.query.status2?.toLowerCase();
+//     let cycle = req.query.cycle;
+//     let callData = req.query.callData;
+//     let leadstatus = req.query.leadstatus;
+
+//     let lostStatus = req.query.lostStatus;
+//     let clientstatus = req.query.clientstatus;
+
+//     let order = req.query.order;
+//     let sortDirection = -1;
+//     const interval = req.query.interval;
+//     const currentDate = new Date();
+//     let date = req.query.date;
+//     let dateFilter = {};
+//     let startDateDeadline = req.query.startDateDeadline;
+//     let endDateDeadline = req.query.endDateDeadline;
+//     // logger.info(approvalStatus);
+//     let stage = req.query.stage?.toLowerCase();
+//     let channelPartner = req.query.channelPartner?.toLowerCase();
+//     let teamLeader = req.query.teamLeader?.toLowerCase();
+//     let page = parseInt(req.query.page) || 1;
+//     let limit = parseInt(req.query.limit) || 10;
+//     let skip = (page - 1) * limit;
+//     let statusToFind = null;
+//     let taskType = req.query.taskType;
+//     let validity = req.query.validity;
+//     let sort = req.query.sort;
+
+//     const targetDate = validity
+//       ? moment.tz(validity, "Asia/Kolkata")
+//       : moment.tz("Asia/Kolkata");
+
+//     const startOfDay = targetDate.startOf("day").toDate(); // 00:00:00
+//     const endOfDay = targetDate.endOf("day").toDate(); // 23:59:59
+
+//     let ids = [];
+
+//     if (date) {
+//       if (date === "today") {
+//         const startOfDay = moment().startOf("day").toISOString();
+//         const endOfDay = moment().endOf("day").toISOString();
+//         dateFilter = {
+//           "cycle.validTill": {
+//             $gte: startOfDay,
+//             $lte: endOfDay,
+//           },
+//         };
+//       }
+//     }
+
+//     if (startDateDeadline && endDateDeadline) {
+//       dateFilter = {
+//         "cycle.validTill": {
+//           $gte: moment(startDateDeadline).startOf("day").toISOString(),
+//           $lte: moment(endDateDeadline).endOf("day").toISOString(),
+//         },
+//       };
+//       // logger.info(startDateDeadline);
+//       // logger.info(endDateDeadline);
+
+//       // logger.info(dateFilter);
+//     }
+
+//     const isNumberQuery = !isNaN(query);
+//     //  const filterDate = new Date("2024-12-10");
+
+//     if (status === "booking-done" || status === "booking") {
+//       statusToFind = {
+//         stage: "booking",
+//         // bookingStatus: { $ne: "pending" },
+//         $and: [
+//           {
+//             bookingStatus: { $ne: null },
+//           },
+//           {
+//             bookingStatus: { $eq: "booked" },
+//           },
+//         ],
+//       };
+//     } else if (status === "revisit-done") {
+//       statusToFind = {
+//         stage: "booking",
+//         // bookingStatus: { $ne: "booked" },
+//         // revisitStatus: { $ne: "pending" },
+//         $and: [
+//           {
+//             revisitStatus: { $ne: null },
+//           },
+//           {
+//             revisitStatus: { $ne: "pending" },
+//           },
+//         ],
+
+//         // ...walkinType,
+//         leadType: { $ne: "walk-in" },
+//       };
+//     } else if (status === "visit-done" || status === "visit") {
+//       statusToFind = {
+//         stage: { $ne: "approval" },
+//         stage: { $ne: "booking" },
+//         $and: [
+//           {
+//             visitStatus: { $ne: null },
+//           },
+//           {
+//             visitStatus: { $ne: "pending" },
+//           },
+//           {
+//             leadType: { $ne: "walk-in" },
+//           },
+//         ],
+//         // ...walkinType,
+//       };
+//     } else if (status === "revisit-pending") {
+//       statusToFind = {
+//         stage: { $eq: "revisit" },
+//         stage: { $ne: "booking" },
+//         // revisitStatus: { $eq: "pending" },
+//         $and: [
+//           {
+//             revisitStatus: { $ne: null },
+//           },
+//           {
+//             revisitStatus: { $eq: "pending" },
+//           },
+//         ],
+
+//         // ...walkinType,
+//         leadType: { $ne: "walk-in" },
+//       };
+//     } else if (status === "visit-pending") {
+//       statusToFind = {
+//         stage: { $eq: "visit" },
+//         // visitStatus: { $eq: "pending" },
+//         $and: [
+//           {
+//             visitStatus: { $ne: null },
+//           },
+//           {
+//             visitStatus: { $eq: "pending" },
+//           },
+//         ],
+
+//         // ...walkinType,
+//         leadType: { $ne: "walk-in" },
+//       };
+//     } else if (status === "tagging-over") {
+//       statusToFind = {
+//         stage: { $eq: "tagging-over" },
+//       };
+//     } else if (status === "pending") {
+//       statusToFind = {
+//         // startDate: { $gte: filterDate },
+//         // bookingStatus: { $ne: "booked" },
+//         isBulkLead: false,
+//         $or: [
+//           {
+//             approvalStatus: null,
+//             // bookingStatus: { $ne: "booked" },
+//             // visitStatus: "pending",
+//           },
+//           {
+//             approvalStatus: "pending",
+//             // bookingStatus: { $ne: "booked" },
+//             // revisitStatus: "pending",
+//           },
+//         ],
+//         // leadType: { $ne: "walk-in" },
+//       };
+//     } else if (status === "visit2") {
+//       statusToFind = {
+//         $and: [
+//           {
+//             visitStatus: { $ne: "pending" },
+//           },
+//           {
+//             stage: { $ne: "tagging-over" },
+//           },
+//           {
+//             stage: { $ne: "approval" },
+//           },
+//           {
+//             $or: [
+//               {
+//                 leadType: "walk-in",
+//               },
+//               {
+//                 leadType: "internal-lead",
+//               },
+//             ],
+//           },
+//         ],
+//         // ...walkinType,
+//       };
+//     } else if (status === "followup") {
+//       statusToFind = {
+//         taskRef: { $ne: null },
+//         // ...walkinType,
+//       };
+//     } else if (status === "not-followup") {
+//       statusToFind = {
+//         taskRef: { $eq: null },
+//         // ...walkinType,
+//       };
+//     } else if (status === "visit2-revisit-done") {
+//       statusToFind = {
+//         stage: "booking",
+//         // bookingStatus: { $ne: "booked" },
+//         // revisitStatus: { $ne: "pending" },
+//         $and: [
+//           {
+//             revisitStatus: { $ne: null },
+//           },
+//           {
+//             revisitStatus: { $ne: "pending" },
+//           },
+//           {
+//             $or: [
+//               {
+//                 leadType: "walk-in",
+//               },
+//               {
+//                 leadType: "internal-lead",
+//               },
+//             ],
+//           },
+//         ],
+
+//         // ...walkinType,
+//         leadType: { $eq: "walk-in" },
+//       };
+//     } else if (
+//       status === "visit2-visit-done" ||
+//       status === "visit2-done" ||
+//       status === "visit2"
+//     ) {
+//       statusToFind = {
+//         stage: { $ne: "approval" },
+//         stage: { $ne: "booking" },
+//         $and: [
+//           {
+//             visitStatus: { $ne: null },
+//           },
+//           {
+//             visitStatus: { $ne: "pending" },
+//           },
+//           {
+//             $or: [
+//               {
+//                 leadType: "walk-in",
+//               },
+//               {
+//                 leadType: "internal-lead",
+//               },
+//             ],
+//           },
+//         ],
+//         // ...walkinType,
+//         leadType: { $eq: "walk-in" },
+//       };
+//     } else if (status == "line-up") {
+//       // logger.info("line-up");
+//       statusToFind = {
+//         siteVisitInterested: true,
+//       };
+//     } else if (status === "no-feedback" || status === "feedback-pending") {
+//       const oneWeekAgo = new Date();
+//       const onDayAgo = new Date();
+//       onDayAgo.setDate(oneWeekAgo.getDate() - 1);
+//       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+//       // logger.info(oneWeekAgo);
+//       // logger.info(onDayAgo);
+
+//       statusToFind = {
+//         taskRef: { $ne: null },
+//         "cycle.startDate": { $gt: onDayAgo },
+//         $expr: {
+//           $and: [
+//             {
+//               $ne: [{ $arrayElemAt: ["$callHistory.caller", -1] }, null],
+//             },
+//             {
+//               $lte: [
+//                 { $arrayElemAt: ["$callHistory.callDate", -1] }, // Get the last remark in callHistory
+//                 oneWeekAgo,
+//               ],
+//             },
+//           ],
+//         },
+//         // ...walkinType,
+//       };
+//     } else if (status === "internal-lead") {
+//       statusToFind = {
+//         ...statusToFind,
+//         $and: [
+//           {
+//             leadType: { $eq: "internal-lead" },
+//           },
+//         ],
+//       };
+//     } else if (status === "exhibition-2025") {
+//       statusToFind = {
+//         ...statusToFind,
+//         $and: [
+//           {
+//             leadFrom: { $eq: "exhibition-2025" },
+//           },
+//         ],
+//       };
+//     } else if (status === "informed-cp") {
+//       statusToFind = {
+//         stage: "booking",
+//         // bookingStatus: { $ne: "pending" },
+//         $and: [
+//           {
+//             bookingStatus: { $ne: null },
+//           },
+//           {
+//             bookingStatus: { $eq: "booked" },
+//           },
+//           {
+//             informedStatus: { $eq: true },
+//           },
+//         ],
+//       };
+//     } else if (status === "is-channel-partner") {
+//       statusToFind = {
+//         ...statusToFind,
+//         $and: [
+//           {
+//             clientType: { $eq: "is-channel-partner" },
+//           },
+//         ],
+//       };
+//     } else if (status === "blacklisted-client") {
+//       statusToFind = {
+//         ...statusToFind,
+//         $and: [
+//           {
+//             clientType: { $eq: "blacklisted-client" },
+//           },
+//         ],
+//       };
+//     } else if (status === "lost") {
+//       statusToFind = {
+//         ...statusToFind,
+//         $and: [
+//           {
+//             clientType: { $eq: "lost" },
+//           },
+//         ],
+//       };
+//     }
+
+//     // assing /pending/etc
+//     if (status2 === "not-followup" || status2 === "not-assigned") {
+//       statusToFind = {
+//         ...statusToFind,
+//         taskRef: { $eq: null },
+//         // ...walkinType,
+//       };
+//     } else if (status2 === "followup" || status2 === "assigned") {
+//       statusToFind = {
+//         ...statusToFind,
+//         taskRef: { $ne: null },
+//         // ...walkinType,
+//       };
+//     } else if (status2 === "no-feedback" || status2 === "feedback-pending") {
+//       const oneWeekAgo = new Date();
+//       const onDayAgo = new Date();
+//       onDayAgo.setDate(oneWeekAgo.getDate() - 1);
+//       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+//       statusToFind = {
+//         ...statusToFind,
+//         taskRef: { $ne: null },
+//         "cycle.startDate": { $gt: onDayAgo },
+//         $expr: {
+//           $and: [
+//             {
+//               $ne: [{ $arrayElemAt: ["$callHistory.caller", -1] }, null],
+//             },
+//             {
+//               $lte: [
+//                 { $arrayElemAt: ["$callHistory.callDate", -1] }, // Get the last remark in callHistory
+//                 oneWeekAgo,
+//               ],
+//             },
+//           ],
+//         },
+//         // ...walkinType,
+//       };
+//     }
+
+//     if (callData == "Call Not Received" || callData == "call not received") {
+//       // logger.info("call not received");
+//     } else if (callData == "Call Done" || callData == "Call done") {
+//       // logger.info("call done");
+//     } else if (callData == "Call Cancelled" || callData == "call cancelled") {
+//       // logger.info("Call Cancelled");
+//     } else if (callData == "Call Busy") {
+//       // logger.info("Call Busy");
+//     } else if (callData == "Not Reachable") {
+//       // logger.info("Not Reachable");
+//     }
+
+//     if (order == "Ascending" || order == "ascending") {
+//       sortDirection = 1;
+//       // logger.info("ascending");
+//     } else if (order == "Descending" || order == "descending") {
+//       sortDirection = -1;
+//     }
+
+//     if (interval == "monthly") {
+//       startDate = new Date(
+//         currentDate.getFullYear(),
+//         currentDate.getMonth(),
+//         1,
+//       );
+//       endDate = new Date(
+//         currentDate.getFullYear(),
+//         currentDate.getMonth() + 1,
+//         0,
+//       );
+//     } else if (interval == "quarterly") {
+//       const quarter = Math.floor(currentDate.getMonth() / 3);
+//       startDate = new Date(currentDate.getFullYear(), quarter * 3, 1);
+//       endDate = new Date(currentDate.getFullYear(), (quarter + 1) * 3, 0);
+//     } else if (interval == "semi-annually") {
+//       const half = Math.floor(currentDate.getMonth() / 6);
+//       startDate = new Date(currentDate.getFullYear(), half * 6, 1);
+//       endDate = new Date(currentDate.getFullYear(), (half + 1) * 6, 0);
+//     } else if (interval == "annually") {
+//       startDate = new Date(currentDate.getFullYear(), 0, 1);
+//       endDate = new Date(currentDate.getFullYear() + 1, 0, 0);
+//     }
+
+//     // if (callData == "Call Not Received" || callData == "call not received") {
+//     //   logger.info("call not received");
+//     // } else if (callData == "Call Done" || callData == "Call done") {
+//     //   logger.info("call done");
+//     // } else if (callData == "Call Cancelled" || callData == "call cancelled") {
+//     //   logger.info("Call Cancelled");
+//     // } else if (callData == "Call Busy") {
+//     //   logger.info("Call Busy");
+//     // } else if (callData == "Not Reachable") {
+//     //   logger.info("Not Reachable");
+//     // }
+
+//     let orFilters = [
+//       ...(query ? [{ firstName: { $regex: query, $options: "i" } }] : []),
+//       ...(query ? [{ lastName: { $regex: query, $options: "i" } }] : []),
+//       ...(query
+//         ? [
+//             {
+//               $expr: {
+//                 $regexMatch: {
+//                   input: { $concat: ["$firstName", " ", "$lastName"] },
+//                   regex: query,
+//                   options: "i",
+//                 },
+//               },
+//             },
+//           ]
+//         : []),
+//     ];
+//     if (isNumberQuery) {
+//       orFilters.push(
+//         ...(query
+//           ? [
+//               {
+//                 $expr: {
+//                   $regexMatch: {
+//                     input: { $toString: "$phoneNumber" },
+//                     regex: query,
+//                   },
+//                 },
+//               },
+//             ]
+//           : []),
+
+//         ...(query
+//           ? [
+//               {
+//                 $expr: {
+//                   $regexMatch: {
+//                     input: { $toString: "$altPhoneNumber" },
+//                     regex: query,
+//                   },
+//                 },
+//               },
+//             ]
+//           : []),
+//       );
+//     }
+//     orFilters.push(
+//       ...(query ? [{ email: { $regex: query, $options: "i" } }] : []),
+//       ...(query ? [{ address: { $regex: query, $options: "i" } }] : []),
+//       ...(query
+//         ? [{ interestedStatus: { $regex: query, $options: "i" } }]
+//         : []),
+//     );
+
+//     let searchFilter = {
+//       ...(statusToFind != null ? statusToFind : {}),
+//       ...(orFilters.length != 0 ? { $or: orFilters } : {}),
+
+//       // ...(approvalStatus && {
+//       //   approvalStatus: { $regex: approvalStatus, $options: "i" },
+//       // }),
+
+//       ...(cycle != null ? { "cycle.currentDays": parseInt(cycle) - 1 } : {}),
+//       ...(callData != null
+//         ? {
+//             $expr: {
+//               $eq: [
+//                 { $arrayElemAt: ["$callHistory.remark", -1] }, // Get the last remark in callHistory
+//                 callData, // Compare it with the passed value
+//               ],
+//             },
+//           }
+//         : {}),
+//       ...(clientstatus ? { clientInterestedStatus: clientstatus } : {}),
+//       ...(leadstatus === "lost"
+//         ? {
+//             $expr: {
+//               $gt: [{ $size: "$lostHistory" }, 2],
+//             },
+//           }
+//         : leadstatus
+//           ? { interestedStatus: leadstatus }
+//           : {}),
+//       // ...(lostStatus === "lost"
+//       //   ? {
+//       //       $expr: {
+//       //         $gt: [{ $size: "$lostHistory" }, 2],
+//       //       },
+//       //     }
+//       //   : {}),
+//       ...(channelPartner ? { channelPartner: channelPartner } : {}),
+//       ...(teamLeader ? { teamLeader: teamLeader } : {}),
+//       ...dateFilter,
+
+//       // ...(stage ? { stage: stage } : { stage: { $ne: "tagging-over" } }),
+//       // ...(stage === "all"
+//       //   ? { stage: stage }
+//       //   : {
+//       //       /*leadType: { $ne: "walk-in" }*/
+//       //     }),
+//       // ...(status === "pending" && {
+//       //   leadType: { $ne: "walk-in" },
+//       //   stage: { $ne: "tagging-over" },
+//       // }),
+//     };
+
+//     // logger.info(JSON.stringify(searchFilter,null,2));
+//     if (taskType) {
+//       const taskIds = await taskModel.find({ type: taskType }).select("_id");
+//       const taskIdArray = taskIds.map((task) => task._id.toString());
+//       // logger.info(taskIdArray.length);
+//       searchFilter.taskRef = { $in: taskIdArray }; // Filter leads based on taskRef
+//     }
+//     // logger.info(searchFilter);
+
+//     // Execute the search with the refined filter
+//     const respCP = await leadModelV2
+//       .find(searchFilter, leadListOptions)
+//       .skip(skip)
+//       .limit(limit)
+//       .sort({ createdAt: -1, _id: 1 })
+//       .populate(leadListPopulateOptions);
+
+//     const totalItems = await leadModelV2.countDocuments(searchFilter);
+
+//     // Calculate the total number of pages
+//     const totalPages = Math.ceil(totalItems / limit);
+//     // cons;
+//     return res.send(
+//       successRes(200, "get leads", {
+//         page,
+//         limit,
+//         totalPages,
+//         totalItems,
+//         data: respCP,
+//       }),
+//     );
+//   } catch (error) {
+//     logger.info(error);
+//     return next(error);
+//   }
+// };
 
 export const searchLeadsChannelPartner = async (req, res, next) => {
   const id = req.params.id;

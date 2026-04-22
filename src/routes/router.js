@@ -145,6 +145,7 @@ import trackerRouter from "./tracker/trackerRouter.js";
 import logger from "../utils/logger.js";
 import otpRouter from "./otp/otpRouter.js";
 import sessionRouter from "./session/sessionRouter.js";
+import redev10mbRouter from "./redev10Mb/redev10mbRouter.js";
 
 const router = Router();
 
@@ -1085,4 +1086,7 @@ router.use(designTaskRouter);
 router.use(trackerRouter);
 router.use(otpRouter);
 router.use(sessionRouter);
+router.use(redev10mbRouter);
+
+
 export default router;

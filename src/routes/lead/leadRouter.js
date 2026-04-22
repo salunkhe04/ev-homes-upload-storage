@@ -378,7 +378,7 @@ leadRouter.post(
 
 leadRouter.get(
   "/search-lead",
-  // authenticateToken,
+  authenticateToken,    
   searchLeads,
 );
 
