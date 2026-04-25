@@ -51,9 +51,10 @@ parkingRouter.get("/get-parkings", async (req, res) => {
 
     let query = { ...(project ? { project: project } : {}) };
 
-    const flats = await parkingModel
-      .find(query)
-      .populate({ path: "project", select: "name" });
+    const flats = await parkingModel.find(query).populate([
+      { path: "occupiedBy", select: "firstName lastName unitNo" },
+      { path: "project", select: "name" },
+    ]);
 
     await RedisService.set(cacheData, flats, 86400); // 24 hours
 
@@ -211,14 +212,18 @@ export const ParkingOccupancyChange = async ({
       project: project,
       floor: floor,
       number: number,
-      buildingNo:buildingNo,
+      buildingNo: buildingNo,
     });
 
     if (!flat) return null;
     const cacheData = project ? `parking_${project}` : "parkings";
 
     const updated = await parkingModel
-      .findByIdAndUpdate(flat._id, { occupied: occupied,occupiedBy:occupiedBy }, { new: true })
+      .findByIdAndUpdate(
+        flat._id,
+        { occupied: occupied, occupiedBy: occupiedBy },
+        { new: true },
+      )
       .populate({ path: "project", select: "name" });
     //
     await RedisService.delMultipleKeys(["parkings", cacheData]);
