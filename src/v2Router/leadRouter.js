@@ -1847,17 +1847,16 @@ leadRouterV2.get(
             pendingCount: [
               {
                 $match: {
-                  clientType: null,
+                      bookingStatus: { $ne: "booked" },
+
                   $or: [
                     // { visitRef: { $ne: null } },
                     // { revisitRef: { $ne: null } },
                     {
                       visitStatus: "pending",
-                      bookingStatus: { $ne: "booked" },
                     },
                     {
                       revisitStatus: "pending",
-                      bookingStatus: { $ne: "booked" },
                     },
                   ],
                 },
@@ -2159,7 +2158,7 @@ leadRouterV2.get(
       //
       return errorRes2(res, 500, "Internal Server Error");
     }
-  },
+  }, 
 );
 leadRouterV2.get(
   "/super-admin-dashboard-count",
@@ -2264,17 +2263,23 @@ leadRouterV2.get(
             visitCount: [
               {
                 $match: {
-                  clientType: null,
-                  stage: { $ne: "approval" },
-                  stage: { $ne: "booking" },
+               
                   $and: [
-                    {
-                      visitStatus: { $ne: null },
-                    },
-                    {
-                      visitStatus: { $ne: "pending" },
-                    },
-                    { leadType: { $eq: "cp" } },
+                     {
+          stage: { $ne: "approval" },
+        },
+        {
+          stage: { $ne: "booking" },
+        },
+        {
+          visitStatus: { $ne: null },
+        },
+        {
+          visitStatus: { $ne: "pending" },
+        },
+        {
+          leadType: "cp",
+        },
                   ],
                 },
               },
@@ -2283,7 +2288,6 @@ leadRouterV2.get(
             revisitCount: [
               {
                 $match: {
-                  clientType: null,
                   stage: "booking",
                   $and: [
                     {
@@ -2300,23 +2304,22 @@ leadRouterV2.get(
             visit2Count: [
               {
                 $match: {
-                  clientType: null,
                   $and: [
-                    {
-                      stage: { $ne: "approval" },
-                    },
-                    {
-                      stage: { $ne: "booking" },
-                    },
-                    {
-                      visitStatus: { $ne: null },
-                    },
-                    {
-                      visitStatus: { $ne: "pending" },
-                    },
-                    {
-                      leadType: { $eq: "walk-in" },
-                    },
+                       {
+          stage: { $ne: "approval" },
+        },
+        {
+          stage: { $ne: "booking" },
+        },
+        {
+          visitStatus: { $ne: null },
+        },
+        {
+          visitStatus: { $ne: "pending" },
+        },
+        {
+          leadType: { $eq: "walk-in" },
+        },
                   ],
                 },
               },
@@ -2325,22 +2328,19 @@ leadRouterV2.get(
             bookingCount: [
               {
                 $match: {
+      stage: "booking",
+
                   // bookingStatus: { $ne: "pending" },
-                  clientType: null,
                   $and: [
                     // {
                     //   bookingStatus: { $eq: "booked" },
                     // },
-                    {
-                      bookingStatus: { $ne: null },
-                    },
-                    {
-                      bookingStatus: { $ne: "pending" },
-                    },
-
-                    {
-                      bookingRef: { $ne: null },
-                    },
+                     {
+          bookingStatus: { $ne: null },
+        },
+        {
+          bookingStatus: { $ne: "pending" },
+        },
                   ],
                 },
               },
@@ -2349,12 +2349,10 @@ leadRouterV2.get(
             lineUpCount: [
               {
                 $match: {
-                  clientType: null,
-                  $and: [
-                    { siteVisitInterested: { $eq: true } },
-                    // { siteVisitInterestedDate: { $gte: new Date() } },
-                    { siteVisitInterestedDate: { $gte: today.toDate() } }, // only today & future
-                  ],
+      leadType: { $ne: "walk-in" },
+                   siteVisitInterested: { $eq: true } ,
+
+           
                 },
               },
               { $count: "count" },
@@ -2414,7 +2412,6 @@ leadRouterV2.get(
             internalLeadCount: [
               {
                 $match: {
-                  clientType: null,
                   $and: [{ leadType: { $eq: "internal-lead" } }],
                 },
               },
@@ -2565,7 +2562,7 @@ leadRouterV2.get(
       allCounts.lead.isCpCount = isCpCount;
       allCounts.lead.lostCount = lostCount;
 
-      return successRes2(res, 200, "Dashboard Counts", { data: allCounts });
+      return successRes2(res, 200, "Super admin Dashboard Counts", { data: allCounts });
     } catch (error) {
       logger.info(error);
       //

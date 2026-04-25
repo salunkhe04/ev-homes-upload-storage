@@ -1138,6 +1138,8 @@ export const getLeadsTeamLeader = async (req, res, next) => {
 
     let validity = req.query.validity;
     let taskType = req.query.taskType;
+    let propertyType = req.query.propertyType;
+
     let sort = req.query.sort;
     let project = req.query.project;
     if (order === "Ascending" || order === "ascending") {
@@ -1695,6 +1697,9 @@ export const getLeadsTeamLeader = async (req, res, next) => {
             },
           }
         : {}),
+
+      ...(propertyType ? { propertyType: propertyType } : {}),
+
 
       ...dateFilter,
 
@@ -3377,6 +3382,7 @@ export const getAssignedToSalesManger = async (req, res, next) => {
     let interval = req.query.interval;
     let project = req.query.project;
     let member = req.query.member;
+    let propertyType = req.query.propertyType;
 
     // let callDone =req.query.callDone;
     let validity = req.query.validity;
@@ -4119,6 +4125,8 @@ export const getAssignedToSalesManger = async (req, res, next) => {
             },
           }
         : {}),
+      ...(propertyType ? { propertyType: propertyType } : {}),
+
       ...dateFilter,
     };
 
@@ -6318,6 +6326,8 @@ export const searchLeads = async (req, res, next) => {
     let skip = (page - 1) * limit;
     let statusToFind = null;
     let taskType = req.query.taskType;
+    let propertyType = req.query.propertyType;
+
     let validity = req.query.validity;
     let sort = req.query.sort;
     let project = req.query.project;
@@ -6833,6 +6843,8 @@ export const searchLeads = async (req, res, next) => {
             },
           }
         : {}),
+      ...(propertyType ? { propertyType: propertyType } : {}),
+
       ...dateFilter,
 
       // ...(stage ? { stage: stage } : { stage: { $ne: "tagging-over" } }),
