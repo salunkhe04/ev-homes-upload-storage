@@ -6320,6 +6320,7 @@ export const searchLeads = async (req, res, next) => {
     let taskType = req.query.taskType;
     let validity = req.query.validity;
     let sort = req.query.sort;
+    let project = req.query.project;
 
     const targetDate = validity
       ? moment.tz(validity, "Asia/Kolkata")
@@ -6823,6 +6824,15 @@ export const searchLeads = async (req, res, next) => {
       //   : {}),
       ...(channelPartner ? { channelPartner: channelPartner } : {}),
       ...(teamLeader ? { teamLeader: teamLeader } : {}),
+         ...(project != null
+        ? {
+            project: {
+              $in: [
+                project, // Compare it with the passed value
+              ],
+            },
+          }
+        : {}),
       ...dateFilter,
 
       // ...(stage ? { stage: stage } : { stage: { $ne: "tagging-over" } }),
