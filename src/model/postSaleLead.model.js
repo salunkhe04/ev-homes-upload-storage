@@ -142,6 +142,16 @@ const paymentDetailSchema = new mongoose.Schema({
   },
 });
 
+const parkingHistorySchema = new mongoose.Schema({
+  id: { type: String, default: null },
+  floor: { type: Number, default: null },
+  number: { type: Number, default: null },
+  parkingNo: { type: String, default: null },
+  buildingNo: { type: Number, default: null },
+  type: { type: String, default: null },
+  date: { type: Date, default: null },
+});
+
 export const postSaleLeadSchema = new mongoose.Schema(
   {
     unitNo: { type: String, required: true, default: null },
@@ -295,9 +305,10 @@ export const postSaleLeadSchema = new mongoose.Schema(
         number: { type: Number, default: null },
         parkingNo: { type: String, default: null },
         buildingNo: { type: Number, default: null },
-
       },
     ],
+    parkingHistory: [parkingHistorySchema],
+
     agreementValue: {
       type: Number,
       default: null,
