@@ -1483,10 +1483,11 @@ export const updatePostSaleLeadById = async (req, res, next) => {
 
 export const addParkingInBooking = async (req, res, next) => {
   const { number, floor, buildingNo = null } = req.body;
+
   const id = req.params.id;
 
   try {
-    if (floor===null || floor===undefined) {
+    if (floor === null || floor === undefined) {
       return errorRes2(res, 400, "Floor is required");
     }
 
@@ -1537,18 +1538,26 @@ export const addParkingInBooking = async (req, res, next) => {
           buildingNo,
         };
 
-    // ✅ UPDATE existing
     if (parkingIndex !== -1) {
       lead.parking[parkingIndex] = {
         ...lead.parking[parkingIndex],
         ...parkingObj,
       };
     }
-    // ✅ ADD new
     else {
       lead.parking.push(parkingObj);
     }
 
+
+    lead.parkingHistory.push({
+      id: parkingObj?.id ,
+      number: parkingObj?.number ,
+      floor: parkingObj?.floor ,
+      buildingNo: parkingObj?.buildingNo ,
+      parkingNo: parkingObj?.parkingNo ,
+      type: "add-parking",
+      date: new Date(),
+    });
     await lead.save();
 
     // ✅ Occupancy update (only for full parking)
@@ -1584,7 +1593,7 @@ export const removeParkingFromBooking = async (req, res, next) => {
   const id = req.params.id;
 
   try {
-    if (floor===null || floor===undefined) {
+    if (floor === null || floor === undefined) {
       return errorRes2(res, 400, "Floor is required");
     }
 
@@ -1619,6 +1628,17 @@ export const removeParkingFromBooking = async (req, res, next) => {
     // ✅ Remove from array
     removedParking = lead.parking[parkingIndex];
     lead.parking.splice(parkingIndex, 1);
+
+
+     lead.parkingHistory.push({
+      id: removedParking?.id ,
+      number: removedParking?.number ,
+      floor: removedParking?.floor ,
+      buildingNo: removedParking?.buildingNo ,
+      parkingNo: removedParking?.parkingNo ,
+      type: "delete-parking",
+      date: new Date(),
+    });
 
     await lead.save();
 
