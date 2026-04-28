@@ -6893,6 +6893,7 @@ export const searchLeads = async (req, res, next) => {
     // const totalItems = await leadModelV2.countDocuments(searchFilter);
     const rejectedCount = await leadModelV2.countDocuments({
       $and: [
+        { clientType: null },
         { approvalStatus: "rejected" },
         // { stage: { $ne: "tagging-over" } },
         { leadType: { $ne: "walk-in" } },
@@ -6901,6 +6902,7 @@ export const searchLeads = async (req, res, next) => {
 
     const pendingCount = await leadModelV2.countDocuments({
       $and: [
+        { clientType: null },
         {
           isBulkLead: false,
         },
@@ -6912,6 +6914,7 @@ export const searchLeads = async (req, res, next) => {
 
     const approvedCount = await leadModelV2.countDocuments({
       $and: [
+        { clientType: null },
         { approvalStatus: "approved" },
         // { stage: { $ne: "tagging-over" } },
         { leadType: { $ne: "walk-in" } },
@@ -6920,6 +6923,7 @@ export const searchLeads = async (req, res, next) => {
 
     const visitCount = await leadModelV2.countDocuments({
       $and: [
+        { clientType: null },
         {
           stage: { $ne: "approval" },
         },
@@ -6940,6 +6944,7 @@ export const searchLeads = async (req, res, next) => {
 
     const visit2Count = await leadModelV2.countDocuments({
       $and: [
+        { clientType: null },
         {
           stage: { $ne: "approval" },
         },
@@ -6998,7 +7003,7 @@ export const searchLeads = async (req, res, next) => {
     });
     const internalLeadCount = await leadModelV2.countDocuments({
       // bookingStatus: { $ne: "pending" },
-      $and: [{ leadType: "internal-lead" }],
+      $and: [{ clientType: null },{ leadType: "internal-lead" }],
     });
 
     const bulkCount = await leadModelV2.countDocuments({
