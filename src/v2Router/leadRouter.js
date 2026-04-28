@@ -1848,6 +1848,7 @@ leadRouterV2.get(
               {
                 $match: {
                       bookingStatus: { $ne: "booked" },
+                  clientType: null,
 
                   $or: [
                     // { visitRef: { $ne: null } },
@@ -1944,9 +1945,13 @@ leadRouterV2.get(
                 $match: {
                   clientType: null,
                   $and: [
+                    {
+      leadType: { $ne: "walk-in" },
+
+                    },
                     { siteVisitInterested: { $eq: true } },
                     // { siteVisitInterestedDate: { $gte: new Date() } },
-                    { siteVisitInterestedDate: { $gte: today.toDate() } }, // only today & future
+                    // { siteVisitInterestedDate: { $gte: today.toDate() } }, // only today & future
                   ],
                 },
               },
@@ -2024,6 +2029,8 @@ leadRouterV2.get(
             approvedCount: [
               {
                 $match: {
+                  clientType: null,
+
                   $and: [
                     { approvalStatus: "approved" },
                     // { stage: { $ne: "tagging-over" } },
@@ -2036,6 +2043,8 @@ leadRouterV2.get(
             rejectedCount: [
               {
                 $match: {
+                  clientType: null,
+
                   $and: [
                     { approvalStatus: "rejected" },
                     // { stage: { $ne: "tagging-over" } },
@@ -2077,10 +2086,10 @@ leadRouterV2.get(
               $arrayElemAt: ["$exhibition2025.count", 0],
             },
             approvedCount: {
-              $arrayElemAt: ["$exhibition2025.count", 0],
+              $arrayElemAt: ["$approvedCount.count", 0],
             },
             rejectedCount: {
-              $arrayElemAt: ["$exhibition2025.count", 0],
+              $arrayElemAt: ["$rejectedCount.count", 0],
             },
 
             // Add other fields similarly as required
