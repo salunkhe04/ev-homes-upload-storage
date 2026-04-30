@@ -2208,7 +2208,7 @@ export const getLeadsTimer = async (req, res, next) => {
             },
           ],
         },
-        { firstName: 1, lastName: 1, phoneNumber: 1, createdAt: 1, taskRef: 1 },
+        { firstName: 1, lastName: 1, phoneNumber: 1, createdAt: 1, taskRef: 1,task:1 },
       )
       .sort({ createdAt: -1 })
       .populate([
