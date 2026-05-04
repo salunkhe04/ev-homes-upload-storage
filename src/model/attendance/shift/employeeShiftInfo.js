@@ -27,6 +27,8 @@ export const employeeShiftInfoSchema = new mongoose.Schema(
     department: { type: String, ref: "departments" },
     overDueCompOff: { type: Number, default: 0 },
     weekOffDay: { type: String, default: null },
+    sickLeave: { type: Number, default: 0 },
+
 
   },
   { timestamps: true },
