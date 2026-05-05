@@ -57,6 +57,9 @@ export const addShiftInfoRequest = async (req, res, next) => {
     compensatoryoff = 0,
     compensatoryoffremark,
     remark,
+    sickLeave=0,
+    sickLeaveremark,
+
   } = req.body;
   const user = req.user;
   try {
@@ -82,6 +85,8 @@ export const addShiftInfoRequest = async (req, res, next) => {
           casualLeave: lastShift.casualLeave + casualLeave,
           paidLeave: lastShift.paidLeave + paidLeave,
           compensatoryoff: lastShift.compensatoryoff + compensatoryoff,
+          sickLeave: lastShift.sickLeave + sickLeave,
+
         },
       });
       if (paidLeave > 0) {
@@ -123,6 +128,19 @@ export const addShiftInfoRequest = async (req, res, next) => {
           deposittype: "manual-leave",
           adminId: user._id,
           howManyBefore: lastShift.compensatoryoff,
+        });
+      }
+       if (sickLeave > 0) {
+        const resp = await createLeaveHistoryFunc({
+          date: date,
+          description: sickLeaveremark,
+          count: sickLeave,
+          userId: userId,
+          type: "deposit",
+          leaveType: "lev-sick-leave",
+          deposittype: "manual-leave",
+          adminId: user._id,
+          howManyBefore: lastShift.sickLeave,
         });
       }
       // logger.info(success);
