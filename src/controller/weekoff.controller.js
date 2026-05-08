@@ -13,6 +13,9 @@ import { weekOffRequestPopulateOptions } from "../utils/constant.js";
 import oneSignalModel from "../model/oneSignal.model.js";
 import { sendNotificationWithImage } from "./oneSignal.controller.js";
 import logger from "../utils/logger.js";
+import leaveHistoryModel from "../model/attendance/leave/leavehistory.model.js";
+import shiftInfoModel from "../model/attendance/shift/employeeShiftInfo.js";
+import { createLeaveHistoryFunc } from "./leaveHistory.controller.js";
 const timeZone = "Asia/Kolkata";
 
 export const addweekoff = async (req, res, next) => {
@@ -517,6 +520,35 @@ export const onRejectOrApproveWeekoff = async (req, res, next) => {
                 wlStatus: "weekoff",
               });
             }
+            const dt = moment(existingRecord.date).tz("Asia/Kolkata");
+
+            const query = {
+              userId: existingRecord?.userId?._id,
+              type: "deposit",
+              date: {
+                $gte: dt.startOf("day").toDate(),
+                $lte: dt.endOf("day").toDate(),
+              },
+            };
+            const existingHistory = await leaveHistoryModel.findOne(query);
+
+            if (!existingHistory) {
+              const updated = await shiftInfoModel.findOneAndUpdate(
+                { userId: existingRecord?.userId?._id },
+                { $inc: { compensatoryoff: 1 } },
+                { new: true },
+              );
+              await createLeaveHistoryFunc({
+                userId: existingRecord?.userId?._id,
+                date: existingRecord?.date.toDate(),
+                description: `auto-generated leave present on weekoff `,
+                count: 1,
+                type: "deposit",
+                leaveType: "on-compensation-off-leave",
+                deposittype: "auto-generated",
+                howManyBefore: (updated.compensatoryoff ?? 0) - 1,
+              });
+            }
           } else {
             await attendanceModel.findOneAndUpdate(
               {
@@ -545,6 +577,39 @@ export const onRejectOrApproveWeekoff = async (req, res, next) => {
                 upsert: true, // Create the record if it doesn't exist
               },
             );
+
+            try {
+              const query = {
+                userId: weekoffResp.applyBy._id,
+                type: "deposit",
+                date: {
+                  $gte: currentDate.startOf("day").toDate(),
+                  $lte: currentDate.endOf("day").toDate(),
+                },
+              };
+
+              const existingHistory = await leaveHistoryModel.findOne(query);
+
+              if (!existingHistory) {
+                const updated = await shiftInfoModel.findOneAndUpdate(
+                  { userId: weekoffResp.applyBy._id },
+                  { $inc: { compensatoryoff: 1 } },
+                  { new: true },
+                );
+                await createLeaveHistoryFunc({
+                  userId: weekoffResp.applyBy._id,
+                  date: currentDate?.toDate(),
+                  description: `auto-generated leave present on weekoff `,
+                  count: 1,
+                  type: "deposit",
+                  leaveType: "on-compensation-off-leave",
+                  deposittype: "auto-generated",
+                  howManyBefore: (updated.compensatoryoff ?? 0) - 1,
+                });
+              }
+            } catch (error) {
+              logger.info("failed");
+            }
           }
         } catch (error) {
           logger.info(error);

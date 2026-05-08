@@ -39,13 +39,14 @@ weekoffRouter.post(
 //approve or reject weekoff
 weekoffRouter.post(
   "/weekoff-requests/:id/:status",
-  authenticateToken,
+  // authenticateToken,
+
   onRejectOrApproveWeekoff
 );
 
 weekoffRouter.post(
   "/weekoff-requests-add-start-of-week",
-  // authenticateToken,
+  authenticateToken,
   updateStartOftheWeek
 );
 
