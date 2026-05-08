@@ -27,6 +27,7 @@ import {
   insertMonthlyAttendance,
   manualEntry,
   revisedCheckOutV2,
+  RevisedCompensatoryOff,
   triggerMonthlyCompOff,
   updateAttendanceById,
   updateTimeLine,
@@ -148,6 +149,12 @@ attendanceRouter.get(
   generateCompensatoryOffLatest,
 );
 
+
+attendanceRouter.get(
+  "/revised-comp-of-monthly",
+  // authenticateToken,
+  RevisedCompensatoryOff,
+);
 attendanceRouter.get(
   "/generate-comp-of-monthly-latest",
   // authenticateToken,
