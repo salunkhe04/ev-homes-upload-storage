@@ -5007,279 +5007,143 @@ export const generateCompensatoryOffV2 = async (req, res) => {
   }
 };
 
-export const RevisedCompensatoryOff = async (req, res) => {
-  const { date } = req.query;
-  const list = [];
-
+export const RevisedCompOffIT = async (req, res) => {
   try {
-    // ---------- Date & timezone ----------
+    const { date } = req.query;
+
     const timeZone = "Asia/Kolkata";
+
     const currentDate = date
       ? moment(date).tz(timeZone).isValid()
         ? moment(date).tz(timeZone)
         : moment().tz(timeZone)
       : moment().tz(timeZone);
 
-    const currentMonth = currentDate.month(); // 1-based
+    const currentMonth = currentDate.month();
     const currentYear = currentDate.year();
-    const daysInMonth = currentDate.daysInMonth();
-    const holidayPresentList = [];
-    const presentOnWeekoffList = [];
+
+    // All attendance of month
     const atts = await attendanceModel
       .find({
         month: currentMonth + 1,
         year: currentYear,
-        // userId: "EV226-jai-patkar",
       })
-      .lean()
-      .sort({ day: 1 });
+      .lean();
 
-    if (!atts.length)
-      return res.json({ message: "No attendance records found." });
-
-    const shiftInfo = await shiftInfoModel
-      .find({
-        // userId: "EV226-jai-patkar",
-      })
+    // All active shift users
+    const shiftInfos = await shiftInfoModel
+      .find()
       .populate(employeeShiftInfoPopulateOptions)
       .lean();
 
-    const filteredShifts = shiftInfo.filter(
-      (ele) => ele?.userId?.status === "active" && ele?.shift,
+    const filteredShifts = shiftInfos.filter(
+      (ele) =>
+        ele?.userId?.status === "active" &&
+        ele?.shift &&
+        ele?.userId?.department?._id === "dept-it",
     );
 
+    const generatedList = [];
+    const skippedList = [];
+
     await Promise.all(
-      filteredShifts.map(async (shiftInfo, idx) => {
-        let payableDays = 0;
-        let weekoffDays = 0;
-        let presentOnweekoffDays = 0;
-        let absentDays = 0;
-        let onLeaveDays = 0;
-        let holiDays = 0;
-        let halfDays = 0;
-        let compOffs = 0;
-        let paidLeaves = 0;
-        let casualLeaves = 0;
-        let totalComps = 0;
-        let alreadyGenComp = 0;
+      filteredShifts.map(async (shiftInfo) => {
+        const userId = shiftInfo?.userId?._id;
 
         const attList =
-          atts.filter((att) => att?.userId === shiftInfo?.userId?._id) || [];
+          atts.filter((att) => att?.userId === userId) || [];
 
-        attList.map(async (ele, i) => {
-          // if (i == 14) {
-          //   logger.info(ele);
-          // }
-          const date = moment(ele.date);
-          const checkIn = moment(ele.checkInTime).tz("Asia/Kolkata");
-          const checkOut = moment(ele.checkOutTime).tz("Asia/Kolkata");
-
-          if (ele.status === "weekoff") {
-            //
-            weekoffDays++;
-          } else if (ele.status === "on-paid-leave") {
-            if (ele.leaveDuration === 0.5) {
-              compOffs += 0.5;
-              onLeaveDays += 0.5;
-            } else {
-              compOffs += 1;
-              onLeaveDays += 1;
-            }
-          } else if (ele.status === "on-casual-leave") {
-            if (ele.leaveDuration === 0.5) {
-              compOffs += 0.5;
-              onLeaveDays += 0.5;
-            } else {
-              compOffs += 1;
-              onLeaveDays += 1;
-            }
-          } else if (ele.status === "on-compensation-off-leave") {
-            if (ele.leaveDuration === 0.5) {
-              compOffs += 0.5;
-              onLeaveDays += 0.5;
-            } else {
-              compOffs += 1;
-              onLeaveDays += 1;
-            }
-          } else if (ele.status === "half-day") {
-            halfDays += 0.5;
-          } else if (ele.wlStatus === "holiday") {
-            holiDays++;
-
-            totalComps++;
-          } else if (ele.status === "absent") {
-            if (
-              date.day() === 0 &&
-              shiftInfo?.userId?.department?._id === "dept-it"
-            ) {
-              //
-              weekoffDays++;
-            } else {
-              absentDays++;
-            }
-          }
-          // else if (ele.status === "active") {
-          //   if (checkIn.isValid() && !checkOut.isValid()) {
-          //     // payableDays += 0.5;
-          //     halfDays += 0.5;
-          //   }
-          // }
-          else if (ele.status === "present" && ele.wlStatus === "weekoff") {
-            presentOnweekoffDays++;
-            totalComps++;
-            // presentOnWeekoffList.push(ele);
-          }
-        });
-
+        // Attendance overview
         const attOverview = getAttendanceOverviewFuncLocal({
           date: currentDate.toDate(),
           shiftInfo,
           attendanceList: attList,
         });
 
-        const calculatedDays =
-          attOverview.requiredHours - attOverview.activeHours;
+        // Extra OT hours
+        const extraHours =
+          attOverview.activeHours - attOverview.requiredHours;
 
-        // console.log("calculatedDays",calculatedDays);
+        // No OT
+        if (extraHours <= 0) {
+          skippedList.push({
+            userId,
+            reason: "No extra overtime hours",
+          });
 
-        let remainingDays = calculatedDays <= 0 ? 0 : calculatedDays / 9;
-
-        // console.log("remainingDays",remainingDays);
-
-        payableDays = daysInMonth - remainingDays;
-        logger.info(`${shiftInfo.userId.firstName} ${payableDays}`);
-        //
-        payableDays = roundToHalf(payableDays);
-        logger.info(`${shiftInfo.userId.firstName} ${payableDays}`);
-
-        let abs = daysInMonth - payableDays;
-        absentDays = roundToHalf(abs < 0 ? 0 : abs);
-        const ots = distributeHours(
-          attOverview.activeHours - attOverview.requiredHours,
-        );
-
-        logger.info(weekoffDays);
-
-        if (weekoffDays < 4) {
-          logger.info("falls here");
-
-          let alreadyAddedPWO = 0;
-          const presentOnWeekoff = attList.filter(
-            (aEle) => aEle.status === "present" && aEle.wlStatus === "weekoff",
-          );
-          let missingWeekoffs = 4 - weekoffDays;
-          logger.info(weekoffDays);
-          logger.info(missingWeekoffs);
-
-          // Check PWO entries and add if not found in leave history
-          let shouldGenerateCO = false;
-
-          await Promise.all(
-            presentOnWeekoff.map(async (dayRecord) => {
-              // logger.info(dayRecord)
-              const dt = moment(dayRecord.date).tz("Asia/Kolkata");
-              const query = {
-                userId: shiftInfo?.userId?._id,
-                type: "deposit",
-                date: {
-                  $gte: dt.startOf("day").toDate(),
-                  $lte: dt.endOf("day").toDate(),
-                },
-              };
-              // logger.info(query);
-              const existingHistory = await leaveHistoryModel.findOne(query);
-              // logger.info(existingHistory);
-
-              if (!existingHistory) {
-                shouldGenerateCO = true; // mark once
-              } else {
-                missingWeekoffs -= 1;
-              }
-            }),
-          );
-          logger.info(shouldGenerateCO);
-
-          if (shouldGenerateCO === false && missingWeekoffs > 0) {
-            // const updated = await shiftInfoModel.findByIdAndUpdate(
-            //   shiftInfo._id,
-            //   { $inc: { compensatoryoff: missingWeekoffs } },
-            //   { new: true },
-            // );
-            // await createLeaveHistoryFunc({
-            //   userId: shiftInfo?.userId?._id,
-            //   date: lastDayOfMonth.toDate(),
-            //   description: `Auto-generated ${missingWeekoffs} CO(s) for missing weekoffs in ${currentDate.format(
-            //     "MMMM YYYY",
-            //   )}`,
-            //   count: missingWeekoffs,
-            //   type: "deposit",
-            //   leaveType: "on-compensation-off-leave",
-            //   deposittype: "auto-generated",
-            //   howManyBefore: (updated.compensatoryoff ?? 0) - missingWeekoffs,
-            // });
-            totalComps += missingWeekoffs;
-            shouldGenerateCO = true;
-          }
+          return;
         }
 
-        //it dept
-        if (shiftInfo?.userId?.department?._id === "dept-it") {
-          // ots.map((ele) => {
-          //   totalComps += ele.day;
+        // Convert OT -> compoff
+        const ots = distributeHours(extraHours);
+
+        for (const ele of ots) {
+          // Check already generated
+          const existingHistory = await leaveHistoryModel.findOne({
+            userId,
+            type: "deposit",
+            leaveType: "on-compensation-off-leave",
+            month: currentMonth + 1,
+            year: currentYear,
+          });
+
+          if (existingHistory) {
+            skippedList.push({
+              userId,
+              reason: "OT comp off already generated",
+            });
+
+            continue;
+          }
+
+          // Add compoff
+          // await shiftInfoModel.findByIdAndUpdate(
+          //   shiftInfo._id,
+          //   {
+          //     $inc: {
+          //       compensatoryoff: ele.day,
+          //     },
+          //   },
+          //   { new: true },
+          // );
+
+          // // // Create leave history
+          // await createLeaveHistoryFunc({
+          //   userId,
+          //   date: currentDate.toDate(),
+          //   description: `Auto-generated from Overtime hours ${extraHours.toFixed(
+          //     1,
+          //   )}hr`,
+          //   count: ele.day,
+          //   type: "deposit",
+          //   leaveType: "on-compensation-off-leave",
+          //   deposittype: "auto-generated",
           // });
 
-          for (const ele of ots) {
-            totalComps += ele.day;
-            // const updated = await shiftInfoModel.findByIdAndUpdate(
-            //   shiftInfo._id,
-            //   { $inc: { compensatoryoff: ele.day } },
-            //   { new: true },
-            // );
-
-            // await createLeaveHistoryFunc({
-            //   userId: shiftInfo?.userId?._id,
-            //   date: currentDate.toDate(),
-            //   description: `Auto-generated from Overtime hours ${(
-            //     attOverview.activeHours - attOverview.requiredHours
-            //   ).toFixed(1)}hr`,
-            //   count: ele.day,
-            //   type: "deposit",
-            //   leaveType: "on-compensation-off-leave",
-            //   deposittype: "auto-generated",
-            //   howManyBefore: (updated.compensatoryoff ?? 0) - 1,
-            // });
-          }
+          generatedList.push({
+            userId,
+            overtimeHours: extraHours,
+            generatedCompOff: ele.day,
+          });
         }
-
-        list.push({
-          userId: shiftInfo.userId?._id,
-          payableDays: payableDays > daysInMonth ? daysInMonth : payableDays,
-          weekoffDays,
-          absentDays,
-          onLeaveDays,
-          holiDays,
-          halfDays,
-          compOffs,
-          paidLeaves,
-          casualLeaves,
-          totalComps,
-          alreadyGenComp,
-          totalLeaves:
-            shiftInfo.casualLeave +
-            shiftInfo.compensatoryoff +
-            shiftInfo.paidLeave +
-            totalComps,
-          daysInMonth,
-        });
-
       }),
     );
 
-    return successRes2(res, 200, "Compensatory offs generated successfully", {
-      data: list,
-    });
+    return successRes2(
+      res,
+      200,
+      "IT overtime compensatory offs processed successfully",
+      {
+        data: {
+          month: currentDate.format("MMMM YYYY"),
+          generated: generatedList,
+          skipped: skippedList,
+        },
+      },
+    );
   } catch (error) {
     logger.info("Error generating compensatory offs:", error);
+
     return errorRes2(
       res,
       500,
@@ -5287,3 +5151,109 @@ export const RevisedCompensatoryOff = async (req, res) => {
     );
   }
 };
+
+export const FixedPWO = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    const timeZone = "Asia/Kolkata";
+
+    const currentDate = date
+      ? moment(date).tz(timeZone).isValid()
+        ? moment(date).tz(timeZone)
+        : moment().tz(timeZone)
+      : moment().tz(timeZone);
+
+    const currentMonth = currentDate.month(); // 0-based
+    const currentYear = currentDate.year();
+
+    const attendances = await attendanceModel.find({
+      status: "present",
+      wlStatus: "weekoff",
+      month: currentMonth + 1,
+      year: currentYear,
+    });
+
+    let generated = 0;
+    let skipped = 0;
+    const generatedDates = [];
+    const skippedDates = [];
+
+    for (const att of attendances) {
+      const userId = att.userId;
+      const start = moment(att.date).tz(timeZone).startOf("day").toDate();
+      const end = moment(att.date).tz(timeZone).endOf("day").toDate();
+      const formattedDate = moment(att.date).tz(timeZone).format("DD-MM-YYYY");
+
+      // Check if already generated
+      const existingHistory = await leaveHistoryModel.findOne({
+        userId: userId,
+        type: "deposit",
+        leaveType: "on-compensation-off-leave",
+        date: {
+          $gte: start,
+          $lte: end,
+        },
+      });
+
+      if (existingHistory) {
+        skipped++;
+        skippedDates.push({
+          userId,
+          date: formattedDate,
+          reason: "Comp off already generated",
+        });
+
+        continue;
+      }
+
+      // Add comp off
+      // await shiftInfoModel.updateOne(
+      //   { userId: userId },
+      //   {
+      //     $inc: {
+      //       compensatoryoff: 1,
+      //     },
+      //   },
+      // );
+
+      // // // Create leave history
+      // await createLeaveHistoryFunc({
+      //   userId: userId,
+      //   date: att.date,
+      //   description: `auto-generated leave present on weekoff`,
+      //   count: 1,
+      //   type: "deposit",
+      //   leaveType: "on-compensation-off-leave",
+      //   deposittype: "auto-generated",
+      // });
+
+      generated++;
+
+      generatedDates.push({
+        userId,
+        date: formattedDate,
+        reason: "Comp off will be generated",
+      });
+    }
+
+    return successRes2(res, 200, "Comp offs processed successfully", {
+      data: {
+        success: true,
+        month: currentDate.format("MMMM YYYY"),
+        totalAttendances: attendances.length,
+
+        generated,
+        skipped,
+
+        generatedDates,
+        skippedDates,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+
+    return errorRes2(res, 500, "Server error");
+  }
+};
+
