@@ -11,6 +11,7 @@ import {
   exportAtendance,
   exportAttendance2,
   exportAttendance3,
+  FixedPWO,
   generateCompensatoryOff,
   generateCompensatoryOffLatest,
   generateCompensatoryOffV2,
@@ -27,7 +28,7 @@ import {
   insertMonthlyAttendance,
   manualEntry,
   revisedCheckOutV2,
-  RevisedCompensatoryOff,
+  RevisedCompOffIT,
   triggerMonthlyCompOff,
   updateAttendanceById,
   updateTimeLine,
@@ -153,12 +154,18 @@ attendanceRouter.get(
 attendanceRouter.get(
   "/revised-comp-of-monthly",
   // authenticateToken,
-  RevisedCompensatoryOff,
+  RevisedCompOffIT,
 );
 attendanceRouter.get(
   "/generate-comp-of-monthly-latest",
   // authenticateToken,
   generateCompensatoryOffV2,
+);
+
+attendanceRouter.get(
+  "/fixed-pwo-monthly",
+  // authenticateToken,
+  FixedPWO,
 );
 
 attendanceRouter.get(
