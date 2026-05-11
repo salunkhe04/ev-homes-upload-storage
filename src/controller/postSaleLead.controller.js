@@ -1492,6 +1492,7 @@ export const addParkingInBooking = async (req, res, next) => {
     }
 
     const lead = await postSaleLeadModel.findById(id);
+
     if (!lead) {
       return errorRes2(res, 404, "No lead found");
     }
@@ -1513,8 +1514,11 @@ export const addParkingInBooking = async (req, res, next) => {
       );
     }
 
-    // 🔍 Find parking master (optional)
+    // 🔍 Find parking master
     let park = null;
+
+    console.log(lead.project);
+
     if (number) {
       park = await parkingModel.findOne({
         project: lead.project,
@@ -1522,6 +1526,18 @@ export const addParkingInBooking = async (req, res, next) => {
         floor,
         buildingNo,
       });
+
+      console.log(park);
+
+      // Parking not found
+      if (!park) {
+        return errorRes2(res, 404, "Parking not found in parking master");
+      }
+
+      // Already occupied
+      if (park.occupied === true) {
+        return errorRes2(res, 400, "Parking already occupied");
+      }
     }
 
     const parkingObj = park
@@ -1538,29 +1554,7 @@ export const addParkingInBooking = async (req, res, next) => {
           buildingNo,
         };
 
-    if (parkingIndex !== -1) {
-      lead.parking[parkingIndex] = {
-        ...lead.parking[parkingIndex],
-        ...parkingObj,
-      };
-    }
-    else {
-      lead.parking.push(parkingObj);
-    }
-
-
-    lead.parkingHistory.push({
-      id: parkingObj?.id ,
-      number: parkingObj?.number ,
-      floor: parkingObj?.floor ,
-      buildingNo: parkingObj?.buildingNo ,
-      parkingNo: parkingObj?.parkingNo ,
-      type: "add-parking",
-      date: new Date(),
-    });
-    await lead.save();
-
-    // ✅ Occupancy update (only for full parking)
+    // ✅ FIRST update occupancy
     if (number) {
       try {
         await ParkingOccupancyChange({
@@ -1572,9 +1566,40 @@ export const addParkingInBooking = async (req, res, next) => {
           occupiedBy: lead._id,
         });
       } catch (err) {
-        console.log("Occupancy error:", err);
+        console.log("Occupancy error:", {
+          project: lead.project,
+          floor,
+          number,
+          buildingNo,
+          error: err.message,
+        });
+
+        return errorRes2(res, 400, "Parking occupancy update failed");
       }
     }
+
+    // ✅ THEN update booking lead
+    if (parkingIndex !== -1) {
+      lead.parking[parkingIndex] = {
+        ...lead.parking[parkingIndex],
+        ...parkingObj,
+      };
+    } else {
+      lead.parking.push(parkingObj);
+    }
+
+    // ✅ Add history
+    lead.parkingHistory.push({
+      id: parkingObj?.id,
+      number: parkingObj?.number,
+      floor: parkingObj?.floor,
+      buildingNo: parkingObj?.buildingNo,
+      parkingNo: parkingObj?.parkingNo,
+      type: "add-parking",
+      date: new Date(),
+    });
+
+    await lead.save();
 
     const updatedLead = await postSaleLeadModel
       .findById(id)
@@ -1584,6 +1609,7 @@ export const addParkingInBooking = async (req, res, next) => {
       data: updatedLead,
     });
   } catch (error) {
+    console.log(error);
     return next(error);
   }
 };
@@ -1629,13 +1655,12 @@ export const removeParkingFromBooking = async (req, res, next) => {
     removedParking = lead.parking[parkingIndex];
     lead.parking.splice(parkingIndex, 1);
 
-
-     lead.parkingHistory.push({
-      id: removedParking?.id ,
-      number: removedParking?.number ,
-      floor: removedParking?.floor ,
-      buildingNo: removedParking?.buildingNo ,
-      parkingNo: removedParking?.parkingNo ,
+    lead.parkingHistory.push({
+      id: removedParking?.id,
+      number: removedParking?.number,
+      floor: removedParking?.floor,
+      buildingNo: removedParking?.buildingNo,
+      parkingNo: removedParking?.parkingNo,
       type: "delete-parking",
       date: new Date(),
     });

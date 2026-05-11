@@ -64,6 +64,7 @@ import {
   bookingRecievedTemplate,
   feedbackPendingTemplate,
   leadAssignPendingTemplate,
+  MarinaLeadTemplate,
   paymentConfirmationTemplate,
   siteVisitOtpTempleteV2,
   sitevisitTodayEmalTemplete,
@@ -494,6 +495,35 @@ router.post("/add-contact-solaris", async (req, res, next) => {
           type: type,
           email: email,
 
+          name: name,
+        }),
+      );
+    }
+
+    res.send(resp);
+  } catch (e) {
+    //
+  }
+});
+
+router.post("/add-contact-marina-bay", async (req, res, next) => {
+  try {
+    const { name, phoneNumber, email } = req.body;
+    const resp = await addContact({
+      listIds: [18],
+      email: email,
+      firstName: name,
+      phoneNumber: phoneNumber,
+    });
+
+    if (resp.id) {
+      await sendMultipleEmail(
+        ["shreya.evgroup@gmail.com"],
+        `Marina Lead recived testing`,
+        MarinaLeadTemplate({
+          phoneNumber: phoneNumber,
+          type: type,
+          email: email,
           name: name,
         }),
       );
@@ -1087,6 +1117,5 @@ router.use(trackerRouter);
 router.use(otpRouter);
 router.use(sessionRouter);
 router.use(redev10mbRouter);
-
 
 export default router;

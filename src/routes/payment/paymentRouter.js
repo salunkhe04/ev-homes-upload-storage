@@ -523,7 +523,7 @@ paymentRouter.get(
 
 paymentRouter.get(
   "/payment-export-com2",
-  authenticateToken,
+  // authenticateToken,
   async (req, res) => {
     //
 
@@ -599,6 +599,10 @@ paymentRouter.get(
           bookingDate: bookingDate,
           bookingStatus: booking?.bookingStatus?.type ?? "--",
           paymentAdded: payment2 ? "yes" : "no",
+          paymentMode: payment2?.paymentMode,
+          transactionId: payment2?.transactionId,
+          bookingAmount: payment2?.bookingAmt,
+          receiptNo: payment2?.receiptNo,
         };
       });
 
