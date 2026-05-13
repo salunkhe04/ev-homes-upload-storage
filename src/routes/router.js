@@ -563,6 +563,59 @@ router.post("/test-call", async (req, res, next) => {
   }
 });
 
+// router.post("/test-send-otp", async (req, res) => {
+//   try {
+//     const { phoneNumber, userId } = req.body;
+
+//     if (!phoneNumber || !userId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "phoneNumber and userId required",
+//       });
+//     }
+
+//     // Generate OTP
+//     const otp = Math.floor(1000 + Math.random() * 9000);
+
+//     // Find connected phone
+//     const user = connectedUsers.find((ele) => ele.userId === userId);
+
+//     console.log(user?.phoneSocketId);
+
+//     if (!user?.phoneSocketId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Phone not connected",
+//       });
+//     }
+
+//     // Emit to mobile app
+//     io.to(user.phoneSocketId).emit(
+//       "sendSMS",
+
+//       {
+//         phoneNumber,
+
+//         message: `Your OTP is ${otp}`,
+
+//         simSlot: 0,
+//       },
+//     );
+
+//     return res.json({
+//       success: true,
+//       message: "OTP send command emitted",
+
+//       otp, // remove in production
+//     });
+//   } catch (e) {
+//     return res.status(500).json({
+//       success: false,
+//       error: e.message,
+//     });
+//   }
+// });
+
 router.get("/app-update", async (req, res, next) => {
   const { appName } = req.query;
   try {

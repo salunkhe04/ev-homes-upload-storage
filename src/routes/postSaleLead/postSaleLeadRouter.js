@@ -31,6 +31,7 @@ import ourProjectModel from "../../model/ourProjects.model.js";
 import { postSalePopulateOptionsv2 } from "../../utils/constant.js";
 import logger from "../../utils/logger.js";
 import flatModel from "../../model/flat.model.js";
+import moment from "moment-timezone";
 
 const postSaleRouter = Router();
 postSaleRouter.get(
@@ -613,6 +614,86 @@ postSaleRouter.get("/postsale-fixed-area", async (req, res) => {
   } catch (error) {
     logger.info("Error fetching client by unit:", error);
     return errorRes2(res, 500, `${error}`);
+  }
+});
+
+postSaleRouter.get("/post-sale-booked-marina", async (req, res) => {
+  try {
+    const data = await postSaleLeadModel
+      .find(
+        {
+          project: "project-ev-10-marina-bay-vashi-sector-10",
+          "bookingStatus.type": "confirm-booking",
+        },
+        {
+          unitNo: 1,
+          closingManager: 1,
+          email: 1,
+          phoneNumber: 1,
+          firstName: 1,
+          lastName: 1,
+          applicants: 1,
+          date: 1,
+        },
+      )
+      .populate(postSalePopulateOptionsv2)
+      .lean();
+
+    const formattedData = data.map((item) => {
+      const applicants = item.applicants || [];
+
+      return {
+        unitNo: item.unitNo || "",
+        email: item.email || "",
+        phoneNumber: item.phoneNumber || "",
+        firstName: item.firstName || "",
+        lastName: item.lastName || "",
+        applicantCount: applicants.length,
+
+        applicant1: applicants[0]
+          ? `${applicants[0].firstName || ""} ${
+              applicants[0].lastName || ""
+            }`.trim()
+          : "",
+
+        applicant2: applicants[1]
+          ? `${applicants[1].firstName || ""} ${
+              applicants[1].lastName || ""
+            }`.trim()
+          : "",
+
+        applicant3: applicants[2]
+          ? `${applicants[2].firstName || ""} ${
+              applicants[2].lastName || ""
+            }`.trim()
+          : "",
+
+        applicant4: applicants[3]
+          ? `${applicants[3].firstName || ""} ${
+              applicants[3].lastName || ""
+            }`.trim()
+          : "",
+        closingManager: item.closingManager
+          ? `${item.closingManager.firstName || ""} ${item.closingManager.lastName || ""}`.trim()
+          : "",
+        bookingDate:
+          moment(item?.date).tz("Asia/Kolkata").format("DD-MM-YYYY") ?? "",
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: formattedData.length,
+      data: formattedData,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+      error: error.message,
+    });
   }
 });
 
