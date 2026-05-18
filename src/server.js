@@ -1,12 +1,8 @@
 import { app } from "./app/app.js";
-import {
-  logRequest,
-  versionCheckMiddleware,
-} from "./middleware/auth.middleware.js";
+
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import router from "./routes/router.js";
 import connectDatabase from "./config/database.js";
-import { io } from "./socket/socket.js";
 import { hostnameCheck } from "./utils/helper.js";
 import rateLimit from "express-rate-limit";
 import { redis } from "./app/redis.js";
@@ -34,8 +30,6 @@ const limiter = rateLimit({
 app.set("trust proxy", 1);
 app.use(limiter);
 app.use(hostnameCheck);
-app.use(logRequest);
-// app.use(versionCheckMiddleware);
 app.use("/", router);
 app.use(notFound);
 app.use(errorHandler);
