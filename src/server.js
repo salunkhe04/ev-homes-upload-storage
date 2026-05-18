@@ -3,7 +3,6 @@ import { app } from "./app/app.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import router from "./routes/router.js";
 import connectDatabase from "./config/database.js";
-import { hostnameCheck } from "./utils/helper.js";
 // import rateLimit from "express-rate-limit";
 import { redis } from "./app/redis.js";
 import RedisStore from "rate-limit-redis";
@@ -28,7 +27,6 @@ router.get("/health", (req, res) => {
 
 // Apply the rate limiting middleware to all requests.
 app.set("trust proxy", 1);
-app.use(hostnameCheck);
 app.use("/", router);
 app.use(notFound);
 app.use(errorHandler);
