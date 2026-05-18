@@ -267,10 +267,29 @@ postSaleRouter.get(
             },
           },
           { $unwind: "$projectDetails" },
+
+          {
+            $lookup: {
+              from: "flats",
+              let: { project: "$projectDetails._id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $eq: ["$project", "$$project"],
+                    },
+                  },
+                },
+              ],
+              as: "flatData",
+            },
+          },
           {
             $project: {
               count: 1,
-              total: { $size: { $ifNull: ["$projectDetails.flatList", []] } },
+
+              // total flats
+              total: { $size: "$flatData" },
 
               project: {
                 _id: "$projectDetails._id",
@@ -428,9 +447,28 @@ postSaleRouter.get(
           },
           { $unwind: "$projectDetails" },
           {
+            $lookup: {
+              from: "flats",
+              let: { project: "$projectDetails._id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $eq: ["$project", "$$project"],
+                    },
+                  },
+                },
+              ],
+              as: "flatData",
+            },
+          },
+
+          {
             $project: {
               count: 1,
-              total: { $size: { $ifNull: ["$projectDetails.flatList", []] } },
+
+              // total flats
+              total: { $size: "$flatData" },
 
               project: {
                 _id: "$projectDetails._id",
