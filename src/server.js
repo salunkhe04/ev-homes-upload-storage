@@ -28,7 +28,6 @@ router.get("/health", (req, res) => {
 
 // Apply the rate limiting middleware to all requests.
 app.set("trust proxy", 1);
-app.use(limiter);
 app.use(hostnameCheck);
 app.use("/", router);
 app.use(notFound);
