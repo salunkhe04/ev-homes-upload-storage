@@ -35,8 +35,8 @@ export const uploadFile = async (req, res) => {
     }
     downloadUrl += `/${uniqueFileName}?token=${token}`;
 
-    if (downloadUrl.includes("api.")) {
-      downloadUrl = downloadUrl.replace("api.", "cdn.");
+    if (downloadUrl.includes("api2.")) {
+      downloadUrl = downloadUrl.replace("api2.", "cdn2.");
     }
 
     let destination = req?.file?.destination;
@@ -104,8 +104,8 @@ export const uploadMultiple = async (req, res) => {
     }
     downloadUrl += `/${uniqueFileName}?token=${token}`;
 
-    if (downloadUrl.includes("api.")) {
-      downloadUrl = downloadUrl.replace("api.", "cdn.");
+    if (downloadUrl.includes("api2.")) {
+      downloadUrl = downloadUrl.replace("api2.", "cdn2.");
     }
     let destination = file?.destination;
     let path = file?.path;
